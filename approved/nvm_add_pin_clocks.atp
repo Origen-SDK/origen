@@ -1,0 +1,140 @@
+// ***************************************************************************
+// GENERATED:
+//   Time:    30-Sep-2014 11:08AM
+//   By:      Ronald Lajaunie
+//   Command: rgen g add_pin_clocks -t debug.rb
+// ***************************************************************************
+// ENVIRONMENT:
+//   Application
+//     Vault:     sync://sync-15088:15088/Projects/common_tester_blocks/rgen
+//     Version:   v2.3.0.dev112.app
+//     Workspace: /proj/.tec_test_k20_512/users/b01784/rgen_sandbox/rgen
+//   RGen
+//     Vault:     sync://sync-15088:15088/Projects/common_tester_blocks/rgen
+//     Version:   v2.3.0.dev112
+//     Workspace: /proj/.tec_test_k20_512/users/b01784/rgen_sandbox/rgen
+// ***************************************************************************
+// This is a dummy pattern created by the RGen test environment
+// ***************************************************************************
+import tset nvmbist;                                                                            
+import tset intram;                                                                             
+import tset intram_fast;                                                                        
+import tset intram_slow;                                                                        
+svm_only_file = no;                                                                             
+opcode_mode = extended;                                                                         
+compressed = yes;                                                                               
+                                                                                                
+vector ($tset, nvm_reset, nvm_clk, nvm_clk_mux, porta, portb, nvm_invoke, nvm_done, nvm_fail, nvm_alvtst, nvm_ahvtst, nvm_dtst, tclk, trst)                               
+{                                                                                               
+start_label pattern_st:                                                                         
+// ######################################################################
+// ## Enter Test Mode
+// ######################################################################
+                                                                 > nvm_slow                     1 1 1 00100000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00001000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00001000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00100000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;                               
+repeat 100                                                       > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+// Start clock on nvm_clk: cycles_per_half_period=6, start cycle=100
+repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 4                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+// Stop clock on nvm_clk: stop cycle=200
+repeat 100                                                       > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+// Start clock on nvm_clk: cycles_per_half_period=6, start cycle=300
+repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 4                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+// Stop clock on nvm_clk: stop cycle=400
+repeat 100                                                       > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+// Start clock on nvm_clk_mux: cycles_per_half_period=12, start cycle=500
+// Start clock on nvm_clk: cycles_per_half_period=6, start cycle=500
+repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 0 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 0 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 0 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 0 00000000 00000000 0 H L X X X 0 1 ;
+repeat 4                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+// Stop clock on nvm_clk: stop cycle=600
+repeat 8                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 12                                                        > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
+repeat 12                                                        > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 12                                                        > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
+repeat 12                                                        > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 12                                                        > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
+repeat 12                                                        > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 12                                                        > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
+repeat 8                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+// Stop clock on nvm_clk_mux: stop cycle=700
+repeat 100                                                       > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+// Start clock on nvm_clk: cycles_per_half_period=25, start cycle=800
+repeat 25                                                        > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 25                                                        > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 25                                                        > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 25                                                        > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 50                                                        > intram_fast                  1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 50                                                        > intram_fast                  1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 10                                                        > intram_slow                  1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 10                                                        > intram_slow                  1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 10                                                        > intram_slow                  1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 10                                                        > intram_slow                  1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 10                                                        > intram_slow                  1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 10                                                        > intram_slow                  1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 10                                                        > intram_slow                  1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 10                                                        > intram_slow                  1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 10                                                        > intram_slow                  1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 10                                                        > intram_slow                  1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+// Stop clock on nvm_clk: stop cycle=1100
+repeat 100                                                       > intram_slow                  1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+// Start clock on nvm_clk: cycles_per_half_period=10, start cycle=1200
+repeat 25                                                        > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 25                                                        > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 25                                                        > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 25                                                        > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+// Stop clock on nvm_clk: stop cycle=1300
+end_module                                                       > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+}                                                                                               

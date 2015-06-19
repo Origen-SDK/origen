@@ -1,0 +1,16 @@
+This is a template without a
+.erb extension.
+
+It should only compile if
+RGen.config.compile_only_dot_erb_files == false
+
+RGen.config.compile_only_dot_erb_files is false
+RGen.config.compile_only_dot_erb_files is false
+RGen.config.compile_only_dot_erb_files is false
+RGen.config.compile_only_dot_erb_files is false
+RGen.config.compile_only_dot_erb_files is false
+RGen.config.compile_only_dot_erb_files is false
+RGen.config.compile_only_dot_erb_files is false
+RGen.config.compile_only_dot_erb_files is false
+RGen.config.compile_only_dot_erb_files is false
+RGen.config.compile_only_dot_erb_files is false

@@ -1,0 +1,12 @@
+sub3: This is content from sub3
+sub3: 
+sub3: This data value should be 0 to prove that it has not
+sub3: been influenced by the calling context:
+sub3: 
+sub3: Data: 0x<%= $nvm.reg(:data).val.to_s(16).upcase %>
+sub3: 
+% if options[:data]
+sub3: Data values passed in: 0x<%= options[:data].to_s(16).upcase %>
+% else
+sub3: No data value passed in!
+% end

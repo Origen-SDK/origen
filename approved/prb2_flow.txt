@@ -1,0 +1,19 @@
+DFF 1.1	Flow Table																											
+																												
+			Gate			Command				Bin Number		Sort Number			Flag			Group				Device			Debug			
+	Label	Enable	Job	Part	Env	Opcode	Parameter	TName	TNum	Pass	Fail	Pass	Fail	Result	Pass	Fail	State	Specifier	Sense	Condition	Name	Sense	Condition	Name	Assume	Sites	Comment	
+						Test	erase_all							Fail														
+						Test	margin_read1_all1							Fail														
+						Test	erase_all							Fail														
+						Test	margin_read1_all1							Fail														
+						Test	pgm_ckbd							Fail														
+						Test	mrd_ckbd							Fail														
+						Test	erase_all							Fail														
+						Test	margin_read1_all1							None	erased_successfully_PASSED													
+						goto	RGEN_LABEL_3											all-active		flag-true	erased_successfully_PASSED							
+						Test	pgm_ckbd							Fail														
+						Test	mrd_ckbd							Fail														
+	RGEN_LABEL_3					nop																						
+		extra_tests				Test	pgm_ckbd							Fail														
+		extra_tests				Test	mrd_ckbd							Fail														
+						Test	margin_read1_all1							Fail														

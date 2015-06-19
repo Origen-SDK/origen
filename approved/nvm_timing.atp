@@ -1,0 +1,153 @@
+// ***************************************************************************
+// GENERATED:
+//   Time:    14-Dec-2012 04:44AM
+//   By:      Stephen McGinty
+//   Command: rgen g dummy_name -t debug.rb
+// ***************************************************************************
+// ENVIRONMENT:
+//   Project
+//     Vault:     sync://sync-15088:15088/Projects/common_tester_blocks/rgen
+//     Version:   v2.0.1.dev46.app
+//     Workspace: /proj/.mem_c90tfs_testeng/r49409/C90TFS_NVM_tester/rgen
+//   RGen
+//     Vault:     sync://sync-15088:15088/Projects/common_tester_blocks/rgen
+//     Version:   v2.0.1.dev46
+//     Workspace: /proj/.mem_c90tfs_testeng/r49409/C90TFS_NVM_tester/rgen
+// ***************************************************************************
+// This is a dummy pattern created by the RGen test environment
+// ***************************************************************************
+import tset nvmbist;                                                                            
+import tset nvm_slow;                                                                           
+import tset nvm_fast;                                                                           
+svm_only_file = no;                                                                             
+opcode_mode = extended;                                                                         
+compressed = yes;                                                                               
+                                                                                                
+vector ($tset, nvm_reset, nvm_clk, nvm_clk_mux, porta, portb, nvm_invoke, nvm_done, nvm_fail, nvm_alvtst, nvm_ahvtst, nvm_dtst, tclk, trst)                               
+{                                                                                               
+start_label pattern_st:                                                                         
+// ######################################################################
+// ## Enter Test Mode
+// ######################################################################
+                                                                 > nvm_slow                     1 1 1 00100000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00001000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00001000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00100000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;                               
+// ######################################################################
+// ## Test ability to switch timesets
+// ######################################################################
+// These vectors should use timeset nvm_slow
+                                                                 > nvm_slow                     1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+// These vectors should use timeset nvm_fast
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+// ######################################################################
+// ## Test ability to switch timesets within a block
+// ######################################################################
+// These vectors should use timeset nvm_slow
+                                                                 > nvm_slow                     1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+// These vectors should use timeset nvm_fast
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+// ######################################################################
+// ## Test ability to call a set timeset block with no arguments
+// ######################################################################
+// These vectors should use timeset nvm_fast
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+// These vectors should use timeset nvm_fast
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+// ######################################################################
+// ## Test ability to call with a single array argument
+// ######################################################################
+// These vectors should use timeset nvm_slow
+                                                                 > nvm_slow                     1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+// These vectors should use timeset nvm_fast
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+// These vectors should use timeset nvm_fast
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+// These vectors should use timeset nvm_fast
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+// ######################################################################
+// ## Test that delay calculations are based on the current timeset period
+// ######################################################################
+// This should wait for 5 cycles, 1000/200
+// Wait for 1.0us
+repeat 5                                                         > nvm_slow                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+// This should wait for 25 cycles, 1000/40
+// Wait for 1.0us
+repeat 25                                                        > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+// ######################################################################
+// ## Test the period counter
+// ######################################################################
+// This should generate a sequence with a clock pulse on the clk
+// pin with period of 1 ms, and overall duration 10 ms
+// Wait for 1.0ms
+repeat 25000                                                     > nvm_fast                     1 0 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+// Wait for 1.0ms
+repeat 25000                                                     > nvm_fast                     1 0 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+// Wait for 1.0ms
+repeat 25000                                                     > nvm_fast                     1 0 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+// Wait for 1.0ms
+repeat 25000                                                     > nvm_fast                     1 0 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+// Wait for 1.0ms
+repeat 25000                                                     > nvm_fast                     1 0 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+// Wait for 1.0ms
+repeat 25000                                                     > nvm_fast                     1 0 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+// Wait for 1.0ms
+repeat 25000                                                     > nvm_fast                     1 0 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+// Wait for 1.0ms
+repeat 25000                                                     > nvm_fast                     1 0 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+// Wait for 1.0ms
+repeat 25000                                                     > nvm_fast                     1 0 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+// Wait for 1.0ms
+repeat 25000                                                     > nvm_fast                     1 0 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_fast                     1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+// ######################################################################
+// ## Test that Fixnum.cycles works
+// ######################################################################
+// There should be 10 cycles here
+repeat 10                                                        > nvm_fast                     1 0 1 00000000 00000000 1 H L X X X 0 1 ;
+end_module                                                       > nvm_fast                     1 0 1 00000000 00000000 1 H L X X X 0 1 ;
+}                                                                                               

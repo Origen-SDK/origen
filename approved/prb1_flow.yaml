@@ -1,0 +1,1125 @@
+---
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: program_ckbd
+  flow:
+    attributes:
+      duration: :static
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_ckbd
+  flow:
+    attributes:
+      duration: :static
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read0_ckbd
+  flow:
+    attributes:
+      duration: :static
+    context: {}
+- type: :section_start
+  instance: 
+  flow:
+    attributes: {}
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context: {}
+- type: :section_start
+  instance: 
+  flow:
+    attributes: {}
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context: {}
+- type: :section_stop
+  instance: 
+  flow:
+    attributes: {}
+    context: {}
+- type: :section_stop
+  instance: 
+  flow:
+    attributes: {}
+    context: {}
+- type: :render
+  instance: 
+  flow:
+    attributes:
+      include_tifr: true
+      file: templates/j750/vt_flow
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: program_ckbd
+  flow:
+    attributes:
+      duration: :static
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :dynamic
+      name: program_ckbd
+  flow:
+    attributes:
+      duration: :dynamic
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: program_ckbd
+  flow:
+    attributes:
+      duration: :static
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :dynamic
+      name: program_ckbd
+  flow:
+    attributes:
+      duration: :dynamic
+    context: {}
+- type: :test
+  instance:
+    group:
+    - attributes:
+        duration: :static
+        by_block: true
+        name: program_ckbd
+    - attributes:
+        duration: :static
+        by_block: true
+        name: program_ckbd
+    - attributes:
+        duration: :static
+        by_block: true
+        name: program_ckbd
+  flow:
+    attributes:
+      duration: :static
+      by_block: true
+    context: {}
+- type: :test
+  instance:
+    group:
+    - attributes:
+        duration: :dynamic
+        by_block: true
+        name: program_ckbd
+    - attributes:
+        duration: :dynamic
+        by_block: true
+        name: program_ckbd
+    - attributes:
+        duration: :dynamic
+        by_block: true
+        name: program_ckbd
+  flow:
+    attributes:
+      duration: :dynamic
+      by_block: true
+    context: {}
+- type: :test
+  instance:
+    group:
+    - attributes:
+        duration: :static
+        by_block: true
+        name: program_ckbd
+    - attributes:
+        duration: :static
+        by_block: true
+        name: program_ckbd
+    - attributes:
+        duration: :static
+        by_block: true
+        name: program_ckbd
+  flow:
+    attributes:
+      duration: :static
+      by_block: true
+    context: {}
+- type: :test
+  instance:
+    group:
+    - attributes:
+        duration: :dynamic
+        by_block: true
+        name: program_ckbd
+    - attributes:
+        duration: :dynamic
+        by_block: true
+        name: program_ckbd
+    - attributes:
+        duration: :dynamic
+        by_block: true
+        name: program_ckbd
+  flow:
+    attributes:
+      duration: :dynamic
+      by_block: true
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: p1_only_test
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_jobs:
+      - P1
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: p1_or_p2_only_test
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_jobs:
+      - P1
+      - P2
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: not_p1_test
+  flow:
+    attributes:
+      duration: :static
+    context:
+      unless_jobs:
+      - P1
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: not_p1_or_p2_test
+  flow:
+    attributes:
+      duration: :static
+    context:
+      unless_jobs:
+      - P1
+      - P2
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: another_not_p1_or_p2_test
+  flow:
+    attributes:
+      duration: :static
+    context:
+      unless_jobs:
+      - P1
+      - P2
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_jobs:
+      - P1
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      context: :current
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+      context: :current
+    context:
+      if_jobs:
+      - P1
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      context: :current
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+      context: :current
+    context:
+      if_jobs:
+      - P1
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context:
+      unless_jobs:
+      - P2
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_vfy_0
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+      id: erase_vfy_0
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_failed: erase_vfy_0
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_vfy_1
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+      id: erase_vfy_1
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_failed: erase_vfy_1
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_vfy_2
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+      id: erase_vfy_2
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_failed: erase_vfy_2
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_vfy_3
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+      id: erase_vfy_3
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_failed: erase_vfy_3
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_vfy_4
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+      id: erase_vfy_4
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_failed: erase_vfy_4
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_enable: do_erase
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_enable: do_erase
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context:
+      unless_enable: no_extra_erase
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context:
+      unless_enable: no_extra_erase
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context:
+      unless_enable: no_extra_erase
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_passed_1
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+      id: erase_passed_1
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_passed_2
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+      id: erase_passed_2
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_passed: erase_passed_1
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_passed: erase_passed_2
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_passed_3
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+      id: erase_passed_3
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_passed_4
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+      id: erase_passed_4
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_failed: erase_passed_3
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_failed: erase_passed_4
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_failed_1
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+      id: erase_failed_1
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_failed_2
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+      id: erase_failed_2
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_failed: erase_failed_1
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_failed: erase_failed_2
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_failed_3
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+      id: erase_failed_3
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_failed_4
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+      id: erase_failed_4
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_passed: erase_failed_3
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_passed: erase_failed_4
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_ran_1
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+      id: erase_ran_1
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_ran_2
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+      id: erase_ran_2
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_ran: erase_ran_1
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_ran: erase_ran_2
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_ran_3
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+      id: erase_ran_3
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_ran_4
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+      id: erase_ran_4
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context:
+      unless_ran: erase_ran_3
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context:
+      unless_ran: erase_ran_4
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_all_passed_1
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+      id: erase_all_passed_1
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_all_passed_2
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+      id: erase_all_passed_2
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_all_passed: erase_all_passed_1
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_all_passed: erase_all_passed_2
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_all_passed_3
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+      id: erase_all_passed_3
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_all_passed_4
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+      id: erase_all_passed_4
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_all_passed: erase_all_passed_3
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_all_passed: erase_all_passed_4
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_any_passed_1
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+      id: erase_any_passed_1
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_any_passed_2
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+      id: erase_any_passed_2
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_any_passed: erase_any_passed_1
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_any_passed: erase_any_passed_2
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_all_failed_1
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+      id: erase_all_failed_1
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_all_failed_2
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+      id: erase_all_failed_2
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_all_failed: erase_all_failed_1
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_all_failed: erase_all_failed_2
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_any_failed_1
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+      id: erase_any_failed_1
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erase_any_failed_2
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+      id: erase_any_failed_2
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_any_failed: erase_any_failed_1
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_any_failed: erase_any_failed_2
+- type: :section_start
+  instance: 
+  flow:
+    attributes: {}
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_jobs:
+      - FR
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_jobs:
+      - FR
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_jobs:
+      - FR
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_jobs:
+      - FR
+- type: :section_start
+  instance: 
+  flow:
+    attributes: {}
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_jobs:
+      - FR
+- type: :section_stop
+  instance: 
+  flow:
+    attributes: {}
+    context: {}
+- type: :section_stop
+  instance: 
+  flow:
+    attributes: {}
+    context: {}
+- type: :section_start
+  instance: 
+  flow:
+    attributes: {}
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_enable: additional_erase
+      if_jobs:
+      - FR
+- type: :section_stop
+  instance: 
+  flow:
+    attributes: {}
+    context: {}
+- type: :section_start
+  instance: 
+  flow:
+    attributes: {}
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: erase_all
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_enable: additional_erase
+      if_jobs:
+      - FR
+- type: :section_stop
+  instance: 
+  flow:
+    attributes: {}
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      pin_levels: :cz
+      cz_setup: vbplus_sweep
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+      pin_levels: :cz
+      cz_setup: vbplus_sweep
+    context: {}

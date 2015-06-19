@@ -1,0 +1,22 @@
+main2: Another simple template to prove that things work from a 
+main2: sub-directory
+main2: 
+sub2: This is content from sub2
+sub2: 
+sub2: This data value should be 0 to prove that it has not
+sub2: been influenced by the calling context:
+sub2: 
+sub2: Data: 0x0
+sub2: 
+sub2: Data values passed in: 0x1111
+sub2: 
+sub2: Verify that templates can render additional sub-templates:
+sub2: 
+sub3: This is content from sub3
+sub3: 
+sub3: This data value should be 0 to prove that it has not
+sub3: been influenced by the calling context:
+sub3: 
+sub3: Data: 0x0
+sub3: 
+sub3: Data values passed in: 0x2222

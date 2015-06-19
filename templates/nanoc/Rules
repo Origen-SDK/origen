@@ -1,0 +1,74 @@
+#!/usr/bin/env ruby
+
+# A few helpful tips about the Rules file:
+#
+# * The string given to #compile and #route are matching patterns for
+#   identifiers--not for paths. Therefore, you cant match on extension.
+#
+# * The order of rules is important: for each item, only the first matching
+#   rule is applied.
+#
+# * Item identifiers start and end with a slash (e.g. /about/ for the file
+#   content/about.html). To select all children, grandchildren,  of an
+#   item, use the pattern /about/*/; /about/* will also select the parent,
+#   because * matches zero or more characters.
+
+compile '/stylesheet/' do
+  # dont filter or layout
+end
+
+
+compile '*' do
+  if item.binary?
+    # dont filter binary items
+  else
+    case item[:extension]
+    when "md"
+      # Create HTML from markdown:
+      filter :kramdown, coderay_line_numbers: nil, entity_output: :as_input
+      filter :codeblocks
+    when "haml"
+      filter :haml
+    when "html"
+      filter :colorize_syntax, 
+             default_colorizer: :coderay,
+             coderay: {css: :style}
+      filter :codeblocks
+    end
+    unless ["xml", "js"].include?(item[:extension])
+      if item[:layout] == "bootstrap"
+        filter :bootstrap
+        layout 'bootstrap'
+      elsif item[:layout] == "bootstrap3"
+        filter :bootstrap
+        layout 'bootstrap3'
+      elsif item[:layout] != "none"
+        layout 'freescale'
+      end
+      filter :search
+    end
+    if item[:zip] || item[:gzip]
+      filter :gzip
+    end
+  end
+end
+
+route '/stylesheet/' do
+  '/style.css'
+end
+
+route '*' do
+  if item.binary? || ["xml", "js"].include?(item[:extension])
+    # Write item with identifier /foo/ to /foo.ext
+    item.identifier.chop + '.' + item[:extension]
+  else
+    # Write item with identifier /foo/ to /foo/index.html
+    if item[:zip] || item[:gzip]
+      item.identifier + 'index.html.gz'
+    else
+      item.identifier + 'index.html'
+    end
+  end
+end
+
+layout '*', :erb

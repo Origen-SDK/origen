@@ -1,0 +1,40 @@
+DFF 1.1	Pattern Sets					
+						
+	Pattern Set	File/Group Name	Start Label	Stop Label	Comment	
+	another_not_p1_or_p2_test_pset	another_not_p1_or_p2_test.PAT				
+	another_not_p1_or_p2_test_pset	nvm_global_subs.PAT	subr			
+	bitcell_iv_0_pset	bitcell_iv_0.PAT				
+	bitcell_iv_0_pset	nvm_global_subs.PAT	subr			
+	bitcell_iv_1_pset	bitcell_iv_1.PAT				
+	bitcell_iv_1_pset	nvm_global_subs.PAT	subr			
+	bitcell_iv_2_pset	bitcell_iv_2.PAT				
+	bitcell_iv_2_pset	nvm_global_subs.PAT	subr			
+	bitmap_all0_pset	bitmap_all0.PAT				
+	bitmap_all0_pset	nvm_global_subs.PAT	subr			
+	charge_pump_pset	charge_pump.PAT				
+	erase_all_pset	erase_all.PAT				
+	erase_all_pset	nvm_global_subs.PAT	subr			
+	margin_read0_ckbd_pset	margin_read0_ckbd.PAT				
+	margin_read0_ckbd_pset	nvm_global_subs.PAT	subr			
+	margin_read1_all1_pset	margin_read1_all1.PAT				
+	margin_read1_all1_pset	nvm_global_subs.PAT	subr			
+	margin_read1_ckbd_pset	margin_read1_ckbd.PAT				
+	margin_read1_ckbd_pset	nvm_global_subs.PAT	subr			
+	normal_read_ckbd_pset	normal_read_ckbd.PAT				
+	normal_read_ckbd_pset	nvm_global_subs.PAT	subr			
+	not_p1_or_p2_test_pset	not_p1_or_p2_test.PAT				
+	not_p1_or_p2_test_pset	nvm_global_subs.PAT	subr			
+	not_p1_test_pset	not_p1_test.PAT				
+	not_p1_test_pset	nvm_global_subs.PAT	subr			
+	p1_only_test_pset	p1_only_test.PAT				
+	p1_only_test_pset	nvm_global_subs.PAT	subr			
+	p1_or_p2_only_test_pset	p1_or_p2_only_test.PAT				
+	p1_or_p2_only_test_pset	nvm_global_subs.PAT	subr			
+	program_ckbd_b0_pset	program_ckbd_b0.PAT				
+	program_ckbd_b0_pset	nvm_global_subs.PAT	subr			
+	program_ckbd_b1_pset	program_ckbd_b1.PAT				
+	program_ckbd_b1_pset	nvm_global_subs.PAT	subr			
+	program_ckbd_b2_pset	program_ckbd_b2.PAT				
+	program_ckbd_b2_pset	nvm_global_subs.PAT	subr			
+	program_ckbd_pset	program_ckbd.PAT				
+	program_ckbd_pset	nvm_global_subs.PAT	subr			

@@ -1,0 +1,234 @@
+// ***************************************************************************
+// GENERATED:
+//   Time:    23-Aug-2012 11:35AM
+//   By:      Stephen McGinty
+//   Command: rgen g j750_halt -t debug.rb
+// ***************************************************************************
+// ENVIRONMENT:
+//   Project
+//     Vault:     sync://sync-15088:15088/Projects/common_tester_blocks/rgen
+//     Version:   v2.0.1.dev26.app
+//     Workspace: /proj/.mem_c90tfs_testeng/r49409/C90TFS_NVM_tester/rgen
+//   RGen
+//     Vault:     sync://sync-15088:15088/Projects/common_tester_blocks/rgen
+//     Version:   v2.0.1.dev26
+//     Workspace: /proj/.mem_c90tfs_testeng/r49409/C90TFS_NVM_tester/rgen
+// ***************************************************************************
+// This is a dummy pattern created by the RGen test environment
+// ***************************************************************************
+import tset nvmbist;                                                                            
+import svm_subr sub1;                                                                           
+import svm_subr sub2;                                                                           
+import svm_subr match_done_0;                                                                   
+import svm_subr match_done_1;                                                                   
+svm_only_file = no;                                                                             
+opcode_mode = extended;                                                                         
+compressed = yes;                                                                               
+                                                                                                
+vector ($tset, nvm_reset, nvm_clk, nvm_clk_mux, porta, portb, nvm_invoke, nvm_done, nvm_fail, nvm_alvtst, nvm_ahvtst, nvm_dtst, tclk, trst)                               
+{                                                                                               
+start_label pattern_st:                                                                         
+// ######################################################################
+// ## Enter Test Mode
+// ######################################################################
+                                                                 > nvm_slow                     1 1 1 00100000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00001000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00001000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00100000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;                               
+// ######################################################################
+// ## Test that basic cycling works
+// ######################################################################
+                                                                 > nvmbist                      1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 10                                                        > nvmbist                      1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 00000000 00000000 1 H L X X X 0 1 ;
+// ######################################################################
+// ## Test that basic port manipulation works
+// ######################################################################
+                                                                 > nvmbist                      1 1 1 01010101 00000000 1 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 HLHLHLHL 00000000 1 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+// ######################################################################
+// ## Test that the store method works
+// ######################################################################
+// This vector should be stored
+stv                                                              > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+// This vector should be stored
+stv                                                              > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+repeat 2                                                         > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+// ######################################################################
+// ## Test calling a subroutine
+// ######################################################################
+// This vector should call subroutine 'sub1'
+call sub1                                                        > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+// This vector should call subroutine 'sub2'
+call sub2                                                        > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+// This vector should call subroutine 'sub3', however because
+// it is local it should not appear in the imports in the header
+call sub3                                                        > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+// ######################################################################
+// ## Test generating a handshake inside a subroutine
+// ######################################################################
+// The next line should have a global label 'sub3', but no vector
+global subr sub3:                                                                               
+set_cpu (cpuA)                                                   > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+loop_here_0: if (cpuA) jump loop_here_0                          > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+// This vector should have a return statement
+return                                                           > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+// ######################################################################
+// ## Test generating a handshake with a readcode
+// ######################################################################
+set_code 10                                                      > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+set_cpu (cpuA)                                                   > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+loop_here_1: if (cpuA) jump loop_here_1                          > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+// ######################################################################
+// ## Test frequency counter
+// ######################################################################
+set_code 33                                                      > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+set_cpu (cpuA)                                                   > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+set_cpu (cpuA)                                                   > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+set_cpu (cpuB)                                                   > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+set_cpu (cpuC)                                                   > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+freq_loop_1:                                                     > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+if (cpuA) jump freq_loop_1                                       > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+repeat 2000                                                      > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X 0 0 1 ;
+freq_loop_2: enable (cpuB)                                       > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+if (flag) jump freq_loop_2                                       > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+enable (cpuC)                                                    > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+if (flag) jump freq_loop_1                                       > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+// ######################################################################
+// ## Test a single pin match loop
+// ######################################################################
+// Wait for a maximum of 5.0ms
+// Start the match loop
+match_outer_loop_2:                                                                             
+loopB 2 ign ifc icc                                              > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+match_inner_loop_2:                                                                             
+// Check if nvm_done is high yet
+loopA 1690 ign ifc icc                                           > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+//  Wait for the result to propagate through the pipeline
+pipe_minus 1 ign ifc icc                                         > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
+// Branch if nvm_done was high
+if (pass) jump nvm_done_matched_2 icc ifc                        > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
+clr_flag (fail) icc                                              > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
+// Loop back around if time remaining
+end_loopA match_inner_loop_2 icc                                 > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
+end_loopB match_outer_loop_2 icc                                 > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
+// To get here something has gone wrong, strobe again to force a pattern failure
+                                                                 > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+jump match_loop_end_2 icc                                        > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
+nvm_done_matched_2:                                                                             
+pop_loop icc                                                     > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
+clr_fail                                                         > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
+match_loop_end_2:                                                                               
+// ######################################################################
+// ## Test a two pin match loop
+// ######################################################################
+// Wait for a maximum of 5.0ms
+// Start the match loop
+match_outer_loop_3:                                                                             
+loopB 2 ign ifc icc                                              > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
+match_inner_loop_3:                                                                             
+// Check if nvm_done is high yet
+loopA 1690 ign ifc icc                                           > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+//  Wait for the result to propagate through the pipeline
+pipe_minus 1 ign ifc icc                                         > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
+// Branch if nvm_done was high
+if (pass) jump nvm_done_matched_3 icc ifc                        > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
+clr_flag (fail) icc                                              > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
+// Check if nvm_fail is low yet
+                                                                 > nvmbist                      1 1 1 HLHLHLXL 00000000 1 L L X X X 0 1 ;
+// Again wait for the result to propagate through the pipeline
+pipe_minus 1 ign ifc icc                                         > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
+// Branch if nvm_fail was low
+if (pass) jump nvm_fail_matched_3 icc ifc                        > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
+clr_flag (fail) icc                                              > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
+// Loop back around if time remaining
+end_loopA match_inner_loop_3 icc                                 > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
+end_loopB match_outer_loop_3 icc                                 > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
+// To get here something has gone wrong, strobe again to force a pattern failure
+                                                                 > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+jump match_loop_end_3 icc                                        > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
+nvm_done_matched_3:                                                                             
+pop_loop icc                                                     > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
+clr_fail                                                         > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
+nvm_fail_matched_3:                                                                             
+pop_loop icc                                                     > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
+clr_fail                                                         > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
+match_loop_end_3:                                                                               
+// ######################################################################
+// ## Test adding an arbitrary label
+// ######################################################################
+                                                                 > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
+a_test_label:                                                                                   
+                                                                 > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
+// ######################################################################
+// ## Test calling a match loop
+// ######################################################################
+call match_done_0                                                > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
+call match_done_1                                                > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
+// ######################################################################
+// ## Test setting the readcode to 100
+// ######################################################################
+set_code 100                                                     > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
+// ######################################################################
+// ## Test explicit branching
+// ######################################################################
+jump somewhere                                                   > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
+// ######################################################################
+// ## Test looping, these vectors should be executed once
+// ######################################################################
+                                                                 > nvmbist                      1 1 1 10101010 00000000 1 X X X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 01010101 00000000 1 X X X X X 0 1 ;
+// ######################################################################
+// ## Test looping, these vectors should be executed 3 times
+// ######################################################################
+loopA 3                                                          > nvmbist                      1 1 1 01010101 00000000 1 X X X X X 0 1 ;
+test_loop_2:                                                     > nvmbist                      1 1 1 01010101 00000000 1 X X X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 10101010 00000000 1 X X X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 01010101 00000000 1 X X X X X 0 1 ;
+end_loopA test_loop_2                                            > nvmbist                      1 1 1 01010101 00000000 1 X X X X X 0 1 ;
+// ######################################################################
+// ## Test repeat_previous
+// ######################################################################
+                                                                 > nvmbist                      1 1 1 01010101 00000000 1 X X X X X 0 1 ;
+// Invoke should repeat previous for 10 cycles
+repeat 10                                                        > nvmbist                      1 1 1 01010101 00000000 - X X X X X 0 1 ;
+// All pins should repeat previous for 10 cycles, except the clk pin
+repeat 10                                                        > nvmbist                      - 1 - -------- -------- - - - - - - - - ;
+// All should return to the original state
+                                                                 > nvmbist                      1 1 1 01010101 00000000 1 X X X X X 0 1 ;
+// ######################################################################
+// ## Test suspend compares
+// ######################################################################
+                                                                 > nvmbist                      1 1 1 01010101 00000000 1 X H X X X 0 1 ;
+// The fail pin should not be compared on these vectors
+repeat 10                                                        > nvmbist                      1 1 1 01010101 00000000 1 X X X X X 0 1 ;
+// And now it should
+                                                                 > nvmbist                      1 1 1 01010101 00000000 1 X H X X X 0 1 ;
+// ######################################################################
+// ## Test inhibit vectors and comments
+// ######################################################################
+// The invoke pin should be driving high on this cycle
+                                                                 > nvmbist                      1 1 1 01010101 00000000 1 X H X X X 0 1 ;
+// This should be the last thing you see until 'Inhibit complete!'
+// Inhibit complete!
+// The invoke pin should be driving low on this cycle
+                                                                 > nvmbist                      1 1 1 01010101 00000000 0 X H X X X 0 1 ;
+halt                                                             > nvmbist                      1 1 1 01010101 00000000 0 X H X X X 0 1 ;
+}                                                                                               

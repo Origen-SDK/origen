@@ -1,0 +1,98 @@
+main: This is a basic template example to test the RGen template compiler.
+main: 
+main: Verify that the target objects can be accessed:
+main: 
+main: Data: 0x5555
+main: 
+main: Verify that sub templates can be rendered and executed within their own context:
+main: 
+sub1: This is content from sub1
+sub1: 
+sub1: This data value should be 0 to prove that it has not
+sub1: been influenced by the calling context:
+sub1: 
+sub1: Data: 0x0
+sub1: 
+sub1: No data value passed in!
+main: Verify that import is an alias for render
+main: 
+sub1: This is content from sub1
+sub1: 
+sub1: This data value should be 0 to prove that it has not
+sub1: been influenced by the calling context:
+sub1: 
+sub1: Data: 0x0
+sub1: 
+sub1: No data value passed in!
+main: 
+main: Rendering the template should not disrupt the current context, verify that the
+main: data is still 0x5555:
+main: 
+main: Data: 0x5555
+main: 
+main: Verify that option data can be passed to rendered templates, the data
+main: printed here should be 0x1234:
+main: 
+sub1: This is content from sub1
+sub1: 
+sub1: This data value should be 0 to prove that it has not
+sub1: been influenced by the calling context:
+sub1: 
+sub1: Data: 0x0
+sub1: 
+sub1: Data values passed in: 0x1234
+main: 
+main: Again verify that the current context is still intact:
+main: Data: 0x5555
+main: 
+main: Verify that templates from sub directories can be rendered:
+main: 
+sub2: This is content from sub2
+sub2: 
+sub2: This data value should be 0 to prove that it has not
+sub2: been influenced by the calling context:
+sub2: 
+sub2: Data: 0x0
+sub2: 
+sub2: No data value passed in!
+sub2: 
+sub2: Verify that templates can render additional sub-templates:
+sub2: 
+sub3: This is content from sub3
+sub3: 
+sub3: This data value should be 0 to prove that it has not
+sub3: been influenced by the calling context:
+sub3: 
+sub3: Data: 0x0
+sub3: 
+sub3: No data value passed in!
+main: 
+main: Again verify that the current context is still intact:
+main: Data: 0x5555
+main: 
+main: Verify that no extra linebreaks are added:
+sub4: This is a single line from sub4!
+main: This should butt up against the sub 4 line
+main: 
+main: And that leading spaces are stripped, there should be
+main: no leading whitespace before the sub 4 line:
+sub4: This is a single line from sub4!
+main: This is a test that helpers can compile templates inline
+25
+Hello
+and goodbye
+main: This is a test that indent works
+          sub1: This is content from sub1
+          sub1: 
+          sub1: This data value should be 0 to prove that it has not
+          sub1: been influenced by the calling context:
+          sub1: 
+          sub1: Data: 0x0
+          sub1: 
+          sub1: No data value passed in!
+main: Verify by default that render will reload the target,
+main: the value here should be blank
+sub5: The value of $nvm.attribute_x is: 
+main: Verify that target reload can optionally be inhibited,
+main: the value here should be X
+sub5: The value of $nvm.attribute_x is: X

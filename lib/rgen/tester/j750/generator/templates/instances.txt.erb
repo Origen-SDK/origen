@@ -1,0 +1,16 @@
+% unless @append
+DFF 1.3	Test Instances																																																																																													
+																																																																																														
+		Test Procedure			DC Specs		AC Specs		Sheet Parameters				Other Parameters																																																																																	
+	Test Name	Type	Name	Called As	Category	Selector	Category	Selector	Time Sets	Edge Sets	Pin Levels	Overlay	Arg0	Arg1	Arg2	Arg3	Arg4	Arg5	Arg6	Arg7	Arg8	Arg9	Arg10	Arg11	Arg12	Arg13	Arg14	Arg15	Arg16	Arg17	Arg18	Arg19	Arg20	Arg21	Arg22	Arg23	Arg24	Arg25	Arg26	Arg27	Arg28	Arg29	Arg30	Arg31	Arg32	Arg33	Arg34	Arg35	Arg36	Arg37	Arg38	Arg39	Arg40	Arg41	Arg42	Arg43	Arg44	Arg45	Arg46	Arg47	Arg48	Arg49	Arg50	Arg51	Arg52	Arg53	Arg54	Arg55	Arg56	Arg57	Arg58	Arg59	Arg60	Arg61	Arg62	Arg63	Arg64	Arg65	Arg66	Arg67	Arg68	Arg69	Arg70	Arg71	Arg72	Arg73	Arg74	Arg75	Arg76	Arg77	Arg78	Arg79	Comment	
+% end    
+% collection.each do |test_instance|
+%   if test_instance.respond_to?("each")
+%# Instance group case...
+%     test_instance.each do |ins|
+<%= ins.to_s(test_instance.name) %>
+%     end    
+%   else
+<%= test_instance %>
+%   end    
+% end    

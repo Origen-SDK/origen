@@ -1,0 +1,44 @@
+// ***************************************************************************
+// GENERATED:
+//   Time:    23-Aug-2012 11:35AM
+//   By:      Stephen McGinty
+//   Command: rgen g iterator_postfix_test_x_bx.rb -t debug.rb
+// ***************************************************************************
+// ENVIRONMENT:
+//   Project
+//     Vault:     sync://sync-15088:15088/Projects/common_tester_blocks/rgen
+//     Version:   v2.0.1.dev26.app
+//     Workspace: /proj/.mem_c90tfs_testeng/r49409/C90TFS_NVM_tester/rgen
+//   RGen
+//     Vault:     sync://sync-15088:15088/Projects/common_tester_blocks/rgen
+//     Version:   v2.0.1.dev26
+//     Workspace: /proj/.mem_c90tfs_testeng/r49409/C90TFS_NVM_tester/rgen
+// ***************************************************************************
+// This is a dummy pattern created by the RGen test environment
+// ***************************************************************************
+import tset nvmbist;                                                                            
+svm_only_file = no;                                                                             
+opcode_mode = extended;                                                                         
+compressed = yes;                                                                               
+                                                                                                
+vector ($tset, nvm_reset, nvm_clk, nvm_clk_mux, porta, portb, nvm_invoke, nvm_done, nvm_fail, nvm_alvtst, nvm_ahvtst, nvm_dtst, tclk, trst)                               
+{                                                                                               
+start_label pattern_st:                                                                         
+// ######################################################################
+// ## Enter Test Mode
+// ######################################################################
+                                                                 > nvm_slow                     1 1 1 00100000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00001000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00001000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00100000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;                               
+// 1
+                                                                 > nvmbist                      1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+// 5
+                                                                 > nvmbist                      1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+end_module                                                       > nvmbist                      1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+}                                                                                               

@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title><%= @item[:title] %></title>
+    <% if @item[:description] %>
+      <meta name="description" content="<%= @item[:description] %>">
+    <% end %>    
+    <% if @item[:author] %>
+      <meta name="author" content="<%= @item[:author] %>">
+    <% end %>
+    <link rel="shortcut icon" href="http://rgen.freescale.net/favicon.ico"/>
+    <link rel="icon" type="image/ico" href="http://rgen.freescale.net/favicon.ico"/>
+    <link href="http://swo.freescale.net/css/fsl.css" rel="stylesheet"
+    type="text/css" />
+    <link href="http://swo.freescale.net/css/leftnav.css" rel=
+    "stylesheet" type="text/css" />
+    <script language="JavaScript" src=
+    "http://swo.freescale.net/jscripts/FSLHeader.js" type=
+    "text/javascript">
+    </script>
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link href="http://rgen.freescale.net/css/fsl.css" rel="stylesheet" type="text/css" media="all">
+  </head>
+
+  <body>
+    <a name="top" id="top"></a> 
+    <script language="JavaScript" type="text/javascript">
+     HideDropDowns = true;
+     WriteFSHeader();
+    </script>
+    <table width="100%">
+      <tr>
+        <td valign="top"><!-- BEGIN LEFT NAVIGATION, IF DESIRED -->
+        </td>
+
+        <td width="100%" valign="top">
+          <% if false %>
+            <div class="breadcrumbs">
+              <a href="index.htm">Home Page</a>
+              This Page
+            </div>
+          <% end %>
+          <!-- Page Header -->
+          <table width="100%">
+            <tr>
+              <td>
+                <h1><%= @item[:title] %></h1>
+              </td>
+            </tr>
+          </table>
+
+          <table width="100%">
+            <tr><!-- Begin Left Column -->
+              <td valign="top">
+                <%= yield %>
+              </td>
+            </tr>
+          </table>
+
+        </td>
+      </tr>
+    </table>
+    <div>
+      <p>Generated with <a href="http://rgen.freescale.net" target="_blank" title="RGen">RGen</a>
+      </p>
+    </div>
+    <script language="JavaScript" type="text/javascript">
+     Contact = 'mailto:stephen.mcginty@freescale.com';
+     POPI = "FIUO"
+     WriteFooter();
+    </script>
+  </body>
+</html>

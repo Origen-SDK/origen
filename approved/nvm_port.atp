@@ -1,0 +1,91 @@
+// ***************************************************************************
+// GENERATED:
+//   Time:    08-Apr-2013 07:26AM
+//   By:      Stephen McGinty
+//   Command: rgen g port -t debug.rb
+// ***************************************************************************
+// ENVIRONMENT:
+//   Project
+//     Vault:     sync://sync-15088:15088/Projects/common_tester_blocks/rgen
+//     Version:   v2.0.1.dev70.app
+//     Workspace: /proj/.mem_c90tfs_testeng/r49409/C90TFS_NVM_tester/rgen_release
+//   RGen
+//     Vault:     sync://sync-15088:15088/Projects/common_tester_blocks/rgen
+//     Version:   v2.0.1.dev70
+//     Workspace: /proj/.mem_c90tfs_testeng/r49409/C90TFS_NVM_tester/rgen_release
+// ***************************************************************************
+// This is a dummy pattern created by the RGen test environment
+// ***************************************************************************
+import tset nvmbist;                                                                            
+svm_only_file = no;                                                                             
+opcode_mode = extended;                                                                         
+compressed = yes;                                                                               
+                                                                                                
+vector ($tset, nvm_reset, nvm_clk, nvm_clk_mux, porta, portb, nvm_invoke, nvm_done, nvm_fail, nvm_alvtst, nvm_ahvtst, nvm_dtst, tclk, trst)                               
+{                                                                                               
+start_label pattern_st:                                                                         
+// ######################################################################
+// ## Enter Test Mode
+// ######################################################################
+                                                                 > nvm_slow                     1 1 1 00100000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00001000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00001000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00100000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;                               
+// ######################################################################
+// ## Test that toggle works
+// ######################################################################
+// There should be 10 vectors here with alternating port A
+                                                                 > nvmbist                      1 1 1 10101010 00000000 0 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 01010101 00000000 0 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 10101010 00000000 0 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 01010101 00000000 0 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 10101010 00000000 0 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 01010101 00000000 0 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 10101010 00000000 0 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 01010101 00000000 0 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 10101010 00000000 0 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 01010101 00000000 0 H L X X X 0 1 ;
+// ######################################################################
+// ## Test that toggle! works
+// ######################################################################
+// There should be 3 vectors here with alternating port A
+                                                                 > nvmbist                      1 1 1 10101010 00000000 0 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 01010101 00000000 0 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 10101010 00000000 0 H L X X X 0 1 ;
+// ######################################################################
+// ## Test that comparing works, port A should expect 0x3F
+// ######################################################################
+                                                                 > nvmbist                      1 1 1 LLHHHHHH 00000000 0 H L X X X 0 1 ;
+// ######################################################################
+// ## Test that little endian works
+// ######################################################################
+// In the following vectors port b should be the little endian
+// representation of port a
+                                                                 > nvmbist                      1 1 1 00111111 11111100 0 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 HHLLLLLL LLLLLLHH 0 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 00010010 01001000 0 H L X X X 0 1 ;
+// ######################################################################
+// ## Test that aliasing a port pin works
+// ######################################################################
+// In the following vector PORT A5 should be opposite state from the rest
+                                                                 > nvmbist                      1 1 1 00100000 01001000 0 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 HHLHHHHH 01001000 0 H L X X X 0 1 ;
+// ######################################################################
+// ## Test that aliasing a port works
+// ######################################################################
+// In the following vectors PORTA should toggle
+                                                                 > nvmbist                      1 1 1 10101010 01001000 0 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 01010101 01001000 0 H L X X X 0 1 ;
+// ######################################################################
+// ## Test that aliasing multiple pins within a port works
+// ######################################################################
+// In the following vectors the nibbles of PORTA should be in opposite states
+                                                                 > nvmbist                      1 1 1 11110000 01001000 0 H L X X X 0 1 ;
+                                                                 > nvmbist                      1 1 1 LLLLHHHH 01001000 0 H L X X X 0 1 ;
+end_module                                                       > nvmbist                      1 1 1 LLLLHHHH 01001000 0 H L X X X 0 1 ;
+}                                                                                               

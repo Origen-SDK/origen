@@ -1,0 +1,1 @@
+RGen.config.mode = :debug

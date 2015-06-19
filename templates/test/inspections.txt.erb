@@ -1,0 +1,19 @@
+This template is used to test that the custom inspect methods of the various RGen datatypes work
+
+Should display a list of registers:
+
+<%= $nvm.regs.inspect %>
+
+Should display an actual register:
+
+<%= $nvm.regs(:mclkdiv).inspect %>
+
+This one had problems in real life:
+
+% $nvm.add_proth_reg
+<%= $nvm.regs(:proth).inspect %>
+
+Check the multi bitgroups scattered through the register
+
+% $nvm.add_multi_split_reg
+<%= $nvm.regs(:multi_group).inspect %>

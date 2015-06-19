@@ -1,0 +1,11 @@
+DFF 1.1	Pattern Sets					
+						
+	Pattern Set	File/Group Name	Start Label	Stop Label	Comment	
+	erase_all_pset	erase_all.PAT				
+	erase_all_pset	nvm_global_subs.PAT	subr			
+	margin_read1_all1_pset	margin_read1_all1.PAT				
+	margin_read1_all1_pset	nvm_global_subs.PAT	subr			
+	mrd_ckbd_pset	mrd_ckbd.PAT				
+	mrd_ckbd_pset	nvm_global_subs.PAT	subr			
+	pgm_ckbd_pset	pgm_ckbd.PAT				
+	pgm_ckbd_pset	nvm_global_subs.PAT	subr			

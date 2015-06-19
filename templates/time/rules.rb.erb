@@ -1,0 +1,45 @@
+class TestTimeRules
+
+  # All tests to be imported will be passed to this method after they have been filtered.
+  #
+  # Whatever this method returns will be assigned as the rule to be used to work out how
+  # that test scales from one target to another.
+  def assign(name, attrs, options={})
+    :constant
+  end
+
+  # This method will be called to evaluate the result of the rule for the reference target - 
+  # that is the target used when importing an execution time profile.
+  #
+  # The rule name can be obtained from attrs["rule"]
+  def evaluate(name, attrs, options={})
+    rule = attrs["rule"]
+
+    case rule
+    when :constant
+      1
+    else
+      raise "Rule not implemented - #{rule}"
+    end
+  end
+
+  # This method will be called for each test to forecast what the time will be for the current
+  # target, it must return a numeric value in all cases.
+  #
+  # The rule name can obtained from attrs["rule"] and the results from the reference target can
+  # be obtained from attrs["reference"].
+  #
+  # The most basic way to forecast (and which could get you pretty far) is simply to ratio the rule
+  # result for the reference target with the result from the current target, and then multiply
+  # that by the reference time - an example of this is shown below.
+  def forecast(name, attrs, options={})
+    ref = attrs["reference"]
+
+    val_for_current_target = evaluate(name, attrs, options)
+    val_for_reference_target = ref["rule_result"]
+
+    ref["time"] * (val_for_current_target / val_for_reference_target.to_f) # Force to a float so the
+                                                                           # result is not an integer
+  end
+
+end

@@ -1,0 +1,20 @@
+// ######################################################################
+// ## Enter Test Mode
+// ######################################################################
+% if !$tester.respond_to?('hpt_mode')
+                                                                 > nvm_slow                     1 1 1 00100000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00001000 00000000 1 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00001000 00000000 0 H L X X X 0 1 ;
+                                                                 > nvm_slow                     1 1 1 00100000 00000000 1 H L X X X 0 1 ;
+% options[:hold_cycles].times do
+                                                                 > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;
+% end
+% else
+                                                                 > nvm_slow                     .1 .1 .1 .0 .H .L .X .X .X .0 .1 ;
+                                                                 > nvm_slow                     .1 .1 .1 .1 .H .L .X .X .X .0 .1 ;
+                                                                 > nvm_slow                     .1 .1 .1 .0 .H .L .X .X .X .0 .1 ;
+                                                                 > nvm_slow                     .1 .1 .1 .1 .H .L .X .X .X .0 .1 ;
+% options[:hold_cycles].times do
+                                                                 > nvm_slow                     .1 .1 .1 .1 .H .L .X .X .X .0 .1 ;
+% end
+% end

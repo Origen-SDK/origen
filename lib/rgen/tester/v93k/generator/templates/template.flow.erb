@@ -1,0 +1,121 @@
+hp93000,testflow,0.1
+language_revision = 1;
+ 
+information
+ 
+device_name = "Apache";
+ 
+device_revision = "0";
+ 
+test_revision = "<%= RGen.app.version %>";
+ 
+description = "";
+ 
+end
+--------------------------------------------------
+declarations
+ 
+end
+--------------------------------------------------
+flags
+
+-- System flags
+  report_to_file = 1;
+  report_to_printer = 0;
+  datalog_to_file = 1;
+  datalog_to_printer = 0;
+  datalog_to_report_win = 0;
+  datalog_formatter = 0;
+  datalog_sample_size = 1;
+  graphic_result_displa = 1;
+  state_display = 0;
+  print_wafermap = 0;
+  OOC_watch = 1;
+  OOC_sample_size = 1;
+  ink_wafer = 0;
+  max_reprobes = 1;
+  temp_monitor = 1;
+  calib_age_monitor = 1;
+  diag_monitor = 1;
+  current_monitor = 1;
+-- Testflow flags
+  set_pass_level = 0;
+  set_fail_level = 0;
+  set_bypass_level = 0;
+  hold_on_fail = 0;
+  optimized_mode = 1;
+  global_hold = 0;
+  debug_mode = 0;
+  parallel_mode = 1;
+  global_overon = 0;
+
+end
+--------------------------------------------------
+testfunctions
+
+% test_functions.collection.each do |key, func|
+%   func.lines.each do |line|
+<%= line %>
+%   end
+% end
+
+end
+--------------------------------------------------
+testmethods
+
+% test_methods.collection.each do |name, method|
+<%= render "#{RGen.top}/lib/rgen/tester/v93k/generator/templates/test_method.txt.erb", :test_method => method, :_inline => true %>
+% end
+
+end
+--------------------------------------------------
+test_suites
+
+% test_suites.collection.each do |suite|
+<%= render "#{RGen.top}/lib/rgen/tester/v93k/generator/templates/test_suite.txt.erb", :suite => suite, :_inline => true %>
+
+% end
+
+end
+--------------------------------------------------
+test_flow
+ 
+run_and_branch(Continuity) then
+{
+}
+else
+{
+stop_bin "AA", "Continuity failed", , bad,noreprobe,red, ,over_on;
+}
+run_and_branch(Basic_functional_tes) then
+{
+}
+else
+{
+stop_bin "BB", "Basic functional test failed", ,bad,noreprobe,red, ,over_on;
+}
+stop_bin "OK", "Everything went fine", , good,noreprobe,
+green, , over_on;
+end
+-------------------------------------------------
+binning
+ 
+otherwise bin = "db", "", , bad,noreprobe,red, , not_over_on;
+end
+-------------------------------------------------
+oocrule
+ 
+ 
+end
+-------------------------------------------------
+context
+ 
+context_config_file = "74145";
+context_levels_file = "LowPower";
+context_timing_file = "Fast";
+context_vector_file = "74145";
+context_attrib_file = "";
+context_mixsgl_file = "";
+ 
+end
+--------------------------------------------------

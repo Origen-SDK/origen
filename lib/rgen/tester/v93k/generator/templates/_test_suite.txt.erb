@@ -1,0 +1,11 @@
+% suite = options[:suite]
+<%= suite.name %>:
+override_tim_equ_set = <%= suite.tim_equ_set %>;
+override_lev_equ_set = <%= suite.lev_equ_set %>;
+override_tim_spec_set = <%= suite.tim_spec_set %>;
+override_lev_spec_set = <%= suite.lev_spec_set %>;
+override_timset = <%= suite.timset %>;
+override_levset = <%= suite.levset %>;
+override_seqlbl = "<%= suite.pattern %>";
+override_testf = <%= suite.test_function %>;
+override_test_number = <%= suite.test_number %>;

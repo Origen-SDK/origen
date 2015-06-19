@@ -1,0 +1,167 @@
+---
+- type: :test
+  instance:
+    attributes:
+      duration: :dynamic
+      name: erase_all
+  flow:
+    attributes:
+      duration: :dynamic
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :dynamic
+      name: erase_all
+  flow:
+    attributes:
+      duration: :dynamic
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context: {}
+- type: :section_start
+  instance: 
+  flow:
+    attributes: {}
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: pgm_ckbd
+  flow:
+    attributes:
+      duration: :static
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: mrd_ckbd
+  flow:
+    attributes:
+      duration: :static
+    context: {}
+- type: :section_stop
+  instance: 
+  flow:
+    attributes: {}
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :dynamic
+      name: erase_all
+  flow:
+    attributes:
+      duration: :dynamic
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      id: erased_successfully
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+      id: erased_successfully
+    context: {}
+- type: :branch
+  instance:
+    attributes:
+      name: RGEN_LABEL_1
+  flow:
+    attributes: {}
+    context:
+      if_all_passed: erased_successfully
+- type: :section_start
+  instance: 
+  flow:
+    attributes: {}
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: pgm_ckbd
+  flow:
+    attributes:
+      duration: :static
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: mrd_ckbd
+  flow:
+    attributes:
+      duration: :static
+    context: {}
+- type: :section_stop
+  instance: 
+  flow:
+    attributes: {}
+    context: {}
+- type: :label
+  instance:
+    attributes:
+      name: RGEN_LABEL_1
+  flow:
+    attributes: {}
+    context: {}
+- type: :section_start
+  instance: 
+  flow:
+    attributes: {}
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: pgm_ckbd
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_enable: extra_tests
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: mrd_ckbd
+  flow:
+    attributes:
+      duration: :static
+    context:
+      if_enable: extra_tests
+- type: :section_stop
+  instance: 
+  flow:
+    attributes: {}
+    context: {}
+- type: :test
+  instance:
+    attributes:
+      duration: :static
+      name: margin_read1_all1
+  flow:
+    attributes:
+      duration: :static
+    context: {}

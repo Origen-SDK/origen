@@ -1,0 +1,247 @@
+# These are all the cops that are disabled in the strict configuration.
+
+Style/ClassAndModuleCamelCase:
+  Description: 'Use CamelCase for classes and modules.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#camelcase-classes'
+  Enabled: false
+
+Style/SingleLineBlockParams:
+  Description: 'Enforces the names of some block params.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#reduce-blocks'
+  Enabled: false
+
+Style/MultilineBlockChain:
+  Description: 'Avoid multi-line chains of blocks.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#single-line-blocks'
+  Enabled: false
+
+Style/EachWithObject:
+  Description: 'Prefer `each_with_object` over `inject` or `reduce`.'
+  Enabled: false
+
+Lint/UnderscorePrefixedVariableName:
+  Description: 'Do not use prefix `_` for a variable that is used.'
+  Enabled: false
+
+Style/SelfAssignment:
+  Description: >-
+                 Checks for places where self-assignment shorthand should have
+                 been used.
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#self-assignment'
+  Enabled: false
+
+Lint/UselessAssignment:
+  Description: 'Checks for useless assignment to a local variable.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#underscore-unused-vars'
+  Enabled: false
+
+Style/CaseIndentation:
+  Description: 'Indentation of when in a case/when/[else/]end.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#indent-when-to-case'
+  Enabled: false
+
+Lint/ShadowingOuterLocalVariable:
+  Description: >-
+                 Do not use the same name as outer local variable
+                 for block arguments or block local variables.
+  Enabled: false
+
+Style/Semicolon:
+  Description: "Don't use semicolons to terminate expressions."
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#no-semicolon'
+  Enabled: false
+
+Style/Next:
+  Description: 'Use `next` to skip iteration instead of a condition at the end.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#no-nested-conditionals'
+  Enabled: false
+
+Style/OpMethod:
+  Description: 'When defining binary operators, name the argument other.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#other-arg'
+  Enabled: false
+
+Lint/RescueException:
+  Description: 'Avoid rescuing the Exception class.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#no-blind-rescues'
+  Enabled: false
+
+Style/AccessorMethodName:
+  Description: Check the naming of accessor methods for get_/set_.
+  Enabled: false
+
+Style/RegexpLiteral:
+  Description: >-
+                 Use %r for regular expressions matching more than
+                 `MaxSlashes` '/' characters.
+                 Use %r only for regular expressions matching more than
+                 `MaxSlashes` '/' character.
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#percent-r'
+  Enabled: false
+
+Lint/AssignmentInCondition:
+  Description: "Don't use assignment in conditions."
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#safe-assignment-in-condition'
+  Enabled: false
+
+Style/ClassVars:
+  Description: 'Avoid the use of class variables.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#no-class-vars'
+  Enabled: false
+
+Style/FormatString:
+  Description: 'Enforce the use of Kernel#sprintf, Kernel#format or String#%.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#sprintf'
+  Enabled: false
+
+Style/GlobalVars:
+  Description: 'Do not introduce global variables.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#instance-vars'
+  Enabled: false
+
+Metrics/BlockNesting:
+  Description: 'Avoid excessive block nesting'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#three-is-the-number-thou-shalt-count'
+  Enabled: false
+
+Lint/Eval:
+  Description: 'The use of eval represents a serious security risk.'
+  Enabled: false
+
+Style/PredicateName:
+  Description: 'Check the names of predicate methods.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#bool-methods-qmark'
+  Enabled: false
+
+Metrics/ClassLength:
+  Description: 'Avoid classes longer than 100 lines of code.'
+  Enabled: false
+
+Style/CollectionMethods:
+  Description: 'Preferred collection methods.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#map-fine-select-reduce-size'
+  Enabled: false
+
+Style/Encoding:
+  Description: 'Use UTF-8 as the source file encoding.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#utf-8'
+  Enabled: false
+
+Style/InlineComment:
+  Description: 'Avoid inline comments.'
+  Enabled: false
+
+Style/MethodCalledOnDoEndBlock:
+  Description: 'Avoid chaining a method call on a do...end block.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#single-line-blocks'
+  Enabled: false
+
+Style/SymbolArray:
+  Description: 'Use %i or %I for arrays of symbols.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#percent-i'
+  Enabled: false
+
+Style/TrivialAccessors:
+  Description: 'Prefer attr_* methods to trivial readers/writers.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#attr_family'
+  Enabled: false
+
+Metrics/LineLength:
+  Description: 'Limit lines to 80 characters.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#80-character-limits'
+  Enabled: false
+
+Lint/HandleExceptions:
+  Description: "Don't suppress exception."
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#dont-hide-exceptions'
+  Enabled: false
+
+Style/DoubleNegation:
+  Description: 'Checks for uses of double negation (!!).'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#no-bang-bang'
+  Enabled: false
+
+Metrics/MethodLength:
+  Description: 'Avoid methods longer than 10 lines of code.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#short-methods'
+  Enabled: false
+
+Metrics/AbcSize:
+  Description: >-
+                 A calculated magnitude based on number of assignments,
+                 branches, and conditions.
+  Enabled: false
+
+Style/Documentation:
+  Description: 'Document classes and non-namespace modules.'
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Description: >-
+                 A complexity metric geared towards measuring complexity for a
+                 human reader.
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Description: >-
+                 A complexity metric that is strongy correlated to the number
+                 of test cases needed to validate a method.
+  Enabled: false
+
+Style/GuardClause:
+  Description: 'Check for conditionals that can be replaced with guard clauses'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#no-nested-conditionals'
+  Enabled: false
+
+Style/IfUnlessModifier:
+  Description: >-
+                 Favor modifier if/unless usage when you have a
+                 single-line body.
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#if-as-a-modifier'
+  Enabled: false
+
+Lint/UnusedBlockArgument:
+  Description: 'Checks for unused block arguments.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#underscore-unused-vars'
+  Enabled: false
+
+Lint/UnusedMethodArgument:
+  Description: 'Checks for unused method arguments.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#underscore-unused-vars'
+  Enabled: false
+
+##################### Rails ##################################
+
+Rails/ActionFilter:
+  Description: 'Enforces consistent use of action filter methods.'
+  Enabled: false
+
+Rails/DefaultScope:
+  Description: 'Checks if the argument passed to default_scope is a block.'
+  Enabled: false
+
+Rails/Delegate:
+  Description: 'Prefer delegate method for delegations.'
+  Enabled: false
+
+Rails/HasAndBelongsToMany:
+  Description: 'Prefer has_many :through to has_and_belongs_to_many.'
+  Enabled: false
+
+Rails/Output:
+  Description: 'Checks for calls to puts, print, etc.'
+  Enabled: false
+
+Rails/ReadWriteAttribute:
+  Description: >-
+                 Checks for read_attribute(:attr) and
+                 write_attribute(:attr, val).
+  Enabled: false
+
+Rails/ScopeArgs:
+  Description: 'Checks the arguments of ActiveRecord scopes.'
+  Enabled: false
+
+Rails/Validation:
+  Description: 'Use validates :attribute, hash of validations.'
+  Enabled: false

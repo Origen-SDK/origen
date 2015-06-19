@@ -1,0 +1,11 @@
+<%= 5 * 5 %>
+Hello
+% if options[:extra]
+and goodbye
+% end
+% if options[:test_scope]
+<%= secret %>
+% end
+% if options[:test_render]
+<%= render "inline_sub", x: 10 %>
+% end

@@ -1,0 +1,12 @@
+# This list is the list of patterns that are run by the 'examples' test
+# suite, feel free to add to it to add coverage for new features - remember
+# to check in the reference file when you approve it!
+
+j750_workout
+j750_halt
+iterator_postfix_test_x_bx
+iterator_test_x_bx
+timing
+port
+add_late_pins
+add_pin_clocks

@@ -1,0 +1,20 @@
+sub2: This is content from sub2
+sub2: 
+sub2: This data value should be 0 to prove that it has not
+sub2: been influenced by the calling context:
+sub2: 
+sub2: Data: 0x<%= $nvm.reg(:data).val.to_s(16).upcase %>
+sub2: 
+% if options[:data]
+sub2: Data values passed in: 0x<%= options[:data].to_s(16).upcase %>
+% else
+sub2: No data value passed in!
+% end
+sub2: 
+sub2: Verify that templates can render additional sub-templates:
+sub2: 
+% if options[:data]
+  <%= render "sub3", data: options[:data] * 2 %>
+% else
+  <%= render "sub3" %>
+% end
