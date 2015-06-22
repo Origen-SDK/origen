@@ -74,7 +74,7 @@ Flow.create do
   5.times do |x|
     # Assign a unique id attribute to each verify so that we know which one we are talking about when
     # making other tests dependent on it.
-    # When RGen sees the if_failed dependency on a future test it will be smart enough to inhibit the binning
+    # When Origen sees the if_failed dependency on a future test it will be smart enough to inhibit the binning
     # on this test without having to explicitly declare that.
     func :margin_read1_all1, :id => "erase_vfy_#{x}"
     # Run this test only if the given verify failed

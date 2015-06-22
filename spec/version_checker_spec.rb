@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe RGen::VersionChecker do
+describe Origen::VersionChecker do
 
 
 end

@@ -5,7 +5,7 @@ module ChipModeSpec
   describe "Chip Mode assignment and manipulation for top level and sub blocks" do
 
     class Top
-      include RGen::Model
+      include Origen::Model
 
       def initialize
         add_mode :reset, brief_description: "Top Level Mode", description: "Configure the device to known state through RCW configuration and pin sampling"
@@ -15,7 +15,7 @@ module ChipModeSpec
     end
 
     class DCFG_DCSR
-      include RGen::Model
+      include Origen::Model
 
       def initialize
         add_mode :rcw12, description: "Configure the device with RCW 12", data_rate: 1.33e6, typ_voltage: 1.2
@@ -26,17 +26,17 @@ module ChipModeSpec
     end
 
     class DP_PMU1_DCSR
-      include RGen::Model
+      include Origen::Model
       attr_reader :some_attr
 
       def initialize(options={})
-        add_mode :sub_block_mode, description: "Test out instantiating a mode in a sub_block where @owner == RGen.top_level"
+        add_mode :sub_block_mode, description: "Test out instantiating a mode in a sub_block where @owner == Origen.top_level"
         sub_block :rst_dcsr, base_address: 0x120000, class_name: 'RST_DCSR', byte_order: 'big_endian', lau: 32
       end
     end
 
     class RST_DCSR
-      include RGen::Model
+      include Origen::Model
 
       def initialize
         add_mode :nested_sub_block_mode, brief_description: "Sub Block Mode", description: "Test out instantiating a mode in a nested sub_block", data_rate: '1200', data_rate_unit: 'Mhz'

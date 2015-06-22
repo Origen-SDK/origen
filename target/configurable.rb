@@ -1,9 +1,9 @@
-$tester = (options[:tester] || RGen::Tester::J750).new
+$tester = (options[:tester] || Origen::Tester::J750).new
 if options[:version]
-  # $top is used here instead of $dut to test that RGen will provide
+  # $top is used here instead of $dut to test that Origen will provide
   # the $dut alias automatically
   $top    = options[:dut].new(options[:version])
 else
   $top    = options[:dut].new
 end
-RGen.mode = :debug
+Origen.mode = :debug

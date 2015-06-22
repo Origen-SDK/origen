@@ -1,3 +1,3 @@
-load "#{RGen.root}/target/production.rb"
+load "#{Origen.root}/target/production.rb"
 
-RGen.config.mode = :debug
+Origen.config.mode = :debug

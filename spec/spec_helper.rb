@@ -1,9 +1,9 @@
 $VERBOSE=nil  # Don't care about world writable dir warnings and the like
 
-require "rgen"
+require "origen"
 require "rspec/legacy_formatters"
-require "#{RGen.top}/spec/shared/common_helpers"
-require "#{RGen.top}/spec/format/rgen_formatter"
+require "#{Origen.top}/spec/shared/common_helpers"
+require "#{Origen.top}/spec/format/origen_formatter"
 
 if RUBY_VERSION >= '2.0.0'
   require "byebug"
@@ -13,12 +13,12 @@ end
 require 'pry'
 
 def load_target(target="debug")
-  RGen.target.switch_to target
-  RGen.target.load!
+  Origen.target.switch_to target
+  Origen.target.load!
 end
 
 RSpec.configure do |config|
-  config.formatter = RGenFormatter
+  config.formatter = OrigenFormatter
 
   # The settings below are suggested to provide a good initial experience
   # with RSpec, but feel free to customize to your heart's content.

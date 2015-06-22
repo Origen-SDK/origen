@@ -75,7 +75,7 @@ module C99
 
   class J750Interface
     include J750BaseInterface
-    include RGen::Tester::J750::Generator
+    include Origen::Tester::J750::Generator
   end
 
   class TestersJ750Interface

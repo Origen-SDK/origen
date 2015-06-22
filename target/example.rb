@@ -11,13 +11,13 @@
 # to running the pattern - i.e. this file is run before every pattern is executed
 # and is an opportunity to establish state.
 
-$tester = RGen::Tester::J750.new  # Set the tester to the RGen J750 model
+$tester = Origen::Tester::J750.new  # Set the tester to the Origen J750 model
 $dut    = Pioneer.new             # Instantiate an SoC instance
 
 # Production mode will require that there are no modified files in the workspace
 # and anything else that you conditionally add to your project files.
 # Production mode is enabled by default, disable it like this...
-RGen.config.mode = :debug
+Origen.config.mode = :debug
 
 # Add any taget specific setup here. i.e. you can call any methods on these top level
 # objects here to configure them. 

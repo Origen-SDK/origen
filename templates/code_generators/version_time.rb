@@ -1,3 +1,3 @@
-module <%= RGen.app.namespace %>
+module <%= Origen.app.namespace %>
   VERSION = '<%= @version %>'
 end

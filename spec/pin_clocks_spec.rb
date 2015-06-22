@@ -1,12 +1,12 @@
 require "spec_helper"
 
-include RGen::Pins
+include Origen::Pins
 
 describe "Pin Clocking Definition" do
 
   before :each do
-    RGen.target.temporary = "debug"
-    RGen.target.load!
+    Origen.target.temporary = "debug"
+    Origen.target.load!
     $tester.name.should == "j750"
   end
 

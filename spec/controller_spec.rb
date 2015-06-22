@@ -1,9 +1,9 @@
 require "spec_helper"
 
-module RGen
+module Origen
 
   class MyModel
-    include RGen::Model
+    include Origen::Model
     def initialize
       reg :reg1, 0 do
         bits 31..0, :data
@@ -16,7 +16,7 @@ module RGen
   end
 
   class MyModel2
-    include RGen::Model
+    include Origen::Model
     def hello_model
       "yo2"
     end
@@ -29,7 +29,7 @@ module RGen
   end
 
   class MyModel4
-    include RGen::Model
+    include Origen::Model
     def hello_model
       "yo4"
     end
@@ -42,7 +42,7 @@ module RGen
   end
 
   class MyController
-    include RGen::Controller
+    include Origen::Controller
     model class_name: "MyModel"
     model class_name: "MyModel2"
 
@@ -62,7 +62,7 @@ module RGen
   end
 
   class PathControl
-    include RGen::Controller
+    include Origen::Controller
     model path: "$nvm"
   end
 
@@ -116,7 +116,7 @@ module RGen
     end
 
     it "path references work for the model path" do
-      RGen.load_target("debug")
+      Origen.load_target("debug")
       c = PathControl.new
       c.mclkdiv.clkdiv.data.should == 0x18
     end

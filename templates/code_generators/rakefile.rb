@@ -5,6 +5,6 @@
 # include this app as a plugin
 
 require "bundler/setup"
-require "rgen"
+require "origen"
 
-RGen.app.load_tasks
+Origen.app.load_tasks

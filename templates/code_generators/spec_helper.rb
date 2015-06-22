@@ -5,23 +5,23 @@ if File.exist? File.expand_path("../Gemfile", Pathname.new(__FILE__).realpath)
   require 'rubygems'
   require 'bundler/setup'
 else
-  # If running on windows, can't use RGen helpers 'till we load it...
+  # If running on windows, can't use Origen helpers 'till we load it...
   if RUBY_PLATFORM == 'i386-mingw32'
-    `where rgen`.split("\n").find do |match|
-      match =~ /(.*)\\bin\\rgen$/
+    `where origen`.split("\n").find do |match|
+      match =~ /(.*)\\bin\\origen$/
     end
-    rgen_top = $1.gsub("\\", "/")
+    origen_top = $1.gsub("\\", "/")
   else
-    rgen_top = `which rgen`.strip.sub("/bin/rgen", "")
+    origen_top = `which origen`.strip.sub("/bin/origen", "")
   end
 
-  $LOAD_PATH.unshift "#{rgen_top}/lib"
+  $LOAD_PATH.unshift "#{origen_top}/lib"
 end
 
-require "rgen"
+require "origen"
 
 require "rspec/legacy_formatters"
-require "#{RGen.top}/spec/format/rgen_formatter"
+require "#{Origen.top}/spec/format/origen_formatter"
 
 if RUBY_VERSION >= '2.0.0'
   require "byebug"
@@ -31,12 +31,12 @@ end
 require 'pry'
 
 def load_target(target="default")
-  RGen.target.switch_to target
-  RGen.target.load!
+  Origen.target.switch_to target
+  Origen.target.load!
 end
 
 RSpec.configure do |config|
-  config.formatter = RGenFormatter
+  config.formatter = OrigenFormatter
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.

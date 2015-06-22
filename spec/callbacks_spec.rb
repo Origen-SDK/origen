@@ -1,7 +1,7 @@
 require "spec_helper"
 
 class CallbacksSpecTopLevel
-  include RGen::TopLevel
+  include Origen::TopLevel
 
   def initialize
     $_load_count ||= 0
@@ -18,7 +18,7 @@ class CallbacksSpecTopLevel
 end
 
 class CallbacksSpecTopLevelModel1
-  include RGen::Model
+  include Origen::Model
 
   def initialize
     reg :r1, 0 do
@@ -50,9 +50,9 @@ end
 describe "Callbacks" do
 
   def clear_target
-    RGen.app.unload_target!
+    Origen.app.unload_target!
     $_captured_callbacks = []
-    $tester = RGen::Tester::J750.new
+    $tester = Origen::Tester::J750.new
   end
 
   before :each do
@@ -60,7 +60,7 @@ describe "Callbacks" do
   end
 
   after :all do
-    RGen.app.unload_target!
+    Origen.app.unload_target!
   end
 
   it "startup is called on TopLevel first" do
@@ -128,7 +128,7 @@ describe "Callbacks" do
 
   it "target should not reload on the first pattern generated in a thread" do
     $_load_count = 0
-    RGen.load_target("configurable", dut: CallbacksSpecTopLevel)
+    Origen.load_target("configurable", dut: CallbacksSpecTopLevel)
     $dut.is_a?(CallbacksSpecTopLevel).should == true
     $_load_count.should == 1
     Pattern.create do

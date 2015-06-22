@@ -1,12 +1,12 @@
-class RGenCoreApplication < RGen::Application
+class OrigenCoreApplication < Origen::Application
 
-  self.name      = "RGen Core"
-  self.namespace = "RGen"
+  self.name      = "Origen Core"
+  self.namespace = "Origen"
 
-  config.name = "RGen Core"
-  config.initials = "RGen"
-  config.vault = "sync://sync-15088:15088/Projects/common_tester_blocks/rgen"
-  #config.rc_url = "ssh://git@sw-stash.freescale.net/rgen/rgen_core.git"
+  config.name = "Origen Core"
+  config.initials = "Origen"
+  config.vault = "sync://sync-15088:15088/Projects/common_tester_blocks/origen"
+  #config.rc_url = "ssh://git@sw-stash.freescale.net/origen/origen_core.git"
   config.semantically_version = true
 
   config.production_targets = {
@@ -16,13 +16,13 @@ class RGenCoreApplication < RGen::Application
   }
 
   config.snapshots_directory do
-    RGen.top.dirname
+    Origen.top.dirname
   end
 
   config.lint_test = {
     # Require the lint tests to pass before allowing a release to proceed
     :run_on_tag => true,
-    # Auto correct violations where possible whenever 'rgen lint' is run
+    # Auto correct violations where possible whenever 'origen lint' is run
     :auto_correct => true, 
     # Limit the testing for large legacy applications
     #:level => :easy,
@@ -30,36 +30,36 @@ class RGenCoreApplication < RGen::Application
     #:files => ["lib", "config/application.rb"],
   }
 
-  #config.lsf.project = "rgen core"
+  #config.lsf.project = "origen core"
   
-  config.web_directory = "/proj/.web_rgen/html/rgen"
+  config.web_directory = "/proj/.web_origen/html/origen"
 
-  config.web_domain = "http://rgen.freescale.net/rgen"
+  config.web_domain = "http://origen.freescale.net/origen"
   
   config.pattern_prefix = "nvm"
 
   config.pattern_header do
-    cc "This is a dummy pattern created by the RGen test environment"
+    cc "This is a dummy pattern created by the Origen test environment"
   end
 
   # Add any directories or files not intended to be under change management control
-  # standard RGen files/dirs already included
+  # standard Origen files/dirs already included
   # config.unmanaged_dirs = %w{dir1 dir2}
   # config.unamanged_files = %w{file1 file2 *.swp}
 
   config.output_directory do
-    dir = "#{RGen.root}/output/#{$top.class}"
-    dir.gsub!("::","_") if RGen.running_on_windows?
+    dir = "#{Origen.root}/output/#{$top.class}"
+    dir.gsub!("::","_") if Origen.running_on_windows?
     dir
   end
 
   config.reference_directory do
-    dir = "#{RGen.root}/.ref/#{$top.class}"
-    dir.gsub!("::","_") if RGen.running_on_windows?
+    dir = "#{Origen.root}/.ref/#{$top.class}"
+    dir.gsub!("::","_") if Origen.running_on_windows?
     dir
   end
 
-  # Help RGen to find patterns based on an iterator
+  # Help Origen to find patterns based on an iterator
   config.pattern_name_translator do |name|
     if name == "dummy_name"
       {:source => "timing", :output => "timing"}
@@ -106,7 +106,7 @@ class RGenCoreApplication < RGen::Application
 
   # Ensure that all tests pass before allowing a release to continue
   def validate_release
-    if !system("rgen specs") || !system("rgen examples")
+    if !system("origen specs") || !system("origen examples")
       puts "Sorry but you can't release with failing tests, please fix them and try again."
       exit 1
     else
@@ -115,12 +115,12 @@ class RGenCoreApplication < RGen::Application
   end
 
   def before_deploy_site
-    Dir.chdir RGen.root do
-      system "rgen specs -c"
-      system "rgen examples -c"
-      dir = "#{RGen.root}/web/output/coverage"       
+    Dir.chdir Origen.root do
+      system "origen specs -c"
+      system "origen examples -c"
+      dir = "#{Origen.root}/web/output/coverage"       
       FileUtils.remove_dir(dir, true) if File.exists?(dir) 
-      system "mv #{RGen.root}/coverage #{dir}"
+      system "mv #{Origen.root}/coverage #{dir}"
     end
   end
 
@@ -128,22 +128,22 @@ class RGenCoreApplication < RGen::Application
     begin
       pdm_release(:note => note)
     rescue
-      RGen.log.error "PDM component release failed"
+      Origen.log.error "PDM component release failed"
     end
     begin
-      deployer = RGen.app.deployer
-      if deployer.running_on_cde? && deployer.user_belongs_to_rgen?
-        command = "rgen web compile --remote --api"
+      deployer = Origen.app.deployer
+      if deployer.running_on_cde? && deployer.user_belongs_to_origen?
+        command = "origen web compile --remote --api"
         # If an external release
-        if RGen.version.production?
-          command += " --archive #{RGen.app.version.prefixed}"
+        if Origen.version.production?
+          command += " --archive #{Origen.app.version.prefixed}"
         end
-        Dir.chdir RGen.root do
+        Dir.chdir Origen.root do
           system command
         end
       end
     rescue
-      RGen.log.error "Web deploy failed"
+      Origen.log.error "Web deploy failed"
     end
   end
 
@@ -156,9 +156,9 @@ class RGenCoreApplication < RGen::Application
     else
       note = File.open(options[:note_file]) { |f| f.read }
     end
-    if RGen.version.production?
-      RGen.app.pdm_component.pdm_version_notes = note
-      RGen.app.pdm_component.pdm_release! 
+    if Origen.version.production?
+      Origen.app.pdm_component.pdm_version_notes = note
+      Origen.app.pdm_component.pdm_release! 
     end
   end
 end

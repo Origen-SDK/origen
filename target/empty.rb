@@ -1,1 +1,1 @@
-RGen.config.mode = :debug
+Origen.config.mode = :debug

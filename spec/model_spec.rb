@@ -2,7 +2,7 @@ require "spec_helper"
 
 module ModelSpec
   class MyModel
-    include RGen::Model
+    include Origen::Model
     attr_reader :my_version
     def initialize
       @my_version = version
@@ -10,7 +10,7 @@ module ModelSpec
   end
 
   class Base
-    include RGen::Model
+    include Origen::Model
     attr_reader :some_val
     def initialize(version, options={})
       @some_val = "hello"
@@ -23,7 +23,7 @@ module ModelSpec
     end
   end
 
-  describe "RGen Models" do
+  describe "Origen Models" do
 
     it "will extract a version from the intialization arguments" do
       m = MyModel.new(2)

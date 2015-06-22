@@ -1,5 +1,5 @@
-load "#{RGen.root}/target/production.rb"
+load "#{Origen.root}/target/production.rb"
 
-$tester = RGen::Tester::BDM.new
+$tester = Origen::Tester::BDM.new
 
-RGen.config.mode = :debug
+Origen.config.mode = :debug

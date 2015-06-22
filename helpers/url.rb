@@ -1,4 +1,4 @@
-module RGen
+module Origen
   class Generator
     class Compiler # :nodoc: all
       # Helper methods that are available to all templates
@@ -21,7 +21,7 @@ module RGen
         def path(p)
           p = "/#{p}" unless p =~ /^\//
           
-          if RGen.development?
+          if Origen.development?
             "#{p}"   # dev mode used for local website generation
           else          
             "#{root_path}/#{_version}#{p}"
@@ -33,7 +33,7 @@ module RGen
         end
 
         def domain
-          RGen.config.web_domain
+          Origen.config.web_domain
         end
 
         def domain_minus_root_path
@@ -41,11 +41,11 @@ module RGen
         end
 
         def _version
-          # Special case for RGen core..
-          if RGen.top == RGen.root
-            version = RGen.version
+          # Special case for Origen core..
+          if Origen.top == Origen.root
+            version = Origen.version
           else
-            version = RGen.app.version
+            version = Origen.app.version
           end
           if version.development?
             'latest'
@@ -55,7 +55,7 @@ module RGen
         end
 
         # Returns any path attached to the domain, for example will return "/tfs"
-        # for "http://rgen.freescale.net/tfs"
+        # for "http://origen.freescale.net/tfs"
         def root_path # :nodoc:
           if domain =~ /\/\/[^\/]*(\/.*)/  # http://rubular.com/r/UY06Z6DXUS
             $1

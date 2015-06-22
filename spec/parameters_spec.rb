@@ -5,7 +5,7 @@ module ParametersSpec
   describe "Parameters" do
 
     class DUT
-      include RGen::TopLevel
+      include Origen::TopLevel
 
       def initialize
         define_params :default do |params|
@@ -67,7 +67,7 @@ module ParametersSpec
     end
 
     before :each do
-      RGen.app.unload_target!
+      Origen.app.unload_target!
       $dut = DUT.new
     end
 
@@ -193,7 +193,7 @@ module ParametersSpec
 
     it "parameter context can be proxied to dut" do
       class IP1
-        include RGen::Model
+        include Origen::Model
         parameters_context :top
 
         def initialize
@@ -215,7 +215,7 @@ module ParametersSpec
 
     it "parameter context can be proxied to another object" do
       class IP2
-        include RGen::Model
+        include Origen::Model
         parameters_context "ip3"
 
         def initialize
@@ -233,7 +233,7 @@ module ParametersSpec
       end
 
       class IP3
-        include RGen::Model
+        include Origen::Model
       end
 
       ip = IP2.new

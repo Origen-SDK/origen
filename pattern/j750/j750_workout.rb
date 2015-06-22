@@ -1,4 +1,4 @@
-# This pattern exercises the methods in the RGen::Tester::J750 class
+# This pattern exercises the methods in the Origen::Tester::J750 class
 Pattern.create do
 
   ss "Test that basic cycling works"
@@ -196,13 +196,13 @@ Pattern.create do
 
   ss "Test that long repeats are broken down to < 65k repeats"
   $nvm.pin(:invoke).drive(1)
-  RGen.tester.cycle(:repeat => 240000)
+  Origen.tester.cycle(:repeat => 240000)
 
   ss "Test that long repeats do not compress to > 65k repeats"
   $nvm.pin(:invoke).drive(0)
-  RGen.tester.cycle(:repeat => 60000)
-  RGen.tester.cycle(:repeat => 60000)
-  RGen.tester.cycle(:repeat => 60000)
-  RGen.tester.cycle(:repeat => 60000)
+  Origen.tester.cycle(:repeat => 60000)
+  Origen.tester.cycle(:repeat => 60000)
+  Origen.tester.cycle(:repeat => 60000)
+  Origen.tester.cycle(:repeat => 60000)
 
 end

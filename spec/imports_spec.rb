@@ -3,7 +3,7 @@ require "spec_helper"
 describe "Application imports" do
 
   before :all do
-    RGen.load_target("debug")
+    Origen.load_target("debug")
   end
 
   it "methods can be overridden by the application" do
@@ -14,17 +14,17 @@ describe "Application imports" do
     $nvm.added_method.should == :added
   end
 
-  it "RGen.root references within a plugin mean the top-level app root" do
-    RGen.root.should == $dut.rgen_dot_root
+  it "Origen.root references within a plugin mean the top-level app root" do
+    Origen.root.should == $dut.origen_dot_root
   end
 
-  it "RGen.root! references within a plugin mean the plugin root" do
-    RGen.root.should_not == $dut.rgen_dot_root!
-    File.exist?("#{$dut.rgen_dot_root!}/lib/c99/block.rb").should == true
+  it "Origen.root! references within a plugin mean the plugin root" do
+    Origen.root.should_not == $dut.origen_dot_root!
+    File.exist?("#{$dut.origen_dot_root!}/lib/c99/block.rb").should == true
   end
 
-  it "RGen.root! references within a top level app are equivalent to RGen.root" do
-    RGen.root!.should == RGen.root
+  it "Origen.root! references within a top level app are equivalent to Origen.root" do
+    Origen.root!.should == Origen.root
   end
 
 end

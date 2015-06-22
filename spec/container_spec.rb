@@ -6,11 +6,11 @@ require "spec_helper"
 # and other register objects pick up the top-level methods.
 module RegTest
 
-  include RGen::Registers
+  include Origen::Registers
 
   describe Container do
 
-    include RGen::Registers
+    include Origen::Registers
 
     it "is 32 bits by default" do
       Container.new.size.should == 32

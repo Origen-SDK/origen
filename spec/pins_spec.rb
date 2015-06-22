@@ -2,7 +2,7 @@ require "spec_helper"
 
 # Some dummy classes to test out the pins module
 class PinsDut1
-  include RGen::TopLevel
+  include Origen::TopLevel
   attr_accessor :sub_module
   def initialize 
     add_pin :pin1
@@ -18,17 +18,17 @@ class PinsDut1
 end
 
 class PinsSubModule1
-  include RGen::Pins
+  include Origen::Pins
   def initialize
     add_pin :sub_pin1
     add_pin_alias :sub_alias1, :pin1
   end
 end
 
-describe "RGen Pins Module" do
+describe "Origen Pins Module" do
 
   before :all do
-    RGen.load_target("configurable", dut: PinsDut1)
+    Origen.load_target("configurable", dut: PinsDut1)
   end
 
   it "has_pin? method works" do
@@ -67,7 +67,7 @@ describe "RGen Pins Module" do
 
   it "real life issue with duplicate pins in pattern is fixed" do
     class L2K
-      include RGen::TopLevel
+      include Origen::TopLevel
 
       def initialize
         add_pin :swd_clk,  reset: :drive_lo
@@ -92,7 +92,7 @@ describe "RGen Pins Module" do
                           :nvm_alvtst, :nvm_ahvtst, :nvm_dtst
       end
     end
-    RGen.load_target("configurable", dut: L2K)
+    Origen.load_target("configurable", dut: L2K)
 
     $tester.cycle
     $tester.ordered_pins.size.should == 11

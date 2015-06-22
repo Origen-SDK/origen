@@ -1,5 +1,5 @@
 class SetupTester
-  include RGen::PersistentCallbacks
+  include Origen::PersistentCallbacks
 
   def before_pattern(pattern_name)
     case
@@ -20,7 +20,7 @@ SetupTester.new
 [:single, :dual, :quad].each do |name|
   # Startup is being skipped here since it is currently a test of the ability
   # to render (i.e. paste) vectors, therefore they are not compressible by
-  # RGen and which makes debugging this confusing!
+  # Origen and which makes debugging this confusing!
   Pattern.create(name: name, skip_startup: true) do
     $tester.set_timeset("nvmbist", 40)
 

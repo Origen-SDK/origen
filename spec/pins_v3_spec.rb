@@ -3,7 +3,7 @@ require "spec_helper"
 # Some dummy classes to test out the pins module
 class PinsV3Dut
 
-  include RGen::TopLevel
+  include Origen::TopLevel
 
   attr_reader :sub1
   attr_accessor :configuration
@@ -22,15 +22,15 @@ end
 
 class PinsV3Sub
 
-  include RGen::Pins
+  include Origen::Pins
 
 end
 
-describe "RGen Pin API v3" do
+describe "Origen Pin API v3" do
 
   before :each do
-    RGen.app.unload_target!
-    RGen.load_target("configurable", dut: PinsV3Dut)
+    Origen.app.unload_target!
+    Origen.load_target("configurable", dut: PinsV3Dut)
   end
 
   describe "Adding and scoping pins" do

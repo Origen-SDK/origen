@@ -8,7 +8,7 @@
 # Users are also prohibited from running the tag_project script, but this is
 # really just to prevent a casual user from executing it inadvertently and it is
 # not intended to be a serious security gate.
-module RGen
+module Origen
   module Users
     def users
       @users ||= [
@@ -36,7 +36,7 @@ module RGen
         User.new('Jiang Liu', 'b20251', :admin),
         User.new('David Welguisz', 'r7aajf', :admin),
         # Users
-        User.new('RGen Users', 'rgen'),  # The rGen mailing list
+        User.new('Origen Users', 'origen'),  # The rGen mailing list
         User.new('MCD Modularity', 'mcdmods'),
         User.new('Test Community', 'testcop3')
       ]

@@ -1,6 +1,6 @@
 module C99
   class DocInterface
-    include RGen::Tester::Doc::Generator
+    include Origen::Tester::Doc::Generator
 
     # Options passed to Flow.create and Library.create will be passed in here, use as
     # desired to configure your interface

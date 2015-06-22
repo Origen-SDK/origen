@@ -6,11 +6,11 @@ require 'spec_helper'
 # and other register objects pick up the top-level methods.
 module RegTest
 
-  include RGen::Registers
+  include Origen::Registers
 
   describe Bit do
 
-    include RGen::Registers
+    include Origen::Registers
 
     def owner
       self
@@ -61,7 +61,7 @@ module RegTest
 
     it "returns the value required to write a given bit to a given value via the setting method" do
       class DUT
-        include RGen::Registers
+        include Origen::Registers
         attr_accessor :reg
         def initialize
           @reg = Reg.new(self, 0x10, 16, :dummy, b0: {pos: 0}, 

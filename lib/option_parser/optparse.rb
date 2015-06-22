@@ -7,6 +7,6 @@ class OptionParser
     lsf_options = ARGV.dup
     orig_parse!(*args)
     lsf_options -= ARGV  # Now contains all original options
-    RGen.app.lsf_manager.command_options = lsf_options
+    Origen.app.lsf_manager.command_options = lsf_options
   end
 end

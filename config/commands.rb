@@ -1,4 +1,4 @@
-# This file should be used to extend rgen with application specific tasks
+# This file should be used to extend origen with application specific tasks
 
 aliases ={
 
@@ -21,20 +21,20 @@ when "specs"
 
 when "examples"  
   $enable_testers = true if ARGV.delete("--testers")
-  RGen.load_application
+  Origen.load_application
   status = 0
-  Dir["#{RGen.root}/examples/*.rb"].each do |example|
+  Dir["#{Origen.root}/examples/*.rb"].each do |example|
     require example
   end
   
-  if RGen.app.stats.changed_files == 0 &&
-     RGen.app.stats.new_files == 0 &&
-     RGen.app.stats.changed_patterns == 0 &&
-     RGen.app.stats.new_patterns == 0
+  if Origen.app.stats.changed_files == 0 &&
+     Origen.app.stats.new_files == 0 &&
+     Origen.app.stats.changed_patterns == 0 &&
+     Origen.app.stats.new_patterns == 0
 
-    RGen.app.stats.report_pass
+    Origen.app.stats.report_pass
   else
-    RGen.app.stats.report_fail
+    Origen.app.stats.report_fail
     status = 1
   end
   puts
@@ -44,22 +44,22 @@ when "regression"
   # You must tell the regression manager up front what target will be run within
   # the block
   options[:targets] = %w(debug v93k jlink bdm)
-  RGen.regression_manager.run(options) do |options|
-    RGen.lsf.submit_rgen_job "generate j750.list -t debug --plugin rgen_core_support"
-    RGen.lsf.submit_rgen_job "generate v93k_workout -t v93k --plugin none"
-    RGen.lsf.submit_rgen_job "generate dummy_name port -t debug --plugin none"
-    RGen.lsf.submit_rgen_job "generate jlink.list -t jlink --plugin none"
-    RGen.lsf.submit_rgen_job "generate bdm.list -t bdm --plugin none"
-    RGen.lsf.submit_rgen_job "compile templates/test/set3 -t debug --plugin none"
-    RGen.lsf.submit_rgen_job "compile templates/test/inspections.txt.erb -t debug --plugin none"
-    RGen.lsf.submit_rgen_job "program program -t debug --plugin none"
-    RGen.lsf.submit_rgen_job "program program -t debug --doc --plugin none"
+  Origen.regression_manager.run(options) do |options|
+    Origen.lsf.submit_origen_job "generate j750.list -t debug --plugin origen_core_support"
+    Origen.lsf.submit_origen_job "generate v93k_workout -t v93k --plugin none"
+    Origen.lsf.submit_origen_job "generate dummy_name port -t debug --plugin none"
+    Origen.lsf.submit_origen_job "generate jlink.list -t jlink --plugin none"
+    Origen.lsf.submit_origen_job "generate bdm.list -t bdm --plugin none"
+    Origen.lsf.submit_origen_job "compile templates/test/set3 -t debug --plugin none"
+    Origen.lsf.submit_origen_job "compile templates/test/inspections.txt.erb -t debug --plugin none"
+    Origen.lsf.submit_origen_job "program program -t debug --plugin none"
+    Origen.lsf.submit_origen_job "program program -t debug --doc --plugin none"
   end
   exit 0
 
 when "make_file"
-  RGen.load_application
-  system "touch #{RGen.root}/#{ARGV.first}"  
+  Origen.load_application
+  system "touch #{Origen.root}/#{ARGV.first}"  
   exit 0
 
 else

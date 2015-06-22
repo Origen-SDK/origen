@@ -1,4 +1,4 @@
-# This pattern exercises the methods in the RGen::Tester::Timing module
+# This pattern exercises the methods in the Origen::Tester::Timing module
 def gen_vectors
   2.times do
     $nvm.pin(:invoke).drive(0)

@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-describe RGen::Location::Map do
+describe Origen::Location::Map do
 
   class TestMap
-    include RGen::Location::Map
+    include Origen::Location::Map
 
     define_locations do
       loc1 address: 0x10, data: 0x1234
@@ -16,7 +16,7 @@ describe RGen::Location::Map do
   end
 
   class TestMap2
-    include RGen::Location::Map
+    include Origen::Location::Map
 
     constructor do |attrs, defaults|
       attrs[:address] = 0x1F

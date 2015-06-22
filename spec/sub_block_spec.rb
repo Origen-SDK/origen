@@ -5,7 +5,7 @@ module SubBlocksSpec
   describe "Register base addressing and hierarchy" do
 
     class Top
-      include RGen::Model
+      include Origen::Model
 
       def initialize
         @path = "ftf2"
@@ -26,7 +26,7 @@ module SubBlocksSpec
     end
 
     class Sub1
-      include RGen::Model
+      include Origen::Model
 
       def initialize
         reg :reg1, 0x100 do
@@ -36,7 +36,7 @@ module SubBlocksSpec
     end
 
     class Sub2
-      include RGen::Model
+      include Origen::Model
       attr_reader :some_attr
 
       def initialize(options={})
@@ -46,7 +46,7 @@ module SubBlocksSpec
     end
 
     class Sub3
-      include RGen::Model
+      include Origen::Model
 
       def initialize
         reg :reg1, 0x100, path: "reg1_reg" do
@@ -190,7 +190,7 @@ module SubBlocksSpec
 
       it "base addresses can be applied per domain" do
         class BATop
-          include RGen::TopLevel
+          include Origen::TopLevel
 
           def initialize
             domain :ips
@@ -202,7 +202,7 @@ module SubBlocksSpec
         end
 
         class BASub1
-          include RGen::Model
+          include Origen::Model
 
           def initialize
             reg :reg1, 0x200 do
@@ -214,7 +214,7 @@ module SubBlocksSpec
         end
 
         class BASub2
-          include RGen::Model
+          include Origen::Model
 
           def initialize
             reg :reg1, 0x200 do
@@ -225,7 +225,7 @@ module SubBlocksSpec
         end
 
         class BASub3
-          include RGen::Model
+          include Origen::Model
 
           def initialize
             reg :reg1, 0x200 do
@@ -234,7 +234,7 @@ module SubBlocksSpec
           end
         end
 
-        RGen.app.unload_target!
+        Origen.app.unload_target!
 
         BATop.new
 

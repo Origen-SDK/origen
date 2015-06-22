@@ -3,7 +3,7 @@ require "spec_helper"
 # Some dummy classes to test out register and pin proxies
 
 class TopLevel
-  include RGen::TopLevel
+  include Origen::TopLevel
   attr_reader :last_write, :last_read
   attr_reader :sub
   def initialize
@@ -29,7 +29,7 @@ class TopLevel1 < TopLevel
 end
 
 class TopLevel2 < TopLevel
-  include RGen::Callbacks  # Make sure this doesn't break the TopLevel callback
+  include Origen::Callbacks  # Make sure this doesn't break the TopLevel callback
   def initialize
     super
     @sub = Subordinate2.new
@@ -37,8 +37,8 @@ class TopLevel2 < TopLevel
 end
 
 class Subordinate
-  include RGen::Registers
-  include RGen::Pins
+  include Origen::Registers
+  include Origen::Pins
   def initialize(*args)
     add_reg :reg1, 0, 8, data: {bits: 8}
   end
@@ -63,7 +63,7 @@ describe "Register and Pin proxies" do
   # Since we are not loading a target this cleans out pin maps
   # and similar between each test
   before :each do
-    RGen.app.unload_target!
+    Origen.app.unload_target!
   end
 
   it "should proxy register requests to 'owner' if available" do

@@ -1,4 +1,4 @@
-# This pattern exercises the methods in the RGen::Pins::Port class
+# This pattern exercises the methods in the Origen::Pins::Port class
 Pattern.create do
 
   ss "Test that toggle works"

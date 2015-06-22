@@ -1,4 +1,4 @@
-module <%= RGen.app.namespace %>
+module <%= Origen.app.namespace %>
   MAJOR = <%= @version.major %>
   MINOR = <%= @version.minor %>
   BUGFIX = <%= @version.bugfix %>

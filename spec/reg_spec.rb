@@ -6,11 +6,11 @@ require "spec_helper"
 # and other register objects pick up the top-level methods.
 module RegTest
   
-  include RGen::Registers
+  include Origen::Registers
 
   describe Reg do
 
-    include RGen::Registers
+    include Origen::Registers
 
     def read_register(reg, options={})
       # Dummy method to allow the bang methods to be tested
@@ -673,7 +673,7 @@ module RegTest
     end
 
     specify "reg(:blah) can be used to test for the presence of a register - not when strict" do
-      RGen.config.strict_errors = true
+      Origen.config.strict_errors = true
       load_target
       puts "******************** Missing register error expected here ********************"
       lambda do
@@ -682,8 +682,8 @@ module RegTest
     end
 
     it "registers can be overridden in sub classes" do
-      RGen.config.strict_errors = false
-      RGen.app.unload_target!
+      Origen.config.strict_errors = false
+      Origen.app.unload_target!
       nvm = C99::NVMSub.new
       nvm.reg(:data).address.should == 0x4
       nvm.redefine_data_reg
@@ -691,8 +691,8 @@ module RegTest
     end
 
     it "registers can be overridden in sub classes - not when strict" do
-      RGen.config.strict_errors = true
-      RGen.app.unload_target!
+      Origen.config.strict_errors = true
+      Origen.app.unload_target!
       nvm = C99::NVMSub.new
       nvm.reg(:data).address.should == 0x4
       puts "******************** Redefine register error expected here ********************"
@@ -703,10 +703,10 @@ module RegTest
 
     specify "clone and dup mean clone the register, not the placeholder" do
       load_target
-      $nvm.reg(:mclkdiv).class.should == RGen::Registers::Placeholder
-      $nvm.reg(:data).class.should == RGen::Registers::Placeholder
-      $nvm.reg(:mclkdiv).clone.class.should == RGen::Registers::Reg
-      $nvm.reg(:data).dup.class.should == RGen::Registers::Reg
+      $nvm.reg(:mclkdiv).class.should == Origen::Registers::Placeholder
+      $nvm.reg(:data).class.should == Origen::Registers::Placeholder
+      $nvm.reg(:mclkdiv).clone.class.should == Origen::Registers::Reg
+      $nvm.reg(:data).dup.class.should == Origen::Registers::Reg
     end
 
     it "register owned_by method works" do
@@ -733,7 +733,7 @@ module RegTest
     end
 
     it "registers can be declared in block format with descriptions" do
-      RGen.app.unload_target!
+      Origen.app.unload_target!
       nvm = C99::NVMSub.new
       nvm.add_reg_with_block_format
       nvm.reg(:dreg).data.should == 0x8055
@@ -754,7 +754,7 @@ module RegTest
     end
 
     it "register descriptions can be supplied via the API" do     
-      RGen.app.unload_target!
+      Origen.app.unload_target!
       nvm = C99::NVMSub.new
       nvm.add_reg_with_block_format
       nvm.reg(:dreg3).description(include_name: false).size.should == 1
@@ -768,7 +768,7 @@ module RegTest
     end
 
     it "bit value descriptions work" do
-      RGen.app.unload_target!
+      Origen.app.unload_target!
       nvm = C99::NVMSub.new
       nvm.add_reg_with_block_format
       nvm.reg(:dreg).bits(:bit15).bit_value_descriptions.size.should == 0
@@ -784,7 +784,7 @@ module RegTest
     end
 
     it "bit names from a description work" do
-      RGen.app.unload_target!
+      Origen.app.unload_target!
       nvm = C99::NVMSub.new
       nvm.add_reg_with_block_format
       nvm.reg(:dreg).bits(:bit14).full_name.should == "Bit 14"
@@ -792,7 +792,7 @@ module RegTest
     end
 
     it "register names from a description work" do
-      RGen.app.unload_target!
+      Origen.app.unload_target!
       nvm = C99::NVMSub.new
       nvm.add_reg_with_block_format
       nvm.reg(:dreg).full_name.should == "Data Register 3"
@@ -896,7 +896,7 @@ module RegTest
 
     it "arbitrary meta data is isolated to registers owned by a given class" do
       class MetaClass1
-        include RGen::Registers
+        include Origen::Registers
         def initialize
           default_reg_metadata do |reg|
             reg.property1 = 1
@@ -910,7 +910,7 @@ module RegTest
       end
 
       class MetaClass2
-        include RGen::Registers
+        include Origen::Registers
         def initialize
           default_reg_metadata do |reg|
             reg.property1 = 3
@@ -944,13 +944,13 @@ module RegTest
     end
 
     it "global reg and bit meta data can be added by a plugin" do
-      RGen::Registers.default_reg_metadata do |reg|
+      Origen::Registers.default_reg_metadata do |reg|
         reg.attr_x
         reg.attr_y = 10
         reg.attr_z = 20
       end
 
-      RGen::Registers.default_bit_metadata do |bit|
+      Origen::Registers.default_bit_metadata do |bit|
         bit.attr_bx
         bit.attr_by = 10
         bit.attr_bz = 20
@@ -1078,7 +1078,7 @@ module RegTest
 
       reg(:reset1).bit(:x).reset_val.should == :undefined
       reg(:reset1).bit(:y).reset_val.should == :memory
-      # We still need to pick a data value (until RGen can truly model the concept of X)
+      # We still need to pick a data value (until Origen can truly model the concept of X)
       reg(:reset1).data.should == 0
       # But we can also tell that the true state is undefined 
       reg(:reset1).bit(:x).has_known_value?.should == false
@@ -1169,7 +1169,7 @@ module RegTest
 
       # When 1 bit requested just return that bit, this is consistent with the original
       # behaviour before sub collections were added
-      reg(:reg1).bits(:data)[15].class.should == RGen::Registers::Bit
+      reg(:reg1).bits(:data)[15].class.should == Origen::Registers::Bit
       # Calling bits on a bit collection with no args should just return self
       reg(:reg1).bits(:data).bits.size.should == 32
     end
@@ -1194,7 +1194,7 @@ module RegTest
       # Spec cannot be mashaled (as the reg owner) so embed the test
       # reg in a class which will marshal without error
       class RegOwner
-        include RGen::Model
+        include Origen::Model
         def initialize
           reg :reg1, 0, size: 8 do
             bits 7..0, :d1
@@ -1220,7 +1220,7 @@ module RegTest
 
     specify "dot methods work in a class with method_missing" do
       class Base
-        include RGen::Model
+        include Origen::Model
 
         def method_missing(method, *args, &block)
           if method == :blah

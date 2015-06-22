@@ -4,7 +4,7 @@ describe "Feature API" do
 
   it "feature object creation and core methods test" do
     class DUT
-      include RGen::Features
+      include Origen::Features
       feature :feature1
       feature :feature2, description: "feature2 description"
       # This is feature 3 description
@@ -31,8 +31,8 @@ describe "Feature API" do
   end
 
   class Test_NVM
-    include RGen::Features
-    include RGen::Registers
+    include Origen::Features
+    include Origen::Registers
     feature :f1, description: "f1 description"
     feature :f2
 
@@ -164,8 +164,8 @@ describe "Feature API" do
 
   it "testing case when owner's owner has enabled the feature" do
     class Analog
-      include RGen::Features
-      include RGen::Registers
+      include Origen::Features
+      include Origen::Registers
       
       feature :analog_feat1
       feature :analog_feat2

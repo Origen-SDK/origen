@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe RGen::Location::Base do
+describe Origen::Location::Base do
 
-  L = RGen::Location::Base
+  L = Origen::Location::Base
 
   it "the address defaults to byte address" do
     l = L.new(byte_address: 0x10)

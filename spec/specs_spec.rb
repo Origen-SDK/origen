@@ -2,7 +2,7 @@ require "spec_helper"
 
 # Some dummy classes to test out the specs module
 class SoC_With_Specs
-  include RGen::TopLevel
+  include Origen::TopLevel
 
   def initialize
     sub_block :ip_with_specs, class_name: "IP_With_Specs", base_address: 0x1000_0000
@@ -62,7 +62,7 @@ class SoC_With_Specs
 end
 
 class IP_With_Specs
-  include RGen::Model
+  include Origen::Model
   def initialize
     spec :ip_setup_time, :ac do
       min 240.ps
@@ -72,11 +72,11 @@ class IP_With_Specs
 end
 
 class IP_WithOut_Specs
-  include RGen::Model
+  include Origen::Model
   def initialize
   end
 end
-describe "RGen Specs Module" do
+describe "Origen Specs Module" do
 
   before :all do
     @dut = SoC_With_Specs.new
@@ -90,7 +90,7 @@ describe "RGen Specs Module" do
     @dut.mode = :no_specs_defined
     @dut.specs(:soc_vdd).should == nil # Returns nil because @dut.mode is set to :no_specs_defined
     @dut.mode = :low_power
-    @dut.specs(:soc_vdd).class.should == RGen::Specs::Spec # If only one spec is found then return the spec object instead of a hash
+    @dut.specs(:soc_vdd).class.should == Origen::Specs::Spec # If only one spec is found then return the spec object instead of a hash
     # Add a spec note
     @dut.specs(:soc_vdd).add_note(:my_note, text: "This spec does not meet current power requirements")
     @dut.specs(:soc_vdd).notes.class.should == Hash
@@ -144,7 +144,7 @@ describe "RGen Specs Module" do
       audience :internal
       description "IP Setup Time with Double-Sided Limits"
     end
-    @ip.specs(:ip_setup_time).class.should == RGen::Specs::Spec # Find 1 spec here because the IP set a specific mode so don't return global or local specs
+    @ip.specs(:ip_setup_time).class.should == Origen::Specs::Spec # Find 1 spec here because the IP set a specific mode so don't return global or local specs
     @ip.specs(:ip_setup_time).min.value.should == 2.7e-10
     @ip.specs(:ip_setup_time).max.value.should == 3.0e-10
     @ip.specs(:ip_setup_time).description.should == "IP Setup Time with Double-Sided Limits"

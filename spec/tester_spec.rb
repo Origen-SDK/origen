@@ -1,30 +1,30 @@
 require "spec_helper"
 
-include RGen::Pins
+include Origen::Pins
 
 describe "Tester Definition" do
 
   before :each do
-    RGen.load_application
+    Origen.load_application
   end
 
   it "select J750 tester properly" do
-    RGen.target.temporary = "debug"
-    RGen.target.load!
+    Origen.target.temporary = "debug"
+    Origen.target.load!
     $tester.name.should == "j750"
     $tester.respond_to?('hpt_mode').should == false
   end
 
   it "select J750 HPT tester properly" do
-    RGen.target.temporary = "hpt"
-    RGen.target.load!
+    Origen.target.temporary = "hpt"
+    Origen.target.load!
     $tester.name.should == "j750_hpt"
     $tester.class.hpt_mode.should == true
   end
 
   it "tester pattern microcodes" do
-    RGen.target.temporary = "debug"
-    RGen.target.load!
+    Origen.target.temporary = "debug"
+    Origen.target.load!
 
     $tester.cycle
 

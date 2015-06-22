@@ -2,7 +2,7 @@ require 'spec_helper'
 
 # Some dummy classes to test out the PinCollection module
 class PinGroupDut
-  include RGen::TopLevel
+  include Origen::TopLevel
 
   attr_accessor :configuration
 
@@ -15,10 +15,10 @@ class PinGroupDut
   end
 end
 
-describe 'RGen PinCollection API v3' do
+describe 'Origen PinCollection API v3' do
 
   before :each do
-    RGen.load_target('configurable', dut: PinGroupDut)
+    Origen.load_target('configurable', dut: PinGroupDut)
   end
 
   describe 'PinCollection Functionality' do
@@ -175,7 +175,7 @@ describe 'RGen PinCollection API v3' do
       be = $dut.pins(:be)
       le = $dut.pins(:le)
       le.endian.should == :little
-      tester = RGen::Tester::J750.new
+      tester = Origen::Tester::J750.new
       be.to_vector.should == 'XXXX'
       le.to_vector.should == 'XXXX'
       be.drive(0b1100)
@@ -193,7 +193,7 @@ describe 'RGen PinCollection API v3' do
       $dut.add_pins :le, size: 4, endian: :little
       be = $dut.pins(:be)
       le = $dut.pins(:le)
-      tester = RGen::Tester::J750.new
+      tester = Origen::Tester::J750.new
       be.vector_formatted_value = 'X10L'
       be.invalidate_vector_cache
       be.to_vector.should == 'X10L'
@@ -253,16 +253,16 @@ describe 'RGen PinCollection API v3' do
     end
 
     it 'pin_pattern_order works' do
-      RGen.app.pin_pattern_order.size.should == 0
+      Origen.app.pin_pattern_order.size.should == 0
       $dut.pin_pattern_order(:pinx, :piny, :pdata)
-      RGen.app.pin_pattern_order.size.should == 3
-      RGen.app.pin_pattern_order.last.is_a?(Hash).should == false
+      Origen.app.pin_pattern_order.size.should == 3
+      Origen.app.pin_pattern_order.last.is_a?(Hash).should == false
     end
 
     it 'pin_pattern_order only: true option works' do
       $dut.pin_pattern_order(:pinx, :piny, only: true)
-      RGen.app.pin_pattern_order.size.should == 3
-      RGen.app.pin_pattern_order.last.is_a?(Hash).should == true
+      Origen.app.pin_pattern_order.size.should == 3
+      Origen.app.pin_pattern_order.last.is_a?(Hash).should == true
       $tester.current_pin_vals.size.should == 3
     end
 
@@ -274,7 +274,7 @@ describe 'RGen PinCollection API v3' do
       $dut.add_pin_alias :nvm_done, :cti_data3
       $dut.pin_pattern_order :clk, :nvm_fail, :nvm_done, :cti_data, :reset, only: true
       pin_list = $tester.ordered_pins.map do |p|
-        if RGen.app.pin_pattern_order.include?(p.id)
+        if Origen.app.pin_pattern_order.include?(p.id)
           p.id # specified name overrides pin name
         else
           p.name
@@ -295,12 +295,12 @@ describe 'RGen PinCollection API v3' do
       $dut.pin_pattern_order :pin1, :pin_grp1, :pin3
       $dut.pin_pattern_exclude :pin2, :pin4, :pinx, :piny, :pinz, :pdata
       pin_list = $tester.ordered_pins.map do |p|
-        if RGen.app.pin_pattern_order.include?(p.id)
+        if Origen.app.pin_pattern_order.include?(p.id)
           p.id # specified name overrides pin name
         else
           p.name
         end
-        if RGen.app.pin_pattern_exclude.include?(p.id)
+        if Origen.app.pin_pattern_exclude.include?(p.id)
           p.id # specified name overrides pin name
         else
           p.name

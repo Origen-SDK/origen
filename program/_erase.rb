@@ -3,7 +3,7 @@
 # _ to indicate that it is a sub
 # flow  this will prevent it being
 # generated as a top-level flow by 
-# RGen.
+# Origen.
 # Any arguments passed in when
 # instantiating this flow will be available via a hash as the second
 # argument, here called options, although the naming is arbitrary.
