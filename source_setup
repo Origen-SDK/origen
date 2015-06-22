@@ -1,65 +1,17 @@
 #!/bin/tcsh
 #
-# This script sets up the users rgen environment, invoke like this:
-#
+# This script will update the user's path to make their current terminal session use
+# the origen executable from the local workspace containing this script, rather than
+# the default version from elsewhere.
+# 
 #       > source source_setup
 #
-# It adds the required paths to the rgen bin directories to the user's
-# path and overrides all current references to the tools required by rGen.
-#
-# The tool versions are specified in gen/sys/rgen.policy
-#
-# If the tool versions in this file are updated you can force an update 
-# to your environment by running:
-#
-#       > source source_setup update
-#
-# To call this from a setup script, e.g. .tcshrc, add the following:
-#
-#   setenv RGEN_INSTALL <path to installation>
-#   source $RGEN_INSTALL/source_setup $RGEN_INSTALL
-
 set called=($_)
 
 set called_dir = $PWD            # Directory from which this script was called
-# If called manually...
-if ("$called" != "") then
-  set relative_path = $called[2]   # Relative path from there to this file     
-  set rgen_install = `dirname $called_dir/$relative_path`  
-# If called from setup script...
-else
-  set rgen_install = $1
-endif  
+set relative_path = $called[2]   # Relative path from there to this file     
+set origen_install = `dirname $called_dir/$relative_path`  
+set origen_bin = $origen_install/bin      
 
-# Paths to tools used by this script
-set collect = /run/pkg/foundation-/frame/bin/collect
-set pathmap = /run/pkg/foundation-/frame/bin/pathmap
-
-# Paths referenced by this script
-set rgen_collection = $rgen_install/.collection 
-set rgen_collection_bin = $rgen_install/.bin      
-set rgen_bin = $rgen_install/bin      
-set rgen_policy = $rgen_install/config/rgen.policy
-set rgen_policy_stable = $rgen_install/config/rgen-stable.policy
-set ruby_user_gem_bin = ~/.gem/ruby/2.1.0/bin
-
-# Refresh the bin directory if it doesn't exist, or if specifically asked
-if (!(-e $rgen_collection_bin) || !(-e $rgen_collection) || $1 == "update") then
-  cd $rgen_install
-  set mycollection_dir = `$pathmap .`    # Ensure the path matches what the foundation calls it
-  set mycollection = "$mycollection_dir/.collection"
-  rm -fr $rgen_collection_bin
-  rm -fr $mycollection
-  mkdir $mycollection
-  $collect $rgen_policy --OUTPUT=$mycollection --quiet --strict
-  if ($?) then
-    echo Something went wrong, most likely your site is missing required packages
-  else
-    ln -s "/run$mycollection/bin" $rgen_collection_bin
-    cd $called_dir
-    echo Ignore any messages about adding the collection to your shell path, RGen has done this for you.
-  endif
-endif
-
-# Finally add the rgen bin dirs to the users's path as highest priority
-setenv PATH ./lbin\:$ruby_user_gem_bin\:$rgen_bin\:$rgen_collection_bin\:$PATH
+# Add the origen bin dirs to the user's path as highest priority
+setenv PATH ./lbin\:$origen_bin\:$PATH
