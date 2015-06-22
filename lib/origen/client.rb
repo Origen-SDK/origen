@@ -30,12 +30,12 @@ module Origen
 
     def record_invocation(command)
       data = {
-        user:         Origen.current_user.core_id,
-        application:  Origen.app.config.initials,
-        app_version:  Origen.app.version,
+        user:           Origen.current_user.core_id,
+        application:    Origen.app.config.initials,
+        app_version:    Origen.app.version,
         origen_version: Origen.version,
-        command:      command,
-        platform:     Origen.running_on_windows? ? 'windows' : 'linux'
+        command:        command,
+        platform:       Origen.running_on_windows? ? 'windows' : 'linux'
       }
       post('record_invocation', body: data)
     end

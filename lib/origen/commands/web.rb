@@ -145,8 +145,8 @@ The following options are available:
             listener.before_web_compile(options)
           end
           Origen.app.runner.launch action: :compile,
-                                 files:  'templates/web',
-                                 output: 'web/content'
+                                   files:  'templates/web',
+                                   output: 'web/content'
           Origen.app.listeners_for(:after_web_compile).each do |listener|
             listener.after_web_compile(options)
           end
@@ -160,8 +160,8 @@ The following options are available:
         ARGV.each do |file|
           output = Origen.file_handler.sub_dir_of(Origen.file_handler.clean_path_to(file), "#{Origen.root}/templates/web")
           Origen.app.runner.launch action: :compile,
-                                 files:  file,
-                                 output: "#{Origen.root}/web/content/#{output}"
+                                   files:  file,
+                                   output: "#{Origen.root}/web/content/#{output}"
         end
         Origen.app.listeners_for(:after_web_compile).each do |listener|
           listener.after_web_compile(options)

@@ -218,8 +218,8 @@ module Origen
           FileUtils.cp_r Dir.glob("#{Origen.top}/templates/nanoc/*").sort, dir
           # Compile the dynamic stuff
           Origen.app.runner.launch action: :compile,
-                                 files:  "#{Origen.top}/templates/nanoc_dynamic",
-                                 output: dir
+                                   files:  "#{Origen.top}/templates/nanoc_dynamic",
+                                   output: dir
           unless Origen.root == origen_directory
             # Copy any application overrides if they exist
             if File.exist?("#{origen_directory}/templates/nanoc")
@@ -239,8 +239,8 @@ module Origen
           create_web_server_dir
           # Finally compile the application web pages
           Origen.app.runner.generate(files:   "#{origen_directory}/templates/web",
-                                   compile: true,
-                                   output:  "#{@nanoc_dir}/content")
+                                     compile: true,
+                                     output:  "#{@nanoc_dir}/content")
         end
       end
 
@@ -248,8 +248,8 @@ module Origen
       def generate_rdoc_pages
         if File.exist?("#{origen_directory}/templates/api_doc")
           Origen.app.runner.generate(files:   "#{origen_directory}/templates/api_doc",
-                                   compile: true,
-                                   output:  "#{origen_directory}/api_doc")
+                                     compile: true,
+                                     output:  "#{origen_directory}/api_doc")
         end
         Dir.chdir origen_directory do
           system "origen #{rdoc_command}"

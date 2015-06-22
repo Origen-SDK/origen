@@ -1,5 +1,5 @@
 puts 'Generating ctags file...'
-# system("ctags -R --exclude='.ref/**,output/**' #{RGEN_WORK} #{RGEN_TOP}/lib")
+# system("ctags -R --exclude='.ref/**,output/**' #{ORIGEN_WORK} #{ORIGEN_TOP}/lib")
 Origen.load_application
 if Origen.top == Origen.root
   system("ctags -R #{Origen.top}/lib -f #{Origen.root}/tags")

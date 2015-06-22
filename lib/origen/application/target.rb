@@ -243,7 +243,7 @@ module Origen
       end
 
       # Saves the current target as the workspace default, i.e. the current target
-      # will be used by rGen the next time if no other target is specified
+      # will be used by Origen the next time if no other target is specified
       def save # :nodoc:
         if @file
           File.open(SAVE_FILE, 'w') do |f|

@@ -234,8 +234,8 @@ module Origen
             forecast = rules.forecast(test, library[test], options)
             unless options[:silent] || options[:summary]
               Origen.log.info test.ljust(60) + library[test]['rule'].to_s.ljust(40) +
-                            "#{library[test]['reference']['time'].round(6)}".ljust(30) +
-                            "#{forecast.round(6)}"
+                              "#{library[test]['reference']['time'].round(6)}".ljust(30) +
+                              "#{forecast.round(6)}"
             end
             sum + forecast
           end

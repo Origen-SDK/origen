@@ -117,7 +117,7 @@ end
 # To allow you to locate changed or new patterns easily they are automatically copied to:
 # output/<soc>/changed/
 #
-# The reference files are stored in $RGEN_WORK/.ref <br>
+# The reference files are stored in $ORIGEN_WORK/.ref <br>
 # Very often you will want to compare the output of the current generator to a previous version,
 # to do this remove the .ref and replace it with a link to the .ref in another workspace.
 #   rm -fr .ref

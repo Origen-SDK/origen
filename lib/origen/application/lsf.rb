@@ -37,7 +37,7 @@ module Origen
       # Example
       #   # soc/nevis.rb
       #
-      #   RGEN::Runner::LSF.configuration do |config|
+      #   ORIGEN::Runner::LSF.configuration do |config|
       #   # Use "msg.nevis" for the project string when running in Noida
       #   if %x["domainname"] =~ /nidc/
       #     Origen.config.lsf.project =  "msg.nevis"

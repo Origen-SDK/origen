@@ -18,7 +18,7 @@ module Origen
       # Plugins can however block execution by specifying a max required version
       # that must not be exceeded.
       @required_origen_version = Origen.config.required_origen_version ||
-                               Origen.config.min_required_origen_version
+                                 Origen.config.min_required_origen_version
       @max_required_origen_version = Origen.config.max_required_origen_version
     end
 

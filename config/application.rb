@@ -5,8 +5,7 @@ class OrigenCoreApplication < Origen::Application
 
   config.name = "Origen Core"
   config.initials = "Origen"
-  config.vault = "sync://sync-15088:15088/Projects/common_tester_blocks/origen"
-  #config.rc_url = "ssh://git@sw-stash.freescale.net/origen/origen_core.git"
+  config.rc_url = "ssh://git@github.com:Origen-SDK/origen.git"
   config.semantically_version = true
 
   config.production_targets = {
@@ -34,7 +33,7 @@ class OrigenCoreApplication < Origen::Application
   
   config.web_directory = "/proj/.web_origen/html/origen"
 
-  config.web_domain = "http://origen.freescale.net/origen"
+  config.web_domain = "http://origen-sdk.org/origen"
   
   config.pattern_prefix = "nvm"
 

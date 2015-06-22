@@ -5,7 +5,7 @@ require 'optparse'
 
 ARGV << '--help' if ARGV.empty?
 
-RGEN_COMMAND_ALIASES = {
+ORIGEN_COMMAND_ALIASES = {
   'g'         => 'generate',
   'p'         => 'program',
   't'         => 'target',
@@ -23,7 +23,7 @@ RGEN_COMMAND_ALIASES = {
 }
 
 @command = ARGV.shift
-@command = RGEN_COMMAND_ALIASES[@command] || @command
+@command = ORIGEN_COMMAND_ALIASES[@command] || @command
 
 # Don't log to file during the save command since we need to preserve the last log,
 # this is done as early in the process as possible so any deprecation warnings during

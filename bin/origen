@@ -1,3 +1,162 @@
 #!/usr/bin/env ruby
+$VERBOSE=nil  # Don't care about world writable dir warnings and the like
 
-puts "Coming soon..."
+require "pathname"
+require "fileutils"
+
+class OrigenBootError < StandardError
+end
+
+ORIGEN_MIN_GCC_VERSION = "4.7.3"
+
+# This will be referenced later in ruby_version_check, the origen used to launch
+# the process is different than the one that actually runs under bundler
+$origen_launch_root = Pathname.new(File.dirname(__FILE__)).parent
+
+# Override any influence from $LANG in the users environment 
+Encoding.default_external = Encoding::UTF_8
+Encoding.default_internal = Encoding::UTF_8
+ENV['LC_ALL'] = nil
+ENV['LANG'] = nil
+ENV['LANG'] = 'en_US.UTF-8' 
+
+# Work out what Origen.root is if we are running inside an Origen application, this will be
+# later used to execute from that app's bundle even if the origen executable lives somewhere
+# else (e.g. in the tools repository)
+app_config = File.join('config', 'application.rb')
+if File.exist?(app_config)
+  origen_root = Dir.pwd
+else
+  path = Pathname.new(Dir.pwd)
+  until path.root? || origen_root
+    if File.exist?(File.join(path, app_config))
+      origen_root = path.to_s
+    else
+      path = path.parent
+    end
+  end
+end
+
+if origen_root
+  # Force everyone to have a consistent way of installing gems with bundler
+  ENV['BUNDLE_GEMFILE'] = File.join(origen_root, "Gemfile")
+  ENV['BUNDLE_PATH'] = File.expand_path('~/.origen/gems')
+  ENV['BUNDLE_BIN'] = File.join(origen_root, "lbin")
+end
+
+if origen_root && File.exist?(ENV['BUNDLE_GEMFILE'])
+  # Overriding bundler here so that bundle install can be automated as required
+  require 'bundler/shared_helpers'
+  if Bundler::SharedHelpers.in_bundle?
+    require 'bundler'
+    if STDOUT.tty?
+      begin
+        Bundler.setup
+        fail OrigenBootError unless File.exist?(ENV['BUNDLE_BIN'])
+      rescue Gem::LoadError, Bundler::BundlerError, OrigenBootError => e
+        cmd = "bundle install --gemfile #{ENV["BUNDLE_GEMFILE"]} --binstubs #{ENV["BUNDLE_BIN"]} --path #{ENV["BUNDLE_PATH"]}"
+        #puts cmd
+        puts "Installing required gems..."
+        puts
+        `chmod o-w #{origen_root}` # Stops some annoying world writable warnings during install
+        `chmod o-w #{origen_root}/bin` if File.exist?("#{origen_root}/bin")
+        `chmod o-w #{origen_root}/.bin` if File.exist?("#{origen_root}/.bin")
+        result = false
+        local_gem_dir = "#{ENV['BUNDLE_PATH']}/ruby/2.1.0"
+        system_gem_dir = "/run/pkg/fs-ruby-/2.1.5-p273/lib/ruby/gems/2.1.0"
+        Bundler.with_clean_env do
+          if RUBY_PLATFORM == "x86_64-linux"
+            `bundle config build.nokogiri --use-system-libraries=true --with-xml2-include=/pkg/libxml2-/2.9.0/x86_64-linux/include/libxml2 --with-xml2-lib=/pkg/libxml2-/2.9.0/x86_64-linux/lib`
+            gcc_version = begin
+              begin              
+                line = %x[gcc --version].split("\n").first
+              rescue
+                puts "You don't seem to have gcc available, make sure you following the Origen installation instructions:"
+                puts "http://origen.freescale.net/origen/latest/guides/starting/installing/"
+                exit 1
+              end
+              if line =~ /(\d+\.\d+\.\d+)/
+                $1
+              end
+            end
+            if gcc_version
+              if gcc_version < ORIGEN_MIN_GCC_VERSION
+                puts "Origen requires a minimum of GCC version #{ORIGEN_MIN_GCC_VERSION}, but you have #{gcc_version}."
+                puts "The most likely reason for this is that your environment has required a specific version of GCC that has higher"
+                puts "priority than the Origen tool collection in your PATH."
+                puts "One way to fix this is to add the Origen tool collection as the highest priority in your PATH as described here:"
+                puts "http://origen.freescale.net/origen/latest/guides/starting/installing/"
+                exit 1
+              end
+            else
+              puts "Unable to determine gcc version, proceeding with fingers crossed..."
+            end
+            unless File.exist?("#{local_gem_dir}/.seeded_from_system")
+              puts "Installing gems that are available from the system Ruby, this can take a few minutes, please be patient..."
+              FileUtils.mkdir_p(local_gem_dir) unless File.exist?(local_gem_dir) # Make the full path the the local gems
+              FileUtils.rm_rf(local_gem_dir)   # Then clear the end directory
+              FileUtils.cp_r(system_gem_dir, local_gem_dir)
+              FileUtils.touch "#{local_gem_dir}/.seeded_from_system"
+            end
+          end
+          result = system(cmd)
+        end
+        `chmod o-w #{ENV["BUNDLE_BIN"]}`
+        # Make .bat versions of all executables, Bundler should really be doing this when running
+        # on windows
+        if RUBY_PLATFORM == 'i386-mingw32'
+          bat_present = File.exist? "#{origen_root}/lbin/origen.bat"
+          Dir.glob("#{origen_root}/lbin/*").each do |bin|
+            unless bin =~ /.bat$/
+              bat = "#{bin}.bat"
+              unless File.exist?(bat)
+                File.open(bat, 'w') { |f| f.write('@"ruby.exe" "%~dpn0" %*') }
+              end
+            end
+          end
+          if !bat_present && !result
+            puts "Some Windows specific updates to your workspace were required, please re-run the last command"
+            exit 0
+          end
+        end
+        if result
+          puts
+          puts "The required gems have been installed, please re-run the previous command"
+          exit 0
+        else
+          puts
+          puts "If you have just updated a gem version and are now getting an error that Bundler cannot find compatible versions for it then first try running 'bundle update <gemname>'."
+          puts "For example if you have just changed the version of origen_core run 'bundle update origen_core'."
+          exit 1
+        end
+      end
+    else
+      Bundler.setup
+    end
+  end
+  require "bundler/setup"
+  require "origen"
+else
+  $LOAD_PATH.unshift "#{File.expand_path(File.dirname(__FILE__))}/../lib"
+  require "origen"
+end
+
+# If this script has been invoked from within an Origen application then open
+# up all commands, if not then only allow the command to create a new Origen
+# application.
+# Note that the Origen core workspace is now a fully fledged Origen application in
+# its own right.
+begin
+  if origen_root
+    require "origen/commands"
+  else
+    require "origen/commands_global"
+  end
+ensure
+  if Origen.app_loaded?
+    Origen.app.listeners_for(:on_origen_shutdown).each do |listener|
+      listener.on_origen_shutdown
+    end
+    Origen.app.runner.shutdown
+  end
+end

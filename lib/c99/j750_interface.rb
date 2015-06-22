@@ -78,8 +78,8 @@ module C99
     include Origen::Tester::J750::Generator
   end
 
-  class TestersJ750Interface
-    include J750BaseInterface
-    include Testers::J750::Generator
-  end
+  # class TestersJ750Interface
+  #  include J750BaseInterface
+  #  include Testers::J750::Generator
+  # end
 end

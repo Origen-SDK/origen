@@ -425,7 +425,7 @@ module Origen
       def command_options(command_str)
         command_str.sub(/origen\s*/, '') =~ /(\w+)/
         command = Regexp.last_match[1]
-        command = RGEN_COMMAND_ALIASES[command] || command
+        command = ORIGEN_COMMAND_ALIASES[command] || command
         if command == current_command
           @command_options
         else

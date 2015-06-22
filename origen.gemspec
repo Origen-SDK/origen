@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Stephen McGinty"]
   spec.email         = ["stephen.f.mcginty@gmail.com"]
   spec.summary       = %q{A Semiconductor Developer's Kit}
-  #spec.homepage      = "http://"
-
+  spec.homepage      = "http://origen-sdk.org"
+  spec.license       = 'LGPL-3'
   spec.required_ruby_version     = '>= 1.9.3'
   spec.required_rubygems_version = '>= 1.8.11'
 
@@ -50,8 +50,8 @@ Gem::Specification.new do |spec|
   unless RUBY_PLATFORM == 'i386-mingw32'
     spec.add_development_dependency "stackprof", "~>0"
   end
-  spec.add_development_dependency "rgen_core_support", "0.2.0pre0"
-  spec.add_development_dependency "doc_helpers", ">= 1.7.0"
+  spec.add_development_dependency "origen_core_support", "0.1.0"
+  #spec.add_development_dependency "doc_helpers", ">= 1.7.0"
   spec.add_development_dependency "loco"
-  spec.add_development_dependency "rgen_testers", "0.3.0.pre33"
+  #spec.add_development_dependency "rgen_testers", "0.3.0.pre33"
 end
