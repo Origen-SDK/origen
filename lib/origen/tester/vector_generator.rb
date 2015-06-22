@@ -1,7 +1,7 @@
 require 'active_support/concern'
 module Origen
   module Tester
-    module VectoOrigenerator
+    module VectorGenerator
       extend ActiveSupport::Concern
 
       require 'erb'

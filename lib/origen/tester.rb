@@ -23,7 +23,7 @@ module Origen
     require 'origen/tester/timing'
     require 'origen/tester/api'
 
-    include VectoOrigenerator
+    include VectorGenerator
     include Timing
     include API
 
