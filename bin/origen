@@ -9,6 +9,8 @@ end
 
 ORIGEN_MIN_GCC_VERSION = "4.7.3"
 
+load File.expand_path('../../lib/origen/site_config.rb', __FILE__)
+
 # This will be referenced later in ruby_version_check, the origen used to launch
 # the process is different than the one that actually runs under bundler
 $origen_launch_root = Pathname.new(File.dirname(__FILE__)).parent
@@ -40,7 +42,7 @@ end
 if origen_root
   # Force everyone to have a consistent way of installing gems with bundler
   ENV['BUNDLE_GEMFILE'] = File.join(origen_root, "Gemfile")
-  ENV['BUNDLE_PATH'] = File.expand_path('~/.origen/gems')
+  ENV['BUNDLE_PATH'] = File.expand_path(Origen.site_config.gem_install_dir)
   ENV['BUNDLE_BIN'] = File.join(origen_root, "lbin")
 end
 
@@ -66,13 +68,17 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE'])
         system_gem_dir = "/run/pkg/fs-ruby-/2.1.5-p273/lib/ruby/gems/2.1.0"
         Bundler.with_clean_env do
           if RUBY_PLATFORM == "x86_64-linux"
-            `bundle config build.nokogiri --use-system-libraries=true --with-xml2-include=/pkg/libxml2-/2.9.0/x86_64-linux/include/libxml2 --with-xml2-lib=/pkg/libxml2-/2.9.0/x86_64-linux/lib`
+            if Origen.site_config.gem_build_switches
+              Origen.site_config.gem_build_switches.each do |switches|
+                `bundle config build.#{switches}`
+              end
+            end
             gcc_version = begin
               begin              
                 line = %x[gcc --version].split("\n").first
               rescue
                 puts "You don't seem to have gcc available, make sure you following the Origen installation instructions:"
-                puts "http://origen.freescale.net/origen/latest/guides/starting/installing/"
+                puts "http://origen-sdk.org/origen/latest/guides/starting/installing/"
                 exit 1
               end
               if line =~ /(\d+\.\d+\.\d+)/
@@ -82,15 +88,14 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE'])
             if gcc_version
               if gcc_version < ORIGEN_MIN_GCC_VERSION
                 puts "Origen requires a minimum of GCC version #{ORIGEN_MIN_GCC_VERSION}, but you have #{gcc_version}."
-                puts "The most likely reason for this is that your environment has required a specific version of GCC that has higher"
-                puts "priority than the Origen tool collection in your PATH."
-                puts "One way to fix this is to add the Origen tool collection as the highest priority in your PATH as described here:"
-                puts "http://origen.freescale.net/origen/latest/guides/starting/installing/"
                 exit 1
               end
             else
               puts "Unable to determine gcc version, proceeding with fingers crossed..."
             end
+            # Some gems (particularly those with C extensions that need to be built), can be hard to install reliably
+            # across a large user base. Initially seed the user's local gem area with the system-installed gems,
+            # this means that the system Ruby owner can provide an installation for these hard-to-install gems.
             unless File.exist?("#{local_gem_dir}/.seeded_from_system")
               puts "Installing gems that are available from the system Ruby, this can take a few minutes, please be patient..."
               FileUtils.mkdir_p(local_gem_dir) unless File.exist?(local_gem_dir) # Make the full path the the local gems
