@@ -1,3 +1,5 @@
+# GENERAL INSTALLATION
+
 # Where user's local gems will be installed
 gem_install_dir: ~/.origen/gems
 
@@ -9,3 +11,8 @@ gem_install_dir: ~/.origen/gems
 #gem_build_switches:
 #  - nokogiri --use-system-libraries=true --with-xml2-include=/path/to/libxml2  
 #  - other_gem --some_build_switch
+
+# USERS AND LDAP
+
+  
+# LSF

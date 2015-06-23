@@ -7,16 +7,14 @@ class OrigenCoreApplication < Origen::Application
   config.initials = "Origen"
   config.rc_url = "ssh://git@github.com:Origen-SDK/origen.git"
   config.semantically_version = true
+  config.release_externally = true
+  config.gem_name = "origen"
 
   config.production_targets = {
     "1m79x" => "production",
     "2m79x" => "debug",
     "3m79x" => "mock.rb",
   }
-
-  config.snapshots_directory do
-    Origen.top.dirname
-  end
 
   config.lint_test = {
     # Require the lint tests to pass before allowing a release to proceed
@@ -125,11 +123,6 @@ class OrigenCoreApplication < Origen::Application
 
   def after_release_email(tag, note, type, selector, options)
     begin
-      pdm_release(:note => note)
-    rescue
-      Origen.log.error "PDM component release failed"
-    end
-    begin
       deployer = Origen.app.deployer
       if deployer.running_on_cde? && deployer.user_belongs_to_origen?
         command = "origen web compile --remote --api"
@@ -143,21 +136,6 @@ class OrigenCoreApplication < Origen::Application
       end
     rescue
       Origen.log.error "Web deploy failed"
-    end
-  end
-
-  def pdm_release(options={})
-    options = {
-      :note_file => "release_note.txt",
-    }.merge(options)
-    if options[:note]
-      note = options[:note]
-    else
-      note = File.open(options[:note_file]) { |f| f.read }
-    end
-    if Origen.version.production?
-      Origen.app.pdm_component.pdm_version_notes = note
-      Origen.app.pdm_component.pdm_release! 
     end
   end
 end

@@ -1,7 +1,6 @@
 namespace 'gem' do
-  GEM_SPEC = "#{RGen.root}/#{RGen.app.name}.gemspec"
-  GEM_NAME = "#{RGen.app.name}-#{RGen.app.version}.gem"
-  GEM_SERVER = 'TBD'
+  GEM_SPEC = "#{Origen.root}/#{Origen.app.gem_name}.gemspec"
+  GEM_NAME = "#{Origen.app.gem_name}-#{Origen.app.version}.gem"
 
   if File.exist?(GEM_SPEC)
 
@@ -10,23 +9,28 @@ namespace 'gem' do
     desc "Build #{GEM_NAME} into the pkg directory"
     task :build do
       # Ensure all files are readable
-      sh("chmod a+r -R #{RGen.root}")
+      sh("chmod a+r -R #{Origen.root}")
       sh("gem build -V '#{GEM_SPEC}'") do |_ok, _res|
-        outdir = File.join(RGen.root, 'pkg')
+        outdir = File.join(Origen.root, 'pkg')
         FileUtils.mkdir_p(outdir)
         FileUtils.mv(GEM_NAME, outdir)
         built_gem_path = File.join(outdir, GEM_NAME)
-        puts "#{RGen.app.name} #{RGen.app.version} built to pkg/#{GEM_NAME}".green
+        puts "#{Origen.app.name} #{Origen.app.version} built to pkg/#{GEM_NAME}".green
       end
     end
 
-    desc "Push #{GEM_NAME} to the RGen gem server"
+    desc "Push #{GEM_NAME} to the Origen gem server"
     task release: [:build] do
-      sh("gem inabox --host #{GEM_SERVER} #{built_gem_path}") do |ok, _res|
+      if Origen.app.config.release_externally
+        cmd = "gem push #{built_gem_path}"
+      else
+        cmd = "gem inabox --host #{Origen.site_config.gem_server!} #{built_gem_path}"
+      end
+      sh(cmd) do |ok, _res|
         if ok
-          puts "#{RGen.app.name} #{RGen.app.version} has been released successfully".green
+          puts "#{Origen.app.name} #{Origen.app.version} has been released successfully".green
         else
-          puts 'Something went wrong!'.red
+          puts "Something went wrong releasing #{Origen.app.name} to the gem server!".red
         end
       end
     end

@@ -404,6 +404,10 @@ module Origen
       (@name ||= namespace).to_s.underscore.symbolize
     end
 
+    def gem_name
+      (Origen.app.config.gem_name || name).symbolize
+    end
+
     def plugins_manager
       @plugins_manager ||= PluginsManager.new
     end

@@ -15,6 +15,7 @@ require 'origen/version_checker'
 require 'origen/logger_methods'
 require 'option_parser/optparse'
 require 'bundler'
+require 'origen/site_config'
 
 module Origen
   autoload :Features,  'origen/features'
@@ -28,7 +29,6 @@ module Origen
   autoload :RegressionManager, 'origen/regression_manager'
   autoload :NVM,       'origen/nvm'
   autoload :Location,  'origen/location'
-  autoload :PDM,       'origen/pdm'
   autoload :VersionString, 'origen/version_string'
   autoload :Mode,      'origen/mode'
   autoload :ChipMode,   'origen/chip_mode'
@@ -47,7 +47,6 @@ module Origen
   autoload :Log,       'origen/log'
 
   APP_CONFIG = File.join('config', 'application.rb')
-  VAULT = 'sync://sync-15088:15088/Projects/common_tester_blocks/origen'
 
   class OrigenError < StandardError
     def self.status_code(code)
@@ -464,10 +463,6 @@ module Origen
     # Compile the given file and return the result as a string
     def compile(file, options = {})
       Origen::Generator::Compiler.new.compile_inline(file, options)
-    end
-
-    def vault
-      VAULT
     end
 
     def interfaces

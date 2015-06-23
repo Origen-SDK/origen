@@ -17,10 +17,10 @@ module Origen
                     :test_program_output_directory, :erb_trim_mode, :test_program_source_directory,
                     :test_program_template_directory, :referenced_pattern_list, :program_prefix,
                     :copy_command, :diff_command, :compile_only_dot_erb_files, :web_directory,
-                    :web_domain, :snapshots_directory, :imports, :imports_dev,
+                    :web_domain, :imports, :imports_dev,
                     :strict_errors, :unmanaged_dirs, :unmanaged_files, :remotes,
                     :external_app_dirs, :lint_test, :shared, :yammer_group, :rc_url, :rc_workflow,
-                    :user_aliases
+                    :user_aliases, :release_externally, :gem_name
 
       # Mark any attributes that are likely to depend on properties of the target here,
       # this will raise an error if they are ever accessed before the target has been
@@ -40,7 +40,7 @@ module Origen
       # can be added here
       ATTRS_THAT_ACCEPT_A_BLOCK = ATTRS_THAT_DEPEND_ON_TARGET +
                                   [:release_instructions, :history_file, :log_directory, :copy_command,
-                                   :diff_command, :snapshots_directory, :imports, :imports_dev, :remotes,
+                                   :diff_command, :imports, :imports_dev, :remotes,
                                    :external_app_dirs
                                   ]
 

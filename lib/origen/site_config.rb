@@ -5,12 +5,21 @@ module Origen
 
     def method_missing(method, *args, &block)
       method = method.to_s
+      if method =~ /(.*)!$/
+        method = $1
+        must_be_present = true
+      end
       env = "ORIGEN_#{method.upcase}"
       if ENV.key?(env)
         val = ENV[env]
       else
         config = configs.find { |c| c.key?(method) }
         val = config ? config[method] : nil
+      end
+      if must_be_present && val == nil
+        puts "No value assigned for site_config attribute '#{method}'"
+        puts
+        fail "Missing site_config value!"
       end
       define_singleton_method(method) do
         val
