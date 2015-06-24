@@ -76,7 +76,7 @@ Your workspace has local modifications that are preventing the requested action
           Origen.app.listeners_for(:after_release_tag).each do |listener|
             listener.after_release_tag(tag, note, type, selector, options)
           end
-          @mailer.send_release_notice(tag, note, type, selector) unless options[:silent]
+          # @mailer.send_release_notice(tag, note, type, selector) unless options[:silent]
           Origen.app.listeners_for(:after_release_email).each do |listener|
             listener.after_release_email(tag, note, type, selector, options)
           end
@@ -111,7 +111,7 @@ Your workspace has local modifications that are preventing the requested action
       end
 
       def release_gem
-        if File.exist?(File.join Origen.root, "#{Origen.app.name}.gemspec")
+        if File.exist?(File.join Origen.root, "#{Origen.app.gem_name}.gemspec")
           unless system 'rake gem:release'
             puts '***************************************'.red
             puts '***************************************'.red
