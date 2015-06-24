@@ -16,7 +16,7 @@ Gem::Specification.new do |spec|
   spec.files         = Dir["lib/**/*.rb", "lib/**/*.erb", "templates/**/*", "config/**/*.rb",
                            "bin/*", "helpers/**/*.rb", "vendor/**/*", "lib/tasks/**/*.rake",
                            "config/**/*.yml", "config/**/*.policy",
-                           "spec/format/rgen_formatter.rb", "source_setup", "origen_site_config.yml"
+                           "spec/format/origen_formatter.rb", "source_setup", "origen_site_config.yml"
                           ]
   spec.executables   = ["origen", "rgen"]
   spec.require_paths = ["lib"]
