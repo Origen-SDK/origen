@@ -66,7 +66,9 @@ module Origen
           # Pull latest
           checkout
           # Restore the given files to our previous version
-          git("checkout #{local_rev} -- #{paths.join(' ')}")
+          # Errors are ignored here since this can fail if the given file didn't exist until now,
+          # in that case we already implicitly have the previous version
+          git("checkout #{local_rev} -- #{paths.join(' ')}", check_errors: false)
           # Then proceed with checking them in as latest
         else
           checkout unless options[:initial]
