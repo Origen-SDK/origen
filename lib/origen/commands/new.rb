@@ -59,17 +59,17 @@ else
   tmp = '/tmp/origen_app_generators'
 end
 
-dir = "#{tmp}/app_gen#{version}"
-lib = "#{dir}/lib"
+tmp_dir = "#{tmp}/app_gen#{version}"
+lib = "#{tmp_dir}/lib"
 md5 = "#{tmp}/md5#{version}"
 
 # If the app generators already exists in /tmp, check that all files are still there.
 # This deals with the problem of some files being swept up by the tmp cleaner while
 # leaving the top-level folder there.
-if File.exist?(dir) && File.exist?(md5)
+if File.exist?(tmp_dir) && File.exist?(md5)
   old_sig = File.read(md5)
   hash = Digest::MD5.new
-  Dir["#{dir}/**/*"].each do |f|
+  Dir["#{tmp_dir}/**/*"].each do |f|
     hash << File.read(f) unless File.directory?(f)
   end
   new_sig = hash.hexdigest
@@ -80,7 +80,7 @@ end
 
 unless all_present
 
-  FileUtils.rm_rf(dir) if File.exist?(dir)
+  FileUtils.rm_rf(tmp_dir) if File.exist?(tmp_dir)
   FileUtils.mkdir_p(tmp) unless File.exist?(tmp)
 
   File.open("#{tmp}/app_gen#{version}.gem", 'wb') do |f|
@@ -99,7 +99,7 @@ unless all_present
   end
 
   hash = Digest::MD5.new
-  Dir["#{dir}/**/*"].each do |f|
+  Dir["#{tmp_dir}/**/*"].each do |f|
     hash << File.read(f) unless File.directory?(f)
   end
   File.open(md5, 'w') { |f| f.write(hash.hexdigest) }

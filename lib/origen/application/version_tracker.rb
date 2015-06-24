@@ -43,7 +43,7 @@ module Origen
 
       # Check in the persisted storage container
       def check_in
-        Origen.app.rc.checkin(STORAGE_FILE, force: true, unmanaged: true)
+        Origen.app.rc.checkin(STORAGE_FILE, force: true, unmanaged: true, comment: 'Recorded new version in the version tracker')
       end
 
       # Force the storage container to the latest checked in version
