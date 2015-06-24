@@ -345,12 +345,14 @@ Your workspace has local modifications that are preventing the requested action
 
       # Only allows admins to release
       def authorized?
-        if User.current.admin?
-          true
-        else
-          puts "Sorry but you can't run the release script, please contact a development team member"
-          false
-        end
+        # Not sure yet if this concept can work in the open source world...
+        true
+        # if User.current.admin?
+        #  true
+        # else
+        #  puts "Sorry but you can't run the release script, please contact a development team member"
+        #  false
+        # end
       end
     end
   end
