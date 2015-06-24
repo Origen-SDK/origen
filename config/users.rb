@@ -13,7 +13,7 @@ module Origen
     def users
       @users ||= [
         # Admins
-        User.new('Stephen McGinty', 'r49409', :admin),
+        User.new('Stephen McGinty', 'stephen.f.mcginty@gmail.com', :admin),
       ]
     end
   end

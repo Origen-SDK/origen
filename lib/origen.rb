@@ -175,10 +175,10 @@ module Origen
       @_applications_lookup ||= { name: {}, root: {} }
     end
 
-    # Returns an instance of Origen::Users::ApplicationDirectory which provides
-    # methods to query and authorize users against the FSL Application Directory
-    def fsl
-      @fsl ||= Origen::Users::ApplicationDirectory.new
+    # Returns an instance of Origen::Users::LDAP which provides
+    # methods to query and authorize users against a company's LDAP-based employee directory
+    def ldap
+      @ldap ||= Origen::Users::LDAP.new
     end
 
     # Return the application instance from the given path

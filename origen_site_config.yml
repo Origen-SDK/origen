@@ -14,5 +14,14 @@ gem_install_dir: ~/.origen/gems
 
 # USERS AND LDAP
 
+# Adding an email domain will allow email addresses for users to be automatically
+# generated from their ID e.g.
+#
+#   # With email_domain specified
+#   User.new("ax1234").email  # => "ax1234@freescale.com"  
+#
+#   # Without email_domain specified
+#   User.new("ax1234@freescale.com").email  # => "ax1234@freescale.com"  
+#email_domain: freescale.com
   
 # LSF

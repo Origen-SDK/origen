@@ -7,8 +7,8 @@ module Origen
       # Generic method to send an email, alternatively use one of the
       # pre-defined mail types using the other methods.
       def send_email(options = {})
-        options = { server:     'TBD',
-                    port:       'TBD',
+        options = { server:     Origen.site_config.email_server,
+                    port:       Origen.site_config.email_port,
                     from:       current_user.email,
                     from_alias: current_user.name,
                     subject:    'Hello',
