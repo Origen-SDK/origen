@@ -2,6 +2,7 @@ require 'optparse'
 require 'fileutils'
 require 'httparty'
 require 'digest'
+require 'gems'
 
 include Origen::Utility::InputCapture
 
@@ -19,7 +20,7 @@ generators regardless of the base Origen version that this command is being laun
 
 See the website for more details:
 
-http://origen.freescale.net/origen_app_generators
+http://origen-sdk.org/origen_app_generators
 
 Usage: origen new [APP_NAME] [options]
 END
@@ -45,8 +46,7 @@ unless Dir["#{dir}/*"].empty?
 end
 
 version = options[:version] || begin
-  plugin = Origen.client.plugin(:origen_app_generators)
-  plugin[:latest_version_prod]
+  (Gems.info 'origen_app_generators')['version']
 end
 
 version ||= '0.0.0'
@@ -84,7 +84,7 @@ unless all_present
   FileUtils.mkdir_p(tmp) unless File.exist?(tmp)
 
   File.open("#{tmp}/app_gen#{version}.gem", 'wb') do |f|
-    response =  HTTParty.get("http://origen-hub.am.freescale.net:9292/gems/origen_app_generators-#{version}.gem")
+    response = HTTParty.get("http://rubygems.org/downloads/origen_app_generators-#{version}.gem")
     if response.success?
       f.write response.parsed_response
     else

@@ -405,7 +405,7 @@ module Origen
     end
 
     def gem_name
-      (Origen.app.config.gem_name || name).symbolize
+      (Origen.app.config.gem_name || name).to_s.underscore.symbolize
     end
 
     def plugins_manager

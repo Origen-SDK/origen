@@ -24,11 +24,11 @@ Gem::Specification.new do |spec|
   # Don't add any logic to runtime dependencies, for example to install a specific gem
   # based on Ruby version.
   # Rubygems / Bundler do not support this and you will need to find another way around it.
-  spec.add_runtime_dependency "activesupport", "~> 4.1"
-  spec.add_runtime_dependency "colored", "~> 1.2"
-  spec.add_runtime_dependency "net-ldap", "~> 0.9"
+  spec.add_runtime_dependency "activesupport", "~>4.1"
+  spec.add_runtime_dependency "colored", "~>1.2"
+  spec.add_runtime_dependency "net-ldap", "~>0.9"
   spec.add_runtime_dependency "httparty", "~>0.13"
-  spec.add_runtime_dependency "bundler", "~> 1.7"
+  spec.add_runtime_dependency "bundler", "~>1.7"
   spec.add_runtime_dependency "nokogiri", "1.6.4.1"
   spec.add_runtime_dependency "rspec", "~>3"
   spec.add_runtime_dependency "rspec-legacy_formatters", "~>1"
@@ -42,8 +42,10 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "pry", "~>0.10"
   spec.add_runtime_dependency "yard", "~>0.8"
   spec.add_runtime_dependency "simplecov", "~>0.9"
-  spec.add_runtime_dependency "log4r", "~> 1.1", "~>1.1.10"
-  spec.add_runtime_dependency "scrub_rb", "~> 1.0"
+  spec.add_runtime_dependency "log4r", "~>1.1", "~>1.1.10"
+  spec.add_runtime_dependency "scrub_rb", "~>1.0"
+  spec.add_runtime_dependency "gems", "~>0.8"
+  spec.add_runtime_dependency "highline", "~>1.7"
 
   # Conditional logic in development dependencies is allowed as this is only evaluated when
   # the app is run from its own workspace
