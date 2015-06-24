@@ -27,7 +27,7 @@ module Origen
         id = args.pop
         if id.to_s =~ /(.*)@/
           @email = id
-          @id = $1
+          @id = Regexp.last_match(1)
         else
           @id = id
         end
