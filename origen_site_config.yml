@@ -1,11 +1,9 @@
-# GENERAL INSTALLATION
+# GEM SETUP
 
 # Where user's local gems will be installed
 gem_install_dir: ~/.origen/gems
-
 # If your company has an internal gem server enter it here
-#gem_server: http://rgen-hub.am.freescale.net:9292
-
+#gem_server: http://gems.company.net:9292
 # If build switches/options are required to build specific gems in your environment
 # you can define them here
 #gem_build_switches:
@@ -18,10 +16,21 @@ gem_install_dir: ~/.origen/gems
 # generated from their ID e.g.
 #
 #   # With email_domain specified
-#   User.new("ax1234").email  # => "ax1234@freescale.com"  
+#   User.new("ax1234").email  # => "ax1234@company.com"  
 #
 #   # Without email_domain specified
-#   User.new("ax1234@freescale.com").email  # => "ax1234@freescale.com"  
-#email_domain: freescale.com
-  
-# LSF
+#   User.new("ax1234@company.com").email  # => "ax1234@company.com"  
+#email_domain: company.com
+#email_server: remotesmtp.company.net
+#email_port: 25
+
+# Required parameters to connect to your company's LDAP system
+#ldap_username: cn=manager,dc=example,dc=com
+#ldap_password: opensesame
+#ldap_host: ids.company.net
+#ldap_port: 636
+#ldap_base_dn: ou=people,ou=intranet,dc=com
+# Optional to override the name given to the user ID attribute on the LDAP system ('id' by default)
+#ldap_user_id_attribute: uid
+
+# LSF  
