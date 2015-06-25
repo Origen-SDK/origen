@@ -132,7 +132,7 @@ The following options are available:
       Origen.app.load_target!
       if options[:remote]
         _require_web_directory
-        _deployer.require_remote_directories
+        _deployer.prepare!
         # If the whole site has been requested that start from a clean slate
         _build_web_dir if ARGV.empty?
       else

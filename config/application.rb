@@ -29,8 +29,7 @@ class OrigenCoreApplication < Origen::Application
 
   #config.lsf.project = "origen core"
   
-  config.web_directory = "/proj/.web_origen/html/origen"
-
+  config.web_directory = "git@github.com:Origen-SDK/Origen-SDK.github.io.git/origen"
   config.web_domain = "http://origen-sdk.org/origen"
   
   config.pattern_prefix = "nvm"
@@ -112,13 +111,13 @@ class OrigenCoreApplication < Origen::Application
   end
 
   def before_deploy_site
-    Dir.chdir Origen.root do
-      system "origen specs -c"
-      system "origen examples -c"
-      dir = "#{Origen.root}/web/output/coverage"       
-      FileUtils.remove_dir(dir, true) if File.exists?(dir) 
-      system "mv #{Origen.root}/coverage #{dir}"
-    end
+    #Dir.chdir Origen.root do
+    #  system "origen specs -c"
+    #  system "origen examples -c"
+    #  dir = "#{Origen.root}/web/output/coverage"       
+    #  FileUtils.remove_dir(dir, true) if File.exists?(dir) 
+    #  system "mv #{Origen.root}/coverage #{dir}"
+    #end
   end
 
   def after_release_email(tag, note, type, selector, options)

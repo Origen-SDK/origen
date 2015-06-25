@@ -1,8 +1,8 @@
 module Origen
   module RevisionControl
     class Git < Base
-      def build
-        if Dir["#{local}/*"].empty?
+      def build(options = {})
+        if Dir["#{local}/*"].empty? || options[:force]
           FileUtils.rm_rf(local.to_s)
           # Not using the regular 'git' method here since the local dir doesn't exist to CD into
           system "git clone #{remote} #{local}"
@@ -74,7 +74,11 @@ module Origen
           checkout unless options[:initial]
         end
         cmd = 'add'
-        cmd += ' -u' unless options[:unmanaged]
+        if options[:unmanaged]
+          cmd += ' -A'
+        else
+          cmd += ' -u' unless options[:unmanaged]
+        end
         cmd += " #{paths.join(' ')}"
         git cmd, options
         if changes_pending_commit?
@@ -99,6 +103,15 @@ module Origen
         end
         git "push origin #{current_branch}" unless options[:local]
         paths
+      end
+
+      # Returns true if the current user can checkin to the given repo (means has permission
+      # to push in Git terms)
+      def can_checkin?
+        git('push --dry-run', verbose: false)
+        true
+      rescue
+        false
       end
 
       def changes(dir = nil, options = {})
@@ -176,7 +189,24 @@ module Origen
         git('tag', verbose: false).include?(tag.to_s)
       end
 
+      def initialized?
+        File.exist?("#{local}/.git") &&
+          git('remote -v', verbose: false).any? { |r| r =~ /#{remote_without_protocol}/ } &&
+          !git('status', verbose: false).any? { |l| l == 'Initial commit' }
+      end
+
+      # Delete everything in the given directory, or the whole repo
+      def delete_all(dir = nil, options = {})
+        paths, options = clean_path(dir, options)
+        files = git("ls-files #{paths.first}")
+        FileUtils.rm_f files
+      end
+
       private
+
+      def remote_without_protocol
+        Pathname.new(remote.sub(/^.*:\/\//, ''))
+      end
 
       def create_gitignore
         c = Origen::Generator::Compiler.new
@@ -202,10 +232,6 @@ module Origen
           git 'init'
           git "remote add origin #{remote}"
         end
-      end
-
-      def initialized?
-        File.exist?("#{local}/.git")
       end
 
       # Execute a git operation, the resultant output is returned in an array

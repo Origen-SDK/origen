@@ -13,13 +13,76 @@ module Origen
     # Upon a successful copy the symlink is switched over, thereby providing zero-downtime
     # deploys and guaranteeing that the old site will stay up if an error is encountered
     # during a deploy.
+    #
+    # An alternative method of deploying is also supported by pushing to a Git repository.
     class Deployer
       require 'fileutils'
 
       attr_writer :directory, :test
 
+      # Prepare for deploying, this will raise an error if the current user is found to
+      # have insufficient permissions to deploy to the target directory
+      def prepare!(options = {})
+        if deploy_to_git?
+          require 'highline/import'
+          @commit_message = options[:message] || ask('Enter a deployment commit message:  ') do |q|
+            q.validate = /\w/
+            q.responses[:not_valid] = "Can't be blank"
+          end
+          Origen.log.info "Fetching the website's Git respository..."
+          begin
+            git_repo
+            fail unless git_repo.can_checkin?
+          rescue
+            puts "Sorry, but you don't have permission to write to #{Origen.config.web_directory}!"
+            exit 1
+          end
+        else
+          begin
+            require_remote_directories
+            test_file = "#{Origen.config.web_directory}/_test_file.txt"
+            FileUtils.rm_f(test_file) if File.exist?(test_file)
+            FileUtils.touch(test_file)
+            FileUtils.rm_f(test_file)
+          rescue
+            puts "Sorry, but you don't have permission to write to #{Origen.config.web_directory}!"
+            exit 1
+          end
+        end
+      end
+
+      def git_sub_dir
+        if Origen.config.web_directory =~ /\.git\/(.*)$/
+          Regexp.last_match(1)
+        end
+      end
+
+      # Returns a RevisionControl::Git object that points to a local copy of the website repo
+      # which is will build and checkout as required
+      def git_repo
+        @git_repo ||= begin
+          local = Pathname.new("#{Origen.app.workspace_manager.imports_directory}/git/#{Origen.config.web_directory.gsub('/', '-').symbolize}")
+          if git_sub_dir
+            remote = Origen.config.web_directory.sub("\/#{git_sub_dir}", '')
+          else
+            remote = Origen.config.web_directory
+          end
+          git = RevisionControl::Git.new(local: local, remote: remote)
+          if git.initialized?
+            git.checkout(force: true)
+          else
+            git.build(force: true)
+          end
+          git
+        end
+      end
+
       def test_run?
         @test
+      end
+
+      def deploy_to_git?
+        !!(Origen.config.web_directory =~ /\.git\/?#{git_sub_dir}$/)
       end
 
       def require_remote_directories
@@ -63,22 +126,33 @@ module Origen
       # directory to the remote server.
       def deploy_site
         Origen.app.listeners_for(:before_deploy_site).each(&:before_deploy_site)
-        # Empty the contents of the remote dir
-        if File.exist?(offline_remote_directory)
-          FileUtils.remove_dir(offline_remote_directory, true)
-          require_remote_directories
-        end
-        # Copy the new contents accross
-        `chmod g+w -R #{Origen.root}/web/output`      # Ensure group writable
-        FileUtils.cp_r "#{Origen.root}/web/output/.", offline_remote_directory
-        `chmod g+w -R #{offline_remote_directory}`  # Double ensure group writable
-        # Make live
-        create_symlink offline_remote_directory, latest_symlink
-        index = "#{Origen.config.web_directory}/index.html"
-        # This symlink allows the site homepage to be accessed from the web root
-        # directory rather than root directory/latest
-        unless File.exist?(index)
-          create_symlink "#{latest_symlink}/index.html", index
+        if deploy_to_git?
+          dir = git_repo.local.to_s
+          dir += "/#{git_sub_dir}" if git_sub_dir
+          # Delete everything so that we don't preserve old files
+          git_repo.delete_all(git_sub_dir)
+          FileUtils.mkdir_p(dir) unless File.exist?(dir)
+          `chmod a+w -R #{Origen.root}/web/output`      # Ensure world writable, required?
+          FileUtils.cp_r "#{Origen.root}/web/output/.", dir
+          git_repo.checkin git_sub_dir, unmanaged: true, comment: @commit_message
+        else
+          # Empty the contents of the remote dir
+          if File.exist?(offline_remote_directory)
+            FileUtils.remove_dir(offline_remote_directory, true)
+            require_remote_directories
+          end
+          # Copy the new contents across
+          `chmod g+w -R #{Origen.root}/web/output`      # Ensure group writable
+          FileUtils.cp_r "#{Origen.root}/web/output/.", offline_remote_directory
+          `chmod g+w -R #{offline_remote_directory}`  # Double ensure group writable
+          # Make live
+          create_symlink offline_remote_directory, latest_symlink
+          index = "#{Origen.config.web_directory}/index.html"
+          # This symlink allows the site homepage to be accessed from the web root
+          # directory rather than root directory/latest
+          unless File.exist?(index)
+            create_symlink "#{latest_symlink}/index.html", index
+          end
         end
       end
 
@@ -108,6 +182,17 @@ module Origen
           title = "#{Origen.config.name} #{Origen.app.version}"
         end
         system("yard doc --output-dir #{Origen.root}/web/output/api --title '#{title}'")
+        # Yard doesn't have an option to ignore github-style READMEs, so force it here to
+        # always present the API index on the API homepage for consistency
+        index = "#{Origen.root}/web/output/api/index.html"
+        _index = "#{Origen.root}/web/output/api/_index.html"
+        FileUtils.rm_f(index) if File.exist?(index)
+        require 'nokogiri'
+        doc = Nokogiri::HTML(File.read(_index))
+        doc.xpath('//h2[contains(text(), "File Listing")]').remove
+        doc.css('#files').remove
+        File.open(_index, 'w') { |f| f.write(doc.to_html) }
+        FileUtils.cp(_index, index)
       end
 
       def deploy_archive(id)

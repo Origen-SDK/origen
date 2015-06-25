@@ -23,6 +23,9 @@ module Origen
           
           if Origen.development?
             "#{p}"   # dev mode used for local website generation
+          # For Git deploy don't maintain versions
+          elsif Origen.app.deployer.deploy_to_git?
+            "#{root_path}#{p}"
           else          
             "#{root_path}/#{_version}#{p}"
           end
@@ -54,8 +57,8 @@ module Origen
           end
         end
 
-        # Returns any path attached to the domain, for example will return "/tfs"
-        # for "http://origen.freescale.net/tfs"
+        # Returns any path attached to the domain, for example will return "/jtag"
+        # for "http://origen-sdk.org/jtag"
         def root_path # :nodoc:
           if domain =~ /\/\/[^\/]*(\/.*)/  # http://rubular.com/r/UY06Z6DXUS
             $1
