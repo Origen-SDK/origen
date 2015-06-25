@@ -1,70 +1,22 @@
 module Origen
   class Application
-    # This class currently serves two APIs and is a bit of a mess.
-    # The first API is the old style deploy which is deprecated, in this approach the
-    # entire application was built and manged remotely with pages compiled in the remote
-    # application.
+    # This class manages deploying an application's website.
     #
-    # The new appraoch is that the web pages are compiled in the local application and
-    # then deploy consists of simply copying them to the remote location.
+    # The web pages are compiled in the local application workspace and
+    # deploy consists of copying them to the remote location.
+    #
+    # Two directories are maintained in the remote location, one containing the live
+    # website and another where the new site is copied to during a deploy.
+    # A symlink is used to indicate which one of the two directories is currently being
+    # served.
+    #
+    # Upon a successful copy the symlink is switched over, thereby providing zero-downtime
+    # deploys and guaranteeing that the old site will stay up if an error is encountered
+    # during a deploy.
     class Deployer
       require 'fileutils'
 
-      attr_writer :version, :directory, :origen_directory, :rdoc_command, :test
-
-      # Deploys this release to origen.freescale.net/tfs
-      # This needs to be made generic so that projects can use it to, right now this
-      # code exists both here and in the TFS project
-      def deploy(options = {})
-        options = {
-          test:    false,         # Do a test run deploy in the local workspace
-          archive: false
-        }.merge(options)
-        @directory = options[:directory]
-        @app_sub_directory = options[:app_sub_directory]
-        @test = options[:test]
-        @version = options[:version]
-        @rdoc_command = options[:rdoc_command]
-        @successful = false
-
-        puts '***********************************************************************'
-        puts "'deploy' is deprecated, please transition to 'origen web compile' instead"
-        puts '***********************************************************************'
-
-        begin
-          puts ''
-          puts 'Deploying...'
-          puts ''
-          populate(offline_release_dir) unless test_run?
-          generate_web_pages
-          generate_rdoc_pages if @rdoc_command
-          # If web pages were generated compile them through nanoc, this is not done
-          # as part of generate web pages to allow the application to add additional web
-          # pages during the rdoc command
-          if @nanoc_dir
-            Dir.chdir @nanoc_dir do
-              system 'nanoc'
-            end
-          end
-          unless test_run?
-            create_symlinks
-            make_archive if options[:archive]
-          end
-          @successful = true
-          true
-        rescue Exception => e
-          puts e.message
-          puts e.backtrace
-          deploy_unsuccessful(@directory)
-          @successful = false
-          false
-        end
-      end
-
-      # Reports whether the last deploy was successful or not
-      def successful?
-        @successful
-      end
+      attr_writer :directory, :test
 
       def test_run?
         @test
@@ -169,48 +121,17 @@ module Origen
         end
       end
 
-      # Make an archive directory for the current release, this will create
-      # a new directory specifically for this release and copy over the web
-      # pages and api docs.
-      def make_archive
-        if version == 'latest'
-          puts 'Cannot archive latest, need a tag reference'
-        else
-          dir = archive_directory(force_clear: true)
-          FileUtils.cp_r Dir.glob("#{origen_directory}/web/output/*").sort, dir
-          api = "#{archive_directory}/api"
-          FileUtils.mkdir_p api unless File.exist?(api)
-          FileUtils.cp_r Dir.glob("#{origen_directory}/api/*").sort, api
-        end
-      end
-
-      def create_symlinks
-        {
-          "#{origen_directory}/web/output" => "#{root_directory}/latest",
-          "#{origen_directory}/api"        => "#{origen_directory}/web/output/api"
-
-        }.each do |from, to|
-          create_symlink(from, to)
-        end
-      end
-
       def create_symlink(from, to)
         `rm -f #{to}` if File.exist?(to)
         `ln -s #{from} #{to}` if File.exist?(from)
       end
 
-      def populate(dir)
-        # Populate to the new tag
-        system "dssc setvault #{Origen.config.vault} #{dir}"
-        system "dssc pop -rec -uni -force -ver #{version} #{dir}"
-      end
-
       def web_server_dir
-        "#{origen_directory}/web"
+        "#{Origen.root}/web"
       end
 
       def create_web_server_dir
-        if File.exist?("#{origen_directory}/templates/web")
+        if File.exist?("#{Origen.root}/templates/web")
           dir = web_server_dir
           FileUtils.rm_rf dir if File.exist?(dir)
           FileUtils.mkdir_p dir
@@ -220,147 +141,16 @@ module Origen
           Origen.app.runner.launch action: :compile,
                                    files:  "#{Origen.top}/templates/nanoc_dynamic",
                                    output: dir
-          unless Origen.root == origen_directory
+          unless Origen.root == Origen.top
             # Copy any application overrides if they exist
-            if File.exist?("#{origen_directory}/templates/nanoc")
-              FileUtils.cp_r Dir.glob("#{origen_directory}/templates/nanoc/*").sort, dir, remove_destination: true
+            if File.exist?("#{Origen.root}/templates/nanoc")
+              FileUtils.cp_r Dir.glob("#{Origen.root}/templates/nanoc/*").sort, dir, remove_destination: true
             end
           end
           # Remove the .SYNCs
           system "find #{dir} -name \".SYNC\" | xargs rm -fr"
           @nanoc_dir = dir
         end
-      end
-
-      # Compiles and creates the web documentation pages, combining the Origen Jekyll
-      # infrastructure and the application specific content
-      def generate_web_pages
-        if File.exist?("#{origen_directory}/templates/web")
-          create_web_server_dir
-          # Finally compile the application web pages
-          Origen.app.runner.generate(files:   "#{origen_directory}/templates/web",
-                                     compile: true,
-                                     output:  "#{@nanoc_dir}/content")
-        end
-      end
-
-      # Run the rdoc task
-      def generate_rdoc_pages
-        if File.exist?("#{origen_directory}/templates/api_doc")
-          Origen.app.runner.generate(files:   "#{origen_directory}/templates/api_doc",
-                                     compile: true,
-                                     output:  "#{origen_directory}/api_doc")
-        end
-        Dir.chdir origen_directory do
-          system "origen #{rdoc_command}"
-        end
-      end
-
-      def rdoc_command
-        @rdoc_command || 'rdoc'
-      end
-
-      # The top level directory that hosts all releases
-      def root_directory
-        return @root_directory if @root_directory
-        FileUtils.mkdir_p @directory unless File.exist?(@directory)
-        @root_directory = @directory
-      end
-
-      # The directory that contains the current release
-      def release_directory1
-        return @release_directory1 if @release_directory1
-        if test_run?
-          @release_directory1 = Origen.root
-        else
-          @release_directory1 = "#{root_directory}/release_1"
-          unless File.exist?(@release_directory1)
-            FileUtils.mkdir_p @release_directory1
-            populate(@release_directory1)
-          end
-        end
-        @release_directory1
-      end
-
-      def release_directory2
-        return @release_directory2 if @release_directory2
-        if test_run?
-          @release_directory2 = Origen.root
-        else
-          @release_directory2 = "#{root_directory}/release_2"
-          unless File.exist?(@release_directory2)
-            FileUtils.mkdir_p @release_directory2
-            populate(@release_directory2)
-          end
-        end
-        @release_directory2
-      end
-
-      def archive_directory(options = {})
-        ver = version
-        return Origen.root if test_run?
-        if options[:force_clear]
-          @archive_directory = "#{root_directory}/#{ver}"
-          FileUtils.rm_rf @archive_directory if File.exist?(@archive_directory)
-        else
-          return @archive_directory if @archive_directory
-          @archive_directory = "#{root_directory}/#{ver}"
-        end
-        FileUtils.mkdir_p @archive_directory unless File.exist?(@archive_directory)
-        @archive_directory
-      end
-
-      def offline_release_dir
-        link = "#{root_directory}/latest"
-        if File.exist?(link)
-          if File.readlink(link) =~ /release_1/
-            @offline_release_dir = release_directory2
-          else
-            @offline_release_dir = release_directory1
-          end
-        else
-          @offline_release_dir = release_directory1
-        end
-      end
-
-      # The directory that contains the Origen app for the current release
-      def origen_directory
-        return @origen_directory if @origen_directory
-        if test_run?
-          @origen_directory = Origen.root
-        else
-          @origen_directory = @app_sub_directory ? "#{offline_release_dir}/#{@app_sub_directory}" : offline_release_dir
-          FileUtils.mkdir_p @origen_directory unless File.exist?(@origen_directory)
-        end
-        @origen_directory
-      end
-
-      def version
-        @version
-      end
-
-      # Returns true if the user account belongs to the origen group
-      def user_belongs_to_origen?
-        if Origen.running_on_windows?
-          false
-        else
-          `"groups"`.gsub("\n", '').split(' ').include?('origen')
-        end
-      end
-
-      # Returns true if running on CDE
-      def running_on_cde?
-        if Origen.running_on_windows?
-          false
-        else
-          !!(`"domainname"` =~ /cde/i)
-        end
-      end
-
-      def deploy_unsuccessful(directory)
-        puts ''
-        puts "*** ERROR *** - Could not deploy to: #{directory}"
-        puts ''
       end
     end
   end
