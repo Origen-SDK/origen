@@ -1,3 +1,32 @@
+<a class="anchor release_tag" name="v0_0_5"></a>
+<h1><a href="#v0_0_5">Tag: v0.0.5</a></h1>
+
+##### Branch: 'master'
+
+##### by r49409 on 26-Jun-2015 10:20AM
+
+
+'origen web compile' can now deploy to a Git repository as well as to a Linux web server
+directory.
+
+To deploy to Git, setup your application config to point to the required Git repo like
+this:
+
+~~~ruby
+config.web\_directory = "git@github.com:Origen-SDK/Origen-SDK.github.io.git"
+config.web\_domain = "http://origen-sdk.org"
+~~~
+
+A single Git repo can host many sites by deploying to a sub-directory like this:
+
+~~~ruby
+config.web\_directory = "git@github.com:Origen-SDK/Origen-SDK.github.io.git/doc\_helpers"
+config.web\_domain = "http://origen-sdk.org/doc\_helpers"
+~~~
+
+Version archiving is currently not supported with Git deploy, an alternative way of
+archiving old documentation snapshots may emerge in future.
+
 <a class="anchor release_tag" name="v0_0_4"></a>
 <h1><a href="#v0_0_4">Tag: v0.0.4</a></h1>
 
