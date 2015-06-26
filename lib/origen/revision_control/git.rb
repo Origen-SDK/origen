@@ -26,6 +26,7 @@ module Origen
 
         if options[:force]
           git 'reset HEAD'
+          git 'pull', options
           git "checkout #{version} #{paths.join(' ')}", options
         else
           if paths.size > 1 || paths.first != local.to_s
@@ -34,6 +35,7 @@ module Origen
           git 'reset HEAD'
           res = git 'stash', options
           stashed = !res.any? { |l| l =~ /^No local changes to save/ }
+          git 'pull', options
           git "checkout #{version}", options
           if stashed
             result = git 'stash pop', { check_errors: false }.merge(options)

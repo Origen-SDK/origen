@@ -240,9 +240,16 @@ module Origen
       path = path.to_s unless path.is_a?(String)
       if path =~ /(.*?)\/.*/
         import_name = Regexp.last_match[1].downcase.to_sym
-        if import_name == :origen || import_name == :origen_core || Origen.import_manager.names.include?(import_name)
-          unless import_name == :origen || import_name == :origen_core
-            root = Origen.app(import_name).root
+        if import_name == :origen || import_name == :origen_core || Origen.import_manager.names.include?(import_name) ||
+           import_name == :doc_helpers
+          # Special case to allow a shortcut for this common import plugin and to also handle legacy
+          # code from when it was called doc_helpers instead of origen_doc_helpers
+          if import_name == :doc_helpers
+            root = Origen.app(:origen_doc_helpers).root
+          else
+            unless import_name == :origen || import_name == :origen_core
+              root = Origen.app(import_name).root
+            end
           end
           if options[:type] == :template
             if import_name == :origen || import_name == :origen_core
