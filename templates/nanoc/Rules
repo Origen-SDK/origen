@@ -36,14 +36,11 @@ compile '*' do
       filter :codeblocks
     end
     unless ["xml", "js"].include?(item[:extension])
-      if item[:layout] == "bootstrap"
+      if item[:layout] == "bootstrap" || item[:layout] == "bootstrap3" || !item[:layout]
         filter :bootstrap
         layout 'bootstrap'
-      elsif item[:layout] == "bootstrap3"
-        filter :bootstrap
-        layout 'bootstrap3'
-      elsif item[:layout] != "none"
-        layout 'freescale'
+      else
+        fail "Unknown web page layout: #{item[:layout]}"
       end
       filter :search
     end

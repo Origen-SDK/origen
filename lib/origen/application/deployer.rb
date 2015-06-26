@@ -187,6 +187,7 @@ module Origen
         index = "#{Origen.root}/web/output/api/index.html"
         _index = "#{Origen.root}/web/output/api/_index.html"
         FileUtils.rm_f(index) if File.exist?(index)
+        # This removes a prominent link that we are left with to a README file that doesn't work
         require 'nokogiri'
         doc = Nokogiri::HTML(File.read(_index))
         doc.xpath('//h2[contains(text(), "File Listing")]').remove
