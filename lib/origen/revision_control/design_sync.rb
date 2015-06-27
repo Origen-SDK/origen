@@ -214,10 +214,10 @@ module Origen
                   # To display the file/directory that the user needs to correct the conflict in, pick up the second last element from the parent array.
                   fault_dir = temp_parent_array[-2]
                   fault_dir_name = fault_dir.split('/')[-1]
-                  RGen.log.error 'DesignSync returns same vault locations for two directories.'
-                  RGen.log.error 'Please resolve the workspace conflicts before continuing'
+                  Origen.log.error 'DesignSync returns same vault locations for two directories.'
+                  Origen.log.error 'Please resolve the workspace conflicts before continuing'
                   # Un-cache the result so that there is no error in future calls.
-                  RGen.app.session.dssc["root-#{local}"] = nil
+                  Origen.app.session.dssc["root-#{local}"] = nil
                   # Remove the .ref symlink from the local directory so that there are no issues in the future call
                   scratch = Pathname.new("#{local}/.ref")
                   FileUtils.rm_rf(scratch) if scratch.exist?
