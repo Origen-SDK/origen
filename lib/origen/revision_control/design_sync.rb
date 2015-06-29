@@ -199,11 +199,11 @@ module Origen
           until resolved || root.root?
             parent = root.parent
             # push the current parent into the parent array
-            temp_parent_array.push("#{parent}")
+            temp_parent_array.push(parent.to_s)
             if File.exist?("#{parent}/.SYNC")
               parent_vault = dssc("url vault #{parent}").first
               # push the current parent_vault into the vault array.
-              temp_parent_vault_array.push("#{parent_vault}")
+              temp_parent_vault_array.push(parent_vault.to_s)
               if vault.to_s =~ /^#{parent_vault}/ && vault.to_s != parent_vault.to_s
                 root = parent
               else
