@@ -86,7 +86,7 @@
 - type: :branch
   instance:
     attributes:
-      name: RGEN_LABEL_1
+      name: ORIGEN_LABEL_1
   flow:
     attributes: {}
     context:
@@ -122,7 +122,7 @@
 - type: :label
   instance:
     attributes:
-      name: RGEN_LABEL_1
+      name: ORIGEN_LABEL_1
   flow:
     attributes: {}
     context: {}

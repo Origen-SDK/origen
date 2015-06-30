@@ -59,13 +59,13 @@ DFF 1.1	Flow Table
 		do_erase				Test	erase_all_v1							Fail														
 		do_erase				Test	erase_all_v1							Fail														
 						logprint	Test_unless_enable																					
-		no_extra_erase				goto	RGEN_LABEL_1																					
+		no_extra_erase				goto	ORIGEN_LABEL_1																					
 						Test	erase_all_v1							Fail														
-	RGEN_LABEL_1					nop																						
-		no_extra_erase				goto	RGEN_LABEL_2																					
+	ORIGEN_LABEL_1					nop																						
+		no_extra_erase				goto	ORIGEN_LABEL_2																					
 						Test	erase_all_v1							Fail														
 						Test	erase_all_v1							Fail														
-	RGEN_LABEL_2					nop																						
+	ORIGEN_LABEL_2					nop																						
 						Test	erase_all_v1							Fail														
 						Test	erase_all_v1							Fail														
 						logprint	Test_if_passed																					

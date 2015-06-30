@@ -5,3 +5,9 @@ require "c99/doc_interface"
 # this is to test that the importing application can override and
 # extend imported classes.
 require "#{Origen.root}/lib/c99/nvm"
+
+# Dummy definition to allow Origen tests to run until the Testers plugin is available
+module Testers
+  class J750
+  end
+end
