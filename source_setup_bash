@@ -1,0 +1,12 @@
+#!/bin/bash
+#
+# This script will update the user's path to make their current terminal session use
+# the origen executable from the local workspace containing this script, rather than
+# the default version from elsewhere.
+# 
+#       > source source_setup_bash
+#
+origen_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+# Add the origen bin dirs to the user's path as highest priority
+PATH=./lbin\:$origen_dir\:$PATH
