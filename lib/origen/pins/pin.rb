@@ -668,6 +668,19 @@ module Origen
       alias_method :compare!, :assert!
       alias_method :expect!, :assert!
 
+      def assert_midband
+        set_state(:compare_midband)
+      end
+      alias_method :compare_midband, :assert_midband
+      alias_method :expect_midband, :assert_midband
+
+      def assert_midband!
+        assert_midband
+        cycle
+      end
+      alias_method :compare_midband!, :assert_midband!
+      alias_method :expect_midband!, :assert_midband!
+
       # Returns the state of invert
       def inverted?
         @invert
@@ -683,6 +696,12 @@ module Origen
       def comparing_mem?
         !@suspend &&
           state == :expect_mem
+      end
+
+      # Returns true if the pin is currently in a compare state
+      def comparing_midband?
+        !@suspend &&
+          state == :compare_midband
       end
 
       # Returns true if the pin is currently in a drive state

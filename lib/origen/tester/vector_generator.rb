@@ -586,6 +586,8 @@ module Origen
           pin.expect_hi
         elsif state == @expect_lo_state || state == 'L'
           pin.expect_lo
+        elsif state == @expect_mid_state || state == 'M'
+          pin.expect_mid
         elsif state == @drive_mem_state || state == 'D'
           pin.drive_mem
         elsif state == @expect_mem_state || state == 'E'
@@ -612,6 +614,8 @@ module Origen
           else
             @drive_lo_state || '0'
           end
+        elsif pin.comparing_midband?
+          @expect_mid_state || 'M'
         elsif pin.comparing?
           if pin.value == 1
             @expect_hi_state || 'H'

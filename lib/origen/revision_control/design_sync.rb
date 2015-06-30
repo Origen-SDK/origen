@@ -45,8 +45,8 @@ module Origen
         end
       end
 
-      def build
-        checkout
+      def build(options = {})
+        checkout(options)
       end
 
       def checkout(path = nil, options = {})
@@ -191,16 +191,38 @@ module Origen
         # cache the result for future calls
         Origen.app.session.dssc["root-#{local}"] ||= begin
           root = local
+          # Create two arrays, one to store the parents and the other to corresponding vaults.
+          temp_parent_array = Array.new(0)
+          temp_parent_vault_array = Array.new(0)
           resolved = false
           vault = dssc("url vault #{root}").first
           until resolved || root.root?
             parent = root.parent
+            # push the current parent into the parent array
+            temp_parent_array.push(parent.to_s)
             if File.exist?("#{parent}/.SYNC")
               parent_vault = dssc("url vault #{parent}").first
-              if vault.to_s =~ /^#{parent_vault}/
+              # push the current parent_vault into the vault array.
+              temp_parent_vault_array.push(parent_vault.to_s)
+              if vault.to_s =~ /^#{parent_vault}/ && vault.to_s != parent_vault.to_s
                 root = parent
               else
+                # Now, check if the parent array has unique values, it should if the DesignSync directory structure is correct.
+                if temp_parent_vault_array.uniq.length == temp_parent_vault_array.length
                 resolved = true
+                else
+                  # To display the file/directory that the user needs to correct the conflict in, pick up the second last element from the parent array.
+                  fault_dir = temp_parent_array[-2]
+                  fault_dir_name = fault_dir.split('/')[-1]
+                  Origen.log.error 'DesignSync returns same vault locations for two directories.'
+                  Origen.log.error 'Please resolve the workspace conflicts before continuing'
+                  # Un-cache the result so that there is no error in future calls.
+                  Origen.app.session.dssc["root-#{local}"] = nil
+                  # Remove the .ref symlink from the local directory so that there are no issues in the future call
+                  scratch = Pathname.new("#{local}/.ref")
+                  FileUtils.rm_rf(scratch) if scratch.exist?
+                  abort
+                end 
               end
             else
               resolved = true

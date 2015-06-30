@@ -11,15 +11,19 @@ By default this will always create the workspace at './[PLUGIN_NAME]'
 
 Usage: origen fetch [PLUGIN_NAME] [options]
 END
-  opts.on('-o', '--outputdir', 'User defined destination directory of the plugin workspace') {  options[:debugger] = true }
+  opts.on('-o', '--outputdir PATH', 'User defined destination directory of the plugin workspace') { |o| options[:outputdir] = o }
+  opts.on('-v', '--version VERSION', 'User requested plugin/gem version') {  |v| options[:version] = v }
   opts.on('-h', '--help', 'Show this message') { puts opts; exit }
-end
-opt_parser.orig_parse! ARGV
-options[:patterns] = ARGV
+end.parse!
 
-# Extract user input
+puts options
+
+# Plugin name is always the first argument.
 plugin_name = ARGV[0]
-dir = ARGV[1]
+
+# Extract options passed to OptionParser
+dir = options[:outputdir]
+version = options[:version]
 
 # Set valid_name to false by default
 valid_name = false
@@ -60,4 +64,4 @@ end
 
 # Set up the requested plugin workspace
 rc = Origen::RevisionControl.new remote: rc_url, local: dir
-rc.build
+rc.build version: version
