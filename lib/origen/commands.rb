@@ -173,7 +173,7 @@ end
 
 case @command
 when 'generate', 'program', 'compile', 'merge', 'interactive', 'target', 'environment',
-     'ctags', 'save', 'lsf', 'web', 'time', 'dispatch', 'rc', 'lint', 'plugin' , 'fetch'# , 'add'
+     'ctags', 'save', 'lsf', 'web', 'time', 'dispatch', 'rc', 'lint', 'plugin', 'fetch' # , 'add'
 
   require "origen/commands/#{@command}"
   exit 0 unless @command == 'interactive'

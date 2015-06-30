@@ -187,7 +187,7 @@ module Origen
     def exhibits(options = {})
       options = {
         block:                nil,
-        id:   nil,
+        id:                   nil,
         type:                 nil,
         exhibits_to_be_shown: []
       }.update(options)
@@ -196,10 +196,10 @@ module Origen
         filter_hash(hash, options[:id]).each do |id, hash_|
           filter_hash(hash_, options[:type]).each do |type, hash__|
             exhibits_to_be_shown << hash__
-      end
+          end
         end
       end
-      end
+    end
 
     def doc_resources(options = {})
       options = {

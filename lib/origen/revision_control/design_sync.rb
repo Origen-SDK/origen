@@ -209,7 +209,7 @@ module Origen
               else
                 # Now, check if the parent array has unique values, it should if the DesignSync directory structure is correct.
                 if temp_parent_vault_array.uniq.length == temp_parent_vault_array.length
-                resolved = true
+                  resolved = true
                 else
                   # To display the file/directory that the user needs to correct the conflict in, pick up the second last element from the parent array.
                   fault_dir = temp_parent_array[-2]
@@ -222,7 +222,7 @@ module Origen
                   scratch = Pathname.new("#{local}/.ref")
                   FileUtils.rm_rf(scratch) if scratch.exist?
                   abort
-                end 
+                end
               end
             else
               resolved = true
