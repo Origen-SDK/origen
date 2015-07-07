@@ -30,8 +30,8 @@ module Origen
             q.responses[:not_valid] = "Can't be blank"
           end
           Origen.log.info "Fetching the website's Git respository..."
+          git_repo
           begin
-            git_repo
             fail unless git_repo.can_checkin?
           rescue
             puts "Sorry, but you don't have permission to write to #{Origen.config.web_directory}!"
@@ -157,17 +157,21 @@ module Origen
       end
 
       def deploy_file(file)
-        remote_dir = live_remote_directory
-        if remote_dir
-          file = Origen.file_handler.clean_path_to(file)
-          sub_dir = Origen.file_handler.sub_dir_of(file, "#{Origen.root}/templates/web") .to_s
-          page = file.basename.to_s.sub(/\..*/, '')
-          # Special case for the main index page
-          if page == 'index' && sub_dir == '.'
-            FileUtils.cp "#{Origen.root}/web/output/index.html", remote_dir
-          else
-            FileUtils.mkdir_p("#{remote_dir}/#{sub_dir}/#{page}")
-            FileUtils.cp "#{Origen.root}/web/output/#{sub_dir}/#{page}/index.html", "#{remote_dir}/#{sub_dir}/#{page}"
+        if deploy_to_git?
+          fail "File based deploy has is not support for Git yet :-("
+        else
+          remote_dir = live_remote_directory
+          if remote_dir
+            file = Origen.file_handler.clean_path_to(file)
+            sub_dir = Origen.file_handler.sub_dir_of(file, "#{Origen.root}/templates/web") .to_s
+            page = file.basename.to_s.sub(/\..*/, '')
+            # Special case for the main index page
+            if page == 'index' && sub_dir == '.'
+              FileUtils.cp "#{Origen.root}/web/output/index.html", remote_dir
+            else
+              FileUtils.mkdir_p("#{remote_dir}/#{sub_dir}/#{page}")
+              FileUtils.cp "#{Origen.root}/web/output/#{sub_dir}/#{page}/index.html", "#{remote_dir}/#{sub_dir}/#{page}"
+            end
           end
         end
       end
