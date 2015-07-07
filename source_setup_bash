@@ -9,4 +9,4 @@
 origen_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 # Add the origen bin dirs to the user's path as highest priority
-PATH=./lbin\:$origen_dir\:$PATH
+PATH=./lbin\:$origen_dir/bin\:$PATH
