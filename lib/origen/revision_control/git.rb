@@ -194,7 +194,7 @@ module Origen
       def initialized?
         File.exist?("#{local}/.git") &&
           git('remote -v', verbose: false).any? { |r| r =~ /#{remote_without_protocol}/ } &&
-          !git('status', verbose: false).any? { |l| l == 'Initial commit' }
+          !git('status', verbose: false).any? { |l| l =~ /^#? ?Initial commit$/ }
       end
 
       # Delete everything in the given directory, or the whole repo
