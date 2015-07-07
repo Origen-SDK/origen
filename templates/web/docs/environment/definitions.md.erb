@@ -1,0 +1,17 @@
+% render "../../layouts/doc.html" do
+
+%# Add any new entries anywhere in this list, it will get sorted into
+%# alphabetical order during compilation:
+%
+% terms = {
+%   "Origen" => "A general purpose semiconductor engineering framework that uses the Ruby programming language, read more at http://origen.freescale.net",
+%   "Application" => "The generic name given to a project that uses Origen",
+% }
+
+| Term or Acronym | Definition
+|:----------------|:----------
+% terms.sort.each do |term|
+| <%= term[0] %> | <%= term[1] %>
+% end
+
+% end

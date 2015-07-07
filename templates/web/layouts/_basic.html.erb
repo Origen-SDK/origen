@@ -1,0 +1,13 @@
+---
+title: <%= options[:title] || Origen.app.namespace %>
+---
+<%= render "templates/web/partials/navbar.html", tab: options[:tab] %>
+
+<div class="row">
+%# The markdown attribute is important if you are going to include content written
+%# in markdown, without this is will be included verbatim
+  <div class="span12" markdown="1">
+<%= yield %>    
+
+</div>
+</div>
