@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_0_7"></a>
+<h1><a href="#v0_0_7">Tag: v0.0.7</a></h1>
+
+##### Branch: 'master'
+
+##### by stephen on 11-Jul-2015 17:52PM
+
+
+Made Origen boot up more robust and with better site control of what gems to use from
+the system Ruby.
+
 <a class="anchor release_tag" name="v0_0_6"></a>
 <h1><a href="#v0_0_6">Tag: v0.0.6</a></h1>
 
