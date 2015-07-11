@@ -3,6 +3,9 @@ module Origen
     require 'pathname'
     require 'yaml'
 
+    TRUE_VALUES = ["true", "TRUE", "1", 1] 
+    FALSE_VALUES = ["false", "FALSE", "0", 0]
+
     def method_missing(method, *args, &block)
       method = method.to_s
       if method =~ /(.*)!$/
@@ -12,6 +15,11 @@ module Origen
       env = "ORIGEN_#{method.upcase}"
       if ENV.key?(env)
         val = ENV[env]
+        if TRUE_VALUES.include?(val)
+          val = true
+        elsif FALSE_VALUES.include?(val)
+          val = false
+        end
       else
         config = configs.find { |c| c.key?(method) }
         val = config ? config[method] : nil
