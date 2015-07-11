@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_0_9"></a>
+<h1><a href="#v0_0_9">Tag: v0.0.9</a></h1>
+
+##### Branch: 'master'
+
+##### by stephen on 11-Jul-2015 21:32PM
+
+
+Further improvements to boot process, the user now no longer needs to add anything to
+their PATH.
+
 <a class="anchor release_tag" name="v0_0_8"></a>
 <h1><a href="#v0_0_8">Tag: v0.0.8</a></h1>
 
