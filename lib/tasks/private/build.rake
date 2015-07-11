@@ -4,7 +4,6 @@ namespace 'build' do
   task :test do
     puts "hello world"
   end
-
 end
 
 task :default => ["build:test"]
