@@ -80,8 +80,8 @@ GEM
     net-ldap (0.11)
     nokogiri (1.6.4.1)
       mini_portile (~> 0.6.0)
-    origen_core_support (0.1.0)
-      origen
+    origen_core_support (0.1.1)
+      origen (>= 0.0.6)
     origen_doc_helpers (0.1.0)
       origen (>= 0.0.5)
     parser (2.3.0.pre.2)
@@ -145,6 +145,9 @@ DEPENDENCIES
   byebug (~> 3.5)
   loco
   origen!
-  origen_core_support (= 0.1.0)
+  origen_core_support (= 0.1.1)
   origen_doc_helpers (>= 0.1.0)
   stackprof (~> 0)
+
+BUNDLED WITH
+   1.10.5

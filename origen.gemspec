@@ -52,7 +52,7 @@ Gem::Specification.new do |spec|
   unless RUBY_PLATFORM == 'i386-mingw32'
     spec.add_development_dependency "stackprof", "~>0"
   end
-  spec.add_development_dependency "origen_core_support", "0.1.0"
+  spec.add_development_dependency "origen_core_support", "0.1.1"
   spec.add_development_dependency "origen_doc_helpers", ">= 0.1.0"
   spec.add_development_dependency "loco"
   #spec.add_development_dependency "rgen_testers", "0.3.0.pre33"
