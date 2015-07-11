@@ -96,12 +96,14 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE'])
             # Some gems (particularly those with C extensions that need to be built), can be hard to install reliably
             # across a large user base. Initially seed the user's local gem area with the system-installed gems,
             # this means that the system Ruby owner can provide an installation for these hard-to-install gems.
-            unless File.exist?("#{local_gem_dir}/.seeded_from_system")
-              puts "Installing gems that are available from the system Ruby, this can take a few minutes, please be patient..."
-              FileUtils.mkdir_p(local_gem_dir) unless File.exist?(local_gem_dir) # Make the full path the the local gems
-              FileUtils.rm_rf(local_gem_dir)   # Then clear the end directory
-              FileUtils.cp_r(system_gem_dir, local_gem_dir)
-              FileUtils.touch "#{local_gem_dir}/.seeded_from_system"
+            if Origen.site_config.gem_seed_from_system
+              unless File.exist?("#{local_gem_dir}/.seeded_from_system")
+                puts "Installing gems that are available from the system Ruby, this can take a few minutes, please be patient..."
+                FileUtils.mkdir_p(local_gem_dir) unless File.exist?(local_gem_dir) # Make the full path the the local gems
+                FileUtils.rm_rf(local_gem_dir)   # Then clear the end directory
+                FileUtils.cp_r(system_gem_dir, local_gem_dir)
+                FileUtils.touch "#{local_gem_dir}/.seeded_from_system"
+              end
             end
           end
           result = system(cmd)

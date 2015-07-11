@@ -9,6 +9,11 @@ gem_install_dir: ~/.origen/gems
 #gem_build_switches:
 #  - nokogiri --use-system-libraries=true --with-xml2-include=/path/to/libxml2  
 #  - other_gem --some_build_switch
+# When true a user's local gem installation area will initially be seeded with gems
+# that are installed to the system Ruby. This means that any gems that are hard to
+# install reliably across individual user environments can be centrally installed
+# and managed.
+#gem_seed_from_system: true
 
 # USERS AND LDAP
 
