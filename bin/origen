@@ -41,10 +41,17 @@ else
 end
 
 if origen_root
-  # Force everyone to have a consistent way of installing gems with bundler
-  ENV['BUNDLE_GEMFILE'] = File.join(origen_root, "Gemfile")
-  ENV['BUNDLE_PATH'] = File.expand_path(Origen.site_config.gem_install_dir)
-  ENV['BUNDLE_BIN'] = File.join(origen_root, "lbin")
+  # If it looks like a bundled version of origen exists, and we have not been invoked through that
+  # then run that instead.
+  if Origen.site_config.gem_manage_bundler && File.exist?("#{origen_root}/lbin/origen") && !ENV["BUNDLE_BIN_PATH"]
+    exec Gem.ruby, "#{origen_root}/lbin/origen", *ARGV
+    exit 0
+  else
+    # Force everyone to have a consistent way of installing gems with bundler
+    ENV['BUNDLE_GEMFILE'] = File.join(origen_root, "Gemfile")
+    ENV['BUNDLE_PATH'] = File.expand_path(Origen.site_config.gem_install_dir)
+    ENV['BUNDLE_BIN'] = File.join(origen_root, "lbin")
+  end
 end
 
 if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_manage_bundler
@@ -156,8 +163,7 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
           end
         end
         if result
-          puts
-          puts "The required gems have been installed, please re-run the previous command"
+          exec Gem.ruby, "#{origen_root}/lbin/origen", *ARGV
           exit 0
         else
           puts
