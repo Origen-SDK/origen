@@ -1,6 +1,8 @@
 require 'English'
 require 'pathname'
 require 'fileutils'
+require 'origen/site_config'
+require 'origen/operating_systems'
 require 'origen/core_ext'
 require 'origen/acronyms'
 require 'origen/callbacks'
@@ -15,7 +17,6 @@ require 'origen/version_checker'
 require 'origen/logger_methods'
 require 'option_parser/optparse'
 require 'bundler'
-require 'origen/site_config'
 
 module Origen
   autoload :Features,  'origen/features'
