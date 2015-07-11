@@ -530,7 +530,7 @@ module Origen
     end
 
     def running_on_windows?
-      RUBY_PLATFORM == 'i386-mingw32'
+      Origen.os.windows?
     end
 
     def running_on_linux?

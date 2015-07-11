@@ -158,7 +158,7 @@ module Origen
 
       def deploy_file(file)
         if deploy_to_git?
-          fail "File based deploy has is not support for Git yet :-("
+          fail 'File based deploy has is not support for Git yet :-('
         else
           remote_dir = live_remote_directory
           if remote_dir

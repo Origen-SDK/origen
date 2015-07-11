@@ -9,6 +9,7 @@ end
 
 ORIGEN_MIN_GCC_VERSION = "4.6.3"
 
+load File.expand_path('../../lib/origen/operating_systems.rb', __FILE__)
 load File.expand_path('../../lib/origen/site_config.rb', __FILE__)
 
 # This will be referenced later in ruby_version_check, the origen used to launch
@@ -46,6 +47,15 @@ if origen_root
   ENV['BUNDLE_BIN'] = File.join(origen_root, "lbin")
 end
 
+# Retrieve any system gem specs that might be required before we enter the clean env
+if Origen.site_config.gem_manage_bundler && Origen.site_config.gem_use_from_system
+  system_gem_specs = Origen.site_config.gem_use_from_system.map do |gem, version|
+    Gem::Specification.find_by_name(gem, version)
+  end
+else
+  system_gem_specs = []
+end
+
 if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_manage_bundler
   # Overriding bundler here so that bundle install can be automated as required
   require 'bundler/shared_helpers'
@@ -53,6 +63,7 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
     require 'bundler'
     if STDOUT.tty?
       begin
+        fail OrigenBootError unless File.exist?(ENV['BUNDLE_BIN'])
         Bundler.setup
         fail OrigenBootError unless File.exist?(ENV['BUNDLE_BIN'])
       rescue Gem::LoadError, Bundler::BundlerError, OrigenBootError => e
@@ -64,10 +75,12 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
         `chmod o-w #{origen_root}/bin` if File.exist?("#{origen_root}/bin")
         `chmod o-w #{origen_root}/.bin` if File.exist?("#{origen_root}/.bin")
         result = false
+
+        # Set this here since the clean environment will not have access to the ENV variable  
         local_gem_dir = "#{ENV['BUNDLE_PATH']}/ruby/2.1.0"
-        system_gem_dir = "/run/pkg/fs-ruby-/2.1.5-p273/lib/ruby/gems/2.1.0"
+
         Bundler.with_clean_env do
-          if RUBY_PLATFORM == "x86_64-linux"
+          if Origen.os.unix?
             if Origen.site_config.gem_build_switches
               Origen.site_config.gem_build_switches.each do |switches|
                 `bundle config build.#{switches}`
@@ -96,13 +109,29 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
             # Some gems (particularly those with C extensions that need to be built), can be hard to install reliably
             # across a large user base. Initially seed the user's local gem area with the system-installed gems,
             # this means that the system Ruby owner can provide an installation for these hard-to-install gems.
-            if Origen.site_config.gem_seed_from_system
-              unless File.exist?("#{local_gem_dir}/.seeded_from_system")
-                puts "Installing gems that are available from the system Ruby, this can take a few minutes, please be patient..."
-                FileUtils.mkdir_p(local_gem_dir) unless File.exist?(local_gem_dir) # Make the full path the the local gems
-                FileUtils.rm_rf(local_gem_dir)   # Then clear the end directory
-                FileUtils.cp_r(system_gem_dir, local_gem_dir)
-                FileUtils.touch "#{local_gem_dir}/.seeded_from_system"
+            unless system_gem_specs.empty?
+              %w(bin cache extensions gems specifications).each do |subdir|
+                d = "#{local_gem_dir}/#{subdir}"
+                FileUtils.mkdir_p(d) unless File.exist?(d)
+              end
+              system_gem_specs.each do |spec|
+                begin
+                  (spec.executables || []).each do |bin|
+                    FileUtils.cp("#{spec.bin_dir}/#{bin}", "#{local_gem_dir}/bin")
+                  end
+                  FileUtils.cp(spec.cache_file, "#{local_gem_dir}/cache")
+                  if spec.extension_dir && File.exist?(spec.extension_dir)
+                    spec.extension_dir =~ /.*extensions(.*)/
+                    sub_dir = Pathname.new($1).dirname.to_s
+                    local_ext_dir = "#{local_gem_dir}/extensions/#{sub_dir}"
+                    FileUtils.mkdir_p(local_ext_dir) unless File.exist?(local_ext_dir)
+                    FileUtils.cp_r(spec.extension_dir, local_ext_dir)
+                  end
+                  FileUtils.cp_r(spec.gem_dir, "#{local_gem_dir}/gems")
+                  FileUtils.cp(spec.spec_file, "#{local_gem_dir}/specifications")
+                rescue
+                  puts "Had problems installing #{spec.name} from your system Ruby, proceeding with fingers crossed..."
+                end
               end
             end
           end
@@ -111,7 +140,7 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
         `chmod o-w #{ENV["BUNDLE_BIN"]}`
         # Make .bat versions of all executables, Bundler should really be doing this when running
         # on windows
-        if RUBY_PLATFORM == 'i386-mingw32'
+        if Origen.os.windows?
           bat_present = File.exist? "#{origen_root}/lbin/origen.bat"
           Dir.glob("#{origen_root}/lbin/*").each do |bin|
             unless bin =~ /.bat$/

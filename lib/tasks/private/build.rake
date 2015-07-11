@@ -1,8 +1,8 @@
-#namespace 'build' do
+# namespace 'build' do
 #  desc 'Hello'
 #  task :test do
 #    puts "hello world"
 #  end
-#end
+# end
 #
-#task :default => ["build:test"]
+# task :default => ["build:test"]

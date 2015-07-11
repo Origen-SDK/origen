@@ -3,8 +3,8 @@ module Origen
     require 'pathname'
     require 'yaml'
 
-    TRUE_VALUES = ["true", "TRUE", "1", 1] 
-    FALSE_VALUES = ["false", "FALSE", "0", 0]
+    TRUE_VALUES = ['true', 'TRUE', '1', 1]
+    FALSE_VALUES = ['false', 'FALSE', '0', 0]
 
     def method_missing(method, *args, &block)
       method = method.to_s
