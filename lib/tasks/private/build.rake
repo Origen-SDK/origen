@@ -2,7 +2,7 @@ namespace 'build' do
 
   desc 'Hello'
   task :test do
-    puts "hello"
+    puts "hello world"
   end
 
 end
