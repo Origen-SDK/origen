@@ -47,16 +47,16 @@ if origen_root
   ENV['BUNDLE_BIN'] = File.join(origen_root, "lbin")
 end
 
-# Retrieve any system gem specs that might be required before we enter the clean env
-if Origen.site_config.gem_manage_bundler && Origen.site_config.gem_use_from_system
-  system_gem_specs = Origen.site_config.gem_use_from_system.map do |gem, version|
-    Gem::Specification.find_by_name(gem, version)
-  end
-else
-  system_gem_specs = []
-end
-
 if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_manage_bundler
+  # Retrieve any system gem specs that might be required before we enter the clean env
+  if Origen.site_config.gem_manage_bundler && Origen.site_config.gem_use_from_system
+    system_gem_specs = Origen.site_config.gem_use_from_system.map do |gem, version|
+      Gem::Specification.find_by_name(gem, version)
+    end
+  else
+    system_gem_specs = []
+  end
+
   # Overriding bundler here so that bundle install can be automated as required
   require 'bundler/shared_helpers'
   if Bundler::SharedHelpers.in_bundle?
