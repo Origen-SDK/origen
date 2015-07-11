@@ -43,6 +43,7 @@ The following options are available:
     opts.on('--archive ID', String, 'Archive the documents after compiling or deploying remotely') {  |id| options[:archive] = id }
     opts.on('-d', '--debugger', 'Enable the debugger') {  options[:debugger] = true }
     opts.on('-m', '--mode MODE', Origen::Mode::MODES, 'Force the Origen operating mode:', '  ' + Origen::Mode::MODES.join(', ')) { |_m| }
+    opts.on('--no-serve', "Don't serve the website after compiling without the remote option") { options[:no_serve] = true }
     app_options.each do |app_option|
       opts.on(*app_option) {}
     end
@@ -185,8 +186,10 @@ The following options are available:
         end
         _deployer.deploy_archive(options[:archive]) if options[:archive]
       else
-        Dir.chdir "#{Origen.root}/web/output" do
-          _start_server
+        unless options[:no_serve]
+          Dir.chdir "#{Origen.root}/web/output" do
+            _start_server
+          end
         end
       end
 
