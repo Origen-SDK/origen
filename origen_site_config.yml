@@ -13,7 +13,9 @@ gem_install_dir: ~/.origen/gems
 # that are installed to the system Ruby. This means that any gems that are hard to
 # install reliably across individual user environments can be centrally installed
 # and managed.
-#gem_seed_from_system: true
+gem_seed_from_system: false
+# When true Origen will configure and run Bundler
+gem_manage_bundler: true
 
 # USERS AND LDAP
 

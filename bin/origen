@@ -46,7 +46,7 @@ if origen_root
   ENV['BUNDLE_BIN'] = File.join(origen_root, "lbin")
 end
 
-if origen_root && File.exist?(ENV['BUNDLE_GEMFILE'])
+if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_manage_bundler
   # Overriding bundler here so that bundle install can be automated as required
   require 'bundler/shared_helpers'
   if Bundler::SharedHelpers.in_bundle?
