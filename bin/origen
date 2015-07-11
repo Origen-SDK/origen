@@ -41,9 +41,10 @@ else
 end
 
 if origen_root
-  # If it looks like a bundled version of origen exists, and we have not been invoked through that
+  # If it looks like a bundled binstub of origen exists, and we have not been invoked through that,
   # then run that instead.
-  if Origen.site_config.gem_manage_bundler && File.exist?("#{origen_root}/lbin/origen") && !ENV["BUNDLE_BIN_PATH"]
+  if Origen.site_config.gem_manage_bundler && File.exist?("#{origen_root}/lbin/origen") && !ENV["BUNDLE_BIN_PATH"] &&
+    File.exist?(Origen.site_config.gem_install_dir)
     exec Gem.ruby, "#{origen_root}/lbin/origen", *ARGV
     exit 0
   else
@@ -163,7 +164,7 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
           end
         end
         if result
-          exec Gem.ruby, "#{origen_root}/lbin/origen", *ARGV
+          exec "origen #{ARGV.join(' ')}"
           exit 0
         else
           puts
