@@ -7,7 +7,7 @@ require "fileutils"
 class OrigenBootError < StandardError
 end
 
-ORIGEN_MIN_GCC_VERSION = "4.7.3"
+ORIGEN_MIN_GCC_VERSION = "4.6.3"
 
 load File.expand_path('../../lib/origen/site_config.rb', __FILE__)
 
