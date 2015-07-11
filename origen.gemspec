@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
                            "config/**/*.yml", "config/**/*.policy",
                            "spec/format/origen_formatter.rb", "source_setup", "origen_site_config.yml"
                           ]
-  spec.executables   = ["origen", "rgen"]
+  spec.executables   = ["origen"]
   spec.require_paths = ["lib"]
 
   # Don't add any logic to runtime dependencies, for example to install a specific gem
