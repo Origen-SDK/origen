@@ -85,7 +85,8 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
         result = false
 
         # Set this here since the clean environment will not have access to the ENV variable  
-        local_gem_dir = "#{ENV['BUNDLE_PATH']}/ruby/2.1.0"
+
+        local_gem_dir = "#{ENV['BUNDLE_PATH']}/ruby/#{Pathname.new(Gem.dir).basename}"
 
         Bundler.with_clean_env do
           if Origen.os.unix?
