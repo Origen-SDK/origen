@@ -25,7 +25,7 @@ module Origen
       def prepare!(options = {})
         if deploy_to_git?
           require 'highline/import'
-          @commit_message = options[:message] || ask('Enter a deployment commit message:  ') do |q|
+          @commit_message = options[:message] || options[:comment] || ask('Enter a deployment commit message:  ') do |q|
             q.validate = /\w/
             q.responses[:not_valid] = "Can't be blank"
           end

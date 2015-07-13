@@ -122,7 +122,7 @@ class OrigenCoreApplication < Origen::Application
 
   def after_release_email(tag, note, type, selector, options)
     begin
-      command = "origen web compile --remote --api"
+      command = "origen web compile --remote --api --comment \"Release of #{RGen.app.name} #{RGen.app.version}\""
       Dir.chdir Origen.root do
         system command
       end
