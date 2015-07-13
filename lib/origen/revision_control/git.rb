@@ -193,7 +193,7 @@ module Origen
 
       def initialized?
         File.exist?("#{local}/.git") &&
-          git('remote -v', verbose: false).any? { |r| r =~ /#{remote_without_protocol}/ } &&
+          git('remote -v', verbose: false).any? { |r| r =~ /#{remote_without_protocol_and_user}/ } &&
           !git('status', verbose: false).any? { |l| l =~ /^#? ?Initial commit$/ }
       end
 
@@ -216,6 +216,10 @@ module Origen
 
       def remote_without_protocol
         Pathname.new(remote.sub(/^.*:\/\//, ''))
+      end
+
+      def remote_without_protocol_and_user
+        Pathname.new(remote_without_protocol.to_s.sub(/^.*@/, ''))
       end
 
       def create_gitignore
