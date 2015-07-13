@@ -44,7 +44,7 @@ The following options are available:
     opts.on('-d', '--debugger', 'Enable the debugger') {  options[:debugger] = true }
     opts.on('-m', '--mode MODE', Origen::Mode::MODES, 'Force the Origen operating mode:', '  ' + Origen::Mode::MODES.join(', ')) { |_m| }
     opts.on('--no-serve', "Don't serve the website after compiling without the remote option") { options[:no_serve] = true }
-    opts.on('-c', '--comment', 'Supply a commit comment when deploying to Git') { |o| options[:comment] = o }
+    opts.on('-c', '--comment COMMENT', String, 'Supply a commit comment when deploying to Git') { |o| options[:comment] = o }
     app_options.each do |app_option|
       opts.on(*app_option) {}
     end
