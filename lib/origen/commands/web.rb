@@ -197,6 +197,7 @@ The following options are available:
     when 'deploy'
       Origen.app.load_target!
       _require_web_directory
+      _deployer.prepare!(options)
       if ARGV.empty?
         _deployer.deploy_site
       else
@@ -211,6 +212,7 @@ The following options are available:
     when 'archive'
       Origen.app.load_target!
       _require_web_directory
+      _deployer.prepare!(options)
       unless ARGV[0]
         puts 'You must supply an ID argument to create an archive'
       end

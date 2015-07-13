@@ -157,21 +157,21 @@ module Origen
       end
 
       def deploy_file(file)
-        if deploy_to_git?
-          fail 'File based deploy has is not support for Git yet :-('
-        else
-          remote_dir = live_remote_directory
-          if remote_dir
-            file = Origen.file_handler.clean_path_to(file)
-            sub_dir = Origen.file_handler.sub_dir_of(file, "#{Origen.root}/templates/web") .to_s
-            page = file.basename.to_s.sub(/\..*/, '')
-            # Special case for the main index page
-            if page == 'index' && sub_dir == '.'
-              FileUtils.cp "#{Origen.root}/web/output/index.html", remote_dir
-            else
-              FileUtils.mkdir_p("#{remote_dir}/#{sub_dir}/#{page}")
-              FileUtils.cp "#{Origen.root}/web/output/#{sub_dir}/#{page}/index.html", "#{remote_dir}/#{sub_dir}/#{page}"
-            end
+        remote_dir = deploy_to_git? ? "#{git_repo.local}/#{git_sub_dir}" : live_remote_directory
+        if remote_dir
+          file = Origen.file_handler.clean_path_to(file)
+          sub_dir = Origen.file_handler.sub_dir_of(file, "#{Origen.root}/templates/web") .to_s
+          page = file.basename.to_s.sub(/\..*/, '')
+          # Special case for the main index page
+          if page == 'index' && sub_dir == '.'
+            FileUtils.cp "#{Origen.root}/web/output/index.html", remote_dir
+          else
+            FileUtils.mkdir_p("#{remote_dir}/#{sub_dir}/#{page}")
+            file = "#{remote_dir}/#{sub_dir}/#{page}/index.html"
+            FileUtils.cp "#{Origen.root}/web/output/#{sub_dir}/#{page}/index.html", file
+          end
+          if deploy_to_git?
+            git_repo.checkin file, unmanaged: true, comment: @commit_message
           end
         end
       end

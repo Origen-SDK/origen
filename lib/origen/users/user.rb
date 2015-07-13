@@ -71,7 +71,6 @@ module Origen
 
       def email
         return @email if @email
-        # Origen.app.rc.git? ? Origen.app.rc.user_email : nil || begin
         Origen.app.rc.git? ? Origen.app.rc.user_email : nil || begin
           if Origen.site_config.email_domain
             "#{id}@#{Origen.site_config.email_domain}"
