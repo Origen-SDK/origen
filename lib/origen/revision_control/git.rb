@@ -193,7 +193,7 @@ module Origen
 
       def initialized?
         File.exist?("#{local}/.git") &&
-          git('remote -v', verbose: false).any? { |r| r =~ /#{remote_without_protocol_and_user}/ } &&
+          git('remote -v', verbose: true).any? { |r| r =~ /#{remote_without_protocol_and_user}/ } &&
           !git('status', verbose: false).any? { |l| l =~ /^#? ?Initial commit$/ }
       end
 
