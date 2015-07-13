@@ -237,8 +237,6 @@ module Origen
               FileUtils.cp_r Dir.glob("#{Origen.root}/templates/nanoc/*").sort, dir, remove_destination: true
             end
           end
-          # Remove the .SYNCs
-          system "find #{dir} -name \".SYNC\" | xargs rm -fr"
           @nanoc_dir = dir
         end
       end
