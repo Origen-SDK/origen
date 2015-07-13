@@ -11,9 +11,17 @@ module Origen
   # Methods available to the command line in a console session, split this to a
   # separate file if it gets large over time
   module ConsoleMethods
-    def j750
-      @_j750 ||= Origen::Tester::J750.new
-      @_j750.parser
+    def ls
+      %x{ls}.split("\n")
+    end
+     
+    def cd(dir)
+      Dir.chdir(dir)
+      Dir.pwd
+    end
+     
+    def pwd
+      Dir.pwd
     end
   end
 
