@@ -66,13 +66,16 @@ module Origen
       end
 
       def name
-        @name || @id
+        @name || Origen.app.rc.git? ? Origen.app.rc.user_name : nil || @id
       end
 
       def email
         return @email if @email
-        if Origen.site_config.email_domain
-          "#{id}@#{Origen.site_config.email_domain}"
+        # Origen.app.rc.git? ? Origen.app.rc.user_email : nil || begin
+        Origen.app.rc.git? ? Origen.app.rc.user_email : nil || begin
+          if Origen.site_config.email_domain
+            "#{id}@#{Origen.site_config.email_domain}"
+          end
         end
       end
 

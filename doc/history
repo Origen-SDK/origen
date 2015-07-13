@@ -3,7 +3,7 @@
 
 ##### Branch: 'master'
 
-##### by stephen on 13-Jul-2015 17:25PM
+##### by Stephen McGinty on 13-Jul-2015 17:25PM
 
 
 3rd time lucky...
@@ -13,7 +13,7 @@
 
 ##### Branch: 'master'
 
-##### by stephen on 13-Jul-2015 17:20PM
+##### by Stephen McGinty on 13-Jul-2015 17:20PM
 
 
 Another release bug fix attempt
@@ -23,7 +23,7 @@ Another release bug fix attempt
 
 ##### Branch: 'master'
 
-##### by stephen on 13-Jul-2015 17:17PM
+##### by Stephen McGinty on 13-Jul-2015 17:17PM
 
 
 Bug fix to app release process introduced in last update
@@ -33,7 +33,7 @@ Bug fix to app release process introduced in last update
 
 ##### Branch: 'master'
 
-##### by stephen on 13-Jul-2015 17:13PM
+##### by Stephen McGinty on 13-Jul-2015 17:13PM
 
 
 Improved the Origen boot process, there is now no need for the user to modify their PATH
@@ -44,7 +44,7 @@ to run Origen.
 
 ##### Branch: 'master'
 
-##### by stephen on 11-Jul-2015 21:32PM
+##### by Stephen McGinty on 11-Jul-2015 21:32PM
 
 
 Further improvements to boot process, the user now no longer needs to add anything to
@@ -55,7 +55,7 @@ their PATH.
 
 ##### Branch: 'master'
 
-##### by stephen on 11-Jul-2015 17:56PM
+##### by Stephen McGinty on 11-Jul-2015 17:56PM
 
 
 Fixed rake (broken by last release).
@@ -65,7 +65,7 @@ Fixed rake (broken by last release).
 
 ##### Branch: 'master'
 
-##### by stephen on 11-Jul-2015 17:52PM
+##### by Stephen McGinty on 11-Jul-2015 17:52PM
 
 
 Made Origen boot up more robust and with better site control of what gems to use from
@@ -76,7 +76,7 @@ the system Ruby.
 
 ##### Branch: 'master'
 
-##### by stephen on 30-Jun-2015 22:46PM
+##### by Stephen McGinty on 30-Jun-2015 22:46PM
 
 
 All tests now passing
@@ -86,7 +86,7 @@ All tests now passing
 
 ##### Branch: 'master'
 
-##### by r49409 on 26-Jun-2015 10:20AM
+##### by Stephen McGinty on 26-Jun-2015 10:20AM
 
 
 'origen web compile' can now deploy to a Git repository as well as to a Linux web server
@@ -115,7 +115,7 @@ archiving old documentation snapshots may emerge in future.
 
 ##### Branch: 'master'
 
-##### by r49409 on 24-Jun-2015 08:56AM
+##### by Stephen McGinty on 24-Jun-2015 08:56AM
 
 
 Fixed bug in 'origen new' command
@@ -125,7 +125,7 @@ Fixed bug in 'origen new' command
 
 ##### Branch: 'master'
 
-##### by r49409 on 24-Jun-2015 08:00AM
+##### by Stephen McGinty on 24-Jun-2015 08:00AM
 
 
 'origen new' command now works with origen\_app\_generators hosted on rubygems.org
@@ -135,7 +135,7 @@ Fixed bug in 'origen new' command
 
 ##### Branch: 'master'
 
-##### by r49409 on 24-Jun-2015 05:21AM
+##### by Stephen McGinty on 24-Jun-2015 05:21AM
 
 
 Periodic tag/gem release during initial development, many features not working yet

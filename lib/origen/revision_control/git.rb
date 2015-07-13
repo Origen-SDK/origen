@@ -204,6 +204,14 @@ module Origen
         FileUtils.rm_f files
       end
 
+      def user_name
+        git('config user.name', verbose: false).first
+      end
+
+      def user_email
+        git('config user.email', verbose: false).first
+      end
+
       private
 
       def remote_without_protocol
