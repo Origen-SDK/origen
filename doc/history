@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_1_0"></a>
+<h1><a href="#v0_1_0">Tag: v0.1.0</a></h1>
+
+##### Branch: 'master'
+
+##### by stephen on 13-Jul-2015 17:13PM
+
+
+Improved the Origen boot process, there is now no need for the user to modify their PATH
+to run Origen.
+
 <a class="anchor release_tag" name="v0_0_9"></a>
 <h1><a href="#v0_0_9">Tag: v0.0.9</a></h1>
 
