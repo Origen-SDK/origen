@@ -206,10 +206,14 @@ module Origen
 
       def user_name
         git('config user.name', verbose: false).first
+      rescue
+        nil
       end
 
       def user_email
         git('config user.email', verbose: false).first
+      rescue
+        nil
       end
 
       private
