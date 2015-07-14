@@ -165,6 +165,7 @@ module Origen
           # Special case for the main index page
           if page == 'index' && sub_dir == '.'
             FileUtils.cp "#{Origen.root}/web/output/index.html", remote_dir
+            file = "#{remote_dir}/index.html"
           else
             FileUtils.mkdir_p("#{remote_dir}/#{sub_dir}/#{page}")
             file = "#{remote_dir}/#{sub_dir}/#{page}/index.html"
