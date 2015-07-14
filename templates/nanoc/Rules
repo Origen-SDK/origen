@@ -13,9 +13,9 @@
 #   item, use the pattern /about/*/; /about/* will also select the parent,
 #   because * matches zero or more characters.
 
-compile '/stylesheet/' do
-  # dont filter or layout
-end
+#compile '/stylesheet/' do
+#  # dont filter or layout
+#end
 
 
 compile '*' do
@@ -35,7 +35,7 @@ compile '*' do
              coderay: {css: :style}
       filter :codeblocks
     end
-    unless ["xml", "js"].include?(item[:extension]) || item[:layout] == "none" || item[:layout] == "None"
+    unless ["xml", "js", "css"].include?(item[:extension]) || item[:layout] == "none" || item[:layout] == "None"
       item[:layout] = "bootstrap" if item[:layout] == "bootstrap3"
       filter :bootstrap
       layout item[:layout] || 'bootstrap'
@@ -47,12 +47,12 @@ compile '*' do
   end
 end
 
-route '/stylesheet/' do
-  '/style.css'
-end
+#route '/stylesheet/' do
+#  '/style.css'
+#end
 
 route '*' do
-  if item.binary? || ["xml", "js"].include?(item[:extension])
+  if item.binary? || ["xml", "js", "css"].include?(item[:extension])
     # Write item with identifier /foo/ to /foo.ext
     item.identifier.chop + '.' + item[:extension]
   else

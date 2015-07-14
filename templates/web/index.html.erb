@@ -21,8 +21,8 @@ layout: none
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="http://origen-sdk.org/css/cyborg_custom.css"></script>
     <link rel="stylesheet" href="http://origen-sdk.org/css/cyborg.min.css"></script>
+    <link rel="stylesheet" href="css/landing.css"></script>
     <!-- Load this up top to allow pages to execute JQuery snippets -->
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
@@ -47,16 +47,86 @@ layout: none
     <link rel="icon" type="image/ico" href="http://rgen.freescale.net/favicon.ico"/>
   </head>
 
-  <body>
-    <% if @item[:full_width] %>
-      <%= yield %>
-    <% else %>
-      <div class="container">
-        <h1>
-          Hello
-        </h1>
-      </div><!-- /.container -->
-    <% end %>
+  <body style="position: relative;" data-spy="scroll" data-target="#navbar">
+    <div class="container">
+      <nav class="navbar navbar-default navbar-fixed-top navbar-inverse">
+        <div class="container">
+          <div class="navbar-header">
+            <a class="navbar-brand" href="#origen">Origen</a>
+          </div>
+
+          <div class="collapse navbar-collapse" id="navbar">
+            <ul class="nav navbar-nav">
+              <li><a href="#topic1">Topic1</a></li>
+              <li><a href="#topic2">Topic2</a></li>
+              <li><a href="#topic3">Topic3</a></li>
+              <li><a href="#topic4">Topic4</a></li>
+              <li><a href="#topic5">Topic5</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li><a class="external" href="http://origen-sdk.org/origen/docs/environment/introduction/#">Docs</a></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+      <div class="jumbotron" id="origen" style="margin-top: 60px;">
+        <h1>Origen</h1>
+        <p>The Semiconductor Developer's Kit</p>
+        <p><a class="btn btn-primary btn-lg">Learn more</a></p>
+      </div>
+
+      <div class="bs-docs-section">
+        <div class="page-header" id="topic1" style="height: 1000px;">
+          <div class="row">
+            <div class="col-lg-12">
+              <h1 id="buttons">Topic1</h1>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bs-docs-section">
+        <div class="page-header" id="topic2" style="height: 1000px;">
+          <div class="row">
+            <div class="col-lg-12">
+              <h1 id="buttons">Topic2</h1>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bs-docs-section">
+        <div class="page-header" id="topic3" style="height: 1000px;">
+          <div class="row">
+            <div class="col-lg-12">
+              <h1 id="buttons">Topic3</h1>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bs-docs-section">
+        <div class="page-header" id="topic4" style="height: 1000px;">
+          <div class="row">
+            <div class="col-lg-12">
+              <h1 id="buttons">Topic4</h1>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bs-docs-section">
+        <div class="page-header" id="topic5" style="height: 1000px;">
+          <div class="row">
+            <div class="col-lg-12">
+              <h1 id="buttons">Topic5</h1>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /.container -->
 
     <footer class="footer">
       <div class="container">
@@ -70,8 +140,7 @@ layout: none
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-    <script src="http://origen-sdk.org/js/lunr.min.js"></script>
-    <script src="http://origen-sdk.org/js/highlight.js"></script>
-    <script src="http://origen-sdk.org/js/custom.js"></script>
+    <script src="js/jquery-singlePageNav.js"></script>
+    <script src="js/landing.js"></script>
   </body>
 </html>
