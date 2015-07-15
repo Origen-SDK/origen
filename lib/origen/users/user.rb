@@ -66,16 +66,23 @@ module Origen
       end
 
       def name
-        @name || Origen.app.rc.git? ? Origen.app.rc.user_name : nil || @id
+        @name || name_from_rc || @id
+      end
+
+      def name_from_rc
+        RevisionControl::Git.user_name
       end
 
       def email
-        return @email if @email
-        Origen.app.rc.git? ? Origen.app.rc.user_email : nil || begin
+        @email || email_from_rc || begin
           if Origen.site_config.email_domain
             "#{id}@#{Origen.site_config.email_domain}"
           end
         end
+      end
+
+      def email_from_rc
+        RevisionControl::Git.user_email
       end
 
       # Fetch user data from the FSL application directory
