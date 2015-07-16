@@ -25,9 +25,14 @@ module Origen
         end
 
         if options[:force]
+          version = "origin/#{version}" if remote_branch?(version)
+          if paths == [local.to_s]
+            git "reset --hard #{version}"
+          else
           git 'reset HEAD'
           git 'pull', options
           git "checkout #{version} #{paths.join(' ')}", options
+          end
         else
           if paths.size > 1 || paths.first != local.to_s
             fail 'The Git driver does not support partial merge checkout, it has to be the whole workspace'
@@ -64,7 +69,7 @@ module Origen
         if options[:force] && !options[:initial]
           # Locally check in the given files
           checkin(paths.join(' '), local: true, verbose: false, comment: options[:comment])
-          local_rev = current_commit
+          local_rev = current_commit(short: false)
           # Pull latest
           checkout
           # Restore the given files to our previous version
@@ -161,8 +166,12 @@ module Origen
         git(cmd, options).map(&:strip)
       end
 
-      def diff_cmd(file, version)
+      def diff_cmd(file, version = nil)
+        if version
         "git difftool --tool tkdiff -y #{prefix_tag(version)} #{file}"
+        else
+          "git difftool --tool tkdiff -y #{file}"
+        end
       end
 
       def tag(id, options = {})
@@ -184,11 +193,31 @@ module Origen
         git('rev-parse --abbrev-ref HEAD', verbose: false).first
       end
 
+      def current_commit(options = {})
+        options = {
+          short: true
+        }.merge(options)
+        commit = git('rev-parse HEAD', verbose: false).first
+        if options[:short]
+          commit[0, 11]
+        else
+          commit
+        end
+      end
+
       # Returns true if the given tag already exists
       def tag_exists?(tag)
         git('fetch', verbose: false) unless @all_tags_fetched
         @all_tags_fetched = true
         git('tag', verbose: false).include?(tag.to_s)
+      end
+
+      # Returns true if the given string matches a branch name in the remote repo
+      #   Origen.app.rc.remote_branch?("master")                 # => true
+      #   Origen.app.rc.remote_branch?("feature/exists")         # => true
+      #   Origen.app.rc.remote_branch?("feature/does_not_exist") # => false
+      def remote_branch?(str)
+        !git("ls-remote --heads #{remote} #{str}", verbose: false).empty?
       end
 
       def initialized?

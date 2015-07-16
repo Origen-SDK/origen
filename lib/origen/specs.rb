@@ -157,8 +157,8 @@ module Origen
       end
     end
 
-    def creation_info(author, date, src_info = {}, tool_info = {})
-      @_creation_info = Creation_Info.new(author, date, src_info, tool_info)
+    def creation_info(author, date, version, src_info = {}, tool_info = {})
+      @_creation_info = Creation_Info.new(author, date, version, src_info, tool_info)
     end
 
     # Returns a Note object from the notes hash

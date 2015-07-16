@@ -151,7 +151,7 @@ module Origen
         printf(format, 'Origen_Name', 'Name', 'Version')
         printf(format, '---------', '----', '-------')
 
-        Origen.plugins.each do |plugin|
+        Origen.plugins.sort_by { |p| p.name.to_s }.each do |plugin|
           printf(format, plugin.name, plugin.config.name, plugin.version)
         end
         puts ''
