@@ -193,8 +193,8 @@ module Origen
 
       def initialized?
         File.exist?("#{local}/.git") &&
-          git('remote -v', verbose: false).any? { |r| r =~ /#{remote_without_protocol}/ } &&
-          !git('status', verbose: false).any? { |l| l == 'Initial commit' }
+          git('remote -v', verbose: false).any? { |r| r =~ /#{remote_without_protocol_and_user}/ || r =~ /#{remote_without_protocol_and_user.to_s.gsub(':', "\/")}/ } &&
+          !git('status', verbose: false).any? { |l| l =~ /^#? ?Initial commit$/ }
       end
 
       # Delete everything in the given directory, or the whole repo
@@ -204,10 +204,38 @@ module Origen
         FileUtils.rm_f files
       end
 
+      # A class method is provided to fetch the user name since it is useful to have access
+      # to this when outside of an application workspace, e.g. when creating a new app
+      def self.user_name
+        git('config user.name', verbose: false).first
+      rescue
+        nil
+      end
+
+      # A class method is provided to fetch the user email since it is useful to have access
+      # to this when outside of an application workspace, e.g. when creating a new app
+      def self.user_email
+        git('config user.email', verbose: false).first
+      rescue
+        nil
+      end
+
+      def user_name
+        self.class.user_name
+      end
+
+      def user_email
+        self.class.user_email
+      end
+
       private
 
       def remote_without_protocol
         Pathname.new(remote.sub(/^.*:\/\//, ''))
+      end
+
+      def remote_without_protocol_and_user
+        Pathname.new(remote_without_protocol.to_s.sub(/^.*@/, ''))
       end
 
       def create_gitignore
@@ -236,8 +264,13 @@ module Origen
         end
       end
 
-      # Execute a git operation, the resultant output is returned in an array
       def git(command, options = {})
+        options[:local] = local
+        self.class.git(command, options)
+      end
+
+      # Execute a git operation, the resultant output is returned in an array
+      def self.git(command, options = {})
         options = {
           check_errors: true,
           verbose:      true
@@ -247,7 +280,7 @@ module Origen
           Origen.log.info "git #{command}"
           Origen.log.info ''
         end
-        Dir.chdir local do
+        chdir options[:local] do
           Open3.popen2e("git #{command}") do |_stdin, stdout_err, wait_thr|
             while line = stdout_err.gets
               Origen.log.info line.strip if options[:verbose]
@@ -265,6 +298,16 @@ module Origen
           end
         end
         output
+      end
+
+      def self.chdir(dir)
+        if dir
+          Dir.chdir dir do
+            yield
+          end
+        else
+          yield
+        end
       end
     end
   end

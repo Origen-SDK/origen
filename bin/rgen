@@ -1,2 +1,0 @@
-#!/usr/bin/env ruby
-load File.expand_path('../origen', __FILE__)

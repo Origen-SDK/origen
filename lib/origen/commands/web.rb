@@ -43,6 +43,8 @@ The following options are available:
     opts.on('--archive ID', String, 'Archive the documents after compiling or deploying remotely') {  |id| options[:archive] = id }
     opts.on('-d', '--debugger', 'Enable the debugger') {  options[:debugger] = true }
     opts.on('-m', '--mode MODE', Origen::Mode::MODES, 'Force the Origen operating mode:', '  ' + Origen::Mode::MODES.join(', ')) { |_m| }
+    opts.on('--no-serve', "Don't serve the website after compiling without the remote option") { options[:no_serve] = true }
+    opts.on('-c', '--comment COMMENT', String, 'Supply a commit comment when deploying to Git') { |o| options[:comment] = o }
     app_options.each do |app_option|
       opts.on(*app_option) {}
     end
@@ -132,7 +134,7 @@ The following options are available:
       Origen.app.load_target!
       if options[:remote]
         _require_web_directory
-        _deployer.prepare!
+        _deployer.prepare!(options)
         # If the whole site has been requested that start from a clean slate
         _build_web_dir if ARGV.empty?
       else
@@ -185,14 +187,17 @@ The following options are available:
         end
         _deployer.deploy_archive(options[:archive]) if options[:archive]
       else
-        Dir.chdir "#{Origen.root}/web/output" do
-          _start_server
+        unless options[:no_serve]
+          Dir.chdir "#{Origen.root}/web/output" do
+            _start_server
+          end
         end
       end
 
     when 'deploy'
       Origen.app.load_target!
       _require_web_directory
+      _deployer.prepare!(options)
       if ARGV.empty?
         _deployer.deploy_site
       else
@@ -207,6 +212,7 @@ The following options are available:
     when 'archive'
       Origen.app.load_target!
       _require_web_directory
+      _deployer.prepare!(options)
       unless ARGV[0]
         puts 'You must supply an ID argument to create an archive'
       end

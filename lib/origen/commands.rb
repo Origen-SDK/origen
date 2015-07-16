@@ -173,7 +173,7 @@ end
 
 case @command
 when 'generate', 'program', 'compile', 'merge', 'interactive', 'target', 'environment',
-     'ctags', 'save', 'lsf', 'web', 'time', 'dispatch', 'rc', 'lint', 'plugin' # , 'add'
+     'save', 'lsf', 'web', 'time', 'dispatch', 'rc', 'lint', 'plugin', 'fetch' # , 'add'
 
   require "origen/commands/#{@command}"
   exit 0 unless @command == 'interactive'
@@ -236,7 +236,6 @@ The core origen commands are:
  interactive  Start an interactive Origen console (short-cut alias: "i")
  compile      Compile a template file or directory (short-cut alias: "c")
  rc           Revision control commands, see -h for details
- ctags        Generate ctags file (can be used for code navigation)
  save         Save the new or changed files from the last run or a given log file
  lsf          Monitor and manage LSF jobs (short-cut alias: "l")
  web          Web page tools, see -h for details

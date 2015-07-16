@@ -1,9 +1,92 @@
+<a class="anchor release_tag" name="v0_1_3"></a>
+<h1><a href="#v0_1_3">Tag: v0.1.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 13-Jul-2015 17:25PM
+
+
+3rd time lucky...
+
+<a class="anchor release_tag" name="v0_1_2"></a>
+<h1><a href="#v0_1_2">Tag: v0.1.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 13-Jul-2015 17:20PM
+
+
+Another release bug fix attempt
+
+<a class="anchor release_tag" name="v0_1_1"></a>
+<h1><a href="#v0_1_1">Tag: v0.1.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 13-Jul-2015 17:17PM
+
+
+Bug fix to app release process introduced in last update
+
+<a class="anchor release_tag" name="v0_1_0"></a>
+<h1><a href="#v0_1_0">Tag: v0.1.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 13-Jul-2015 17:13PM
+
+
+Improved the Origen boot process, there is now no need for the user to modify their PATH
+to run Origen.
+
+<a class="anchor release_tag" name="v0_0_9"></a>
+<h1><a href="#v0_0_9">Tag: v0.0.9</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 11-Jul-2015 21:32PM
+
+
+Further improvements to boot process, the user now no longer needs to add anything to
+their PATH.
+
+<a class="anchor release_tag" name="v0_0_8"></a>
+<h1><a href="#v0_0_8">Tag: v0.0.8</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 11-Jul-2015 17:56PM
+
+
+Fixed rake (broken by last release).
+
+<a class="anchor release_tag" name="v0_0_7"></a>
+<h1><a href="#v0_0_7">Tag: v0.0.7</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 11-Jul-2015 17:52PM
+
+
+Made Origen boot up more robust and with better site control of what gems to use from
+the system Ruby.
+
+<a class="anchor release_tag" name="v0_0_6"></a>
+<h1><a href="#v0_0_6">Tag: v0.0.6</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 30-Jun-2015 22:46PM
+
+
+All tests now passing
+
 <a class="anchor release_tag" name="v0_0_5"></a>
 <h1><a href="#v0_0_5">Tag: v0.0.5</a></h1>
 
 ##### Branch: 'master'
 
-##### by r49409 on 26-Jun-2015 10:20AM
+##### by Stephen McGinty on 26-Jun-2015 10:20AM
 
 
 'origen web compile' can now deploy to a Git repository as well as to a Linux web server
@@ -32,7 +115,7 @@ archiving old documentation snapshots may emerge in future.
 
 ##### Branch: 'master'
 
-##### by r49409 on 24-Jun-2015 08:56AM
+##### by Stephen McGinty on 24-Jun-2015 08:56AM
 
 
 Fixed bug in 'origen new' command
@@ -42,7 +125,7 @@ Fixed bug in 'origen new' command
 
 ##### Branch: 'master'
 
-##### by r49409 on 24-Jun-2015 08:00AM
+##### by Stephen McGinty on 24-Jun-2015 08:00AM
 
 
 'origen new' command now works with origen\_app\_generators hosted on rubygems.org
@@ -52,7 +135,7 @@ Fixed bug in 'origen new' command
 
 ##### Branch: 'master'
 
-##### by r49409 on 24-Jun-2015 05:21AM
+##### by Stephen McGinty on 24-Jun-2015 05:21AM
 
 
 Periodic tag/gem release during initial development, many features not working yet

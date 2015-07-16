@@ -25,13 +25,13 @@ module Origen
       def prepare!(options = {})
         if deploy_to_git?
           require 'highline/import'
-          @commit_message = options[:message] || ask('Enter a deployment commit message:  ') do |q|
+          @commit_message = options[:message] || options[:comment] || ask('Enter a deployment commit message:  ') do |q|
             q.validate = /\w/
             q.responses[:not_valid] = "Can't be blank"
           end
           Origen.log.info "Fetching the website's Git respository..."
+          git_repo
           begin
-            git_repo
             fail unless git_repo.can_checkin?
           rescue
             puts "Sorry, but you don't have permission to write to #{Origen.config.web_directory}!"
@@ -157,7 +157,7 @@ module Origen
       end
 
       def deploy_file(file)
-        remote_dir = live_remote_directory
+        remote_dir = deploy_to_git? ? "#{git_repo.local}/#{git_sub_dir}" : live_remote_directory
         if remote_dir
           file = Origen.file_handler.clean_path_to(file)
           sub_dir = Origen.file_handler.sub_dir_of(file, "#{Origen.root}/templates/web") .to_s
@@ -165,9 +165,14 @@ module Origen
           # Special case for the main index page
           if page == 'index' && sub_dir == '.'
             FileUtils.cp "#{Origen.root}/web/output/index.html", remote_dir
+            file = "#{remote_dir}/index.html"
           else
             FileUtils.mkdir_p("#{remote_dir}/#{sub_dir}/#{page}")
-            FileUtils.cp "#{Origen.root}/web/output/#{sub_dir}/#{page}/index.html", "#{remote_dir}/#{sub_dir}/#{page}"
+            file = "#{remote_dir}/#{sub_dir}/#{page}/index.html"
+            FileUtils.cp "#{Origen.root}/web/output/#{sub_dir}/#{page}/index.html", file
+          end
+          if deploy_to_git?
+            git_repo.checkin file, unmanaged: true, comment: @commit_message
           end
         end
       end
@@ -233,8 +238,6 @@ module Origen
               FileUtils.cp_r Dir.glob("#{Origen.root}/templates/nanoc/*").sort, dir, remove_destination: true
             end
           end
-          # Remove the .SYNCs
-          system "find #{dir} -name \".SYNC\" | xargs rm -fr"
           @nanoc_dir = dir
         end
       end

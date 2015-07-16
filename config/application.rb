@@ -102,39 +102,32 @@ class OrigenCoreApplication < Origen::Application
 
   # Ensure that all tests pass before allowing a release to continue
   def validate_release
-    #if !system("origen specs") || !system("origen examples")
-    #  puts "Sorry but you can't release with failing tests, please fix them and try again."
-    #  exit 1
-    #else
-    #  puts "All tests passing, proceeding with release process!"
-    #end
+    if !system("origen specs") || !system("origen examples")
+      puts "Sorry but you can't release with failing tests, please fix them and try again."
+      exit 1
+    else
+      puts "All tests passing, proceeding with release process!"
+    end
   end
 
   def before_deploy_site
-    #Dir.chdir Origen.root do
-    #  system "origen specs -c"
-    #  system "origen examples -c"
-    #  dir = "#{Origen.root}/web/output/coverage"       
-    #  FileUtils.remove_dir(dir, true) if File.exists?(dir) 
-    #  system "mv #{Origen.root}/coverage #{dir}"
-    #end
+    Dir.chdir Origen.root do
+      system "origen specs -c"
+      system "origen examples -c"
+      dir = "#{Origen.root}/web/output/coverage"       
+      FileUtils.remove_dir(dir, true) if File.exists?(dir) 
+      system "mv #{Origen.root}/coverage #{dir}"
+    end
   end
 
   def after_release_email(tag, note, type, selector, options)
-    #begin
-    #  deployer = Origen.app.deployer
-    #  if deployer.running_on_cde? && deployer.user_belongs_to_origen?
-    #    command = "origen web compile --remote --api"
-    #    # If an external release
-    #    if Origen.version.production?
-    #      command += " --archive #{Origen.app.version.prefixed}"
-    #    end
-    #    Dir.chdir Origen.root do
-    #      system command
-    #    end
-    #  end
-    #rescue
-    #  Origen.log.error "Web deploy failed"
-    #end
+    begin
+      command = "origen web compile --remote --api --comment 'Release of #{Origen.app.name} #{Origen.app.version}'"
+      Dir.chdir Origen.root do
+        system command
+      end
+    rescue
+      Origen.log.error "Web deploy failed"
+    end
   end
 end

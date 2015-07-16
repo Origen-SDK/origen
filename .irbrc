@@ -1,23 +1,9 @@
 $VERBOSE=nil
 require 'pp'
 require 'rubygems'
+require 'irb/completion'
+require 'irb/ext/save-history'
 
-#require 'wirble'
-
-#Wirble.init
-#Wirble.colorize
-
+IRB.conf[:SAVE_HISTORY] = 100
 IRB.conf[:AUTO_INDENT] = true
-
-def ls
-  %x{ls}.split("\n")
-end
- 
-def cd(dir)
-  Dir.chdir(dir)
-  Dir.pwd
-end
- 
-def pwd
-  Dir.pwd
-end
+IRB.conf[:IRB_NAME] = "origen"

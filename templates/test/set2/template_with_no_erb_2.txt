@@ -2,8 +2,8 @@ This is a template without a
 .erb extension.
 
 It should only compile if
-RGen.config.compile_only_dot_erb_files == false
+Origen.config.compile_only_dot_erb_files == false
 
 % 10.times do
-RGen.config.compile_only_dot_erb_files is <%= RGen.config.compile_only_dot_erb_files %>
+Origen.config.compile_only_dot_erb_files is <%= Origen.config.compile_only_dot_erb_files %>
 % end

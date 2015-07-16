@@ -117,7 +117,7 @@ module Origen
 
     def exhibit(id, type, options = {})
       _exhibits
-      @_exhibits[id][type] = Exhibit.new(id, type, options)
+      @_exhibits[options[:block_id]][id][type] = Exhibit.new(id, type, options)
     end
 
     def doc_resource(selector = {}, table_title = {}, text = {}, options = {})
@@ -186,23 +186,18 @@ module Origen
 
     def exhibits(options = {})
       options = {
-        id:   nil,
-        type: nil
+        block:                nil,
+        id:                   nil,
+        type:                 nil,
+        exhibits_to_be_shown: []
       }.update(options)
-      exhibits_found = Hash.new do|h, k|
-        h[k] = {}
-      end
-      _exhibits.filter(options[:id]).each do |id, hash|
-        hash.filter(options[:type]).each do |type, exhibit|
-          exhibits_found[id][type] = exhibit
+      exhibits_to_be_shown = options[:exhibits_to_be_shown]
+      filter_hash(_exhibits, options[:block]).each do |_exhibit, hash|
+        filter_hash(hash, options[:id]).each do |id, hash_|
+          filter_hash(hash_, options[:type]).each do |type, hash__|
+            exhibits_to_be_shown << hash__
+          end
         end
-      end
-      if exhibits_found.empty?
-        return nil
-      elsif exhibits_found.size == 1
-        return exhibits_found.values.first.values.first
-      else
-        return exhibits_found
       end
     end
 
@@ -362,7 +357,9 @@ module Origen
 
     def _exhibits
       @_exhibits ||= Hash.new do |h, k|
-        h[k] = {}
+        h[k] = Hash.new do |hh, kk|
+          hh[kk] = {}
+        end
       end
     end
 

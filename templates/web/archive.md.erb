@@ -1,0 +1,11 @@
+% render "layouts/basic.html", tab: :archive do
+
+## Archive
+
+Documentation from previous releases is available via the links below:
+
+% Origen.app.versions.reverse_each do |version|
+* [<%= version %>](<%= Origen.app.config.web_domain %>/<%= version.gsub(".", "_") %>)
+% end
+
+% end

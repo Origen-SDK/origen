@@ -1,0 +1,11 @@
+language: ruby
+rvm:
+  - 2.1.0
+  - 2.2.2
+script:
+  - bundle exec origen -v
+  - bundle exec origen specs
+  - bundle exec origen examples
+  - bundle exec origen web compile --no-serve
+env:
+  - ORIGEN_GEM_USE_FROM_SYSTEM=false ORIGEN_GEM_MANAGE_BUNDLER=false

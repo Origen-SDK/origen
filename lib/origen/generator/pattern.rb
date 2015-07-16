@@ -224,11 +224,11 @@ module Origen
         c2 '*' * 75
         c2 'ENVIRONMENT:'
         c2 '  Application'
-        c2 "    Vault:     #{Origen.config.vault}"
+        c2 "    Source:    #{Origen.config.rc_url}"
         c2 "    Version:   #{Origen.app.version}"
         c2 "    Workspace: #{Origen.root}"
         c2 '  Origen'
-        c2 "    Vault:     #{Origen.vault}"
+        c2 '    Source:    https://github.com/Origen-SDK/origen'
         c2 "    Version:   #{Origen.version}"
         c2 "    Workspace: #{Origen.top}"
         c2 '*' * 75

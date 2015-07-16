@@ -1,11 +1,21 @@
 # GEM SETUP
 
-# Where user's local gems will be installed
-gem_install_dir: ~/.origen/gems
 # If your company has an internal gem server enter it here
 #gem_server: http://gems.company.net:9292
-# If build switches/options are required to build specific gems in your environment
-# you can define them here
+# When true Origen will configure and run Bundler in a consistent way for every
+# user (recommended)
+gem_manage_bundler: true
+# Where user's local gems will be installed if gem_manage_bundler is set to true.
+gem_install_dir: ~/.origen/gems
+# Some gems can be difficult to install reliably across individual user environments.
+# Such gems can be installed to a communal system Ruby and then listed here, Origen
+# will then use the system version of the given gem instead of trying to install
+# it fresh for each user.
+# Note that this option will only be applied if gem_manage_bundler is set to true.
+gem_use_from_system:
+  - [nokogiri, 1.6.4.1]
+# Additionally any build switches/options that are required to build specific gems
+# in your user environment can be defined here.
 #gem_build_switches:
 #  - nokogiri --use-system-libraries=true --with-xml2-include=/path/to/libxml2  
 #  - other_gem --some_build_switch

@@ -14,4 +14,4 @@ set origen_install = `dirname $called_dir/$relative_path`
 set origen_bin = $origen_install/bin      
 
 # Add the origen bin dirs to the user's path as highest priority
-setenv PATH ./lbin\:$origen_bin\:$PATH
+setenv PATH $origen_bin\:$PATH

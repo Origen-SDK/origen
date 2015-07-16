@@ -1,0 +1,35 @@
+---
+title: <%= options[:title] || "#{Origen.app.namespace} - Docs" %>
+analytics: UA-64455560-1
+---
+<%= render "templates/web/partials/navbar.html", tab: :docs %>
+% s = {}
+
+%# This creates the index on the left of your doc pages
+%#
+%# Naming of the keys is very important and must be of the form:
+%#   <section>_<page> with no other underscores
+%# Origen will then look for the corresponding page in:
+%#   templates/web/docs/<section>/<page>.md.erb  
+%#  
+%# See here for more info: http://origen.freescale.net/doc_helpers/latest/examples/searchable/intro/
+
+% s["Environment"] = {
+%   environment_introduction: "Introduction",
+%   environment_installation: "Installation",
+%   environment_definitions: "Definitions and Acronyms",
+% }
+%
+%# Define additional sections as required, e.g.
+%# s["Registers"] = {
+%#   registers_map: "Register Map",
+%# }
+
+
+% render "doc_helpers/searchable.html", options.merge(:index => s) do
+
+<%= yield %>
+
+<%= yammer_comments %>
+
+% end
