@@ -1,23 +1,6 @@
 module Origen
   module Utility
     module FileDiff
-      # Diff Processor (Origen::Utility::Processor) provides an easy way to diff the contents of two files
-      # and display the differences as an HTML file or a TXT file.
-      # Very basic functionality, but can be expanded to add more features in the future.
-      # Comments are not ignored for now (maybe a future enhancement)
-      # Each difference is displayed in a different color in the HTML page
-      # Legend:
-      #       - New: Light Green
-      #       - Modified: Light Gray
-      #       - Deleted: Pink
-      # Usage:
-      #       processor = Origen::Utility::FileDiff::Processor.new("#{Origen.root}/left.txt", "#{Origen.root}/right.txt")
-      #
-      # To Generate a HTML file (diff.html) showing the differences
-      #       Origen::Utility::FileDiff::Formatter::Html.new(processor.process!, "#{Origen.root}/diff.html").format
-      #
-      # To Generate a TXT file (diff.txt) showing the differences
-      #       Origen::Utility::FileDiff::Formatter::Text.new(processor.process!, "#{Origen.root}/diff.txt").format
 
       class InputFile < Array
         attr_accessor :pointer
@@ -56,6 +39,25 @@ module Origen
           push(Line.new(type, input_file))
         end
       end
+
+      # Diff Processor (Origen::Utility::Processor) provides an easy way to diff the contents of two files
+      # and display the differences as an HTML file or a TXT file.
+      # Very basic functionality, but can be expanded to add more features in the future.
+      # Comments are not ignored for now (maybe a future enhancement)
+      # Each difference is displayed in a different color in the HTML page
+      # Legend:
+      #       - New: Light Green
+      #       - Modified: Light Gray
+      #       - Deleted: Pink
+      # Usage:
+      #       processor = Origen::Utility::FileDiff::Processor.new("#{Origen.root}/left.txt", "#{Origen.root}/right.txt")
+      #
+      # To Generate a HTML file (diff.html) showing the differences
+      #       Origen::Utility::FileDiff::Formatter::Html.new(processor.process!, "#{Origen.root}/diff.html").format
+      #
+      # To Generate a TXT file (diff.txt) showing the differences
+      #       Origen::Utility::FileDiff::Formatter::Text.new(processor.process!, "#{Origen.root}/diff.txt").format
+
 
       class Processor
         attr_accessor :source, :target
