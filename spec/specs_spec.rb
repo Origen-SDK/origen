@@ -57,6 +57,11 @@ class SoC_With_Specs
       unit "\u00B0C".encode
       audience :external
     end
+    spec :tnikhov2, :ac do
+      unit "nc"
+      max 3.5
+      audience :external
+    end
     add_mode :no_specs_defined
   end
 end
@@ -84,8 +89,7 @@ describe "Origen Specs Module" do
   end
 
   it "can see top level specs" do
-    @dut.specs.class.should == Array
-    @dut.specs.size.should == 7
+    @dut.specs.size.should == 8
     @dut.modes.should == [:default, :low_power, :high_performance, :no_specs_defined]
     @dut.mode = :no_specs_defined
     @dut.specs(:soc_vdd).should == nil # Returns nil because @dut.mode is set to :no_specs_defined
@@ -123,6 +127,10 @@ describe "Origen Specs Module" do
     @dut.has_spec?(:soc_vdd, mode: :default).should == true
   end
 
+  it "multiple specs are returned in a SpecArray" do
+    @dut.specs.class.should == Origen::Specs::SpecArray
+  end
+
   it "can see sub_block specs" do
     @ip.modes.should == []
     @ip.specs(:soc_vdd).should == nil
@@ -149,5 +157,13 @@ describe "Origen Specs Module" do
     @ip.specs(:ip_setup_time).max.value.should == 3.0e-10
     @ip.specs(:ip_setup_time).description.should == "IP Setup Time with Double-Sided Limits"
     @ip.specs(:ip_setup_time).limit_type.should == :double_sided
+  end
+
+  it "fuzzy finding works" do
+    # Should a string really be treated like a Regexp?
+    $dut.has_spec?("tnikhov").should == true  
+    $dut.has_spec?(:tnikhov).should == false
+    $dut.has_spec?(:tnikhov2).should == true
+    $dut.has_spec?(/tnikhov/).should == true
   end
 end

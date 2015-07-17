@@ -1,3 +1,6 @@
+module RGen
+  module Specs
+    module Checkers
 # rubocop:disable Style/RescueModifier:
 def name_audit(name)
   return name if name.nil?
@@ -99,5 +102,8 @@ def evaluate_limit(limit)
     end
   else
     return result
+        end
+      end
+    end
   end
 end
