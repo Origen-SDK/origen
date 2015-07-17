@@ -101,9 +101,13 @@ module Origen
           if @comment_char
             # Screen off any inline comments at the end of line
             begin
-              [@comment_char].flatten.each do |_char|
-                if line =~ /(.*)#{@char}.*/
-                  return Regexp.last_match[1].strip
+              [@comment_char].flatten.each do |comchar|
+                unless line =~ /^\s*#{comchar}/
+                  if line =~ /(.*)\s*#{comchar}.*/
+                    return Regexp.last_match[1].strip
+                  else
+                    return line.strip
+                  end
                 end
               end
             # This rescue is a crude way to guard against non-ASCII files that find

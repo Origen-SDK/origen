@@ -219,7 +219,11 @@ module Origen
       puts ''
       puts 'WHAT VERSION DO YOU WANT TO COMPARE AGAINST?'
       puts ''
-      puts "Valid values are 'latest', 'last' (production release), or a tag."
+      if Origen.app.rc.git?
+        puts "Valid values are 'latest', 'last' (production release), a tag, a commit or a branch."
+      else
+        puts "Valid values are 'latest', 'last' (production release), or a tag."
+      end
       puts ''
       get_text(default: Origen.app.version, single: true)
     end
@@ -230,11 +234,8 @@ module Origen
         Origen.app.version_tracker.versions.last
       elsif version.downcase == 'latest'
         version
-      elsif VersionString.new(version).valid?
-        version
       else
-        puts 'Sorry but that version tag looks to be invalid!'
-        exit 1
+        version
       end
     end
 

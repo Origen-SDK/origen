@@ -12,14 +12,14 @@ module Origen
   # separate file if it gets large over time
   module ConsoleMethods
     def ls
-      %x{ls}.split("\n")
+      `ls`.split("\n")
     end
-     
+
     def cd(dir)
       Dir.chdir(dir)
       Dir.pwd
     end
-     
+
     def pwd
       Dir.pwd
     end
