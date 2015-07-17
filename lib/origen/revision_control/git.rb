@@ -68,7 +68,7 @@ module Origen
         # Can't check in unless we have the latest
         if options[:force] && !options[:initial]
           # Locally check in the given files
-          checkin(paths.join(' '), local: true, verbose: false, comment: options[:comment])
+          checkin(paths.join(' '), no_push: true, verbose: false, comment: options[:comment])
           local_rev = current_commit(short: false)
           # Pull latest
           checkout
@@ -108,7 +108,7 @@ module Origen
           end
           git cmd, options
         end
-        git "push origin #{current_branch}" unless options[:local]
+        git "push origin #{current_branch}" unless options[:no_push]
         paths
       end
 
