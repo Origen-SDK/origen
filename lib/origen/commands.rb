@@ -159,15 +159,47 @@ end
 # prevent Origen from then having a go.
 # This order is preferable to allowing Origen to go first since it allows
 # overloading of Origen commands by the application.
+@application_options = []
+@plugin_commands = []
+@application_commands = []
+app_id = @application_options.object_id
+plugin_id = @plugin_commands.object_id
+app_cmd_id = @application_commands.object_id
+app_opt_err = false
+plugin_opt_err = false
+app_cmd_err = false
 if File.exist? "#{Origen.root}/config/commands.rb"
   require "#{Origen.root}/config/commands"
+  if @application_options.object_id != app_id
+    Origen.log.warning "Don't assign @application_options to a value in config/commands.rb!"
+    Origen.log.warning 'Do something like this instead:'
+    Origen.log.warning '  @application_options << ["-v", "--vector_comments", "Add the vector and cycle number to the vector comments"]'
+    app_opt_err = true
+  end
+  if @plugin_commands.object_id != plugin_id
+    Origen.log.warning "Don't assign @plugin_commands to a new value in config/commands.rb!"
+    Origen.log.warning 'Do something like this instead:'
+    Origen.log.warning '  @plugin_commands << " testers:build   Build a test program from a collection of sub-programs"'
+    plugin_opt_err = true
+  end
 end
 
 shared_commands = Origen.import_manager.command_launcher
-@plugin_commands ||= []
 if shared_commands && shared_commands.size != 0
   shared_commands.each do |file|
     require file
+    if @application_options.object_id != app_id && !app_opt_err
+      Origen.log.warning "Don't assign @application_options to a new value in #{file}!"
+      Origen.log.warning 'Do something like this instead:'
+      Origen.log.warning '  @application_options << ["-v", "--vector_comments", "Add the vector and cycle number to the vector comments"]'
+      app_opt_err = true
+    end
+    if @plugin_commands.object_id != plugin_id && !plugin_opt_err
+      Origen.log.warning "Don't assign @plugin_commands to a new value in #{file}!"
+      Origen.log.warning 'Do something like this instead:'
+      Origen.log.warning '  @plugin_commands << " testers:build   Build a test program from a collection of sub-programs"'
+      plugin_opt_err = true
+    end
   end
 end
 
