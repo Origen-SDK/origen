@@ -29,9 +29,9 @@ module Origen
           if paths == [local.to_s]
             git "reset --hard #{version}"
           else
-          git 'reset HEAD'
-          git 'pull', options
-          git "checkout #{version} #{paths.join(' ')}", options
+            git 'reset HEAD'
+            git 'pull', options
+            git "checkout #{version} #{paths.join(' ')}", options
           end
         else
           if paths.size > 1 || paths.first != local.to_s
@@ -168,7 +168,7 @@ module Origen
 
       def diff_cmd(file, version = nil)
         if version
-        "git difftool --tool tkdiff -y #{prefix_tag(version)} #{file}"
+          "git difftool --tool tkdiff -y #{prefix_tag(version)} #{file}"
         else
           "git difftool --tool tkdiff -y #{file}"
         end
@@ -278,10 +278,6 @@ module Origen
 
       def changes_pending_commit?
         !(git('status --verbose', verbose: false).last =~ /^(no changes|nothing to commit)/)
-      end
-
-      def current_commit
-        git('rev-parse HEAD', verbose: false).first
       end
 
       def initialize_local_dir

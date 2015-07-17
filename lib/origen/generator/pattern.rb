@@ -225,9 +225,9 @@ module Origen
         c2 'ENVIRONMENT:'
         c2 '  Application'
         if Origen.app.rc.git?
-        c2 "    Source:    #{Origen.config.rc_url}"
+          c2 "    Source:    #{Origen.config.rc_url}"
         else
-        c2 "    Vault:     #{Origen.config.vault}"
+          c2 "    Vault:     #{Origen.config.vault}"
         end
         c2 "    Version:   #{Origen.app.version}"
         c2 "    Workspace: #{Origen.root}"
@@ -242,9 +242,9 @@ module Origen
         end
         c2 '  Origen'
         if Origen.app.rc.git?
-        c2 '    Source:    https://github.com/Origen-SDK/origen'
+          c2 '    Source:    https://github.com/Origen-SDK/origen'
         else
-        c2 "    Vault:     #{Origen.config.vault}"
+          c2 "    Vault:     #{Origen.config.vault}"
         end
         c2 "    Version:   #{Origen.version}"
         c2 "    Workspace: #{Origen.top}"

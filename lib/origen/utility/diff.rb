@@ -104,7 +104,7 @@ module Origen
               [@comment_char].flatten.each do |comchar|
                 unless line =~ /^\s*#{comchar}/
                   if line =~ /(.*)\s*#{comchar}.*/
-                  return Regexp.last_match[1].strip
+                    return Regexp.last_match[1].strip
                   else
                     return line.strip
                   end

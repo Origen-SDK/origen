@@ -351,7 +351,7 @@ The following options are available:
           puts 'The following files have been modified:'
           changes.flatten.each do |file|
             if Origen.app.rc.git?
-            puts "  #{Origen.app.rc.diff_cmd(file, Origen.app.version)}"
+              puts "  #{Origen.app.rc.diff_cmd(file)}"
             else
               puts "  #{Origen.app.rc.diff_cmd(file, Origen.app.version)}"
             end

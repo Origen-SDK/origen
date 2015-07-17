@@ -222,7 +222,7 @@ module Origen
       if Origen.app.rc.git?
         puts "Valid values are 'latest', 'last' (production release), a tag, a commit or a branch."
       else
-      puts "Valid values are 'latest', 'last' (production release), or a tag."
+        puts "Valid values are 'latest', 'last' (production release), or a tag."
       end
       puts ''
       get_text(default: Origen.app.version, single: true)
