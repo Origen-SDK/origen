@@ -9,7 +9,8 @@ module Origen
     autoload :Mode_Select, 'origen/specs/mode_select.rb'
     autoload :Version_History, 'origen/specs/version_history.rb'
     autoload :Creation_Info, 'origen/specs/creation_info.rb'
-    require_relative 'specs/checkers'
+    require 'origen/specs/checkers'
+    include Checkers
 
     attr_accessor :_specs, :_notes, :_exhibits, :_doc_resources, :_overrides, :_power_supplies, :_mode_selects, :_version_history, :_creation_info
 
@@ -18,6 +19,14 @@ module Origen
     NOTE_TYPES = [:spec, :doc, :mode, :feature, :sighting]
 
     SpecTableAttr = Struct.new(:table_text, :show, :padding)
+
+    # A regular Array but print specs to the console via their ID for brevity and
+    # consistency with other APIs (e.g. $dut.regs  # => [:reg1, :reg2])
+    class SpecArray < Array
+      def inspect
+        map(&:name).inspect
+      end
+    end
 
     # Returns a hash of hash containing all specs/modes
     # If no spec is specified then all specs are returned via inspect
@@ -31,9 +40,8 @@ module Origen
         sub_type:      nil,
         mode:          current_mode.nil? ? nil : current_mode.name,
         spec:          nil,
-        verbose:       false,
         creating_spec: false
-      }.update(options)
+      }.update(options || {})
       _specs
       if s.nil?
         return show_specs(options)
@@ -47,7 +55,9 @@ module Origen
     end
 
     # Define and instantiate a Spec object
-    def spec(name, type, mode = nil, &block)
+    def spec(name, type = nil, mode = nil, &block)
+      return specs(name, type) unless block_given?
+      fail 'A type argument is required when defining a spec!' unless type
       _specs
       name = name_audit(name)
       fail 'Specification names must be of SPEC_TYPES Symbol or String and cannot start with a number' if name.nil?
@@ -80,7 +90,6 @@ module Origen
         sub_type:      nil,
         mode:          current_mode.nil? ? nil : current_mode.name,
         spec:          nil,
-        verbose:       false,
         creating_spec: false
       }.update(options)
       if @_specs.nil? || @_specs == {}
@@ -102,7 +111,6 @@ module Origen
         sub_type:      nil,
         mode:          current_mode.nil? ? nil : current_mode.name,
         spec:          nil,
-        verbose:       false,
         creating_spec: false
       }.update(options)
       options[:spec] = s
@@ -434,8 +442,7 @@ module Origen
         spec:              nil,
         type:              nil,
         sub_type:          nil,
-        verbose:           false,
-        specs_to_be_shown: [],
+        specs_to_be_shown: SpecArray.new,
         owner:             nil,
         creating_spec:     false
       }.update(options)
@@ -476,13 +483,12 @@ module Origen
         return specs_to_be_shown.first
       else
         Origen.log.debug "returning an array of specs during initial search: #{specs_to_be_shown}"
-        print_to_console(specs_to_be_shown) if options[:verbose] == true
         return specs_to_be_shown
       end
     end
 
     # Method to print a spec table to the console
-    def print_to_console(specs_to_be_shown)
+    def specs_to_table_string(specs_to_be_shown)
       whitespace_padding = 3
       table = []
       attrs_to_be_shown = {
@@ -543,7 +549,7 @@ module Origen
         table << data += '|'
       end
       table << '-' * header.length
-      puts table.flatten.join("\n")
+      table.flatten.join("\n")
     end
   end
 end

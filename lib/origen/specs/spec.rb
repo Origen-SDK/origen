@@ -3,7 +3,8 @@ module Origen
     class Spec
       autoload :Note, 'origen/specs/note'
       autoload :Exhibit, 'origen/specs/exhibit'
-      require_relative 'checkers'
+      include Checkers
+      extend Checkers
 
       SpecAttribute = Struct.new(:name, :type, :required, :author, :description)
 
@@ -104,6 +105,12 @@ module Origen
         @typ_ovr = Limit.new(@typ_ovr)
         @guardband = Limit.new(@guardband)
         fail "Spec #{name} failed the limits audit!" unless limits_ok?
+      end
+
+      def inspect
+        $dut.send(:specs_to_table_string, [self])
+      rescue
+        super
       end
 
       def method_missing(method, *args, &block)
