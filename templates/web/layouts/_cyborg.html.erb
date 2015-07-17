@@ -29,9 +29,10 @@ layout: none
           margin: 0 auto;
       }
       /* Sticky footer styles */
-      html {
+      html, body {
         position: relative;
         min-height: 100%;
+        height: 100%;
       }
       .main-content {
         /* Margin bottom by footer height */
@@ -86,7 +87,7 @@ layout: none
     <meta name="theme-color" content="#ffffff">
   </head>
 
-  <body style="position: relative;" data-spy="scroll" data-target="#navbar">
+  <body data-spy="scroll" data-target="#navbar">
 
     <%= yield %>
 

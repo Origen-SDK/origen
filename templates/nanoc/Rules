@@ -29,7 +29,8 @@ compile '*' do
       filter :codeblocks
     when "haml"
       filter :haml
-    when "html"
+    # These filters don't play nice with complete HTML files
+    when "html" && !(item[:layout] == "none" || item[:layout] == "None")
       filter :colorize_syntax, 
              default_colorizer: :coderay,
              coderay: {css: :style}
