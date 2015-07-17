@@ -1,4 +1,4 @@
-module RGen
+module Origen
   module Specs
     module Checkers
 # rubocop:disable Style/RescueModifier:
