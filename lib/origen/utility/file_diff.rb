@@ -1,7 +1,6 @@
 module Origen
   module Utility
     module FileDiff
-
       class InputFile < Array
         attr_accessor :pointer
 
