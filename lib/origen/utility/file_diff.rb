@@ -57,8 +57,6 @@ module Origen
       #
       # To Generate a TXT file (diff.txt) showing the differences
       #       Origen::Utility::FileDiff::Formatter::Text.new(processor.process!, "#{Origen.root}/diff.txt").format
-
-
       class Processor
         attr_accessor :source, :target
         attr_accessor :source_output, :target_output
