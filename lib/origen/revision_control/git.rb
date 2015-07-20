@@ -217,7 +217,14 @@ module Origen
       #   Origen.app.rc.remote_branch?("feature/exists")         # => true
       #   Origen.app.rc.remote_branch?("feature/does_not_exist") # => false
       def remote_branch?(str)
-        !git("ls-remote --heads #{remote} #{str}", verbose: false).empty?
+        # Github doesn't like the ssh:// for this command, whereas Stash seems
+        # to require it.
+        if github?
+          rem = remote_without_protocol
+        else
+          rem = remote
+        end
+        !git("ls-remote --heads #{rem} #{str}", verbose: false).empty?
       end
 
       def initialized?
@@ -255,6 +262,11 @@ module Origen
 
       def user_email
         self.class.user_email
+      end
+
+      # Returns true if the remote points to a github url
+      def github?
+        !!(remote.to_s =~ /github.com/)
       end
 
       private
