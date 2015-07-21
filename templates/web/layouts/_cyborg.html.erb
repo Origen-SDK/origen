@@ -41,7 +41,7 @@ layout: none
       .footer {
         position: absolute;
         bottom: 0;
-        width: 99%;
+        width: 100%;
         /* Set the fixed height of the footer here */
         height: 250px;
       }
@@ -87,7 +87,40 @@ layout: none
     <meta name="theme-color" content="#ffffff">
   </head>
 
-  <body data-spy="scroll" data-target="#navbar">
+  <body>
+
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <a href="../" class="navbar-brand" style="margin-top: -4px;"><img src="http://origen-sdk.org/android-chrome-48x48.png" style="height:30px; margin-right: 5px; display: inline; margin-top: -2px">Origen</a>
+          <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+        </div>
+        <div class="navbar-collapse collapse" id="navbar-main">
+          <ul class="nav navbar-nav">
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="tour">Tour <span class="caret"></span></a>
+              <ul class="dropdown-menu" aria-labelledby="tour">
+                <li><a href="<%= path "tour/basics" %>">Basics</a></li>
+                <li class="divider"></li>
+                <li><a href="<%= path "tour/test-engineering" %>">Test Engineers</a></li>
+                <li><a href="<%= path "tour/design-engineering" %>">Design Engineers</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="<%= path "tour/guides" %>">Guides</a>
+            </li>
+            <li>
+              <a href="<%= path "community" %>">Community</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
 
     <%= yield %>
 

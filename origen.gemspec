@@ -13,7 +13,10 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version     = '>= 1.9.3'
   spec.required_rubygems_version = '>= 1.8.11'
 
-  spec.files         = Dir["lib/**/*.rb", "lib/**/*.erb", "templates/**/*", "config/**/*.rb",
+  spec.files         = Dir["lib/**/*.rb", "lib/**/*.erb", "templates/code_generators/**/*", 
+                           "templates/git/**/*", "templates/nanoc/**/*", "templates/nanoc_dynamic/**/*",
+                           "templates/shared/**/*", "templates/time/**/*",
+                           "config/**/*.rb",
                            "bin/*", "helpers/**/*.rb", "vendor/**/*", "lib/tasks/**/*.rake",
                            "config/**/*.yml", "config/**/*.policy",
                            "spec/format/origen_formatter.rb", "source_setup", "origen_site_config.yml"
