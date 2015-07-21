@@ -1,32 +1,21 @@
-% render "layouts/cyborg", footer: false, home: true do
-  <div class="container-fluid" style="background-image: url(<%= path "img/wafer_blur.jpg" %>); background-repeat: no-repeat; background-position: bottom; background-size: cover; box-shadow: inset 0 0 100px rgba(0,0,0,0.5); height: 100%; padding: 0;">
-    <div class="container-fluid transparency" style="height: 100%; background-color: rgba(34, 34, 34, 0.26); padding: 0;">
-      <div class="main-content">
-        <div class="col-centered text-center" style="margin-top: 150px;">
-          <img src="http://origen-sdk.org/img/origen.png" height="80" width="80" style="margin-top: -45px; margin-right: 10px;">
-          <h1 style="font-size: 75px; display: inline;">Origen</h1>
-          <p style="font-size: 30px; margin-top: 15px; color: #fff;">The Semiconductor Developer's Kit</p>
-        </div>
-        <div class="col-centered text-center" style="margin-top: 50px; margin-bottom: 200px;">
-          <p>
-            <a class="btn btn-primary btn-lg" href="<%= path "tour/basics" %>">Learn more</a>
-          </p>
-        </div>
-      </div>
-      <div class="col-centered text-center footer hidden-xs">
-        <p style="color: #fff;">
-          Origen is an <a href="https://github.com/Origen-SDK">open source</a> framework for creating semiconductor engineering software applications, sponsored by:
-        </p>
-        <div class="sponsors">
-          <a href="http://www.freescale.com"><img width="250" src="http://origen-sdk.org/img/freescale-logo-white.png"></a>
-      </div>
+% render "layouts/landing" do
+  <div class="main-content">
+    <div class="col-centered text-center" style="margin-top: 150px;">
+      <img src="http://origen-sdk.org/img/origen.png" height="80" width="80" style="margin-top: -45px; margin-right: 10px;">
+      <h1 style="font-size: 75px; display: inline;">Origen</h1>
+      <p style="font-size: 30px; margin-top: 15px; color: #fff;">The Semiconductor Developer's Kit</p>
+    </div>
+    <div class="col-centered text-center" style="margin-top: 50px; margin-bottom: 200px;">
+      <p>
+        <a class="btn btn-primary btn-lg" href="<%= path "tour/basics" %>">Learn more</a>
+      </p>
     </div>
   </div>
-
-  <div style="position: absolute; bottom: 0; right: 0; font-size: 0.5em; color: rgb(113, 113, 113);">
-    Background image modified from an original by
-    <a href="https://www.flickr.com/photos/intelfreepress/8273834438/sizes/o/in/photostream/">Intel Free Press</a>
-    and licensed under <a href="http://creativecommons.org/licenses/by-sa/2.0">CC BY-SA 2.0</a>
+  <div class="col-centered text-center footer hidden-xs">
+    <p style="color: #fff;">
+      Origen is an <a href="https://github.com/Origen-SDK">open source</a> framework for creating semiconductor engineering software applications, sponsored by:
+    </p>
+    <div class="sponsors">
+      <a href="http://www.freescale.com"><img width="250" src="http://origen-sdk.org/img/freescale-logo-white.png"></a>
   </div>
-
 % end  
