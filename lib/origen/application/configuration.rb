@@ -20,7 +20,7 @@ module Origen
                     :web_domain, :imports, :imports_dev,
                     :strict_errors, :unmanaged_dirs, :unmanaged_files, :remotes,
                     :external_app_dirs, :lint_test, :shared, :yammer_group, :rc_url, :rc_workflow,
-                    :user_aliases, :release_externally, :gem_name
+                    :user_aliases, :release_externally, :gem_name, :disqus_shortname
 
       # Mark any attributes that are likely to depend on properties of the target here,
       # this will raise an error if they are ever accessed before the target has been
