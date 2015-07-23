@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_2_1"></a>
+<h1><a href="#v0_2_1">Tag: v0.2.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 23-Jul-2015 21:26PM
+
+
+Added config.disqus\_shortname attribute to link an application to a disqus forum,
+see the origen\_doc\_helpers plugin for more details.
+
 <a class="anchor release_tag" name="v0_2_0"></a>
 <h1><a href="#v0_2_0">Tag: v0.2.0</a></h1>
 
