@@ -9,6 +9,7 @@ class CallbacksSpecTopLevel
   end
 
   def startup(options={})
+    $tester.set_timeset("nvmbist", 40)
     $_captured_callbacks << "toplevel:startup"
   end
 
@@ -27,6 +28,7 @@ class CallbacksSpecTopLevelModel1
   end
 
   def startup(options={})
+    $tester.set_timeset("nvmbist", 40)
     $_captured_callbacks << "model1:startup"
   end
 

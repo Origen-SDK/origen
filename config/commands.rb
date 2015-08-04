@@ -9,17 +9,10 @@ aliases ={
 case @command
 
 when "specs"
-  ARGV.unshift "spec"
   require "rspec"
-  # For some unidentified reason Rspec does not autorun on this version
-  if RSpec::Core::Version::STRING && RSpec::Core::Version::STRING == "2.11.1"
-    RSpec::Core::Runner.run ARGV
-  else
-    require "rspec/autorun"
-  end
-  exit 0 # RSpec will exit 1 automatically if a test fails
+  exit RSpec::Core::Runner.run(['spec'])
 
-when "examples"  
+when "examples", "test"  
   $enable_testers = true if ARGV.delete("--testers")
   Origen.load_application
   status = 0
@@ -38,6 +31,12 @@ when "examples"
     status = 1
   end
   puts
+  if @command == "test"
+    Origen.app.unload_target!
+    require "rspec"
+    result = RSpec::Core::Runner.run(['spec'])
+    status = status == 1 ? 1 : result
+  end
   exit status
 
 when "regression"
@@ -64,8 +63,9 @@ when "make_file"
 
 else
   @application_commands = <<-EOT
- specs        Run the specs (tests), -c will enable coverage
- examples     Run the examples, -c will enable coverage
+ specs        Run the specs (unit tests), -c will enable coverage
+ examples     Run the examples (acceptance tests), -c will enable coverage
+ test         Run both specs and examples, -c will enable coverage
  regression   Test the regression manager (runs a subset of examples)
   EOT
 

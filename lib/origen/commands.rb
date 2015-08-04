@@ -31,8 +31,16 @@ ORIGEN_COMMAND_ALIASES = {
 Origen::Log.console_only = (%w(save target environment version).include?(@command) || ARGV.include?('--exec_remote'))
 
 if ARGV.delete('--coverage') ||
-   ((@command == 'specs' || @command == 'examples') && (ARGV.delete('-c') || ARGV.delete('--coverage')))
+   ((@command == 'specs' || @command == 'examples' || @command == 'test') && (ARGV.delete('-c') || ARGV.delete('--coverage')))
   require 'simplecov'
+  begin
+    if ENV['CONTINUOUS_INTEGRATION']
+      require 'coveralls'
+      SimpleCov.formatter = Coveralls::SimpleCov::Formatter
+    end
+  rescue LoadError
+    # No problem
+  end
   SimpleCov.start
   Origen.log.info 'Started code coverage'
   SimpleCov.configure do
