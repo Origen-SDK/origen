@@ -1,5 +1,4 @@
 class OrigenCoreApplication < Origen::Application
-
   self.name      = "Origen Core"
   self.namespace = "Origen"
 
