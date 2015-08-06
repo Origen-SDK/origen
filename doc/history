@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_2_2"></a>
+<h1><a href="#v0_2_2">Tag: v0.2.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 06-Aug-2015 09:38AM
+
+
+Added support for applications to implement a command called 'test' which will accept
+a -c option to enable coverage.
+
 <a class="anchor release_tag" name="v0_2_1"></a>
 <h1><a href="#v0_2_1">Tag: v0.2.1</a></h1>
 
