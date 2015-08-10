@@ -5,3 +5,5 @@ gcc-/4.7.3
 libxml2-/2.9.0
 TWW-pkgconfig-/0.25
 OSS-git-/2.3.2
+gnu-gcc_arm_gnueabi-/4.3.3
+m4-/1.4.9

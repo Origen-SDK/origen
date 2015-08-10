@@ -46,6 +46,7 @@ module Origen
   autoload :CodeGenerators, 'origen/code_generators'
   autoload :Encodings, 'origen/encodings'
   autoload :Log,       'origen/log'
+  autoload :Chips,     'origen/chips' 
 
   APP_CONFIG = File.join('config', 'application.rb')
 
