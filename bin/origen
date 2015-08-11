@@ -184,16 +184,29 @@ else
   require "origen"
 end
 
-# If this script has been invoked from within an Origen application then open
-# up all commands, if not then only allow the command to create a new Origen
-# application.
-# Note that the Origen core workspace is now a fully fledged Origen application in
-# its own right.
 begin
+  # If this script has been invoked from within an Origen application then open
+  # up all commands, if not then only allow the command to create a new Origen
+  # application.
   if origen_root
     require "origen/commands"
   else
     require "origen/commands_global"
+  end
+rescue Exception => e
+  unless e.is_a?(SystemExit) && e.status == 0
+    puts
+    puts e.message
+    if Origen.app_loaded?
+      # Only print out the application stack trace by default, if verbose logging is
+      # enabled then output the full thing
+      e.backtrace.each do |line|
+        path = Pathname.new(line)
+        puts line if !path.absolute? || Origen.log.level == :verbose
+      end
+    else
+      puts e.backtrace
+    end
   end
 ensure
   if Origen.app_loaded?

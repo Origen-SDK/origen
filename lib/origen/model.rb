@@ -27,6 +27,17 @@ module Origen
       end
     end
 
+    def is_an_origen_model?
+      true
+    end
+
+    # Means that when dealing with a controller/model pair, you can
+    # always call obj.model and obj.controller to get the one you want,
+    # regardless of the one you currently have.
+    def model
+      self
+    end
+
     def log
       Origen.log
     end
@@ -81,8 +92,7 @@ module Origen
     def _resolve_controller_class
       klass = self.class
       while klass != Object
-        model_class = klass.to_s.split('::').last
-        controller_class = "#{model_class}Controller"
+        controller_class = "#{klass}Controller"
         if eval("defined? #{controller_class}")
           return eval(controller_class)
         elsif eval("defined? ::#{controller_class}")
@@ -246,6 +256,17 @@ module Origen
         next unless child.has_specs?
         delete_all_specs_and_notes(child)
       end
+    end
+
+    def respond_to?(*args)
+      super || !!(!@respond_directly && controller && controller.respond_to_directly?(*args))
+    end
+
+    def respond_to_directly?(*args)
+      @respond_directly = true
+      result = respond_to?(*args)
+      @respond_directly = false
+      result
     end
 
     private

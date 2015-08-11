@@ -59,6 +59,10 @@ describe "Callbacks" do
 
   before :each do
     clear_target
+    # Set the target to an empty function, this is to prevent the Pattern.create
+    # calls below from instantiating the workspace default target which will
+    # overwrite our test DUT objects
+    Origen.target.temporary = -> {}
   end
 
   after :all do

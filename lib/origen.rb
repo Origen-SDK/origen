@@ -587,8 +587,6 @@ module Origen
     # Returns the current top-level (DUT) object if one has been defined (by
     # instantiating an object that includes Origen::TopLevel).
     def top_level
-      # TODO: This is called a lot and should probably be cached and expired
-      # on before_target_load
       application.top_level
     end
 

@@ -224,14 +224,16 @@ module Origen
         c2 '*' * 75
         c2 'ENVIRONMENT:'
         c2 '  Application'
-        if Origen.app.rc.git?
-          c2 "    Source:    #{Origen.config.rc_url}"
-        else
-          c2 "    Vault:     #{Origen.config.vault}"
+        if Origen.app.rc
+          if Origen.app.rc.git?
+            c2 "    Source:    #{Origen.config.rc_url}"
+          else
+            c2 "    Vault:     #{Origen.config.vault}"
+          end
         end
         c2 "    Version:   #{Origen.app.version}"
         c2 "    Workspace: #{Origen.root}"
-        if Origen.app.rc.git?
+        if Origen.app.rc && Origen.app.rc.git?
           begin
             status = "#{Origen.app.rc.current_branch}(#{Origen.app.rc.current_commit})"
             status += ' (+local edits)' unless Origen.app.rc.local_modifications.empty?
@@ -241,11 +243,7 @@ module Origen
           end
         end
         c2 '  Origen'
-        if Origen.app.rc.git?
-          c2 '    Source:    https://github.com/Origen-SDK/origen'
-        else
-          c2 "    Vault:     #{Origen.config.vault}"
-        end
+        c2 '    Source:    https://github.com/Origen-SDK/origen'
         c2 "    Version:   #{Origen.version}"
         c2 "    Workspace: #{Origen.top}"
         unless Origen.plugins.empty?

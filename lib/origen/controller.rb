@@ -53,6 +53,7 @@ module Origen
       end
     end
 
+    # Returns the controller's model
     def model
       @model ||= begin
         if self.class.path_to_model
@@ -61,12 +62,22 @@ module Origen
       end
     end
 
+    # Means that when dealing with a controller/model pair, you can
+    # always call obj.model and obj.controller to get the one you want,
+    # regardless of the one you currently have.
+    def controller
+      self
+    end
+
     def respond_to?(*args)
-      if model
-        super(*args) || model.respond_to?(*args)
-      else
-        super(*args)
-      end
+      super || !!(!@respond_directly && model && model.respond_to_directly?(*args))
+    end
+
+    def respond_to_directly?(*args)
+      @respond_directly = true
+      result = respond_to?(*args)
+      @respond_directly = false
+      result
     end
 
     # Used to proxy all method and attribute requests not implemented on the controller

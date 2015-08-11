@@ -120,9 +120,7 @@ module Origen
               Origen.app.stats.failed_patterns += 1
             end
           else
-            puts e.message
-            puts e.backtrace
-            exit 1
+            raise
           end
         end
       end

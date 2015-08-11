@@ -95,7 +95,11 @@ module Origen
       RakeLoader.new.load_tasks
     end
 
-    # Returns
+    # Returns a revision controller instance (e.g. Origen::RevisionControl::Git) which has
+    # been configured to point to the local workspace and the remote repository
+    # as defined by Origen.app.config.rc_url. If the revision control URL has not been
+    # defined, or it does not resolve to a recognized revision control system, then this
+    # method will return nil.
     def revision_controller
       if current?
         if config.rc_url
@@ -109,8 +113,7 @@ module Origen
               local:  root,
               remote: config.rc_url
             )
-          else
-            fail "The revision control type could not be worked out from the value config.rc_url: #{config.rc_url}"
+
           end
         else
           @revision_controller ||= RevisionControl::DesignSync.new(
@@ -207,7 +210,10 @@ module Origen
 
     # Returns the current top-level object (the DUT)
     def top_level
-      toplevel_listeners.first
+      @top_level ||= begin
+        t = toplevel_listeners.first
+        t.controller ? t.controller : t if t
+      end
     end
 
     def listeners_for(*args)
@@ -219,7 +225,7 @@ module Origen
       }.merge(options)
       listeners = callback_listeners
       if Origen.top_level
-        listeners -= [Origen.top_level]
+        listeners -= [Origen.top_level.model]
         if options[:top_level]
           if options[:top_level] == :last
             listeners = listeners + [Origen.top_level]
@@ -228,7 +234,13 @@ module Origen
           end
         end
       end
-      listeners = listeners.select { |l| l.respond_to?(callback) }
+      listeners = listeners.select { |l| l.respond_to?(callback) }.map do |l|
+        if l.try(:is_an_origen_model?)
+          l.respond_to_directly?(callback) ? l : l.controller
+        else
+          l
+        end
+      end
       if max && listeners.size > max
         fail "You can only define a #{callback} callback #{max > 1 ? (max.to_s + 'times') : 'once'}, however you have declared it #{listeners.size} times for instances of: #{listeners.map(&:class)}"
       end
@@ -636,7 +648,11 @@ module Origen
           Origen.target.set_signature(@target_load_options)
           $dut = nil
           load environment.file if environment.file
-          load target.file!
+          if target.proc
+            target.proc.call
+          else
+            load target.file!
+          end
         ensure
           $_target_options = nil
         end
@@ -712,6 +728,7 @@ module Origen
     end
 
     def clear_dynamic_resources(type = :transient)
+      @top_level = nil
       if type == :transient
         @transient_resources = nil
       else

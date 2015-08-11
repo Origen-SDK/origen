@@ -16,6 +16,12 @@ module Origen
       SAVE_FILE = "#{DIR}/.default"      # :nodoc:
       DEFAULT_FILE = "#{DIR}/default.rb" # :nodoc:
 
+      # Not a clean unload, but allows objects to be re-instantiated for testing
+      # @api private
+      def unload!
+        Origen.app.unload_target!
+      end
+
       # Implement a target loop based on the supplied options.
       # The options can contain the keys :target or :targets or neither.
       #
@@ -159,7 +165,18 @@ module Origen
       # attribute of the application.
       #
       # Calling this method does not affect the default target setting in the workspace.
+      #
+      # The target can also be set to a proc to be called instead, this is really
+      # intended to be used for testing purposes:
+      #    Origen.target.temporary = -> { $dut = SomeLocalClass.new }
       def temporary=(name)
+        if name.is_a?(Proc)
+          self.file = nil
+          @proc = name
+          return
+        else
+          @proc = nil
+        end
         tgts = resolve_mapping(name)
         targets = tgts.is_a?(Array) ? tgts : find(tgts)
         if targets.size == 0
@@ -188,6 +205,10 @@ module Origen
       end
       alias_method :switch, :temporary=
       alias_method :switch_to, :temporary=
+
+      def proc
+        @proc
+      end
 
       # Returns a signature for the current target, can be used to track target
       # changes in cases where the name is not unique - i.e. when using a

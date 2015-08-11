@@ -66,6 +66,39 @@ module Origen
     model path: "$nvm"
   end
 
+  module Tmp
+    class Model
+      include Origen::Model
+    end
+
+    class ModelController
+      def hi
+        "yo"
+      end
+    end
+
+    class TopLevel
+      include Origen::TopLevel
+
+      def a_top_level_method
+      end
+    end
+
+    class TopLevelController
+      def startup(options)
+        $called_count ||= 0
+        $called_count += 1
+      end
+
+      def wrapped?
+        true
+      end
+
+      def a_controller_method
+      end
+    end
+  end
+
   describe "Controller" do
     it "wraps instantiated models automagically" do
       m = MyModel.new
@@ -107,6 +140,8 @@ module Origen
       m = MyModel5.new
       m.hello_model.should == "yo5"
       m.hello_controller.should == "hi4"
+      # Verify this works within a namespace
+      Tmp::Model.new.hi.should == "yo"
     end
 
     it "controllers can implement write_register" do
@@ -119,6 +154,25 @@ module Origen
       Origen.load_target("debug")
       c = PathControl.new
       c.mclkdiv.clkdiv.data.should == 0x18
+    end
+
+    it "controllers can implement callbacks" do
+      $called_count.should == nil
+      Origen.target.temporary = -> do
+        $dut = Tmp::TopLevel.new
+        $tester = Origen::Tester::J750.new
+      end
+      Origen.target.load!
+      Pattern.create do
+        $tester.set_timeset("nvmbist", 40)
+        # Verify that both can be called on Origen.top_level
+        Origen.top_level.a_top_level_method
+        Origen.top_level.a_controller_method
+      end
+      $dut.wrapped?.should == true
+      $called_count.should == 1
+      Origen.target.temporary = nil
+      Origen.app.unload_target!
     end
   end
 end
