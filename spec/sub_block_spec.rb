@@ -62,6 +62,34 @@ module SubBlocksSpec
       end
     end
 
+    it "multiple instances can be declared" do
+      class Top2
+        include Origen::Model
+        def initialize
+          sub_block  :vreg, class_name: "Sub1", base_address: 0x1000_0000
+          sub_blocks :atd, instances: 2, class_name: "Sub1", base_address: 0x2000_0000
+          sub_blocks :osc, instances: 2, class_name: "Sub1", base_address: 0x3000_0000, base_address_step: 0x1000
+          sub_blocks :pmc, instances: 2, class_name: "Sub1", base_address: [0x4000_0000, 0x4001_0000]
+        end
+      end
+
+      c = Top2.new
+      c.vreg.base_address.should == 0x1000_0000
+      c.atd0.base_address.should == 0x2000_0000
+      c.atd1.base_address.should == 0x2000_0000
+      c.atd0.reg1.write(0x55)
+      c.atd0.reg1.data.should == 0x55
+      c.atd1.reg1.data.should == 0x00
+      c.atd1.reg1.write(0xAA)
+      c.atd0.reg1.data.should == 0x55
+      c.atd1.reg1.data.should == 0xAA
+      c.atds.size.should == 2
+      c.osc0.base_address.should == 0x3000_0000
+      c.osc1.base_address.should == 0x3000_1000
+      c.pmc0.base_address.should == 0x4000_0000
+      c.pmc1.base_address.should == 0x4001_0000
+    end
+
     it "base address attribute can be set when instantiating a register owner" do
       c = Top.new
       c.respond_to?(:sub1).should == true

@@ -11,6 +11,13 @@ module Origen
         # address API, but will accept any of these
         @reg_base_address = options.delete(:reg_base_address) || options.delete(:reg_base_address) ||
                             options.delete(:base_address) || options.delete(:base) || 0
+        if options[:_instance]
+          if @reg_base_address.is_a?(Array)
+            @reg_base_address = @reg_base_address[options[:_instance]]
+          elsif options[:base_address_step]
+            @reg_base_address = @reg_base_address + (options[:_instance] * options[:base_address_step])
+          end
+        end
         @domain_names = [options.delete(:domain) || options.delete(:domains)].flatten.compact
         @domain_specified = !@domain_names.empty?
         @path = options.delete(:path)
@@ -187,8 +194,12 @@ module Origen
     include Path
 
     # Returns a hash containing all immediate children of the given sub-block
-    def sub_blocks
-      @sub_blocks ||= {}.with_indifferent_access
+    def sub_blocks(*args)
+      if args.empty?
+        @sub_blocks ||= {}.with_indifferent_access
+      else
+        sub_block(*args)
+      end
     end
     alias_method :children, :sub_blocks
 
@@ -223,46 +234,64 @@ module Origen
     end
 
     def sub_block(name, options = {})
-      class_name = options.delete(:class_name)
-      if class_name
-        begin
-          klass = eval("::#{namespace}::#{class_name}")
-        rescue
+      if i = options.delete(:instances)
+        a = []
+        options[:_instance] = i
+        i.times do |j|
+          o = options.dup
+          o[:_instance] = j
+          a << sub_block("#{name}#{j}", o)
+        end
+        define_singleton_method "#{name}s" do
+          a
+        end
+        a
+      else
+        class_name = options.delete(:class_name)
+        if class_name
           begin
-            klass = eval(class_name)
+            klass = eval("::#{namespace}::#{class_name}")
           rescue
             begin
-              klass = eval("#{self.class}::#{class_name}")
+              klass = eval(class_name)
             rescue
-              puts "Could not find class: #{class_name}"
-              raise 'Unknown sub block class!'
+              begin
+                klass = eval("#{self.class}::#{class_name}")
+              rescue
+                puts "Could not find class: #{class_name}"
+                raise 'Unknown sub block class!'
+              end
+            end
+          end
+        else
+          klass = Origen::SubBlock
+        end
+        unless klass.respond_to?(:includes_origen_model)
+          puts 'Any class which is to be instantiated as a sub_block must include Origen::Model,'
+          puts "add this to #{klass}:"
+          puts ''
+          puts '  include Origen::Model'
+          puts ''
+          fail 'Sub block does not include Origen::Model!'
+        end
+        block = klass.new(options.merge(parent: self))
+        block.name = name
+        if sub_blocks[name]
+          fail "You have already defined a sub-block named #{name} within class #{self.class}"
+        else
+          sub_blocks[name] = block
+          if respond_to?(name)
+            # puts "Tried to create a sub-block named #{name} in #{self.class}, but it already has a method with this name!"
+            # puts "To avoid confusion rename one of them and try again!"
+            # raise "Non-unique sub-block name!"
+          else
+            define_singleton_method name do
+              sub_blocks[name]
             end
           end
         end
-      else
-        klass = Origen::SubBlock
+        block
       end
-      unless klass.respond_to?(:includes_origen_model)
-        puts 'Any class which is to be instantiated as a sub_block must include Origen::Model,'
-        puts "add this to #{klass}:"
-        puts ''
-        puts '  include Origen::Model'
-        puts ''
-        fail 'Sub block does not include Origen::Model!'
-      end
-      block = klass.new(options.merge(parent: self))
-      block.name = name
-      sub_blocks[name] = block
-      if respond_to?(name)
-        # puts "Tried to create a sub-block named #{name} in #{self.class}, but it already has a method with this name!"
-        # puts "To avoid confusion rename one of them and try again!"
-        # raise "Non-unique sub-block name!"
-      else
-        define_singleton_method name do
-          sub_blocks[name]
-        end
-      end
-      block
     end
 
     def namespace
