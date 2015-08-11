@@ -207,6 +207,7 @@ module Origen
           end
         end
       end
+      exhibits_to_be_shown
     end
 
     def doc_resources(options = {})
