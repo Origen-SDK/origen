@@ -1,5 +1,8 @@
 require 'English'
 require 'pathname'
+# Keep a note of the pwd at the time when Origen was first loaded, this is initially used
+# by the site_config lookup.
+$_origen_invocation_pwd ||= Pathname.pwd
 require 'fileutils'
 require 'origen/site_config'
 require 'origen/operating_systems'

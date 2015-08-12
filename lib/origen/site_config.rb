@@ -39,7 +39,12 @@ module Origen
 
     def configs
       @configs ||= begin
-        path = Pathname.pwd
+        # This global is set when Origen is first required, it generally means that what is considered
+        # to be the pwd for the purposes of looking for a site_config file is the place from where the
+        # user invoked Origen. Otherwise if the running app switches the PWD it can lead to confusing
+        # behavior - this was a particular problem when testing the new app generator which switches the
+        # pwd to /tmp to build the new app
+        path = $_origen_invocation_pwd
         configs = []
         # Add any site_configs from where we are currently running from, i.e. the application
         # directory area
