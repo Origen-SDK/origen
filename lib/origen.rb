@@ -439,6 +439,8 @@ module Origen
           Origen.import_manager.require!
           Origen.remote_manager.require!
         end
+        boot = File.join(root, 'config', 'boot.rb')
+        require boot if File.exist?(boot)
         env = File.join(root, 'config', 'environment.rb')
         require env if File.exist?(env)
         dev = File.join(root, 'config', 'development.rb')
