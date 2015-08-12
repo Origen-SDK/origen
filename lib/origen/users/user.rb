@@ -66,7 +66,7 @@ module Origen
       end
 
       def name
-        @name || name_from_rc || @id
+        @name ||= name_from_rc || @id
       end
 
       def name_from_rc
@@ -74,7 +74,7 @@ module Origen
       end
 
       def email
-        @email || email_from_rc || begin
+        @email ||= email_from_rc || begin
           if Origen.site_config.email_domain
             "#{id}@#{Origen.site_config.email_domain}"
           end

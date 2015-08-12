@@ -236,7 +236,9 @@ module Origen
         if Origen.app.rc && Origen.app.rc.git?
           begin
             status = "#{Origen.app.rc.current_branch}(#{Origen.app.rc.current_commit})"
-            status += ' (+local edits)' unless Origen.app.rc.local_modifications.empty?
+            @pattern_local_mods = !Origen.app.rc.local_modifications.empty? unless @pattern_local_mods_fetched
+            @pattern_local_mods_fetched = true
+            status += ' (+local edits)' if @pattern_local_mods
             c2 "    Branch:    #{status}"
           rescue
             # No problem, we did our best
