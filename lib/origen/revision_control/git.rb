@@ -190,18 +190,18 @@ module Origen
       end
 
       def current_branch
-        @current_branch ||= git('rev-parse --abbrev-ref HEAD', verbose: false).first
+        git('rev-parse --abbrev-ref HEAD', verbose: false).first
       end
 
       def current_commit(options = {})
         options = {
           short: true
         }.merge(options)
-        @current_commit ||= git('rev-parse HEAD', verbose: false).first
+        commit = git('rev-parse HEAD', verbose: false).first
         if options[:short]
-          @current_commit[0, 11]
+          commit[0, 11]
         else
-          @current_commit
+          commit
         end
       end
 
