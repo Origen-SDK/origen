@@ -1,24 +1,31 @@
 <nav class="navbar navbar-inverse navbar-fixed-top">
   <div class="container">
     <div class="navbar-header">
+      <a href="../" class="navbar-brand" style="margin-top: -4px;"><img src="http://origen-sdk.org/android-chrome-48x48.png" style="height:30px; margin-right: 5px; display: inline; margin-top: -2px">Origen</a>
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
         <span class="sr-only">Toggle navigation</span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="<%= path "/" %>">Home</a>
     </div>
     <div id="navbar" class="collapse navbar-collapse">
       <ul class="nav navbar-nav">
-        <li class="<%= options[:tab] == :docs ? 'active' : '' %>"><a href="<%= path("/docs/environment/introduction") %>">Docs</a></li>
-        <li class="<%= options[:tab] == :api ? 'active' : '' %>"><a href="<%= path "/api/" %>">API</a></li>
-        <li class="<%= options[:tab] == :references ? 'active' : '' %>"><a href="<%= path "/references" %>">References</a></li>
-        <li class="<%= options[:tab] == :archive ? 'active' : '' %>"><a href="<%= path "/archive" %>">Archive</a></li>
-        <li class="<%= options[:tab] == :release ? 'active' : '' %>"><a href="<%= path "/release_notes" %>">Release Notes</a></li>
-        <li class="<%= options[:tab] == :contact ? 'active' : '' %>"><a href="<%= path "/contact" %>">Contact</a></li>
+        <li class="dropdown">
+          <a class="<%= options[:tab] == :guides ? 'active' : '' %> dropdown-toggle" data-toggle="dropdown" href="#" id="tour">Tour <span class="caret"></span></a>
+          <ul class="dropdown-menu" aria-labelledby="tour">
+            <li><a href="<%= path "tour/basics" %>">Basics</a></li>
+            <li class="divider"></li>
+            <li><a href="<%= path "tour/test-engineering" %>">Test Engineers</a></li>
+            <li><a href="<%= path "tour/design-engineering" %>">Design Engineers</a></li>
+          </ul>
+        </li>
+        <li class="<%= options[:tab] == :guides ? 'active' : '' %>"><a href="<%= path("guides") %>">Guides</a></li>
+        <li class="<%= options[:tab] == :api ? 'active' : '' %>"><a href="<%= path "api" %>">API</a></li>
+        <li class="<%= options[:tab] == :community ? 'active' : '' %>"><a href="<%= path("community") %>">Community</a></li>
+        <li class="<%= options[:tab] == :release ? 'active' : '' %>"><a href="<%= path "release_notes" %>">Release Notes</a></li>
+        <li class="<%= options[:tab] == :plugins ? 'active' : '' %>"><a href="<%= path "plugins" %>">Plugins</a></li>
       </ul>
-      <%= import "origen/web/logo.html" %>
     </div><!--/.nav-collapse -->
   </div>
 </nav>

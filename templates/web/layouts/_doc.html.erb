@@ -1,5 +1,5 @@
 ---
-title: <%= options[:title] || "#{Origen.app.namespace} - Docs" %>
+title: <%= options[:title] || "#{Origen.app.namespace} - Guides" %>
 analytics: UA-64455560-1
 ---
 <%= render "templates/web/partials/navbar.html", tab: :docs %>
@@ -30,6 +30,6 @@ analytics: UA-64455560-1
 
 <%= yield %>
 
-<%= yammer_comments %>
+<%= disqus_comments %>
 
 % end
