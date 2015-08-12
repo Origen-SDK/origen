@@ -1,3 +1,65 @@
+<a class="anchor release_tag" name="v0_2_3"></a>
+<h1><a href="#v0_2_3">Tag: v0.2.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 12-Aug-2015 20:34PM
+
+
+* Fixed performance regression when generating multiple patterns back-back. This was caused by querying
+  Git for workspace status info for every pattern, this is now cached after the first call.
+* Some application file cleanup:
+  * config/users.rb is now ignored and can be removed, a different API may be introduced in future to
+    define an application's user list
+  * config/development.rb will no longer be generated for new plugins and is considered deprecated, though
+    for now it will continue to be loaded when present
+  * config/environment.rb has been renamed to config/boot.rb to differentiate it from environment files.
+    In this case of a plugin this is only loaded when the plugin is running from its own workspace, so
+    it can be used to replace config/development.rb
+* General improvements to the controller API, added more tests for it.
+* The failing stacktrace shown in the console now only shows callers from within the current application.
+  Previous behavior that would show the complete trace (including calls in plugins and Origen core) can
+  be restored by running with --verbose.
+* A proc can now be assigned as a target to use some custom code rather than a target file, this is
+  mainly intended to used within tests:
+
+~~~ruby
+Origen.target.temporary = -> { $dut = SomeLocalClass.new }
+
+ # Any calls to load or reload the target will now execute the above function
+~~~
+
+* Multiple sub\_block instances are now supported, this includes various ways to define the
+  base\_addresses as shown in the example below:
+
+~~~ruby
+class Top
+  include Origen::TopLevel
+
+  def initialize
+    sub\_block  :vreg, class\_name: "VReg", base\_address: 0x1000\_0000
+    sub\_blocks :atd, instances: 2, class\_name: "ATD", base\_address: 0x2000\_0000
+    sub\_blocks :osc, instances: 2, class\_name: "Oscillator", base\_address: 0x3000\_0000, base\_address\_step: 0x1000
+    sub\_blocks :pmc, instances: 2, class\_name: "PMC", base\_address: [0x4000\_0000, 0x4001\_0000]
+  end
+end
+
+dut = Top.new
+# The given instance is accessible by appending the index number to the sub\_block name
+dut.atd0      # => <ATD instance>
+dut.atd1      # => <ATD instance>
+# Append an 's' to the name to get an array of all instances
+dut.atds      # => [<ATD instance>, <ATD instance>]
+
+dut.vreg.base\_address  # => 0x1000\_0000
+dut.atd0.base\_address  # => 0x2000\_0000
+dut.atd1.base\_address  # => 0x2000\_0000
+dut.osc0.base\_address  # => 0x3000\_0000
+dut.osc1.base\_address  # => 0x3000\_1000
+dut.pmc0.base\_address  # => 0x4000\_0000
+dut.pmc1.base\_address  # => 0x4001\_0000
+~~~
+
 <a class="anchor release_tag" name="v0_2_2"></a>
 <h1><a href="#v0_2_2">Tag: v0.2.2</a></h1>
 
