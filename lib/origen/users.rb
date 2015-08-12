@@ -8,9 +8,10 @@ module Origen
       # Had to do some shenanigans here due to Origen.root not being available
       # when this file is included, only load the users from the app once a user
       # method is first called
-      return @app_users if @app_users
-      require File.join(Origen.root, 'config', 'users')
-      @app_users = users
+      # return @app_users if @app_users
+      # require File.join(Origen.root, 'config', 'users')
+      # @app_users = users
+      []
     end
 
     # Returns a user object representing the current user, will return a default
