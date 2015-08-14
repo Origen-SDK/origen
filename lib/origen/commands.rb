@@ -264,7 +264,12 @@ when 'modifications'
   load 'origen/commands/rc.rb'
 
 else
-  puts "Error: Command not recognized: #{@command}" unless ['-h', '--help'].include?(@command)
+  if ['-h', '--help'].include?(@command)
+    status = 0
+  else
+    puts "Error: Command not recognized: #{@command}" 
+    status = 1
+  end
   puts <<-EOT
 Usage: origen COMMAND [ARGS]
 
@@ -306,6 +311,5 @@ Many commands can be run with -h (or --help) for more information.
 
   EOT
 
-  # dispatch     Dispatch an Origen command to a worker farm
-  exit(1)
+  exit status
 end
