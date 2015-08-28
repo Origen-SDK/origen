@@ -3,6 +3,7 @@
 [![Coverage Status](https://coveralls.io/repos/Origen-SDK/origen/badge.svg?branch=master&service=github)](https://coveralls.io/github/Origen-SDK/origen?branch=master)
 [![Code Climate](https://codeclimate.com/github/Origen-SDK/origen/badges/gpa.svg)](https://codeclimate.com/github/Origen-SDK/origen)
 [![Inline docs](http://inch-ci.org/github/Origen-SDK/origen.svg)](http://inch-ci.org/github/Origen-SDK/origen)
+[![Windows Build Status](https://ci.appveyor.com/api/projects/status/kaxs1al6i6g2ubjh?svg=true)](https://ci.appveyor.com/project/priyavadan/origen)
 
 # Origen
 
