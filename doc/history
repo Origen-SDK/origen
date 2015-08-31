@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_2_4"></a>
+<h1><a href="#v0_2_4">Tag: v0.2.4</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 31-Aug-2015 03:35AM
+
+
+* Removed workspace path from pattern headers for external apps/plugins (@rlaj)
+* Updated logo helper with new Origen logo
+
 <a class="anchor release_tag" name="v0_2_3"></a>
 <h1><a href="#v0_2_3">Tag: v0.2.3</a></h1>
 
