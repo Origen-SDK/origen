@@ -63,20 +63,5 @@ if result == true
 elsif result == false
   exit 1
 else
-  begin
-    if gem 'rubocop'
-      if Origen.running_on_linux? && !File.exist?("#{Origen.top}/.bin/rubocop")
-        puts ''
-        puts 'It looks like you need to update your toolset to fix the above error, try running these commands before trying again:'
-        puts ''
-        puts "  pushd #{Origen.top}"
-        puts '  source source_setup update'
-        puts '  popd'
-        puts ''
-      end
-    end
-  rescue Gem::LoadError
-    require_gem 'rubocop', version: '0.20.1'
-  end
   exit 1
 end

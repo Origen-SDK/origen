@@ -200,17 +200,26 @@ begin
 rescue Exception => e
   unless e.is_a?(SystemExit) && e.status == 0
     puts
-    puts e.message
+    puts e.message unless e.is_a?(SystemExit)
     if Origen.app_loaded?
       # Only print out the application stack trace by default, if verbose logging is
       # enabled then output the full thing
       e.backtrace.each do |line|
         path = Pathname.new(line)
-        puts line if !path.absolute? || Origen.log.level == :verbose
+        if path.absolute?
+          puts line if Origen.log.level == :verbose
+        else
+          if Origen.log.level == :verbose
+            puts line
+          else
+            puts line unless line =~ /^.\/lbin/
+          end
+        end
       end
     else
       puts e.backtrace
     end
+    exit 1
   end
 ensure
   if Origen.app_loaded?
