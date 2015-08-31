@@ -267,7 +267,7 @@ else
   if ['-h', '--help'].include?(@command)
     status = 0
   else
-    puts "Error: Command not recognized: #{@command}" 
+    puts "Error: Command not recognized: #{@command}"
     status = 1
   end
   puts <<-EOT

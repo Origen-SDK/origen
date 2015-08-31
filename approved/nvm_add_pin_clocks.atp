@@ -1,20 +1,22 @@
 // ***************************************************************************
 // GENERATED:
-//   Time:    30-Sep-2014 11:08AM
-//   By:      Ronald Lajaunie
-//   Command: rgen g add_pin_clocks -t debug.rb
+//   Time:    31-Aug-2015 03:21AM
+//   By:      Stephen McGinty
+//   Command: origen g add_pin_clocks -t debug.rb
 // ***************************************************************************
 // ENVIRONMENT:
 //   Application
-//     Vault:     sync://sync-15088:15088/Projects/common_tester_blocks/rgen
-//     Version:   v2.3.0.dev112.app
-//     Workspace: /proj/.tec_test_k20_512/users/b01784/rgen_sandbox/rgen
-//   RGen
-//     Vault:     sync://sync-15088:15088/Projects/common_tester_blocks/rgen
-//     Version:   v2.3.0.dev112
-//     Workspace: /proj/.tec_test_k20_512/users/b01784/rgen_sandbox/rgen
+//     Source:    ssh://git@github.com:Origen-SDK/origen.git
+//     Version:   0.2.3
+//     Branch:    master(5ccfa6bfcca) (+local edits)
+//   Origen
+//     Source:    https://github.com/Origen-SDK/origen
+//     Version:   0.2.3
+//   Plugins
+//     origen_core_support:      0.1.1
+//     origen_doc_helpers:       0.2.0
 // ***************************************************************************
-// This is a dummy pattern created by the RGen test environment
+// This is a dummy pattern created by the Origen test environment
 // ***************************************************************************
 import tset nvmbist;                                                                            
 import tset intram;                                                                             

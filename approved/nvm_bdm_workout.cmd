@@ -1,32 +1,33 @@
 // ***************************************************************************
-// This is a dummy pattern created by the RGen test environment
-// ***************************************************************************
-// COMMAND: (to re-generate this pattern)
-//   rgen g bdm_workout -t bdm.rb
+// GENERATED:
+//   Time:    31-Aug-2015 03:21AM
+//   By:      Stephen McGinty
+//   Command: origen g bdm_workout -t bdm.rb
 // ***************************************************************************
 // ENVIRONMENT:
-//   Project
-//     Vault:     sync://sync-15088:15088/Projects/common_tester_blocks/rgen
-//     Version:   v2.0.0.dev2.app
-//     Workspace: /proj/.mem_c90tfs_testeng/r49409/C90TFS_NVM_tester/rgen_top
-//   rGen
-//     Vault:     sync://sync-15088:15088/Projects/common_tester_blocks/rgen
-//     Version:   v2.0.0.dev2
-//     Workspace: /proj/.mem_c90tfs_testeng/r49409/C90TFS_NVM_tester/rgen_top
+//   Application
+//     Source:    ssh://git@github.com:Origen-SDK/origen.git
+//     Version:   0.2.3
+//     Branch:    master(5ccfa6bfcca) (+local edits)
+//   Origen
+//     Source:    https://github.com/Origen-SDK/origen
+//     Version:   0.2.3
+//   Plugins
+//     origen_core_support:      0.1.1
+//     origen_doc_helpers:       0.2.0
 // ***************************************************************************
-// TARGET:
-//   bdm.rb
+// This is a dummy pattern created by the Origen test environment
 // ***************************************************************************
 // ######################################################################
-// # Test that comments work
+// ## Test that comments work
 // ######################################################################
 // Hello
 // ######################################################################
-// # Test that writing explicit content works
+// ## Test that writing explicit content works
 // ######################################################################
 R0   // Put the part in reset
 // ######################################################################
-// # Test that delay works
+// ## Test that delay works
 // ######################################################################
 // This should sleep for no cycles
 // Wait for 0ns
@@ -40,10 +41,10 @@ WAIT 10
 // Wait for 2.00s
 WAIT 20
 // ######################################################################
-// # Test write_byte
+// ## Test write_byte
 // ######################################################################
 WB 0x12 0x55
 // ######################################################################
-// # Test write_word
+// ## Test write_word
 // ######################################################################
 WW 0x34 0xAA55

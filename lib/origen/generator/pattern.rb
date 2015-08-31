@@ -232,7 +232,9 @@ module Origen
           end
         end
         c2 "    Version:   #{Origen.app.version}"
-        #c2 "    Workspace: #{Origen.root}"
+        unless Origen.app.config.release_externally
+          c2 "    Workspace: #{Origen.root}"
+        end
         if Origen.app.rc && Origen.app.rc.git?
           begin
             @branch ||= Origen.app.rc.current_branch
@@ -249,7 +251,6 @@ module Origen
         c2 '  Origen'
         c2 '    Source:    https://github.com/Origen-SDK/origen'
         c2 "    Version:   #{Origen.version}"
-        #c2 "    Workspace: #{Origen.top}"
         unless Origen.plugins.empty?
           c2 '  Plugins'
           Origen.plugins.sort_by { |p| p.name.to_s }.each do |plugin|
