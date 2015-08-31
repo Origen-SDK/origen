@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_2_5"></a>
+<h1><a href="#v0_2_5">Tag: v0.2.5</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 31-Aug-2015 04:09AM
+
+
+Fixed bug with the exit status of commands (e.g. origen lint) not being set correctly when
+failed
+
 <a class="anchor release_tag" name="v0_2_4"></a>
 <h1><a href="#v0_2_4">Tag: v0.2.4</a></h1>
 
