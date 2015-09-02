@@ -317,7 +317,7 @@ module Origen
     def listeners_for(*args)
       callback = args.shift
       max = args.first.is_a?(Numeric) ? args.shift : nil
-      listeners = [Origen.app] + Origen.plugins +
+      listeners = [Origen.app] + Origen.app.plugins +
                   Origen.app.instantiated_callback_listeners
       listeners = listeners.select { |l| l.respond_to?(callback) }
       if max && listeners.size > max

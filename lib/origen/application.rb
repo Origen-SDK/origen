@@ -81,7 +81,7 @@ module Origen
           end
         end
         # Finally those that the plugin's have given us
-        ([Origen.app] + Origen.plugins).each do |plugin|
+        ([Origen.app] + Origen.app.plugins).each do |plugin|
           namespace plugin.name do
             Dir.glob("#{plugin.root}/lib/tasks/shared/*.rake").sort.each do |file|
               load file
