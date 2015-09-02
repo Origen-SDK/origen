@@ -52,7 +52,7 @@ def self._with_doc_tester(options)
 end
 
 _with_doc_tester(options) do
-  Origen.current_plugin.temporary = options[:current_plugin] if options[:current_plugin]
+  Origen.app.plugins.temporary = options[:current_plugin] if options[:current_plugin]
   Origen.environment.temporary = options[:environment] if options[:environment]
   Origen.target.temporary = options[:target] if options[:target]
   Origen.app.load_target!  # This initial load is required to appply any configuration

@@ -53,8 +53,7 @@ opt_parser.parse! ARGV
 options[:patterns] = ARGV
 options[:compile] = true  # To let the generator know a compile job has been requested
 
-Origen.load_application
-Origen.current_plugin.temporary = options[:current_plugin] if options[:current_plugin]
+Origen.app.plugins.temporary = options[:current_plugin] if options[:current_plugin]
 Origen.environment.temporary = options[:environment] if options[:environment]
 Origen.target.temporary = options[:target] if options[:target]
 Origen.app.load_target!

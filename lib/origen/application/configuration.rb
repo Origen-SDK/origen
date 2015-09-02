@@ -123,8 +123,8 @@ module Origen
             instance_variable_set("@#{name}".to_sym, block)
           else
             if override && ATTRS_THAT_CURRENT_PLUGIN_CAN_OVERRIDE.include?(name) &&
-               app.current? && Origen.current_plugin.name
-              var = Origen.current_plugin.instance.config.send(name, override: false)
+               app.current? && Origen.app.plugins.current
+              var = Origen.app.plugins.current.config.send(name, override: false)
             end
             var ||= instance_variable_get("@#{name}".to_sym)
             if var.respond_to?('call')
@@ -147,8 +147,8 @@ module Origen
 
       (ATTRS_THAT_CURRENT_PLUGIN_CAN_OVERRIDE - ATTRS_THAT_ACCEPT_A_BLOCK).each do |name|
         if override && ATTRS_THAT_CURRENT_PLUGIN_CAN_OVERRIDE.include?(name) &&
-           app.current? && Origen.current_plugin.name
-          var = Origen.current_plugin.instance.config.send(name, override: false)
+           app.current? && Origen.app.plugins.current
+          var = Origen.app.plugins.current.config.send(name, override: false)
         end
         var || instance_variable_get("@#{name}".to_sym)
       end

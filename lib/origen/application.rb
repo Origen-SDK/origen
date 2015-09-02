@@ -10,6 +10,7 @@ module Origen
     autoload :Target,        'origen/application/target'
     autoload :Environment,   'origen/application/environment'
     autoload :PluginsManager, 'origen/application/plugins_manager'
+    autoload :Plugins,       'origen/application/plugins'
     autoload :LSF,           'origen/application/lsf'
     autoload :Runner,        'origen/application/runner'
     autoload :ConfigurationManager, 'origen/application/configuration_manager'
@@ -201,11 +202,7 @@ module Origen
     # Returns true if the given application instance is
     # the current plugin
     def current_plugin?
-      if Origen.current_plugin.name
-        Origen.current_plugin.instance == self
-      else
-        false
-      end
+      Origen.app.plugins.current == self
     end
 
     # Returns the current top-level object (the DUT)
@@ -420,8 +417,13 @@ module Origen
       (Origen.app.config.gem_name || name).to_s.underscore.symbolize
     end
 
+    def plugins
+      @plugins ||= Plugins.new
+    end
+
     def plugins_manager
-      @plugins_manager ||= PluginsManager.new
+      Origen.deprecated 'Origen.app.plugins_manager and Origen.app.current_plugin are deprecated, use Origen.app.plugins instead'
+      plugins
     end
     alias_method :plugin_manager, :plugins_manager
     alias_method :current_plugin, :plugins_manager
@@ -505,7 +507,7 @@ module Origen
     end
 
     def callback_listeners
-      current = Origen.current_plugin.instance
+      current = Origen.app.plugins.current
       applications = [self]
       applications << current if current
       applications + instantiated_callback_listeners
@@ -664,7 +666,7 @@ module Origen
         listeners_for(:on_load_target).each(&:on_load_target)
       end
       listeners_for(:after_load_target).each(&:after_load_target)
-      Origen.import_manager.validate_production_status
+      Origen.app.plugins.validate_production_status
       # @target_instantiated = true
     end
 

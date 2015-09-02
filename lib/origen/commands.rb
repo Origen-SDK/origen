@@ -192,7 +192,7 @@ if File.exist? "#{Origen.root}/config/commands.rb"
   end
 end
 
-shared_commands = Origen.import_manager.command_launcher
+shared_commands = Origen.app.plugins.shared_commands
 if shared_commands && shared_commands.size != 0
   shared_commands.each do |file|
     require file

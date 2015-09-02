@@ -251,9 +251,9 @@ module Origen
         c2 '  Origen'
         c2 '    Source:    https://github.com/Origen-SDK/origen'
         c2 "    Version:   #{Origen.version}"
-        unless Origen.plugins.empty?
+        unless Origen.app.plugins.empty?
           c2 '  Plugins'
-          Origen.plugins.sort_by { |p| p.name.to_s }.each do |plugin|
+          Origen.app.plugins.sort_by { |p| p.name.to_s }.each do |plugin|
             c2 "    #{plugin.name}:".ljust(30) + plugin.version
           end
         end

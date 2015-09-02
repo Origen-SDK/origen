@@ -26,10 +26,10 @@ module Origen
       # Release a new application version
       def run(options)
         # Don't want plugin callbacks kicking in during the release process
-        Origen.current_plugin.disable
+        Origen.app.plugins.disable_current
         @options = options
         if authorized?
-          Origen.import_manager.validate_production_status(true)
+          Origen.app.plugins.validate_production_status(true)
           unless Origen.app.rc.local_modifications.empty?
             puts <<-EOT
 Your workspace has local modifications that are preventing the requested action

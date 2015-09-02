@@ -69,7 +69,7 @@ module Origen
                 temporary_plugin_from_options = options[:current_plugin]
                 expand_lists_and_directories(options[:files], options).each do |file|
                   if temporary_plugin_from_options
-                    Origen.current_plugin.temporary = temporary_plugin_from_options
+                    Origen.app.plugins.temporary = temporary_plugin_from_options
                   end
                   case options[:action]
                   when :compile
@@ -83,9 +83,7 @@ module Origen
                   else
                     Origen.generator.generate_pattern(file, options)
                   end
-                  if temporary_plugin_from_options
-                    Origen.current_plugin.default
-                  end
+                  Origen.app.plugins.temporary = nil if temporary_plugin_from_options
                 end
               end
             end

@@ -41,7 +41,7 @@ module Origen
     # Returns true if the imports have already been required and added
     # to the load path of the current thread
     def imports_required?
-      Origen.import_manager.required?
+      true # Guaranteed by the boot process
     end
 
     def validate_production_status(force = false)
@@ -214,7 +214,7 @@ module Origen
         end
       end
       # Add remotes from imports
-      Origen.plugins.each do |plugin|
+      Origen.app.plugins.each do |plugin|
         plugin.config.remotes.each do |import_remote|
           add_remote(import_remote)
         end

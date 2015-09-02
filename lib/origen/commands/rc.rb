@@ -5,7 +5,7 @@ include Origen::Utility::InputCapture
 def _unmanaged_files
   unmanaged_files = Origen::RevisionControl::IGNORE_FILES
   unmanaged_files += config.unmanaged_files || []
-  unmanaged_files += Origen.import_manager.all_symlinks || []
+  # unmanaged_files += Origen.import_manager.all_symlinks || []
 
   # If the given files are not full paths then prefix with Origen.root, unless they
   # are wildcards
@@ -419,7 +419,7 @@ The following options are available:
         Origen::Log.console_only do
           Dir.chdir Origen.root do
             # Blow away these temporary files to make sure they are not committed
-            Origen.import_manager.send(:remove_all_symlinks!) # removes symlinks from plugins
+            # Origen.import_manager.send(:remove_all_symlinks!) # removes symlinks from plugins
             system("rm -fr #{_unmanaged_dirs.join(' ')} #{_unmanaged_files.join(' ')}")
             options.delete(:force)
             options[:comment] ||= 'Initial'

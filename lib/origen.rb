@@ -13,7 +13,6 @@ require 'origen/top_level'
 require 'origen/model'
 require 'origen/ruby_version_check'
 require 'origen/application'
-require 'origen/import_manager'
 require 'origen/remote_manager'
 require 'origen/utility'
 require 'origen/logger_methods'
@@ -92,16 +91,9 @@ module Origen
       @plugins = nil
     end
 
-    # Returns an array containing the application instances of all plugins
     def plugins
-      @plugins ||= begin
-        top = Origen.app
-        plugins = []
-        Origen._applications_lookup[:name].each do |_name, app|
-          plugins << app unless app == top
-        end
-        plugins
-      end
+      Origen.deprecate 'Origen.plugins is deprecated, use Origen.app.plugins instead'
+      Origen.app.plugins
     end
 
     def app_loaded?
@@ -359,12 +351,14 @@ module Origen
     end
 
     def import_manager
-      @import_manager ||= ImportManager.new
+      Origen.deprecated 'Origen.import_manager is deprecated, use Origen.app.plugins instead'
+      app.plugins
     end
     alias_method :imports_manager, :import_manager
 
     def plugins_manager
-      application.plugins_manager
+      Origen.deprecated 'Origen.plugins_manager and Origen.current_plugin are deprecated, use Origen.app.plugins instead'
+      app.plugins
     end
     alias_method :plugin_manager, :plugins_manager
     alias_method :current_plugin, :plugins_manager
@@ -426,7 +420,7 @@ module Origen
           Bundler.require(:default)
         end
         if @with_boot_environment
-          @application.current_plugin.disable
+          @application.plugins.disable_current
         else
           Origen.remote_manager.require!
         end
@@ -437,7 +431,7 @@ module Origen
         dev = File.join(root, 'config', 'development.rb')
         require dev if File.exist?(dev)
         validate_origen_dev_configuration!
-        ([@application] + Origen.plugins).each(&:on_loaded)
+        ([@application] + Origen.app.plugins).each(&:on_loaded)
         @application_loaded = true
         @application
       end

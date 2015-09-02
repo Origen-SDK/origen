@@ -117,8 +117,8 @@ module Origen
       elsif current_directory && File.exist?("#{current_directory}/#{file}")
         Pathname.new("#{current_directory}/#{file}")
       # Is it a path relative to the current plugin's Origen.root?
-      elsif Origen.current_plugin.instance && File.exist?("#{Origen.current_plugin.instance.root}/#{file}")
-        Pathname.new("#{Origen.current_plugin.instance.root}/#{file}")
+      elsif Origen.app.plugins.current && File.exist?("#{Origen.app.plugins.current.root}/#{file}")
+        Pathname.new("#{Origen.app.plugins.current.root}/#{file}")
       elsif options[:default_dir]
         m = all_matches(file, options)
         if m
@@ -140,17 +140,17 @@ module Origen
     end
 
     def check(path)
-      file_plugin = Origen.import_manager.path_within_a_plugin(path)
+      file_plugin = Origen.app.plugins.path_within_a_plugin(path)
       if file_plugin
-        if Origen.current_plugin.name
-          if file_plugin == Origen.current_plugin.name
+        if Origen.app.plugins.current
+          if file_plugin == Origen.app.plugins.current.name
             return path
           else
-            puts "The requested file is from plugin #{file_plugin} and current system plugin is set to plugin #{Origen.current_plugin.name}!"
+            puts "The requested file is from plugin #{file_plugin} and current system plugin is set to plugin #{Origen.app.plugins.current.name}!"
             fail 'Incorrect plugin error!'
           end
         else
-          Origen.current_plugin.temporary = file_plugin
+          Origen.app.plugins.temporary = file_plugin
           return path
         end
       else
@@ -159,8 +159,8 @@ module Origen
     end
 
     def all_matches(file, options)
-      if Origen.current_plugin.name
-        matches = Dir.glob("#{options[:default_dir]}/#{Origen.current_plugin.name}/**/#{file}").sort
+      if Origen.app.plugins.current
+        matches = Dir.glob("#{options[:default_dir]}/#{Origen.app.plugins.current.name}/**/#{file}").sort
         matches = matches.flatten.uniq
         if matches.size == 0
           matches = Dir.glob("#{options[:default_dir]}/**/#{file}").sort
@@ -240,7 +240,7 @@ module Origen
       path = path.to_s unless path.is_a?(String)
       if path =~ /(.*?)\/.*/
         import_name = Regexp.last_match[1].downcase.to_sym
-        if import_name == :origen || import_name == :origen_core || Origen.import_manager.names.include?(import_name) ||
+        if import_name == :origen || import_name == :origen_core || Origen.app.plugins.names.include?(import_name) ||
            import_name == :doc_helpers
           # Special case to allow a shortcut for this common import plugin and to also handle legacy
           # code from when it was called doc_helpers instead of origen_doc_helpers

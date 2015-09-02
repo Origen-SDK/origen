@@ -100,9 +100,10 @@ module Origen
       end
 
       def current_plugin_pattern_path
-        if Origen.current_plugin.name && Origen.current_plugin.instance.config.shared
-          File.join Origen.current_plugin.instance.root,
-                    Origen.current_plugin.instance.config.shared[:patterns] || Origen.current_plugin.instance.config.shared[:pattern]
+        cp = Origen.app.plugins.current
+        if cp && cp.config.shared
+          path = cp.config.shared[:patterns] || cp.config.shared[:pattern]
+          File.join(cp.root, path) if path
         end
       end
 
@@ -122,20 +123,20 @@ module Origen
       end
 
       def check(path, options = {})
-        file_plugin = Origen.import_manager.path_within_a_plugin(path)
+        file_plugin = Origen.app.plugins.plugin_name_from_path(path)
         if file_plugin
-          if Origen.current_plugin.name
-            if file_plugin == Origen.current_plugin.name
+          if Origen.app.plugins.current
+            if file_plugin == Origen.app.plugins.current.name
               return proceed_with_pattern?(path) ? path : :skip
             elsif !options[:current_plugin]
-              Origen.current_plugin.temporary = file_plugin
+              Origen.app.plugins.current.temporary = file_plugin
               return proceed_with_pattern?(path) ? path : :skip
             else
-              puts "The requested pattern is from plugin #{file_plugin} and current system plugin is set to plugin #{Origen.current_plugin.name}!"
+              puts "The requested pattern is from plugin #{file_plugin} and current system plugin is set to plugin #{Origen.app.plugins.current.name}!"
               fail 'Incorrect plugin error!'
             end
           else
-            Origen.current_plugin.temporary = file_plugin
+            Origen.app.plugins.current.temporary = file_plugin
             return proceed_with_pattern?(path) ? path : :skip
           end
         else
