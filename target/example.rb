@@ -11,8 +11,8 @@
 # to running the pattern - i.e. this file is run before every pattern is executed
 # and is an opportunity to establish state.
 
-$tester = Origen::Tester::J750.new  # Set the tester to the Origen J750 model
-$dut    = Pioneer.new             # Instantiate an SoC instance
+$tester = OrigenTesters::J750.new  # Set the tester to the Origen J750 model
+$dut    = Pioneer.new              # Instantiate an SoC instance
 
 # Production mode will require that there are no modified files in the workspace
 # and anything else that you conditionally add to your project files.

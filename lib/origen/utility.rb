@@ -1,6 +1,5 @@
 module Origen
   module Utility
-    autoload :DesignSync,  'origen/utility/design_sync'
     autoload :Diff,        'origen/utility/diff'
     autoload :Mailer,      'origen/utility/mailer'
     autoload :SRecord,     'origen/utility/s_record'

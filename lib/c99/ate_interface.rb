@@ -1,5 +1,7 @@
 module C99
-  module J750BaseInterface
+  class ATEInterface
+    include OrigenTesters::ProgramGenerators
+
     # Options passed to Flow.create and Library.create will be passed in here, use as
     # desired to configure your interface
     def initialize(_options = {})
@@ -72,14 +74,4 @@ module C99
       patsets.add("#{name}_pset", pattern: "#{name}.PAT")
     end
   end
-
-  class J750Interface
-    include J750BaseInterface
-    include Origen::Tester::J750::Generator
-  end
-
-  # class TestersJ750Interface
-  #  include J750BaseInterface
-  #  include Testers::J750::Generator
-  # end
 end

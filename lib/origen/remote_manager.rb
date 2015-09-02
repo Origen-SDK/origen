@@ -17,12 +17,6 @@ module Origen
     #  since remotes are not assumed to be Ruby.
     def require!
       unless required?
-        # Make sure the imports have already been required and added
-        # to the load path of the current thread
-        unless imports_required?
-          fail 'Error: Imports must be required before remotes!'
-        end
-
         while updates_required?
           Origen.log.info 'The following remotes need to be updated, this will now happen automatically:'
           dirty_remotes.each do |name, remote|

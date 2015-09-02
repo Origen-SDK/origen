@@ -92,10 +92,16 @@ GEM
     netrc (0.10.3)
     nokogiri (1.6.4.1)
       mini_portile (~> 0.6.0)
-    origen_core_support (0.1.1)
-      origen (>= 0.0.6)
+    origen_core_support (0.2.0)
+      origen (>= 0.2.6)
+    origen_debuggers (0.5.1)
+      origen (>= 0.2.6)
+      origen_testers (>= 0.5.0)
     origen_doc_helpers (0.2.0)
       origen (~> 0.2, >= 0.2.1)
+    origen_testers (0.5.0)
+      origen (~> 0.2, >= 0.2.6)
+      require_all (~> 1)
     parser (2.2.2.6)
       ast (>= 1.1, < 3.0)
     powerpack (0.1.1)
@@ -108,6 +114,7 @@ GEM
       rack
     rainbow (2.0.0)
     rake (10.4.2)
+    require_all (1.3.2)
     rest-client (1.8.0)
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 3.0)
@@ -168,6 +175,8 @@ DEPENDENCIES
   coveralls
   loco
   origen!
-  origen_core_support (= 0.1.1)
-  origen_doc_helpers (>= 0.1.0)
+  origen_core_support (= 0.2.0)
+  origen_debuggers (~> 0, >= 0.5.1)
+  origen_doc_helpers (>= 0.2.0)
+  origen_testers (~> 0.5)
   stackprof (~> 0)

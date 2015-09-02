@@ -54,7 +54,7 @@ describe "Callbacks" do
   def clear_target
     Origen.app.unload_target!
     $_captured_callbacks = []
-    $tester = Origen::Tester::J750.new
+    $tester = OrigenTesters::J750.new
   end
 
   before :each do

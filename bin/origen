@@ -207,7 +207,9 @@ rescue Exception => e
       e.backtrace.each do |line|
         path = Pathname.new(line)
         if path.absolute?
-          puts line if Origen.log.level == :verbose
+          if Origen.log.level == :verbose || (line =~ /^#{Origen.root}/ && line !~ /^#{Origen.root}\/lbin/)
+            puts line 
+          end
         else
           if Origen.log.level == :verbose
             puts line

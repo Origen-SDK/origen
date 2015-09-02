@@ -167,19 +167,19 @@ describe "Application Target" do
   end
 
   it "configurable targets work" do
-    Origen.load_target("configurable", tester: Origen::Tester::J750, dut: C99::SOC)
+    Origen.load_target("configurable", tester: OrigenTesters::J750, dut: C99::SOC)
     $tester.j750?.should == true
     $top.is_a?(C99::SOC).should == true
-    Origen.load_target("configurable", tester: Origen::Tester::V93K, dut: C99::NVM)
+    Origen.load_target("configurable", tester: OrigenTesters::V93K, dut: C99::NVM)
     $tester.v93k?.should == true
     $top.is_a?(C99::NVM).should == true
   end
 
   it "caches are cleared between reloads of configurable targets with different options" do
-    Origen.load_target("configurable", tester: Origen::Tester::J750, dut: MyDut1)
+    Origen.load_target("configurable", tester: OrigenTesters::J750, dut: MyDut1)
     $dut.has_pin?(:pin1).should == true
     $dut.has_pin?(:alias1).should == true
-    Origen.load_target("configurable", tester: Origen::Tester::V93K, dut: MyDut2)
+    Origen.load_target("configurable", tester: OrigenTesters::V93K, dut: MyDut2)
     $dut.has_pin?(:pin1).should == true
     $dut.has_pin?(:alias1).should == false
   end

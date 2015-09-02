@@ -160,7 +160,7 @@ module Origen
       $called_count.should == nil
       Origen.target.temporary = -> do
         $dut = Tmp::TopLevel.new
-        $tester = Origen::Tester::J750.new
+        $tester = OrigenTesters::J750.new
       end
       Origen.target.load!
       Pattern.create do

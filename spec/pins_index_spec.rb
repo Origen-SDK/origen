@@ -17,6 +17,7 @@ describe "Origen Pin/Port Names " do
     pin.vector_formatted_value = "11"
     $tester.current_pin_vals.should == "11"
   end
+
   it "checks portid with index in the name works" do
     pname = "port1id"
     Origen.top_level.add_port pname.to_sym, :size => 2

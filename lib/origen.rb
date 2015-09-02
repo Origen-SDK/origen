@@ -16,7 +16,6 @@ require 'origen/application'
 require 'origen/import_manager'
 require 'origen/remote_manager'
 require 'origen/utility'
-require 'origen/version_checker'
 require 'origen/logger_methods'
 require 'option_parser/optparse'
 require 'bundler'
@@ -27,11 +26,9 @@ module Origen
   autoload :Generator, 'origen/generator'
   autoload :Pins,      'origen/pins'
   autoload :Registers, 'origen/registers'
-  autoload :Tester,    'origen/tester'
   autoload :Users,     'origen/users'
   autoload :FileHandler, 'origen/file_handler'
   autoload :RegressionManager, 'origen/regression_manager'
-  autoload :NVM,       'origen/nvm'
   autoload :Location,  'origen/location'
   autoload :VersionString, 'origen/version_string'
   autoload :Mode,      'origen/mode'
@@ -317,11 +314,6 @@ module Origen
       @with_boot_environment = false
     end
 
-    def with_disable_origen_version_check(*args, &block)
-      version_checker.with_disable_origen_version_check(*args, &block)
-    end
-    alias_method :disable_origen_version_check, :with_disable_origen_version_check
-
     # This is the application-facing API for implementing custom callbacks,
     # the top-level application, all plugin application instances, and any
     # application objects that include the Origen::Callbacks module will be
@@ -415,7 +407,7 @@ module Origen
     #
     # In most cases this should never need to be called directly and will be called
     # automatically the first time the application is referenced via Origen.app
-    def load_application(check_version = true)
+    def load_application(options = {})
       @application ||= begin
         # This flag is set so that when a thread starts with no app it remains with no app. This
         # was an issue when building a new app with the fetch command and when the thread did a
@@ -436,7 +428,6 @@ module Origen
         if @with_boot_environment
           @application.current_plugin.disable
         else
-          Origen.import_manager.require!
           Origen.remote_manager.require!
         end
         boot = File.join(root, 'config', 'boot.rb')
@@ -445,7 +436,6 @@ module Origen
         require env if File.exist?(env)
         dev = File.join(root, 'config', 'development.rb')
         require dev if File.exist?(dev)
-        version_checker.check! if check_version
         validate_origen_dev_configuration!
         ([@application] + Origen.plugins).each(&:on_loaded)
         @application_loaded = true
@@ -455,11 +445,6 @@ module Origen
 
     def launch_time
       @launch_time ||= time_now
-    end
-
-    # Returns an instance of Origen::VersionChecker
-    def version_checker
-      @version_checker ||= VersionChecker.new
     end
 
     # Returns the full path to the Origen core top-level directory

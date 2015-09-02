@@ -47,12 +47,15 @@ case command
 
 when 'new'
   require 'origen/commands/new'
+  exit 0
 
 when '--version', '-v'
   require 'origen/commands/version'
+  exit 0
 
 when 'fetch', 'f'
   require 'origen/commands/fetch'
+  exit 0
 
 when 'interactive'
   IRB.start

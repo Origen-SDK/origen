@@ -13,7 +13,6 @@ when "specs"
   exit RSpec::Core::Runner.run(['spec'])
 
 when "examples", "test"  
-  $enable_testers = true if ARGV.delete("--testers")
   Origen.load_application
   status = 0
   Dir["#{Origen.root}/examples/*.rb"].each do |example|

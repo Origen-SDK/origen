@@ -90,7 +90,7 @@ module Origen
           elsif @options[:action] == :program
             Origen.flow.reset
             Origen.resources.reset
-            Origen::Tester::Generator.execute_source(@pattern)
+            OrigenTesters::Generator.execute_source(@pattern)
           else
             Origen.generator.pattern.reset      # Resets the pattern controller ready for a new pattern
             # Give the app a chance to handle pattern dispatch

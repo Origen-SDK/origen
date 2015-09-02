@@ -6,8 +6,7 @@ module Origen
       # Returns the configuration's application instance
       attr_reader :app
 
-      attr_accessor :name, :initials, :instructions, :required_origen_version,
-                    :min_required_origen_version, :max_required_origen_version,
+      attr_accessor :name, :initials, :instructions,
                     :history_file, :release_directory, :release_email_subject,
                     :production_targets, :mode,
                     :vault, :output_directory, :reference_directory,
@@ -17,7 +16,7 @@ module Origen
                     :test_program_output_directory, :erb_trim_mode, :test_program_source_directory,
                     :test_program_template_directory, :referenced_pattern_list, :program_prefix,
                     :copy_command, :diff_command, :compile_only_dot_erb_files, :web_directory,
-                    :web_domain, :imports, :imports_dev,
+                    :web_domain,
                     :strict_errors, :unmanaged_dirs, :unmanaged_files, :remotes,
                     :external_app_dirs, :lint_test, :shared, :yammer_group, :rc_url, :rc_workflow,
                     :user_aliases, :release_externally, :gem_name, :disqus_shortname
@@ -40,7 +39,7 @@ module Origen
       # can be added here
       ATTRS_THAT_ACCEPT_A_BLOCK = ATTRS_THAT_DEPEND_ON_TARGET +
                                   [:release_instructions, :history_file, :log_directory, :copy_command,
-                                   :diff_command, :imports, :imports_dev, :remotes,
+                                   :diff_command, :remotes,
                                    :external_app_dirs
                                   ]
 
@@ -53,21 +52,9 @@ module Origen
       ]
 
       def log_deprecations
-        unless imports.empty?
-          Origen.deprecate "App #{app.name} uses config.imports this will be removed in Origen V3 and a Gemfile/.gemspec should be used instead"
-        end
-        unless imports_dev.empty?
-          Origen.deprecate "App #{app.name} uses config.imports_dev this will be removed in Origen V3 and a Gemfile/.gemspec should be used instead"
-        end
-        if required_origen_version
-          Origen.deprecate "App #{app.name} uses config.required_origen_version this will be removed in Origen V3 and a Gemfile/.gemspec should be used instead"
-        end
-        if min_required_origen_version
-          Origen.deprecate "App #{app.name} uses config.min_required_origen_version this will be removed in Origen V3 and a Gemfile/.gemspec should be used instead"
-        end
-        if max_required_origen_version
-          Origen.deprecate "App #{app.name} uses config.max_required_origen_version this will be removed in Origen V3 and a Gemfile/.gemspec should be used instead"
-        end
+        # unless imports.empty?
+        #  Origen.deprecate "App #{app.name} uses config.imports this will be removed in Origen V3 and a Gemfile/.gemspec should be used instead"
+        # end
       end
 
       def initialize(app)
@@ -104,10 +91,10 @@ module Origen
       end
 
       # This defines an enhanced accessor for these attributes that allows them to be assigned
-      # to an annonymous function to calculate the value based on some property of the target
+      # to an anonymous function to calculate the value based on some property of the target
       # objects.
       #
-      # Without this the objects frome the target could not be referenced in config/application.rb
+      # Without this the objects from the target could not be referenced in config/application.rb
       # because they don't exist yet, for example this will not work because $dut has not yet
       # been instantiated:
       #   # config/application.rb
@@ -199,7 +186,7 @@ module Origen
       # user can be prompted to upgrade
       def method_missing(method, *_args, &_block)
         method = method.to_s.sub('=', '')
-        puts "WARNING - unknown configuration attribute: #{method}"
+        Origen.log.warning "WARNING - unknown configuration attribute: #{method}"
       end
     end
   end

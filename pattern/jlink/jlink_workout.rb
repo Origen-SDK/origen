@@ -15,15 +15,15 @@ Pattern.create do
   $tester.wait(:cycles => 20)
 
   ss "Test write_byte"
-  $tester.write_byte(0x12, 0x55)
+  $tester.write_byte(0x55, address: 0x12)
 
   ss "Test write_word"
-  $tester.write_word(0x34, 0xAA55)
+  $tester.write_word(0xAA55, address: 0x34)
 
   ss "Test write_longword"
-  $tester.write_longword(0x5678, 0x1122_AA55)
+  $tester.write_longword(0x1122_AA55, address: 0x5678)
 
   ss "Test read"
-  $tester.read(0x0001234, 10)
+  $tester.read(10, address: 0x0001234, size: 8)
 
 end

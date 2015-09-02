@@ -39,7 +39,7 @@ module Origen
         j.run
       end
       Origen.interface.write_files(options)
-      unless options[:quiet] || Origen.tester.is_a?(Origen::Tester::Doc)
+      unless options[:quiet] || Origen.tester.is_a?(OrigenTesters::Doc)
         if options[:referenced_pattern_list]
           file = "#{Origen.root}/list/#{options[:referenced_pattern_list]}"
         else

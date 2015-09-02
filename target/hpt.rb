@@ -1,6 +1,6 @@
 $top = C99::SOC.new
 $nvm = C99::NVM.new
-$tester = Origen::Tester::J750_HPT.new
+$tester = OrigenTesters::J750_HPT.new
 
 $dut = $top
 $soc = $top

@@ -218,50 +218,10 @@ when 'generate', 'program', 'compile', 'merge', 'interactive', 'target', 'enviro
   require "origen/commands/#{@command}"
   exit 0 unless @command == 'interactive'
 
-when 'upgrade_app'
-  Origen::CodeGenerators.invoke 'bundler', [], config: { type: :application }
-  Origen::CodeGenerators.invoke 'rake', []
-  Origen::CodeGenerators.invoke 'r_spec', ['-f']
-  exit 0
-
-when 'upgrade_plugin'
-  unless Origen.app.version.semantic?
-    puts 'To upgrade to a gem your plugin must switch to semantic (1.2.3) style versioning.'
-    puts
-  end
-  Origen::CodeGenerators.invoke 'semver', []
-  Origen::CodeGenerators.invoke 'gem_setup', []
-  Origen::CodeGenerators.invoke 'bundler', []
-  Origen::CodeGenerators.invoke 'rake', []
-  Origen::CodeGenerators.invoke 'r_spec', ['-f']
-  exit 0
-
 when 'version'
-  Origen.disable_origen_version_check do
-    Origen.load_application(false)
-    require 'origen/commands/version'
-  end
-
-when 'serve'
-  puts '***************************************************************'
-  puts "'origen serve' is deprecated, please use 'origen web serve' instead"
-  puts '***************************************************************'
-  ARGV.unshift 'serve'
-  load 'origen/commands/web.rb'
-
-when 'tag'
-  puts '***************************************************************'
-  puts "'origen tag' is deprecated, please use 'origen rc tag' instead"
-  puts '***************************************************************'
-  ARGV.unshift 'tag'
-  load 'origen/commands/rc.rb'
-
-when 'modifications'
-  puts '***************************************************************'
-  puts "'origen mods' is deprecated, please use 'origen rc mods' instead"
-  puts '***************************************************************'
-  ARGV.unshift 'modifications'
-  load 'origen/commands/rc.rb'
+  Origen.app # Load app
+  require 'origen/commands/version'
+  exit 0
 
 else
   if ['-h', '--help'].include?(@command)

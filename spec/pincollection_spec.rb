@@ -175,7 +175,7 @@ describe 'Origen PinCollection API v3' do
       be = $dut.pins(:be)
       le = $dut.pins(:le)
       le.endian.should == :little
-      tester = Origen::Tester::J750.new
+      tester = OrigenTesters::J750.new
       be.to_vector.should == 'XXXX'
       le.to_vector.should == 'XXXX'
       be.drive(0b1100)
@@ -193,7 +193,7 @@ describe 'Origen PinCollection API v3' do
       $dut.add_pins :le, size: 4, endian: :little
       be = $dut.pins(:be)
       le = $dut.pins(:le)
-      tester = Origen::Tester::J750.new
+      tester = OrigenTesters::J750.new
       be.vector_formatted_value = 'X10L'
       be.invalidate_vector_cache
       be.to_vector.should == 'X10L'

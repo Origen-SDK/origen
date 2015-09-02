@@ -12,67 +12,11 @@ module Origen
 
     def initialize
       @required = false
-      # These will be updated as plugins are imported.
-      # Min and required are treated the same here, basically we don't allow plugins
-      # to dictate a specific version and this will be taken as a minimum requirement.
-      # Plugins can however block execution by specifying a max required version
-      # that must not be exceeded.
-      @required_origen_version = Origen.config.required_origen_version ||
-                                 Origen.config.min_required_origen_version
-      @max_required_origen_version = Origen.config.max_required_origen_version
     end
 
     # This will fetch all imports (if required), add the libs to
     # the load path, and require the environments.
     def require!
-      unless required?
-        while updates_required?
-          puts 'The following imports need to be updated, this will now happen automatically:'
-          puts ''
-          dirty_imports.each do |name, import|
-            if import[:path]
-              puts "  #{name} - #{import[:path]}"
-            else
-              puts "  #{name} - #{import[:version]}"
-            end
-          end
-          puts ''
-          update!
-        end
-        if @required_origen_version
-          if @max_required_origen_version
-            if Origen::VersionString.new(@required_origen_version).greater_than?(@max_required_origen_version)
-              puts ''
-              puts "Your application needs to run Origen version #{@required_origen_version}, however"
-              puts "the version of the #{@max_lib} plugin required by your import tree is not"
-              puts "permitted to run above Origen version #{@max_required_origen_version}."
-              puts 'You may need to consult with the plugin owner to see if this restriction can be'
-              puts 'removed or if a newer version of the plugin without this restriction already'
-              puts 'exists.'
-              puts ''
-              exit 0
-            end
-          end
-          if Origen.version.less_than?(@required_origen_version)
-            if Origen.config.required_origen_version
-              puts ''
-              puts "A dependent plugin requires at least Origen version #{@required_origen_version}, however"
-              puts "your main application currently specifies #{Origen.config.required_origen_version}."
-              puts 'To proceed you must update the required_origen_version in config/application.rb'
-              puts "to be: #{@required_origen_version}"
-              puts ''
-              exit 0
-            else
-              Origen.version_checker.update_origen(@required_origen_version)
-            end
-          end
-        end
-        add_libs_to_load_path!
-        require_environments!
-        add_shared_contents!
-        remove_unwanted_symlinks!
-        @required = true
-      end
     end
 
     # Returns true if the imports have already been required and added
@@ -87,19 +31,6 @@ module Origen
 
     def validate_production_status(force = false)
       if Origen.mode.production? || force
-        imports.each do |_name, import|
-          if import[:path]
-            fail "The following import is defined as a path, but that is not allowed in production: #{import}"
-          end
-          version = Origen::VersionString.new(import[:version])
-          unless version.valid?
-            fail "The following import version is not in a valid format: #{import}"
-          end
-          if version.latest?
-            fail "Latest is not allowed as an import version in production: #{import}"
-          end
-        end
-
         if File.exist?("#{Origen.root}/Gemfile")
           File.readlines("#{Origen.root}/Gemfile").each do |line|
             # http://rubular.com/r/yNGDGB6M2r

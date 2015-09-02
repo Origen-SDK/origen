@@ -1,20 +1,22 @@
 // ***************************************************************************
 // GENERATED:
-//   Time:    31-Aug-2015 03:21AM
+//   Time:    02-Sep-2015 04:07AM
 //   By:      Stephen McGinty
 //   Command: origen g j750_halt -t debug.rb
 // ***************************************************************************
 // ENVIRONMENT:
 //   Application
 //     Source:    ssh://git@github.com:Origen-SDK/origen.git
-//     Version:   0.2.3
-//     Branch:    master(5ccfa6bfcca) (+local edits)
+//     Version:   0.2.6
+//     Branch:    master(a7d36fd261a) (+local edits)
 //   Origen
 //     Source:    https://github.com/Origen-SDK/origen
-//     Version:   0.2.3
+//     Version:   0.2.6
 //   Plugins
-//     origen_core_support:      0.1.1
+//     origen_core_support:      0.2.0
+//     origen_debuggers:         0.5.1
 //     origen_doc_helpers:       0.2.0
+//     origen_testers:           0.5.0
 // ***************************************************************************
 // This is a dummy pattern created by the Origen test environment
 // ***************************************************************************
@@ -30,6 +32,17 @@ compressed = yes;
 vector ($tset, nvm_reset, nvm_clk, nvm_clk_mux, porta, portb, nvm_invoke, nvm_done, nvm_fail, nvm_alvtst, nvm_ahvtst, nvm_dtst, tclk, trst)                               
 {                                                                                               
 start_label pattern_st:                                                                         
+//                                                                                              n n n p        p        n n n n n n t t
+//                                                                                              v v v o        o        v v v v v v c r
+//                                                                                              m m m r        r        m m m m m m l s
+//                                                                                              - - - t        t        - - - - - - k t
+//                                                                                              r c c a        b        i d f a a d    
+//                                                                                              e l l                   n o a l h t    
+//                                                                                              s k k                   v n i v v s    
+//                                                                                              e   -                   o e l t t t    
+//                                                                                              t   m                   k     s s      
+//                                                                                                  u                   e     t t      
+//                                                                                                  x                                  
 // ######################################################################
 // ## Enter Test Mode
 // ######################################################################
@@ -119,22 +132,25 @@ if (flag) jump freq_loop_1                                       > nvmbist      
 // Wait for a maximum of 5.0ms
 // Start the match loop
 match_outer_loop_2:                                                                             
-loopB 2 ign ifc icc                                              > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+loopB 1 ign ifc icc                                              > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
 match_inner_loop_2:                                                                             
-// Check if nvm_done is high yet
-loopA 1690 ign ifc icc                                           > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+loopA 3379 ign ifc icc                                           > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+// Check if nvm_done is high
+ ign ifc icc                                                     > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
 //  Wait for the result to propagate through the pipeline
 pipe_minus 1 ign ifc icc                                         > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
-// Branch if nvm_done was high
-if (pass) jump nvm_done_matched_2 icc ifc                        > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
+// Branch if block condition 0 met
+if (pass) jump block_0_matched_2 icc ifc                         > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
 clr_flag (fail) icc                                              > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
+// Match loop cycle count = 37
 // Loop back around if time remaining
 end_loopA match_inner_loop_2 icc                                 > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
 end_loopB match_outer_loop_2 icc                                 > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
-// To get here something has gone wrong, strobe again to force a pattern failure
+// To get here something has gone wrong, check block again to force a pattern failure
+// Check if nvm_done is high
                                                                  > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
 jump match_loop_end_2 icc                                        > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
-nvm_done_matched_2:                                                                             
+block_0_matched_2:                                                                              
 pop_loop icc                                                     > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
 clr_fail                                                         > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
 match_loop_end_2:                                                                               
@@ -144,32 +160,36 @@ match_loop_end_2:
 // Wait for a maximum of 5.0ms
 // Start the match loop
 match_outer_loop_3:                                                                             
-loopB 2 ign ifc icc                                              > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
+loopB 1 ign ifc icc                                              > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
 match_inner_loop_3:                                                                             
-// Check if nvm_done is high yet
-loopA 1690 ign ifc icc                                           > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
+loopA 1690 ign ifc icc                                           > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
+// Check if nvm_done is high
+ ign ifc icc                                                     > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
 //  Wait for the result to propagate through the pipeline
 pipe_minus 1 ign ifc icc                                         > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
-// Branch if nvm_done was high
-if (pass) jump nvm_done_matched_3 icc ifc                        > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
+// Branch if block condition 0 met
+if (pass) jump block_0_matched_3 icc ifc                         > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
 clr_flag (fail) icc                                              > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X L X X X 0 1 ;
-// Check if nvm_fail is low yet
-                                                                 > nvmbist                      1 1 1 HLHLHLXL 00000000 1 L L X X X 0 1 ;
-// Again wait for the result to propagate through the pipeline
+// Check if nvm_fail is low
+ ign ifc icc                                                     > nvmbist                      1 1 1 HLHLHLXL 00000000 1 L L X X X 0 1 ;
+//  Wait for the result to propagate through the pipeline
 pipe_minus 1 ign ifc icc                                         > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
-// Branch if nvm_fail was low
-if (pass) jump nvm_fail_matched_3 icc ifc                        > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
+// Branch if block condition 1 met
+if (pass) jump block_1_matched_3 icc ifc                         > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
 clr_flag (fail) icc                                              > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
+// Match loop cycle count = 74
 // Loop back around if time remaining
 end_loopA match_inner_loop_3 icc                                 > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
 end_loopB match_outer_loop_3 icc                                 > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
-// To get here something has gone wrong, strobe again to force a pattern failure
+// To get here something has gone wrong, check block again to force a pattern failure
+// Check if nvm_done is high
+// Check if nvm_fail is low
                                                                  > nvmbist                      1 1 1 HLHLHLXL 00000000 1 H L X X X 0 1 ;
 jump match_loop_end_3 icc                                        > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
-nvm_done_matched_3:                                                                             
+block_0_matched_3:                                                                              
 pop_loop icc                                                     > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
 clr_fail                                                         > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
-nvm_fail_matched_3:                                                                             
+block_1_matched_3:                                                                              
 pop_loop icc                                                     > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
 clr_fail                                                         > nvmbist                      1 1 1 HLHLHLXL 00000000 1 X X X X X 0 1 ;
 match_loop_end_3:                                                                               
