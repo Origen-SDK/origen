@@ -1,3 +1,42 @@
+<a class="anchor release_tag" name="v0_3_0"></a>
+<h1><a href="#v0_3_0">Tag: v0.3.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 02-Sep-2015 08:40AM
+
+
+Removed the following legacy code/features:
+
+* Origen::Tester module (J750, UltraFLEX, V93K, Doc), replaced by OrigenTesters plugin
+* Origen::Tester::JLink, replaced by OrigenDebuggers plugin
+* Origen::Tester::BDM, no replacement
+* Origen::NVM module, no replacement
+* Origen::Utility::DesignSync, replaced by Origen::RevisionControl::DesignSync
+* Removed the legacy imports system and added a cleaner API for working with plugins:
+
+~~~ruby
+# Returns an array containing the application instance for all used plugins
+Origen.app.plugins  # [<app>, <app>, <app>]
+
+# Set the current plugin, this will persist across Origen threads
+Origen.app.plugins.current = :origen\_testers
+
+Origen.app.plugins.current         # <origen\_testers app instance>
+Origen.app.plugins.current.name    # :origen\_testers
+Origen.app.plugins.current.root    # /path/to/origen\_testers/root
+
+# Temporarily set a different plugin, this will not persist to the next thread
+Origen.app.plugins.temporary = :origen\_debuggers
+
+Origen.app.plugins.current         # <origen\_debuggers app instance>
+
+Origen.app.plugins.temporary = nil
+Origen.app.plugins.current         # <origen\_testers app instance>
+Origen.app.plugins.current = nil
+Origen.app.plugins.current         # => nil
+~~~
+
 <a class="anchor release_tag" name="v0_2_6"></a>
 <h1><a href="#v0_2_6">Tag: v0.2.6</a></h1>
 
