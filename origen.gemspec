@@ -58,6 +58,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "origen_core_support", "0.2.1"
   spec.add_development_dependency "origen_doc_helpers", ">= 0.2.0"
   spec.add_development_dependency "loco"
-  spec.add_development_dependency "origen_testers", "~> 0.5"
-  spec.add_development_dependency 'origen_debuggers', '~> 0', '>= 0.5.1'
+  spec.add_development_dependency "origen_testers", "~> 0"
+  spec.add_development_dependency 'origen_debuggers', '~> 0'
 end
