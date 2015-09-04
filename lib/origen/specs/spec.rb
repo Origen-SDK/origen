@@ -113,6 +113,70 @@ module Origen
         super
       end
 
+      # Returns the trace_matrix name.  The Trace Matrix Name is composed of
+      # * @name
+      # * @type
+      # * @subtype
+      # * @mode
+      def trace_matrix_name
+        name_set = trace_matrix_name_choose
+        ret_name = ''
+        case name_set
+        when 0
+          ret_name = ''
+        when 1
+          ret_name = "#{@mode}"
+        when 2
+          ret_name = "#{@sub_type}"
+        when 3
+          ret_name = "#{@sub_type}_#{@mode}"
+        when 4
+          ret_name = "#{@type}"
+        when 5
+          ret_name = "#{@type}_#{@mode}"
+        when 6
+          ret_name = "#{@type}_#{@sub_type}"
+        when 7
+          ret_name = "#{@type}_#{@sub_type}_#{@mode}"
+        when 8
+          ret_name = "#{small_name}"
+        when 9
+          ret_name = "#{small_name}_#{@mode}"
+        when 10
+          ret_name = "#{small_name}_#{@sub_type}"
+        when 11
+          ret_name = "#{small_name}_#{@sub_type}_#{@mode}"
+        when 12
+          ret_name = "#{small_name}_#{@type}"
+        when 13
+          ret_name = "#{small_name}_#{@type}_#{@mode}"
+        when 14
+          ret_name = "#{small_name}_#{@type}_#{@sub_type}"
+        when 15
+          ret_name = "#{small_name}_#{@type}_#{@sub_type}_#{@mode}"
+        else
+          ret_name = 'Bad trace matrix code'
+        end
+        ret_name
+      end
+
+      # This will create the trace matrix name to be placed into a dita phrase element
+      # End goal will be
+      # {code:xml}
+      #   <ph audience="internal">trace_matrix_name</ph>
+      # {code}
+      def trace_matrix_name_to_dita
+        tmp_doc = Nokogiri::XML('<foo><bar /></foo>', nil, 'EUC-JP')
+
+        tmp_node = Nokogiri::XML::Node.new('lines', tmp_doc)
+        tmp_node1 = Nokogiri::XML::Node.new('i', tmp_doc)
+        tmp_node.set_attribute('audience', 'trace-matrix-id')
+        text_node1 = Nokogiri::XML::Text.new("[#{trace_matrix_name}]", tmp_node)
+        tmp_node1 << text_node1
+        tmp_node << tmp_node1
+        tmp_node.at_xpath('.').to_xml
+      end
+
       def method_missing(method, *args, &block)
         ivar = "@#{method.to_s.gsub('=', '')}"
         ivar_sym = ":#{ivar}"
@@ -206,6 +270,16 @@ module Origen
 
       private
 
+      def small_name
+        if @name.to_s[0..@ip_name.to_s.length].include? @ip_name.to_s
+          ret_name = @name.to_s[@ip_name.to_s.length + 1..-1]
+        else
+          ret_name = @name.to_s
+        end
+        ret_name = ret_name.partition('-').last if ret_name.include? '-'
+        ret_name
+      end
+
       # This assumes the limit objects are Structs
       def diff_limits(limit_one, limit_two = nil)
         diff_results = Hash.new do |h, k|
@@ -227,6 +301,19 @@ module Origen
           end
         end
         diff_results
+      end
+
+      def trace_matrix_name_choose
+        name_set = 0
+        name_set = 8 unless @name.nil?
+        name_set += 4 unless @type.nil?
+        name_set += 2 unless @sub_type.nil?
+        unless @mode.nil?
+          unless  (@mode.to_s.include? 'local') || (@mode.to_s.include? 'global')
+            name_set += 1
+          end
+        end
+        name_set
       end
     end
   end
