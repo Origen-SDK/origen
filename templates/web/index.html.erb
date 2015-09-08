@@ -7,9 +7,24 @@
     </div>
     <div class="col-centered text-center" style="margin-top: 50px; margin-bottom: 200px;">
       <p>
-        <a class="btn btn-primary btn-lg" href="<%= path "tour/basics" %>">Learn more</a>
+        <a class="btn btn-primary btn-lg" href="<%= path "tour/basics" %>">Get started</a>
       </p>
+      <div id="subscribe" style="margin-top: 55px;">
+        <p class="text-primary" style="display:none;">Thanks, we'll keep you posted.</p>
+        <p class="text-danger" style="display:none;">email, is required.</p>
+        <form>
+          <div class="form-group">
+            <div class="input-group" style="width: 400px; margin: auto;">
+              <input type="email" class="form-control" placeholder="Enter your email address">
+              <span class="input-group-btn">
+                <button class="btn btn-primary ready" type="submit" style="width: 165px;">Subscribe to updates!</button>
+              </span>
+            </div>
+          </div>
+        <form>
+      </div>
     </div>
+
   </div>
   <div class="col-centered text-center footer hidden-xs">
     <p style="color: #fff;">
