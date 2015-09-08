@@ -23,7 +23,7 @@ $(function() {
 
     $.ajax({
       type: 'POST',
-      url: 'http://hub.origen-sdk.org:3000/api/subscriptions/origen_news',
+      url: 'http://hub.origen-sdk.org/api/subscriptions/origen_news',
       crossDomain: true,
       data: data,
       dataType: 'json',
