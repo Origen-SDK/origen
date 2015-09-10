@@ -1,3 +1,34 @@
+<a class="anchor release_tag" name="v0_4_1"></a>
+<h1><a href="#v0_4_1">Tag: v0.4.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 10-Sep-2015 07:39AM
+
+
+Removed the following legacy code/features:
+
+* Origen::Utility::SRecord, replaced by the OrigenMemoryImage plugin
+* Removed Origen.config.mode, now Origen.mode
+
+Added new 'origen mode' command, this allows the operating more to be setup at a workspace
+level, similar to how the target and environment can be set:
+
+~~~text
+origen mode         # => production, this is the default
+origen m            # => production, m is an short cut alias
+
+origen m debug      # Set the workspace mode to debug
+origen m simulation # Set the workspace mode to simulation
+origen m production # Set the workspace mode back to production
+~~~
+
+A target or environment file can override the workspace default as before:
+
+~~~ruby
+Origen.mode = :simulation
+~~~
+
 <a class="anchor release_tag" name="v0_4_0"></a>
 <h1><a href="#v0_4_0">Tag: v0.4.0</a></h1>
 
