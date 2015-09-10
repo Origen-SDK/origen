@@ -1,79 +1,13 @@
-% render "layouts/cyborg" do
-  <nav class="navbar navbar-default navbar-fixed-top navbar-inverse">
-    <div class="container">
-      <div class="navbar-header">
-        <a class="navbar-brand" href="#origen">Origen</a>
-      </div>
-
-      <div class="collapse navbar-collapse" id="navbar">
-        <ul class="nav navbar-nav">
-          <li><a href="#topic1">Topic1</a></li>
-          <li><a href="#topic2">Topic2</a></li>
-          <li><a href="#topic3">Topic3</a></li>
-          <li><a href="#topic4">Topic4</a></li>
-          <li><a href="#topic5">Topic5</a></li>
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-          <li><a class="external" href="http://origen-sdk.org/origen/docs/environment/introduction/">Docs</a></li>
-        </ul>
-      </div>
+% render "layouts/landing" do
+  <div class="main-content">
+    <div class="col-centered text-center" style="margin-top: 150px;">
+      <p style="font-size: 30px; margin-top: 15px; color: #fff;">Coming Soon</p>
     </div>
-  </nav>
-
-  <div class="jumbotron" id="origen" style="margin-top: 60px;">
-    <img src="http://origen-sdk.org/img/origen.png" height="70" width="70" style="float: left; margin-top: 20px; margin-right: 10px;">
-    <h1>Origen</h1>
-    <p>The Semiconductor Developer's Kit</p>
-    <p><a class="btn btn-primary btn-lg">Learn more</a></p>
-  </div>
-
-  <div class="bs-docs-section">
-    <div class="page-header" id="topic1" style="height: 1000px;">
-      <div class="row">
-        <div class="col-lg-12">
-          <h1 id="buttons">Topic1</h1>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="bs-docs-section">
-    <div class="page-header" id="topic2" style="height: 1000px;">
-      <div class="row">
-        <div class="col-lg-12">
-          <h1 id="buttons">Topic2</h1>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="bs-docs-section">
-    <div class="page-header" id="topic3" style="height: 1000px;">
-      <div class="row">
-        <div class="col-lg-12">
-          <h1 id="buttons">Topic3</h1>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="bs-docs-section">
-    <div class="page-header" id="topic4" style="height: 1000px;">
-      <div class="row">
-        <div class="col-lg-12">
-          <h1 id="buttons">Topic4</h1>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="bs-docs-section">
-    <div class="page-header" id="topic5" style="height: 1000px;">
-      <div class="row">
-        <div class="col-lg-12">
-          <h1 id="buttons">Topic5</h1>
-        </div>
-      </div>
+    <div class="col-centered text-center" style="margin-top: 50px; margin-bottom: 200px;">
+      <p style="color: #fff;">The tour has not been written yet, in the meantime please checkout our
+        <a href="<%= path "guides" %>">Guides</a> and our 
+        <a href="https://www.youtube.com/channel/UCoLWR0eiIiXZNKYd3DgRNfg">Video Channel</a>.
+      </p>
     </div>
   </div>
 % end  
