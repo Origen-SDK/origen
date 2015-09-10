@@ -13,7 +13,6 @@ module Origen
     autoload :Plugins,       'origen/application/plugins'
     autoload :LSF,           'origen/application/lsf'
     autoload :Runner,        'origen/application/runner'
-    autoload :ConfigurationManager, 'origen/application/configuration_manager'
     autoload :LSFManager,    'origen/application/lsf_manager'
     autoload :Release,       'origen/application/release'
     autoload :Deployer,      'origen/application/deployer'
@@ -496,11 +495,6 @@ module Origen
       runner.statistics
     end
     alias_method :stats, :statistics
-
-    def configuration_manager
-      @cm ||= ConfigurationManager.new
-    end
-    alias_method :cm, :configuration_manager
 
     def pattern_iterators
       @pattern_iterators ||= []

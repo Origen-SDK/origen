@@ -235,7 +235,13 @@ module Origen
         # The caller would have already verified the status before submission
         if Origen.running_locally?
           if Origen.mode.production?
-            Origen.app.cm.ensure_workspace_unmodified!
+            unless Origen.app.rc.local_modifications.empty?
+              puts <<-EOT
+    Your workspace has local modifications that are preventing the requested action
+      - run 'origen rc mods' to see them.
+              EOT
+              exit 1
+            end
           end
         end
       end
