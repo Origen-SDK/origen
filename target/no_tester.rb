@@ -4,4 +4,4 @@ $nvm = C99::NVM.new
 $dut = $top
 $soc = $top
 
-Origen.config.mode = :debug
+Origen.mode = :debug

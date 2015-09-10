@@ -65,23 +65,24 @@ describe "Application Target" do
   it "can be used to switch to debug mode" do
     Origen.target.switch_to "debug"
     Origen.target.load!
-    Origen.config.mode.should == :debug
+    Origen.mode.should == :debug
   end
 
   specify "only recognized modes allowed" do
     [:production, :debug].each do |mode|
-      lambda { Origen.config.mode = mode }.should_not raise_error
+      lambda { Origen.mode = mode }.should_not raise_error
     end
     [:dummy, :data].each do |mode|
-      lambda { Origen.config.mode = mode }.should raise_error
+      lambda { Origen.mode = mode }.should raise_error
     end
   end
 
   specify "loading a target resets the mode" do
-    Origen.config.mode == :debug
+    Origen.mode = :debug
+    Origen.mode.to_s.should == "debug"
     Origen.target.temporary = "production"
     Origen.target.load!
-    Origen.config.mode.should == :production
+    Origen.mode.to_s.should == "production"
   end
 
   specify "recognizes moo numbers" do
@@ -90,19 +91,19 @@ describe "Application Target" do
     #  "2m79x" => "debug"
     Origen.target.temporary = "production"
     Origen.target.load!
-    Origen.config.mode.should == :production
+    Origen.mode.to_s.should == "production"
     Origen.target.temporary = "2m79x"
     Origen.target.load!
-    Origen.config.mode.should == :debug
+    Origen.mode.to_s.should == "debug"
     Origen.target.temporary = "1m79x"
     Origen.target.load!
-    Origen.config.mode.should == :production
+    Origen.mode.to_s.should == "production"
     Origen.target.temporary = "2M79X"
     Origen.target.load!
-    Origen.config.mode.should == :debug
+    Origen.mode.to_s.should == "debug"
     Origen.target.temporary = "1M79X"
     Origen.target.load!
-    Origen.config.mode.should == :production
+    Origen.mode.to_s.should == "production"
     puts "******************** Missing target error expected here for 'm79x' ********************"
     lambda { Origen.target.temporary = "m79x" }.should raise_error
     puts "******************** Missing target error expected here for 'n86b' ********************"

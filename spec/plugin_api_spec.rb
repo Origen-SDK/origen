@@ -2,10 +2,6 @@ require "spec_helper"
 
 describe "The plugins API" do
 
-  def cmd(cmd)
-    `#{cmd}`.strip
-  end
-
   before :all do
     Origen.load_target("debug")
   end

@@ -17,6 +17,10 @@ def load_target(target="debug")
   Origen.target.load!
 end
 
+def cmd(cmd)
+  `#{cmd}`.strip
+end
+
 RSpec.configure do |config|
   config.formatter = OrigenFormatter
 

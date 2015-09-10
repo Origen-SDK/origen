@@ -5,5 +5,5 @@ $tester = OrigenTesters::J750_HPT.new
 $dut = $top
 $soc = $top
 
-Origen.config.mode = :debug
+Origen.mode = :debug
 Origen.config.pattern_postfix = "hpt"

@@ -20,6 +20,10 @@ module Origen
       @current_mode = find_mode(val) unless @frozen
     end
 
+    def to_s
+      @current_mode ? @current_mode.to_s : ''
+    end
+
     def find_mode(name)
       name = name.to_s.downcase.to_sym
       if MODES.include?(name)

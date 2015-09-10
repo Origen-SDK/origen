@@ -6,10 +6,6 @@ describe "Application Configuration" do
     Origen.config.name.should == "Origen Core"
   end
 
-  it "defaults to production mode" do
-    Origen::Application::Configuration.new(Origen.app).mode.should == :production
-  end
-
   specify "LSF configuration works" do
     Origen.config.lsf.debug.should == false
     Origen.config.lsf.debug = true

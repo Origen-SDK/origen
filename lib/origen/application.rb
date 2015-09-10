@@ -467,19 +467,9 @@ module Origen
       @db ||= Database::KeyValueStores.new(self)
     end
 
-    def session
+    def session(reload = false)
+      @session = nil if reload
       @session ||= Database::KeyValueStores.new(self, persist: false)
-    end
-
-    def pdm_component
-      return @pdm_component if @pdm_component
-      require "#{Origen.root}/config/pdm_component"
-      begin
-        @pdm_component = (eval "#{Origen.app.class}::PDMComponent").new
-      rescue
-        # Try legacy case where the namespace was just Application
-        @pdm_component = ::Application::PDMComponent.new
-      end
     end
 
     def versions
@@ -638,7 +628,7 @@ module Origen
       # declares here, the objects registered with origen should be refreshed accordingly
       clear_dynamic_resources
       load_event(:transient) do
-        Origen.config.mode = :production  # Important since a production target may rely on the default
+        Origen.mode = Origen.app.session.origen_core[:mode] || :production  # Important since a production target may rely on the default
         begin
           $_target_options = @target_load_options
           Origen.target.set_signature(@target_load_options)
@@ -653,7 +643,7 @@ module Origen
           $_target_options = nil
         end
         @target_instantiated = true
-        Origen.config.mode = :debug if options[:force_debug]
+        Origen.mode = :debug if options[:force_debug]
         listeners_for(:on_create).each(&:on_create)
         # Keep this within the load_event to ensure any objects that are further instantiated objects
         # will be associated with (and cleared out upon reload of) the current target

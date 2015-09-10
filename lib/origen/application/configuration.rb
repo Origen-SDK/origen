@@ -8,7 +8,7 @@ module Origen
 
       attr_accessor :name, :initials, :instructions,
                     :history_file, :release_directory, :release_email_subject,
-                    :production_targets, :mode,
+                    :production_targets,
                     :vault, :output_directory, :reference_directory,
                     :semantically_version, :log_directory, :pattern_name_translator,
                     :pattern_directory, :pattern_output_directory, :pattern_prefix, :pattern_postfix,
@@ -59,7 +59,6 @@ module Origen
 
       def initialize(app)
         @app = app
-        @mode = Origen::Mode.new
         @name = 'Unknown'
         @initials = 'NA'
         @semantically_version = false
@@ -172,10 +171,6 @@ module Origen
       # Add a new pattern iterator
       def pattern_iterator
         yield Origen.generator.create_iterator
-      end
-
-      def mode=(val)
-        @mode.set(val)
       end
 
       def lsf

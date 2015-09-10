@@ -2,17 +2,12 @@ require "spec_helper"
 
 describe "Origen.mode" do
 
-  it "is an alias of Origen.app.config.mode" do
-    Origen.mode.should == Origen.app.config.mode
-    Origen.mode.should == Origen.config.mode
-  end
-
   it "returns an instance of Origen::Mode" do
     Origen.mode.class.should == Origen::Mode
   end
 
   it "the mode can be set by assigning a symbol" do
-    Origen.config.mode = :debug
+    Origen.mode = :debug
     Origen.mode.class.should == Origen::Mode
     Origen.mode.debug?.should == true
     Origen.mode = :production
@@ -63,4 +58,22 @@ describe "Origen.mode" do
     (Origen.mode == :simulation).should == true
   end
 
+  it "can be set by the mode command" do
+    cmd("origen mode production")
+    Origen.app.session(true) # Reload the session
+    load_target "empty"
+    (Origen.mode == :production).should == true
+    cmd("origen mode debug")
+    Origen.app.session(true) # Reload the session
+    load_target "empty"
+    (Origen.mode == :debug).should == true
+    # Verify that the target can override the session default
+    cmd("origen mode production")
+    Origen.app.session(true) # Reload the session
+    load_target "debug"
+    (Origen.mode == :debug).should == true
+    # Back to debug for future tests
+    cmd("origen mode debug")
+    Origen.app.session(true) # Reload the session
+  end
 end

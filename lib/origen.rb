@@ -565,11 +565,11 @@ unless defined? RGen::ORIGENTRANSITION
       # Returns an object tracking the Origen execution mode/configuration, an
       # instance of Origen::Mode
       def mode
-        application.config.mode
+        @mode ||= Origen::Mode.new
       end
 
       def mode=(val)
-        application.config.mode = val
+        mode.set(val)
       end
 
       # Returns the current top-level (DUT) object if one has been defined (by

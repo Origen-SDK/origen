@@ -17,7 +17,7 @@ $dut    = Pioneer.new              # Instantiate an SoC instance
 # Production mode will require that there are no modified files in the workspace
 # and anything else that you conditionally add to your project files.
 # Production mode is enabled by default, disable it like this...
-Origen.config.mode = :debug
+Origen.mode = :debug
 
 # Add any taget specific setup here. i.e. you can call any methods on these top level
 # objects here to configure them. 

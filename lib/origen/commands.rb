@@ -12,14 +12,14 @@ ORIGEN_COMMAND_ALIASES = {
   '-t'        => 'target',          # For legacy reasons
   'e'         => 'environment',
   '-e'        => 'environment',
-  'mods'      => 'modifications',
-  '-o'        => 'modifications',   # Legacy
   'l'         => 'lsf',
   'i'         => 'interactive',
   'c'         => 'compile',
   'pl'        => 'plugin',
   '-v'        => 'version',
-  '--version' => 'version'
+  '--version' => 'version',
+  '-version'  => 'version',
+  'm'         => 'mode'
 }
 
 @command = ARGV.shift
@@ -213,7 +213,7 @@ end
 
 case @command
 when 'generate', 'program', 'compile', 'merge', 'interactive', 'target', 'environment',
-     'save', 'lsf', 'web', 'time', 'dispatch', 'rc', 'lint', 'plugin', 'fetch' # , 'add'
+     'save', 'lsf', 'web', 'time', 'dispatch', 'rc', 'lint', 'plugin', 'fetch', 'mode' # , 'add'
 
   require "origen/commands/#{@command}"
   exit 0 unless @command == 'interactive'
@@ -234,19 +234,21 @@ else
 Usage: origen COMMAND [ARGS]
 
 The core origen commands are:
- environment  Display or set the default environment (short-cut alias: "e")
- target       Display or set the default target (short-cut alias: "t")
+ environment  Display or set the environment (short-cut alias: "e")
+ target       Display or set the target (short-cut alias: "t")
+ mode         Display or set the mode (short-cut alias: "m")
+ plugin       Display or set the plugin (short-cut alias: "pl")
  generate     Generate a test pattern (short-cut alias: "g")
  program      Generate a test program (short-cut alias: "p")
  interactive  Start an interactive Origen console (short-cut alias: "i")
  compile      Compile a template file or directory (short-cut alias: "c")
+
  rc           Revision control commands, see -h for details
  save         Save the new or changed files from the last run or a given log file
  lsf          Monitor and manage LSF jobs (short-cut alias: "l")
  web          Web page tools, see -h for details
  time         Tools for test time analysis and forecasting
  lint         Lint and style check (and correct) your application code
- plugin       Manage Origen plugins (short-cut alias: "pl")
 
   EOT
   if @application_commands && !@application_commands.empty?
