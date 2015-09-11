@@ -15,7 +15,7 @@
     <div id="navbar" class="collapse navbar-collapse">
       <ul class="nav navbar-nav">
         <li class="dropdown">
-          <a class="<%= options[:tab] == :guides ? 'active' : '' %> dropdown-toggle" data-toggle="dropdown" href="#" id="tour">Tour <span class="caret"></span></a>
+          <a class="<%= options[:tab] == :tour ? 'active' : '' %> dropdown-toggle" data-toggle="dropdown" href="#" id="tour">Tour <span class="caret"></span></a>
           <ul class="dropdown-menu" aria-labelledby="tour">
             <li><a href="<%= path "tour/basics" %>">Basics</a></li>
             <li class="divider"></li>
@@ -23,7 +23,7 @@
             <li><a href="<%= path "tour/design-engineering" %>">Design Engineers</a></li>
           </ul>
         </li>
-        <li class="<%= options[:tab] == :guides ? 'active' : '' %>"><a href="<%= path("guides") %>">Guides</a></li>
+        <li class="<%= options[:tab] == :guides ? 'active' : '' %>"><a href="<%= path("guides/starting/introduction") %>">Guides</a></li>
         <li class="<%= options[:tab] == :api ? 'active' : '' %>"><a href="<%= path "api" %>">API</a></li>
         <li class=""><a href="https://github.com/Origen-SDK">Github</a></li>
         <li class="<%= options[:tab] == :community ? 'active' : '' %>"><a href="<%= path("community") %>">Community</a></li>

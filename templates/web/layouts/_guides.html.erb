@@ -1,0 +1,132 @@
+---
+title: Origen - Guides
+analytics: UA-64455560-1
+---
+<%= render "templates/web/partials/navbar.html", tab: :guides %>
+
+%# Add/edit sections here, the code below will expand this with the correct markup,
+%# pass in the topic you want selected via the :tab option.
+% s = {}
+% s["Getting Started with Origen"] = {
+%   starting_introduction: "Introduction",
+%   starting_core: "Core concepts",
+%   starting_installing: "How to Install",
+%   starting_installwin: "How to Install (Windows)",
+%   starting_company: "Company Customization",
+%   starting_gems: "Understanding Gems",
+%   starting_app: "Creating a New App",
+%   starting_commit: "The Initial Commit",
+% }
+%# s["Models"] = {
+%#   models_introduction: "Introduction",
+%#   models_naming: "Naming",
+%#   models_defining: "Definition & Hierarchy",
+%#   models_attributes: "Adding Attributes",
+%#   models_versioning: "Versioning",
+%#   models_bugs: "Bugs & Features",
+%#   models_proxies: "Creating Proxies",
+%#   models_modes: "Package, Mode & Configuration",
+%#   models_registers: "Registers",
+%#   models_pins: "Pins",
+%#   models_hw: "Hardware Attributes",
+%#   models_parameters: "Parameters",
+%#   models_specs: "Specifications",
+%# }
+%# s["Targets"] = {
+%#   targets_introduction: "Introduction",
+%#   targets_creating: "Creating",
+%#   targets_selection: "Selection",
+%#   targets_production: "Production Targets",
+%#   targets_rgen: "Origen Configuration",
+%#   targets_global: "Global Setup",
+%#   targets_loadorder: "Load Order",
+%#   targets_programming: "Programming",
+%# }
+%# s["Compiler"] = {
+%#   compiler_introduction: "Introduction",
+%#   compiler_creating: "Creating Templates",
+%#   compiler_subtemplates: "Using Sub-Templates",
+%#   compiler_helpers: "Helpers",
+%#   compiler_running: "Running The Compiler",
+%#   compiler_inline: "Inline Compiler",
+%# }
+%# s["Pattern Generator"] = {
+%#   pattern_introduction: "Introduction",
+%#   pattern_creating: "Creating Patterns",
+%#   pattern_pins: "Pins",
+%#   pattern_timing: "Timing and Waiting",
+%#   pattern_registers: "Registers",
+%#   pattern_documenting: "Documenting Patterns",
+%#   pattern_name: "Generating by Name",
+%#   pattern_j750: "J750",
+%#   pattern_v93k: "V93K",
+%#   pattern_ultraflex: "UltraFlex",
+%#   pattern_custom: "Custom Testers",
+%#   pattern_running: "Running The PatGen",
+%#   pattern_compiler: "Compiling Patterns",
+%# }
+%# s["Test Program Generator"] = {
+%#   program_introduction: "Introduction",
+%#   program_philosophy: "Philosophy",
+%#   program_flows: "Creating Flows",
+%#   program_flowapi: "Managing Flow Control",
+%#   program_interface: "Creating an Interface",
+%#   program_resources: "Additional Resources",
+%#   program_code: "Dynamic Custom Code",
+%#   program_j750: "J750",
+%#   program_v93k: "V93K",
+%#   program_ultraflex: "UltraFlex",
+%#   program_doc: "Documenting the Program",
+%#   program_custom: "Creating Custom Testers",
+%#   program_generating: "Running the ProgGen",
+%# }
+%# s["Documentation Generator"] = {
+%#   documentation_introduction: "Introduction",
+%#   documentation_markdown: "Markdown",
+%#   documentation_linking: "Linking",
+%#   documentation_styling: "Styling",
+%#   documentation_testing: "Testing",
+%#   documentation_api: "API Generation",
+%#   documentation_deploying: "Deploying",
+%# }
+%# s["Plugins"] = {
+%#   plugins_introduction: "Introduction",
+%#   plugins_cli: "Plugin Command",
+%#   plugins_importing: "How to Import a Plugin",
+%#   plugins_creating: "How to Create a Plugin",
+%#   plugins_using: "Current Plugin",
+%#   plugins_environment: "Development Environment",
+%#   plugins_development: "Development Considerations",
+%#   plugins_paths: "Paths & Origen.root",
+%#   plugins_app: "Configuration & Origen.app",
+%# }
+%#s["Utilities"] = {
+%#   utilities_revisioncontrol: "Revision Control",
+%#   utilities_remotes: "Origen Remotes",
+%#   utilities_lint: "Lint Testing",
+%#   utilities_session: "Session Store",
+%#   utilities_lsf: "LSF API",
+%#   utilities_users: "Users & Emails",
+%#   utilities_coreext: "Ruby Extensions",
+%#   utilities_logger: "Logging Data & Debugging",
+%# }
+%#s["Test & Software Quality"] = {
+%#   testdebug_regression: "Acceptance Testing: Regression",
+%#   testdebug_approved:   "Acceptance Testing: Approval",
+%# }
+%# s["Customizing Origen"] = {
+%#   custom_introduction: "Introduction",
+%#   custom_commands: "Adding Commands",
+%#   custom_commandsov: "Overriding Commands",
+%#   custom_callbacks: "Callbacks",
+%#   custom_appcallbacks: "Application Callbacks",
+%# }
+
+%# render "doc_helpers/searchable.html", options.merge(:index => s, :root => "guides", :pdf_title => "Origen Guides") do
+% render "doc_helpers/searchable.html", options.merge(:index => s, :root => "guides") do
+
+<%= yield %>
+
+<%= disqus_comments %>
+
+% end

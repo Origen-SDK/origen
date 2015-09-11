@@ -1,0 +1,132 @@
+% render "layouts/guides.html" do
+
+There are some core concepts and terminology that should be understood up front in order for
+the rest of the documentation to make sense.
+
+##### Origen Application
+
+An 'Origen Application' is an engineering application of some sort that has been built using the Origen
+platform.
+
+##### Origen Core
+
+'Origen Core' refers to the Origen platform itself.
+Although different applications may be using different versions of Origen core at any one time,
+it does follow a single thread of development and the latest version should be able to support
+any Origen application.
+
+Origen core (or one of its plugins) should take care of all of the common tasks that are not application
+specific. This means that an application developer should spend most of their time working
+on things are unique to their particular application domain, and not worrying about how to open a file for
+writing, or what the vector format for a given ATE is.
+
+##### APIs
+
+The term API stands for 'Application Programming Interface', which basically means a set of methods
+that are exposed to the application to allow an engineer to programatically tell Origen what to do or build.
+
+Origen provides various APIs for different functions such as to describe the registers within a model,
+to generate pattern vectors, to build web pages, etc.
+
+##### Plugins
+
+The Origen platform provides a plugin system that allows 3rd parties to develop additional APIs to
+supplement those provided by Origen core.
+The Origen core team maintain a collection of important plugins which are considered extensions of
+Origen core, but anyone in the community can create and share a plugin.
+
+Application owners can control what versions of what plugins are used in their application.
+
+Origen also has a mechanism for companies to maintain an internal plugin repository so that its plugin
+system can be used to internally distribute proprietary code such as test blocks for a given silicon
+technology.
+
+##### Ruby
+
+Ruby is the programming language that has been used to create Origen, all Origen applications are
+also written in Ruby.
+
+### Anatomy of an Origen Application
+
+An Origen application is comprised of the following main components:
+
+##### Models
+
+Models are the foundation of an Origen application and encapsulate all meta-data about the silicon
+object that they represent.
+This can include but is not limited to: registers and bits, pins, and specs. 
+Models can also instantiate other models, thereby allowing a full hierarchical representation of the target
+device to be constructed.
+
+The models also track state (while generating a test pattern for example), with the register and pin
+objects behaving much like their silicon counterparts.
+
+##### Controllers
+
+Controllers are a concept used in test engineering applications, where each model is assigned
+a controller that will be responsible for defining APIs to perform pattern operations based on the
+given model.
+
+For example, the controller for a analog-to-digital converter (ATD) model might define a 'convert'
+method. This method would define
+the sequence of register transactions that are required to do an ATD conversion.
+
+A 'method' by the way, is simply a function that is associated with a given object in a object-oriented
+programming language.
+
+##### Drivers
+
+Drivers, is the term generally used to refer to objects that control a protocol (e.g. JTAG) or some
+piece of non-silicon hardware like a tester for example.
+
+There is no dedicated Driver class in Origen and these will usually be constructed from the same
+Origen APIs as used for Models and Controllers. Indeed the drivers could well be composed of a model
+of the associated hardware and a controller for it.
+
+##### Target
+
+While your application could define many different models for different silicon products, the
+only one that matters at any one time is the one that you are targeting - that is the one that the
+given output should be compatible with or represent.
+
+An application can have many targets where each one is responsible for instantiating a model (or models)
+that represent a single runtime condition or context that Origen should apply when
+generating content.
+
+In test engineering applications, it is usual for the target to instantiate a single top-level
+model called <code>$dut</code>, representing the device under test.
+
+Generally the term 'target' is used to refer to the current combination of target + environment...
+
+##### Environment
+
+The environment can be thought of as a higher level target, which is used to define runtime setup that can
+be used in conjunction with many different targets.
+
+In test engineering applications, it is usual to use the environment to instantiate the target
+test platform, normally this is assigned to the global variable <code>$tester</code>.
+
+##### Templates
+
+Origen has two main ways of generating dynamic ASCII output, the first is via the use of templates.
+This is the most flexible way of generating dynamic content - the application provides a template
+file which has been marked up with where dynamic content should go, Origen will then process it
+within the context of the current target to generate a target specific version.
+
+Origen does not care about what the template represents and it could be anything from design IP, to
+web pages, to tool configuration files.
+
+##### Sources
+
+The second way of generating content is via APIs. In this case the generated content comes from
+calling Origen methods via Ruby code, rather than from compiling a pre-written template.
+For example, when creating a test
+pattern the act of writing a register can be expressed via an API - <code>$dut.myreg.write!(0x5)</code> -
+which will then be translated into the necessary vector stream by Origen.
+
+The files which co-ordinate the APIs to build a specific output are called source files.
+
+For test engineering applications, source files are used to describe patterns and test flows, though
+Origen does also support a source-less approach to pattern generation based on the pattern name.
+
+% end
