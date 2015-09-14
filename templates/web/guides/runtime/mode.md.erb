@@ -1,0 +1,107 @@
+% render "layouts/guides.html" do
+
+Origen supports the following operating modes:
+
+* **Production** - To be used whenever generating output destined for production use.
+* **Debug** - To be used whenever developing an application.
+* **Simulation** - To be used whenever generating output destined for a simulation.
+
+The default operation mode is *production*, and in this mode Origen will enforce the following
+restrictions:
+
+* Origen will not run if there are modified files within the environment workspace (i.e. edits that are not checked in)
+* Origen will not run if plugins are imported from a [local path reference](<%= path "guides/starting/gems/#Specifying_Gems" %>)
+
+Both *debug* and *simulation* modes remove these restrictions and are essentially the same
+as far as Origen is concerned. However plugin and application developers may implement
+different behavior if the output is targeting simulation rather than real silicon.
+
+<div class="alert alert-info" role="alert">
+  Note that the <code>origen new</code> command for creating a new application will make it
+  look as though <em>debug</em> is the default mode, but this is just to make life convenient for the new
+  application developer who is obviously about to go on and develop the new app. If the new
+  app was cloned to a new workspace by another user, 
+  then it would come up in <em>production</em> mode.
+</div>
+
+#### Getting and Setting the Mode
+
+The current default mode for a given application workspace can be queried by running the
+<code>origen mode</code> command, or <code>origen m</code> for short:
+
+~~~text
+> origen m
+
+debug
+~~~
+
+The mode can be changed by running the same command and supplying the desired mode:
+
+~~~text
+> origen m production
+
+> origen m debug
+
+> origen m simulation
+~~~
+
+Any shortcut which provides enough detail to uniquely identify one of the available modes can be used:
+
+~~~text
+> origen m sim
+~~~
+
+Additionally all Origen commands allow an override to be supplied at runtime. Aside from overriding
+the current default mode, this will also override any mode setting applied by the current environment
+or target:
+
+~~~text
+> origen g my_pattern -m simulation
+~~~
+
+#### Programmatically Getting and Setting the Mode
+
+<code>Origen.mode</code> returns an [object representing the current mode](<%= path "api/Origen/Mode.html" %>),
+this provides the following API for sniffing the mode at runtime:
+
+~~~ruby
+Origen.mode.production?   # => false
+Origen.mode.debug?        # => true
+Origen.mode.simulation?   # => false
+~~~
+
+Note that *simulation* is also considered a *debug* mode, the API will respond as follows
+if *simulation* mode is set:
+
+~~~ruby
+Origen.mode.production?   # => false
+Origen.mode.debug?        # => true
+Origen.mode.simulation?   # => true
+~~~
+
+For example this API can be used to create simulation workarounds if required:
+
+~~~ruby
+if Origen.mode.simulation?
+  # Generate something that is more simulation-friendly
+else
+  # Generate a pattern construct which works on the tester, but doesn't simulate well
+end
+~~~
+
+The mode can be set like this:
+
+~~~ruby
+Origen.mode = :production
+Origen.mode = :debug
+Origen.mode = :simulation
+~~~
+
+<div class="alert alert-info" role="alert">
+  Note that the mode can be frozen in which case the above will have no effect. If the mode
+  is supplied via a <code>--mode</code> option to the current command, then it will be automatically frozen
+  to allow it to override any mode assignment made by the target or environment files via the
+  above API.
+</div>
+
+% end
