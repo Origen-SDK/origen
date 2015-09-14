@@ -75,5 +75,5 @@ The following commands are available:
 
 Many commands can be run with -h (or --help) for more information.
   EOT
-  exit(1)
+  exit 0
 end

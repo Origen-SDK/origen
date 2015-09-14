@@ -1,0 +1,149 @@
+% render "layouts/guides.html" do
+
+Origen applications should be configured with details of the revision control
+repository that they will be checked into, this will enable the following features:
+
+* A release command which will tag and perform common post-release tasks.
+* A common project-level history will be maintained, regardless of the underlying system used.
+* An API for programmatic control of the revision control system, this provides
+  application and plugin developers with a common API to call regardless of the underlying system that
+  a given application uses - [Revision Control API](<%= path "api/Origen/RevisionControl/Base.html" %>).
+* A common command, <code>origen rc</code> to provide a common interface for application users to
+  perform basic revision control operations regardless of their proficiency with the underlying system.
+
+#### Supported Systems
+
+Origen currently supports integration with the following revision control tools:
+
+* Git
+* DesignSync
+
+We would like to add support for Subversion and any other commonly used systems. If you have knowledge
+of how an additional target revision control system works and you would like to be involved in developing
+and piloting a driver for it, please get in touch via the [community channels](<%= path "community" %>).
+
+Having said that, the Origen core team recommends using Git, even if you have had little or no
+experience of it so far.
+It has significant advantages and is fast becoming the de facto standard revision control tool used
+in software engineering.
+
+#### Initial Configuration
+
+Configuration information for your application resides in <code>config/application.rb</code>
+and an initial version of this file will have been created for you.
+
+This file contains a lot of configuration options which you should find fairly well commented.
+The option that defines the revision control system is called <code>rc_url</code> and it should
+be set as follows.
+
+For Git:
+
+~~~ruby
+# config/application.rb
+
+# Example for Github
+config.rc_url = "git@github.com:myaccount/myapp.git"
+# Example for Atlassian Stash
+config.rc_url = "ssh://git@sw-stash.mycompany.net/myproject/myapp.git"
+~~~
+
+For DesignSync:
+
+~~~ruby
+# config/application.rb
+
+config.rc_url = "sync://sync-1234:1234/myproject/myapp"
+~~~
+
+#### Setting Your Name and Email
+
+Origen will maintain a history log for your application at
+<code>doc/history</code>. The name of the person who did each release will be recorded
+if Origen can work out who you are (your name will also included within generated pattern headers
+and similar).
+
+Setting up your username and email in Git is the recommend way, even if you don't actually
+use Git for the given application.
+You can set these details by executing the following commands:
+
+~~~text
+git config --global user.name "John Doe"
+git config --global user.email johndoe@example.com
+~~~
+
+If you don't have Git available then alternatively you can set the following environment
+variables:
+
+~~~text
+ORIGEN_NAME  = "John Doe"
+ORIGEN_EMAIL = "johndoe@example.com"
+~~~
+
+You can test whether your changes have been picked up by opening an Origen console (<code>origen i</code>)
+and running the following:
+
+~~~ruby
+User.current.name    # => "John Doe"
+User.current.email   # => "johndoe@example.com"
+~~~
+
+An alternative path to determining your details could be via your company's employee directory
+system. Origen's [company configuration settings](<%= path "guides/starting/company" %>) allows
+the credentials for an LDAP system to be entered, and this approach is used within Freescale
+to identify the current user. We are not sure if the current support for this within Origen is
+generic enough to apply to other companies or not, please [get in touch](<%= path "community" %>) if
+you are interested to help further develop and pilot this system for use within your company.
+
+#### Commit and Tag
+
+With your repository and user details setup, we can now do an initial commit and tag.
+
+<div class="alert alert-danger">
+  <strong>Warning!</strong> - 
+  When executing this command pay attention to the prompts and confirm that
+  the target repository reference exists and is correct.
+</div>
+
+~~~text
+cd myapp
+
+origen rc init
+~~~
+
+We are now ready to tag, to do this simply execute the following command and
+follow the prompts:
+
+~~~text
+origen rc tag
+~~~
+
+At this point Origen would normally have emailed you and your application's subscribers to
+notify them of the new release, however we are still working on how this subscription system
+should work in the open source world. Expect it to be available within the coming months.
+
+#### History
+
+Your commit history will be saved in your history file which by default lives
+at <code>doc/history</code>.
+
+The content of that file is automatically formatted for future presentation on a web
+page, the Origen [Release Notes](<%= path "/release_notes" %>) are simply the Origen
+core history file converted to HTML.
+
+When writing your release notes you can use [markdown](http://kramdown.rubyforge.org/quickref.html)
+to control how they will be presented when they are later converted to HTML.
+
+You can also pre-write your release notes by writing them to <code>release_note.txt</code>
+in the top level of your application directory - 
+run <code>origen rc tag -h</code>
+for more details.
+
+#### Universal Revision Control Command
+
+Once your application has been committed for the first time you can then use the
+<code>origen rc</code> command to work with your revision control system (or you can
+of course continue to use it directly if you prefer).
+
+See <code>origen rc -h</code> for details of the available commands.
+
+% end

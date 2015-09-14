@@ -108,7 +108,11 @@ module Origen
           end
           git cmd, options
         end
-        git "push origin #{current_branch}" unless options[:no_push]
+        unless options[:no_push]
+          cmd = "push origin #{current_branch}"
+          cmd += ' -u' if options[:initial]
+          git cmd
+        end
         paths
       end
 
