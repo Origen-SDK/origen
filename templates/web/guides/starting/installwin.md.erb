@@ -1,5 +1,198 @@
 % render "layouts/guides.html" do
 
-<%= render "partials/placeholder.md" %>
+Origen can be installed on Linux or Windows, this guide refers to the Windows installation.
+
+The lack of a package manager in windows makes it harder to install various packages from the command line.  
+
+[We recommend using chocolatey (http://chocolatey.org); an open source windows package manager.](#Install_Chocolatey) 
+
+You can imagine chocolatey to be somewhat like apt-get or other package managers on Linux, but built with Windows in mind.
+
+This guide will use **chocolatey** as the package manager to:
+
+* [Install Ruby](#Install_Ruby)
+* [Install Ruby-Dependencies](#Install_Ruby-Dependencies)
+   * [Install Ruby-Development-Kit](#Install_Ruby-Development-Kit) 
+   * [Install RubyGems](#Install_RubyGems)
+   * [Install RubyGems-SSL-workaround](#Install_RubyGems-SSL-workaround)
+   * [Install Essential-Gems](#Install_Essential-Gems)
+* [Install Utilities](#Install_Utilities)
+
+#####**Note:** 
+
+######Origen installation has been tested on Windows 7 only at this time, but we don’t think the installation process will be any different.
+
+######*An active internet connection is required before proceeding.*
+
+If running on Linux is of interest then please see this guide instead:
+[How to Install Origen on Linux](<%= path "guides/starting/installing" %>)
+
+
+#### Background
+
+Origen is distributed as a Ruby gem, which is the Ruby language's package manager.
+
+Installation of Origen consists of the following steps:
+
+* [Install Ruby](#Install_Ruby)
+* [Install Ruby-Dependencies](#Install_Ruby-Dependencies)
+* [Install Origen](#Install_Origen)
+
+### Install Chocolatey
+
+All commands mentioned below need to be typed in the command prompt running as an administrator 
+
+~~~text
+Start → run → cmd runas /user:Administrator
+~~~
+
+
+##### 1. Chocolatey
+
+
+To install the package manager (chocolatey), please type the text below in the command prompt (running as administrator)
+
+~~~text
+@powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))" && SET PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin
+~~~
+
+### Install Ruby
+
+With the package manager installed, Installing Ruby is a breeze. Just type the following in the command prompt window (running as administrator)
+
+~~~text
+cinst ruby -y --force
+~~~
+
+This should install Ruby v2.1.6 (latest supported by the package manager as of writing this guide)
+
+If the package manager upgrades to the latest version (v2.2.3), it will install that latest version instead.
+
+Please check the ruby version and make a note of it. We will need it later for the RubyGems workaround.
+
+~~~text
+ruby -v
+~~~
+
+Once the installer finishes, please close the current window and open a new one (as administrator)
+
+### Install Ruby-Dependencies
+
+
+
+- #### Install Ruby-Development-Kit
+
+In the new window, type the following
+
+~~~text
+cinst ruby2.devkit -y --force
+~~~
+
+#### Install RubyGems
+
+In the same window, now type
+
+~~~text
+cinst rubygems -y --force
+~~~
+
+- #### Install RubyGems-SSL-workaround
+
+The latest version of Rubygems (that we installed above) is currently broken on Windows.
+However, there is a workaround that has been developed and it involves a series of steps.
+The workaround also depends on which version of Ruby has been installed.
+
+The following commands will perform all the steps required for the workaround.
+
+If Ruby version installed is v2.1.X
+
+~~~text
+@powershell (new-object System.Net.WebClient).DownloadFile('https://github.com/rubygems/rubygems/releases/download/v2.0.15/rubygems-update-2.0.15.gem','C:\rubygems-update-2.0.15.gem') && gem install --local C:\rubygems-update-2.0.15.gem && update_rubygems --no-ri --no-rdoc && gem uninstall rubygems-update -x
+~~~
+
+
+If Ruby version installed is v2.2.X
+
+~~~text
+@powershell (new-object System.Net.WebClient).DownloadFile('https://github.com/rubygems/rubygems/releases/download/v2.2.3/rubygems-update-2.2.3.gem’,'C:\rubygems-update-2.2.3.gem') && gem install --local C:\rubygems-update-2.2.3.gem && update_rubygems --no-ri --no-rdoc && gem uninstall rubygems-update -x
+~~~
+
+Once the command finishes, please check the gem version installed by typing
+
+~~~text
+gem --version
+~~~
+
+The Gem version should be **v2.0.15** for Ruby v2.1.X or v2.2.3 for Ruby v2.2.X
+
+- #### Install Essential-Gems
+
+Now that we have Rubygems installed and working, we need to install a couple of essential gems. 
+
+Please type the following commands:
+
+~~~text
+gem install bundler --no-ri --no-rdoc
+~~~
+
+~~~text
+gem install nokogiri -v 1.6.4.1 --no-rdoc --no-ri
+~~~
+
+Once the commands finish, please close the command prompt and open an new one (running as administrator)
+
+
+### Install Origen
+
+Origen is available as a packaged gem and can be easily installed by typing:
+
+~~~text
+gem install origen
+~~~
+
+######*this can take several minutes to finish without updating the screen, so please be patient
+
+You can then verify Origen availability by running origen -v at which point you should see something like this:
+
+~~~text
+    Origen: <%= Origen.version %>
+~~~
+
+Congratulations, Origen is now installed!
+
+Note that the version of Origen that is installed to your Ruby installation does not need to
+be kept up to date with the latest version of Origen. You can now consider your Ruby environment
+to be frozen for the foreseeable future.
+
+See the section on [Understanding Gems](<%= path "guides/starting/gems" %>) for details on
+why that is.
+
+
+### Install Utilities
+
+It is also recommend to install a recent version (2.x) of Git
+
+We can do that easily now by typing
+
+~~~text
+cinst git -y
+~~~
+
+This will install Git v2.5.2 ( latest version available as of writing this guide)
+
+**Optional:**
+
+We recommend that you also install the following utilities for a more UNIX like experience on windows.
+
+ - UnxUtils (cinst unxutils -y)
+ - ConsoleZ (cinst consoleZ -y)
+ - Console2 (download from http://sourceforge.net/projects/console/)
+
+
+
+### For your convenience, you can also watch the installation process in the video below.
+
+<iframe width="853" height="480" src="https://www.youtube.com/embed/Gt2EvRpZmfY" frameborder="0" allowfullscreen></iframe>
+
 
 % end
