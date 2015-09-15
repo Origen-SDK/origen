@@ -1,0 +1,92 @@
+% render "layouts/guides.html" do
+
+The following concerns may arise when releasing your application to 3rd parties
+who will then go on to use it to generate production grade IP:
+
+* Your application may support many different devices and targets, however only
+  a subset of these may be considered production ready at a given release
+  point.
+* When lots of targets are available how do we ensure that the user picks the
+  correct one?
+
+This is certainly an area where Origen has scope for further improvement, but for
+now the following system works adequately and is being used today in large-scale
+production applications...
+
+#### Select the Target by Maskset Number
+
+Establish the convention with your user base that when generating IP for production
+the target must **always** be selected by providing the maskset number (including
+the revision).
+
+So for example someone using an application to generate production IP for a device
+with maskset 1M79X should select the target like this:
+
+~~~text
+origen t 1m79x
+~~~
+
+This keeps things simple for the end user and removes the need for them to
+choose a target.
+
+#### Mapping Masksets to Targets
+
+To enable the above feature a map must be added to your <code>config/application.rb</code>
+file like this:
+
+~~~ruby
+# config/application.rb
+config.production_targets = {
+  "0m79x" => "eagle_0",
+  "0n30d" => "falcon_0",
+  "1n92a" => "osprey_1",
+}
+~~~
+
+Now whenever a maskset number is entered as a target the above table will be referred
+to automatically to select the actual target file.
+
+If giving the user a choice over the actual target to use is unavoidable, the number
+of options can be reduced by mapping a given maskset to multiple targets:
+
+~~~ruby
+# config/application.rb
+config.production_targets = {
+  "0m79x" => ["eagle_0_func", "eagle_0_bist"],
+  "0n30d" => "falcon_0",
+  "1n92a" => "osprey_1",
+}
+~~~
+
+Now a user selecting 0M79X will be presented with a message showing the two options
+and will be asked to choose one of them.
+
+Although not generally recommended, it is also possible to map multiple maskset numbers
+to the same target:
+
+~~~ruby
+# config/application.rb
+config.production_targets = {
+  "0m79x" => ["eagle_0_func", "eagle_0_bist"],
+  "0n30d" => "falcon_0",
+  "1n30d" => "falcon_0",
+  "1n92a" => "osprey_1",
+}
+~~~
+
+Finally if a specific target(s) is not supported for a given release it can be easily disabled
+by commenting out the relevant line(s):
+
+~~~ruby
+# config/application.rb
+config.production_targets = {
+  "0m79x" => ["eagle_0_func", "eagle_0_bist"],
+#  "0n30d" => "falcon_0",
+#  "1n30d" => "falcon_0",
+  "1n92a" => "osprey_1",
+}
+~~~
+
+Now any requests to select target 0N30D or 1N30D will give a not found error.
+
+% end

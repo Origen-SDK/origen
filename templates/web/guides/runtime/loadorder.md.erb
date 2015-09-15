@@ -1,0 +1,105 @@
+% render "layouts/guides.html" do
+
+The number of global objects instantiated by a runtime environment should be kept to a minimum,
+however even the most basic of setups is likely to instantiate both a <code>$dut</code>
+and a <code>$tester</code> object.
+
+It is important that the initialization of each of these objects does not depend on the other
+to avoid introducing a dependency on the order in which they must be instantiated.
+Such a dependency is fine when the application is young and the number of configurations is small, but as
+it grows this can become painful to manage and hard to anticipate when new engineers
+come onto the team.
+
+Nonetheless it is very likely that sooner or later the case will arise where an object
+must be initially configured differently depending on what tester platform it is
+running on, or on what top-level device object it has been integrated into.
+
+So how to do that initial configuration without introducing an instantiation
+order dependency?
+
+The answer is to use an <code>on_create</code> method to complete any initialization
+operations that depend on other objects.
+
+#### Using on_create
+
+<code>on_create</code> is an Origen callback
+and the [callback guide](<%= path "guides/custom/callbacks" %>) should be consulted 
+for background information and for details on how to setup your model to use callbacks.
+
+Whenever Origen loads a runtime environment it will automatically call the <code>on_create</code>
+methods of any objects that have just come into being at the end of loading the target/environment files.
+
+It is therefore guaranteed that <code>on_create</code> will be run before any
+operations are invoked on the model outside of the target/environment files and it should be though of
+as similar to the standard Ruby <code>initialize</code> method but with the guarantee
+that all runtime objects already exist by the time it is called.
+
+Here are some examples of cases where <code>on_create</code> should be used in
+preference to <code>initialize</code>:
+
+~~~ruby
+# In the $dut model
+def initialize
+  # This would be creating an instantiation order dependency by doing this here,
+  # i.e. $tester must exist before the $dut
+  # $tester.do_something
+end
+
+def on_create
+  # But not here
+  $tester.do_something
+end
+~~~
+
+~~~ruby
+# In a model that is not $dut
+def initialize
+  # This would be creating an instantiation order dependency by doing this here,
+  # i.e. $dut must exist before this model
+  # if $dut.test_pin_muxed_with_reset?
+  #   add_pin_alias :test, :reset
+  # else
+  #   add_pin :test
+  # end
+end
+
+def on_create
+  # But not here
+  if $dut.test_pin_muxed_with_reset?
+    add_pin_alias :test, :reset
+  else
+    add_pin :test
+  end
+end
+~~~
+
+#### Any Downside to Using on_create Instead of initialize?
+
+Not really.
+
+Using <code>initialize</code> for object construction/initialization is perhaps preferable in some
+sense since it is a standard Ruby method and therefore clearer for someone new to Origen
+to understand how the model is initially being configured.
+
+However generally anything that can be done in <code>initialize</code> can be safely
+moved to <code>on_create</code> and the eventual state of the model instantiated by the
+runtime environment files will be identical.
+
+One major difference is that parameter options cannot be passed into <code>on_create</code>
+from the target, whereas options can be passed into the <code>initialize</code> method.
+Such parameter dependent cases can still be moved to <code>on_create</code> but the
+options will need to be saved by the <code>initialize</code> method.
+
+~~~ruby
+def initialize(options={})
+  @intial_options = options
+end
+
+def on_create
+  if @intial_options[:uti]
+    $tester.do_something
+  end
+end
+~~~
+
+% end

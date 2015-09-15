@@ -1,0 +1,99 @@
+% render "layouts/guides.html" do
+
+All targets are defined by files that reside in the <code>target</code> directory.
+Targets are regular Ruby files and they should be simply named:
+
+~~~text
+<identifier>.rb
+~~~
+
+Normally the target is used to select the target device and they are simply named after
+the device that they instantiate, e.g.
+
+~~~text
+target
+|-- eagle.rb
+|-- falcon.rb
+|-- vulture.rb
+`-- osprey.rb
+~~~
+
+#### Creating a Target
+
+To create a new target, simply create the file containing whatever Ruby code you need.
+They are usually very concise and normally only instantiate the
+target device model, here are some examples:
+
+~~~ruby
+# target/eagle.rb
+$dut = MyApp::Eagle.new
+
+# target/falcon.rb
+$tester = MyApp::Falcon.new
+~~~
+
+A common variation on this theme is to have different targets for different versions of
+the device that are available, or perhaps to configure the model differently for different
+types of test:
+
+~~~ruby
+# target/eagle_1.rb
+$dut = MyApp::Eagle.new(version: 1)
+
+# target/eagle_2.rb
+$dut = MyApp::Eagle.new(version: 2)
+
+# target/falcon_func.rb
+$dut = MyApp::Falcon.new(configuration: :func)
+
+# target/falcon_bist.rb
+$dut = MyApp::Falcon.new(configuration: :bist)
+~~~
+
+#### Setting a Default Target
+
+A default target can be defined that will be used withing a new workspace unless the user
+specifies otherwise. This is not required and should only be added if it makes sense within the
+context of the application - i.e. you may choose not to have a default to avoid the situation where the user
+builds something without really understanding what configuration they are targeting.
+
+A default is specified by creating a target file called <code>target/default.rb</code>,
+typically this is a symbolic link to another target file:
+
+~~~text
+ln -s target/falcon_bist.rb target/default.rb
+~~~
+
+#### Getting and Setting the Target
+
+The current target for a given application workspace can be queried by running the
+<code>origen target</code> command, or <code>origen t</code> for short, this will show
+you the content of the current target file:
+
+~~~text
+> origen t
+
+Current target: falcon_bist.rb
+**********************************************************************
+  $dut = MyApp::Falcon.new(configuration: :bist)
+**********************************************************************
+~~~
+
+The target can be changed by running the same command and supplying the desired target:
+
+~~~text
+> origen t target/falcon_func.rb
+
+> origen t falcon_bist
+~~~
+
+As shown above, a full path or any snippet which is enough to uniquely identify one of the available
+target files is sufficient.
+
+Additionally all Origen commands allow an override to be supplied at runtime:
+
+~~~text
+> origen g my_pattern -t eagle_2
+~~~
+
+% end

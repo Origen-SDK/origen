@@ -1,0 +1,132 @@
+% render "layouts/guides.html" do
+
+<div class="alert alert-info">
+This guide discusses how to programmatically change the target, note that this will also
+reload the environment as discussed here: 
+<a href="<%= path "guides/runtime/introduction/#How_the_Runtime_Environment_is_Applied" %>">How the Runtime Environment is Applied</a>
+</div>
+
+If you start [writing your own commands](<%= path "guides/custom/commands" %>)
+you may want to programmatically define or manipulate the target.
+
+A single target should always be loaded by using the following method, it
+can be called again to later switch to a different target:
+
+~~~ ruby
+Origen.load_target("falcon_1")
+~~~
+
+<div class="alert alert-danger">
+  <strong>Warning</strong> - 
+  If you browse the API you may see some similar methods described for loading
+  the target, however these should be avoided. The above method is the intended
+  public API and will ensure that all dependencies are setup correctly.
+</div>
+
+With the above warning in mind the [Origen::Application::Target API](<%= path "/api/Origen/Application/Target" %>)
+can be consulted to see what additional methods are available to work with
+the target,
+an instance of that class is available via <code>Origen.target</code>.
+
+For example to get the name of the current target:
+
+~~~ruby
+Origen.target.name   # => "falcon_1"
+~~~
+
+#### Configurable Targets
+
+Any options passed into the <code>Origen.load_target</code> method can be accessed
+from within the target and used to customize it by the caller.
+
+For example here is a target where the device version is left for the caller
+to specify:
+
+~~~ruby
+# target/falcon.rb
+$dut = MyApp::Falcon.new(version: options[:version])
+~~~
+
+This would be used like this:
+
+~~~ ruby
+Origen.load_target("falcon", version: 1)
+$dut.version   # => 1
+Origen.load_target("falcon", version: 2)
+$dut.version   # => 2
+~~~
+
+#### Target Loops
+
+Target loops (where some code is repeated for a collection of targets) are
+very common and Origen provides some dedicated helpers for this.
+
+The <code>Origen.target.loop</code> method is the most useful in a
+command situation and is designed to
+generate a loop based on the value of a <code>:target</code> key in an
+options hash. This option can contain the name of a target or an array
+containing multiple names, and if none are present it will fall back to the
+default target following the normal conventions.
+
+It is therefore ideally suited to creating a command where the user can
+supply one or more targets and could be used like this:
+
+~~~ruby
+opt_parser = OptionParser.new do |opts|
+  opts.on("-t", "--target NAME1,NAME2,NAME3", Array,
+    "Override the default target, NAME can be a full path or a fragment of a target name") { |t| options[:target] = t }
+end
+opt_parser.parse! ARGV
+
+Origen.target.loop(options) do |options|
+  # The current target is already loaded, the name of the current target has been substituted into options[:target]
+  puts "The name of the current target is: #{options[:target]}"
+  # Implement your command logic here...
+end
+~~~  
+
+The above would work with any of the following inputs:
+
+~~~text
+# Execute for the current default target
+origen my_command      
+
+# Execute for a single specific target
+origen my_command -t falcon    
+
+# Execute for multiple specific targets
+origen my_command -t falcon,eagle    
+~~~
+
+#### Production Target Loops
+
+If your application has defined a [production target map](<%= path "/guides/targets/production" %>)
+then some additional methods are available to loop on that:
+
+~~~ruby
+Origen.target.each_production do |maskset|
+  # Do something for each maskset line defined in the map
+end
+
+Origen.target.each_unique_production do |masksets|
+  # Do something for each unique target defined in the map
+end
+~~~
+
+The latter will only execute for unique target files, so if the same file is used
+by multiple maskset numbers it will only be looped once and the <code>masksets</code> argument
+will be an array containing all maskset numbers that use that target.
+
+#### Forcing Debug Mode
+
+All of the above looping methods accept an option to force all targets to debug mode,
+this can be useful depending on the purpose of your command, but should obviously
+be avoided in cases where the command is concerned with generating production IP.
+
+~~~ruby
+Origen.target.each_production force_debug: true do |maskset|
+  # As above except Origen is running in debug mode regardless of the mode defined by the environment
+end
+~~~
+
+% end
