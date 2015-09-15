@@ -1,0 +1,29 @@
+% render "layouts/guides.html" do
+
+The compiler is probably the most versatile component of Origen and which will
+allow you to dynamically customize any ASCII file to the
+current target.
+For example this can be used to compile device-specific versions of your documentation,
+C code, RTL, test program sheets, Visual Basic, .csv files, etc, etc, etc.
+
+When employed in this capacity Origen is often used to replace traditional
+pre-compilers (the place where your #ifdefs are evaluated) to provide
+the benefit of being able to manage device configurations in an object oriented
+fashion.
+
+Additional benefits of the Origen compiler are:
+
+* It is universal
+  * It could be the last compiler you ever need to learn
+  * Ideal for managing source files for different tool chains under a
+    centrally managed configuration e.g. compile RTL and firmware against
+    a common target model
+* It is generally more powerful than domain-specific compilers
+  * The entire Ruby language is available to implement build logic
+  * It can actually generate content into the template as well as
+    conditionally including/excluding sections of it
+* It supplements Origen to cover gaps in the generation APIs e.g. the J750 test
+  program generator does not currently provide a DC spec generator API, that
+  gap can be easily plugged by using a template for that sheet
+
+% end

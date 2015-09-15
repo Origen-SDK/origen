@@ -1,0 +1,106 @@
+% render "layouts/guides.html" do
+
+The compiler is launched via the Origen compile command, see the command line
+help to get details of the most up to date options:
+
+~~~text
+origen compile -h
+~~~
+
+As this is such a common command it has a short cut alias:
+
+~~~text
+origen c -h
+~~~
+
+The compiler can be run on a single file:
+
+~~~text
+origen c templates/bench/dut_regs.h.erb
+~~~
+
+or on a whole directory:
+
+~~~text
+origen c templates/bench
+~~~
+
+In the case of running on a directory the compiler will recursively compile the
+contents of all contained sub-directories.
+The sub-directory structure will be maintained and mirrored in the compiler output directory.
+
+The given path can even be somewhere outside of the Origen application:
+
+~~~text
+origen c /proj/c28/eagle/jim/rtl_v
+~~~
+
+A commonly used option is to specify the output directory:
+
+~~~text
+origen c templates/bench -o output/compiled_bench_code
+~~~
+
+By default the compiled files will be put in <code>output</code> or whatever directory
+is returned by the <code>config.output_directory</code> attribute defined by <code>config/application.rb</code>.
+
+Submit to the LSF, by appending <code>-l</code> and optionally interactively
+wait for completion:
+
+~~~text
+origen c templates/bench -l -w
+~~~
+
+#### Regression Testing
+
+Every time Origen compiles a file it will check to see if it has compiled it before, and
+if so it will compare the current version to the previous version and alert if there is a
+difference. This can be used to check for regressions when making changes that you don't want
+to affect the output, or to verify that the change is what you intended in cases where you
+are intentionally modifying the output.
+
+In the case of a difference being found Origen will automatically present you with the diff command
+to run if you want to view the change.
+
+To accept changes or to start tracking the differences in a file (or files) run the following command
+after compiling:
+
+~~~text
+origen save all
+~~~
+
+#### Programmatically Launching the Compiler
+
+If you start writing your own [commands](<%= path "guides/custom/commands" %>) you may want
+to launch the compiler from Ruby, do that as follows:
+
+~~~ruby
+Origen.app.runner.launch action: :compile,
+                          files: "path/to/input/file.erb"
+~~~
+
+Additionally the following options can be supplied:
+
+~~~ruby
+output: "path/to/output/dir",       # Override the default output directory
+output_file_name: "my_name.txt",    # Specify the output file name, by default is the name of the input file
+output_sub_dir: "testflow",         # Specify a subdirectory to be appended to the default output directory
+# The combination of these two options will run the compiler silently, allowing your application
+# code to handle all presentation of information about the created file to the user 
+quiet: true,                        # Don't log to the console
+check_for_changes: false,           # Don't check the output file for changes to a previous version
+# You can supply a hash of options that will be accessible within the template as 'options'
+options: { some_attr: true, some_other_attr: 20 }
+~~~
+
+This can be combined with [Target Loops](<%= path "guides/targets/programming" %>) to run the
+compiler for multiple targets.
+
+A compile job can also be posted to the LSF by supplying the same options that you would use
+on the command line like this:
+
+~~~ruby
+Origen.lsf.submit_origen_job("c path/to/input")
+~~~
+
+% end

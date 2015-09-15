@@ -1,0 +1,60 @@
+% render "layouts/guides.html" do
+
+The conventional use of the compiler generates an output file for every template
+that is compiled.
+
+Sometimes though it can be useful to invoke the compiler and get the output back
+as a string so that you can further process it, embed it in another file, or
+otherwise work with it in some way.
+
+Use the following API
+to invoke the compiler in an in-line manner such that it will return a string
+rather than generate a file:
+
+~~~ruby
+Origen.compile("#{Origen.root}/templates/my_template.txt.erb", some_option: 10)
+~~~
+
+Any options given as shown above will be available in the <code>options</code>
+hash within the template in the usual way.
+
+#### Changing Scope
+
+The <code>compile</code> command will accept a <code>:scope</code> option to
+have the template compile such that 'self' inside the template will refer to an
+existing object. i.e. to give the template direct access to all of that objects methods and attributes:
+
+~~~ruby
+Origen.compile("#{Origen.root}/templates/my_template.txt.erb", scope: $dut)
+~~~
+
+For example let's say we had a simple template like this to display some information
+about an ATD block:
+
+~~~eruby
+# templates/atd.txt.erb
+
+Type: <%= "<" + "%= type %" + ">" %>
+Bits: <%= "<" + "%= bits %" + ">" %>
+~~~
+
+Then in our model let's say we have two ATD instances:
+
+~~~ruby
+$dut.atd[0].type    # => :sar
+$dut.atd[0].bits    # => 16
+
+$dut.atd[1].type    # => :sigma_delta
+$dut.atd[1].bits    # => 8
+~~~
+
+We can compile our template for each ATD as follows:
+
+~~~ruby
+template = "#{Origen.root}/templates/atd.txt.erb"
+
+Origen.compile(template, scope: $dut.atd[0])  # => "Type: sar\nBits: 16\n"
+Origen.compile(template, scope: $dut.atd[1])  # => "Type: sigma_delta\nBits: 8\n"
+~~~
+
+% end

@@ -1,0 +1,65 @@
+% render "layouts/guides.html" do
+
+By default your templates have access to a small number of template specific
+methods, such as the options hash, and the usual global scope.
+
+This means that your device attributes are normally accessed via
+the global top-level objects that were instantiated in the target like this:
+
+~~~ eruby
+<%= "%" %> if $dut.analog.atd
+
+The <%= "<" + "%= $dut.part_number %" + ">" %> device has a <%= "<" + "%= $dut.analog.atd.bits %" + ">" %> bit analog to
+digital converter block which provides superior conversion accuracy... 
+
+<%= "%" %> end
+~~~
+
+However you can easily create additional helper methods by opening the Origen::Generator::Compiler class
+and defining methods which can then be called directly from any template.
+
+As a trivial example if I was writing a large document about the ATD module it might
+become tedious having to keep writing
+<code>$dut.analog.atd</code> every time I wanted to access an ATD attribute.
+
+In that case the following helper method could be created to give me a shorthand access to the ATD
+model:
+
+~~~ ruby
+# config/boot.rb
+require "#{Origen.root}/templates/helpers"
+
+# templates/helpers.rb
+class Origen::Generator::Compiler
+
+  def atd
+    $dut.analog.atd
+  end
+
+end
+~~~
+
+The above template could now be re-written as:
+
+~~~ eruby
+<%= "%" %> if atd
+
+The <%= "<" + "%= $dut.part_number %" + ">" %> device has a <%= "<" + "%= atd.bits %" + ">" %> bit analog to
+digital converter block which provides superior conversion accuracy... 
+
+<%= "%" %> end
+~~~
+
+These helper methods can become very powerful depending on what you are trying to generate
+with your template.
+For example the J750 test program sheets for the flagship Origen application were originally
+generated via templates
+and we built up quite a large library of helper methods to generate entire test instance lines
+and flow sheet entries.
+
+These helpers have since been incorporated into the Origen J750 generator and you should definitely
+use that in preference to templates if you are generating a test program for that platform.
+However it shows that with templates + custom helper methods you can very easily build
+powerful ASCII generators for your specific domain.
+
+% end

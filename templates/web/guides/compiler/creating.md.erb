@@ -1,0 +1,118 @@
+% render "layouts/guides.html" do
+
+A template is created by taking an existing ASCII file and embedding Ruby
+snippets to either conditionally include/exclude parts of it or to actually
+generate content into the output file.
+
+By convention all template files associated with an Origen application live
+in a sub-directory of the <code>templates</code> directory. However it is also
+possible to compile templates that live outside of the application as long as
+they are accessible via a path from the Origen application workspace.
+
+Normally templates are identified by appending the extension <code>.erb</code>
+to the filename. So for example a template for the file <code>dut_regs.h</code>
+would be called <code>dut_regs.h.erb</code>.
+
+Appending the <code>.erb</code> extension has the following advantages:
+
+* When Origen is asked to compile a directory only those files ending with the
+  <code>.erb</code> extension will be processed through the compiler. The other
+  files will be copied across to the output directory unmodified. This can be
+  useful if you want to store binaries or some other non-compiler friendly files
+  alongside your template files.
+* If you use an editor like Vim it can be setup to recognize the <code>.erb</code>
+  extension and then syntax highlight the embedded Ruby snippets as
+  Ruby, while highlighting the rest of the template in its native format.
+
+If you would prefer not to have to add the <code>.erb</code> extension add the
+following to your application configuration, this will cause all files presented
+to the compiler to be evaluated for embedded Ruby regardless of their name.
+
+~~~ruby
+# config/application.rb  
+config.compile_only_dot_erb_files = false
+~~~
+
+#### Template Syntax
+
+The compiler uses a markup language called ERB (embedded Ruby) which ships as
+part of the Ruby language and has a very minimal and easy to learn syntax.
+This makes the entire Ruby language available to conditionally include or
+exclude portions of the file, to expand sections of the file via loops, or to
+inject dynamic snippets that will be evaluated at runtime. Most importantly of all
+of course the runtime ERB environment will have full access to the models that
+have been instantiated by the current target.
+
+Here is an example of a text file to which some ERB has been added:
+
+~~~eruby
+The ERB syntax is very simple:
+<%= "%" %> # Lines that start with % (no spaces allowed before it) will be interpreted
+<%= "%" %> # as Ruby. Since these lines start with a comment character they will simply be
+<%= "%" %> # deleted by the compilation process - very useful for annotating your source files!
+
+Ruby logic can be used to conditionally include/exclude lines:
+<%= "%" %> if 1 == 1
+  You will see me in the compiled file
+<%= "%" %> else
+  But you won't see me :-(
+<%= "%" %> end
+
+Loops can be used to expand the content:
+<%= "%" %> 3.times do
+  I must not talk in class
+<%= "%" %> end
+
+Inject dynamic content like this: 4 + 4 = <%= "<" + "%= 4 + 4 %" + ">" %>
+
+Whatever is returned by a Ruby snippet <%= "<" + "%= 'like this' %" + ">" %> will be converted to a
+string and output to the compiled file.
+
+And not forgetting the best part, you can access any objects that your
+target instantiates:
+
+Memory block details:
+<%= "%" %> $dut.nvm.memories.each_with_index do |mem, i|
+  Memory <%= "<" + "%= i %" + ">" %>: Version <%= "<" + "%= mem.version %" + ">" %>
+<%= "%" %> end
+~~~
+
+When this file is processed by the compiler it will look something like this:
+
+~~~text
+The ERB syntax is very simple:
+
+Ruby logic can be used to conditionally include/exclude lines:
+  You will see me in the compiled file
+
+Loops can be used to expand the content:
+  I must not talk in class
+  I must not talk in class
+  I must not talk in class
+
+Inject dynamic content like this: 4 + 4 = 8
+
+Whatever is returned by a Ruby snippet like this will be converted to a
+string and output to the compiled file.
+
+And not forgetting the best part, you can access any objects that your
+target instantiates:
+
+Memory block details:
+  Memory 0: Version 12
+  Memory 1: Version 12
+  Memory 2: Version 12
+  Memory 3: Version 12
+~~~
+
+#### A Note on State
+
+When compiling multiple templates at once the target will be re-loaded
+prior to processing each template.
+
+This means that state cannot be carried forward from one template to the
+next and generally prevents compile order dependent bugs from creeping
+in due to intentionally or otherwise relying on state that has been setup from a previous
+template.
+
+% end

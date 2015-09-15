@@ -1,0 +1,200 @@
+% render "layouts/guides.html" do
+
+Sub-templates can be used to make parameterizable snippets that can then be
+re-used throughout your main templates.
+
+A sub-template is like a regular template with the following differences:
+
+* Its name must begin with an underscore
+* It has access to an <code>options</code> hash which contains any parameters
+  passed in by the parent template
+
+The underscore is used in the name to identify the file as a sub-template
+to Origen and this will prevent it from trying to compile the file standalone
+when it is working through a directory.
+
+Here is an example sub-template in file <code>templates/_sub_template.txt.erb</code>:
+
+~~~eruby
+This is a sub-template.
+
+<%= "%" %> options[:x].times do
+  You will see this X times
+<%= "%" %> end  
+
+The value of Y is: <%= "<" + "%= options[:y] %" + ">" %>
+~~~
+
+Sub-templates are called from a top-level template by using the <code>render</code>
+method, here is an example top-level template that calls this sub-template, this file
+is <code>templates/example.txt.erb</code>:
+
+~~~eruby
+This is a top-level template
+
+<%= "<" + "%= render 'sub_template', x: 3, y: 10 %" + ">" %>
+~~~
+
+This would compile to:
+
+~~~text
+This is a top-level template
+
+This is a sub-template.
+
+  You will see this X times
+  You will see this X times
+  You will see this X times
+
+The value of Y is: 10
+~~~
+
+<code>import</code> can also be used as an alias for <code>render</code>, this may
+be more intuitive if the sub-template originates from a plugin for example.
+
+#### A Note on Path References
+
+Origen is fairly flexible when it comes to working out the path to a sub-template
+from a <code>render</code> method call.
+
+Generally the following rules apply:
+
+* The leading underscore does not need to be added
+* The .erb does not need to be added
+* The filetype extension does not need to be added if it is the same as the calling
+  template's extension
+* Paths can be either:
+  * Relative to the calling template
+  * Relative to <code>Origen.root</code>
+  * Absolute
+
+Paths can also be a reference to a plugin's shared directory, see here for
+details - [Sharing Templates](<%= path "guides/libraries/creating" %>)
+
+#### Defining Defaults
+
+A sub-template can define parameter defaults similar to a regular Ruby method,
+here is the above example re-written to add default values that will be used
+if the parent template does not specify one of both of the options:
+
+~~~eruby
+<%= "%" %> # Default option values...
+<%= "%" %> options = {
+<%= "%" %>  x: 5,
+<%= "%" %>  y: 20,
+<%= "%" %> }.merge(options)
+This is a sub-template.
+
+<%= "%" %> options[:x].times do
+  You will see this X times
+<%= "%" %> end  
+
+The value of Y is: <%= "<" + "%= options[:y] %" + ">" %>
+~~~
+
+#### Using Sub-Templates for Layout
+
+The <code>render</code> method also supports a block form which can be used
+to surround content from the parent template with header and footer content
+from the sub-template.
+Define where the parent content should go using the <code>yield</code> keyword
+within the sub-template:
+
+~~~eruby
+This is some header content from the sub-template.
+
+<%= "<" + "%= yield %" + ">" %>
+
+This is some footer content from the sub-template.
+~~~
+
+Call in a parent template like this:
+
+~~~eruby
+<%= "%" %> render "sub_template" do
+
+This is some content from the parent template.
+
+<%= "%" %> end
+~~~
+
+This will compile to:
+
+~~~text
+This is some header content from the sub-template.
+
+This is some content from the parent template.
+
+This is some footer content from the sub-template.
+~~~
+
+Options can be passed to the block form as you would expect:
+
+~~~eruby
+<%= "%" %> render "sub_template", x: 5 do
+~~~
+
+#### Nesting
+
+Sub-templates can themselves render other sub-templates. There is no limit on
+the depth of template nesting and this can be used to build complex output from
+layers of building blocks.
+
+#### Indenting
+
+Render will accept an <code>:indent</code> option to indent the compiled text
+by the given number of spaces:
+
+~~~eruby
+<%= "<" + "%= render 'sub_template' %" + ">" %>
+<%= "<" + "%= render 'sub_template', indent: 2 %" + ">" %>
+<%= "<" + "%= render 'sub_template', indent: 4 %" + ">" %>
+~~~
+
+This would produce:
+
+~~~text
+Some lines from
+the sub template
+  Some lines from
+  the sub template
+    Some lines from
+    the sub template
+~~~
+
+#### A Note on Performance
+
+Sub-templates are much slower to process than content generated from a
+[helper](<%= path "guides/compiler/helpers" %>). Normally this is not
+a problem but if for example a sub-template is rendered 1000 times within
+a template file then you might be waiting quite some time for it to process.
+
+Normally this type of situation would occur when the sub-template is only generating
+a single line and replacing it with a helper would immediately solve the
+performance problem.
+
+As a general rule of thumb if you need to generate one or two lines of content
+then use a helper, otherwise use a sub-template.
+
+#### A Note on State
+
+A sub-template is always evaluated with a fresh target load which means that state
+cannot be carried forward from the parent template via the target models.
+
+Generally this makes for more predictable behavior and ensures that customization of
+the sub-template output can only be done via option arguments.
+
+Over time use of the model state to customize the sub-template output can result
+in compile order dependencies starting to creep in, and potentially this can be
+very dangerous when it comes to compiling production critical output like test
+program sheets.
+
+However in cases where rendering performance is an issue and the implications of preserving
+model state into the sub-template are understood, the target refresh can be inhibited
+by using the following option:
+
+~~~eruby
+<%= "<" + "%= render 'sub_template', preserve_target: true %" + ">" %>
+~~~
+
+% end
