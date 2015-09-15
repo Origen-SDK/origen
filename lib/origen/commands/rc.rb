@@ -57,6 +57,7 @@ system, thereby providing the following benefits to the user:
 
 Currently supported backend systems are:
 
+  * Git
   * Design Sync
 
 Usage: origen rc CMD [options]

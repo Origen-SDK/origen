@@ -1,0 +1,94 @@
+% render "layouts/guides.html" do
+
+All environments are defined by files that reside in the <code>environment</code> directory.
+Environments are regular Ruby files and they should be simply named:
+
+~~~text
+<identifier>.rb
+~~~
+
+In a test engineering application where the environment is used to select the target test platform,
+they are normally named after the tester, e.g.
+
+~~~text
+environment
+|-- j750.rb
+|-- uflex.rb
+|-- v93k.rb
+`-- jlink.rb
+~~~
+
+#### Creating an Environment
+
+To create a new environment, simply create the file containing whatever Ruby code you need.
+They are usually very concise and in a test engineering application would normally only instantiate the
+target tester driver, here are some examples:
+
+~~~ruby
+# environment/j750.rb
+$tester = OrigenTesters::J750.new
+
+# environment/v93k.rb
+$tester = OrigenTesters::V93K.new
+
+# environment/jlink.rb
+$tester = OrigenDebuggers::JLink.new
+~~~
+
+If the given driver supports configuration options, then you may have some variations
+for a given platform - e.g. <code>j750_probe.rb</code> to configure the driver slightly differently
+for generating probe test patterns:
+
+~~~ruby
+# environment/j750_probe.rb
+$tester = OrigenTesters::J750.new
+$tester.available_power_supplies = 64
+~~~
+
+#### Setting a Default Environment
+
+A default environment can be defined that will be used withing a new workspace unless the user
+specifies otherwise. This is not required and should only be added if it makes sense within the
+context of the application - i.e. you may choose not to have a default to avoid the situation where the user
+builds something without really understanding what configuration they are targeting.
+
+A default is specified by creating an environment file called <code>environment/default.rb</code>,
+typically this is a symbolic link to another environment file:
+
+~~~text
+ln -s environment/j750.rb environment/default.rb
+~~~
+
+#### Getting and Setting the Environment
+
+The current environment for a given application workspace can be queried by running the
+<code>origen environment</code> command, or <code>origen e</code> for short, this will show
+you the content of the current environment file:
+
+~~~text
+> origen e
+
+Current environment: j750.rb
+**********************************************************************
+  $tester = OrigenTesters::J750.new
+**********************************************************************
+~~~
+
+The environment can be changed by running the same command and supplying the desired environment:
+
+~~~text
+> origen e environment/j750.rb
+
+> origen 3 v93k
+~~~
+
+As shown above, a full path or any snippet which is enough to uniquely identify one of the available
+environment files is sufficient.
+
+Additionally all Origen commands allow an override to be supplied at runtime:
+
+~~~text
+> origen g my_pattern -e jlink
+~~~
+
+% end

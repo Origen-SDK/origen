@@ -1,3 +1,16 @@
+<a class="anchor release_tag" name="v0_4_2"></a>
+<h1><a href="#v0_4_2">Tag: v0.4.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 14-Sep-2015 09:12AM
+
+
+Added the ability for a given user environment to set their name and email details via environment
+variables, though via Git is still the preferred method to do this.
+
+Minor update to the Git driver for initializing new applications.
+
 <a class="anchor release_tag" name="v0_4_1"></a>
 <h1><a href="#v0_4_1">Tag: v0.4.1</a></h1>
 

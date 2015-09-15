@@ -1,0 +1,57 @@
+% render "layouts/guides.html" do
+
+Once you have installed Origen, you should
+find that you now have access to an 'origen' executable from anywhere.
+
+Run <code>origen</code> from the command line and you should see this:
+
+~~~text
+Usage: origen COMMAND [ARGS]
+
+The following commands are available:
+ new          Create a new Origen application or plugin. "origen new my_app" creates a
+              new origen application workspace in "./my_app"
+ interactive  Start an interactive Origen console (short-cut alias: "i"), this is just
+              IRB with the 'origen' lib loaded automatically
+ fetch        Automatically creates the workspace for the requested plugin and
+              populates the latest version of the plugin (short-cut alias: "f")
+
+Many commands can be run with -h (or --help) for more information.
+~~~
+
+Because you are currently outside of an Origen application, there is a reduced set
+of commands available.
+
+The <code>origen new</code> command should be used to generate a new application.
+
+#### Running the New Application Command
+
+To create a new application run the command like below and answer the questions
+at the command prompt:
+
+~~~text
+origen new my_app_name
+~~~
+
+The new application will be custom built depending on your answers to the
+questions and it should need no additional configuration to get started.
+
+You can immediately start adding your application specific logic to the <code>lib</code>
+directory.
+
+#### Documenting Your Application
+
+All new applications come with a pre-built framework for creating web-based
+documentation of your application - just like the page that you are currently
+reading.
+
+To build the initial example documents:
+
+~~~
+origen web compile -a
+~~~
+
+Then just follow the instructions to point your browser to the address that
+is output from the above command.
+
+% end
