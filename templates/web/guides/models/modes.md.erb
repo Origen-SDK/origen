@@ -1,0 +1,152 @@
+% render "layouts/guides.html" do
+
+A given SoC or IP block can typically operate in various modes or configurations
+and may have its feature set modulated by the package that it is in.
+
+The following APIs allow such concepts to be modelled so that they can then be used
+to scope things like pin availability.
+
+#### Package
+
+This represents the package that the device is in, however this could be a real physical
+package or a pseudo package such as the subset of pins available to a given probecard.
+The package is an a SoC attribute and therefore this API is only available to models
+that include the <code>Origen::TopLevel</code> module.
+
+A simple package definition requires simply supplying a name for it, here are
+some examples but the names are completely arbitrary and you can use whatever you
+like:
+
+~~~ruby
+class MyDut
+  include Origen::TopLevel
+
+  def initialize
+    add_package :probe
+    add_package :mapbga
+    add_package :qfp
+  end
+end
+~~~
+
+By default the model will boot with no package set, this state would be used
+to represent the die with all pins exposed.
+
+The package state can then be changed as shown:
+
+~~~ruby
+$dut.package                  # => nil
+$dut.package = :mapbga       
+$dut.package                  # => <mapbga package object>
+$dut.with_package :qfp do
+  $dut.package                # => <qfp package object>
+end
+$dut.package                  # => <mapbga package object>
+~~~
+
+Packages are objects (an instance of the [<code>Origen::ChipPackage</code>](<%= path "api/Origen/ChipPackage.html" %>) class)
+and additional attributes can be set at definition time like this:
+
+~~~ruby
+def initialize
+  add_package :t2080 do |package|
+    package.number_of_rows = 16
+    package.number_of_columns = 16
+  end
+  add_package :t4080 do |package|
+    package.number_of_rows = 32
+    package.number_of_columns = 32
+  end
+end
+
+$dut.package = :t2080
+$dut.package.number_of_columns     # => 16
+$dut.package = :t4080
+$dut.package.number_of_columns     # => 32
+~~~
+
+See the [ChipPackage API](<%= path "api/Origen/ChipPackage.html" %>) for the up to
+date list of available attributes.
+
+#### Mode
+
+This represents which mode the device is in, again this can represent a real operating mode
+such as user, functional test, RAMBIST, etc. or some abstract concept that is specific to the
+given domain.
+
+The mode API is available to any object that includes <code>Origen::Model</code> and therefore
+sub-blocks can also define their own modes and have a mode context independent of the top-level
+object.
+
+Modes are defined and set in the same way as packages, here are some examples:
+
+~~~ruby
+class MyDut
+  include Origen::TopLevel
+
+  def initialize
+    add_mode :user
+    add_mode :rambist
+  end
+end
+
+$dut.mode                     # => nil
+$dut.mode = :user          
+$dut.mode                     # => <user mode object>
+$dut.with_mode :rambist do
+  $dut.mode                   # => <rambist mode object>
+end
+$dut.mode                     # => <user mode object>
+~~~
+
+Note that like packages the modes are represented by objects which can be assigned attributes,
+see the [ChipMode API](<%= path "api/Origen/ChipMode.html" %>) for the up to
+date list of available attributes.
+
+Mode objects do support a convenience API for checking the current mode:
+
+~~~ruby
+$dut.mode.user?      # => false
+$dut.mode.rambist?   # => true
+~~~
+
+#### Configuration
+
+This is another layer which supports the concept that different configurations may exist within
+the one mode. More generally it is simply another scope that the application can use to describe
+different states/configurations.
+
+Like modes, the configuration API is available to any object that includes <code>Origen::Model</code> and therefore
+sub-blocks can also define their own configurations and have a configuration context independent of the top-level
+object.
+
+Here are some examples:
+
+~~~ruby
+class MyDut
+  include Origen::TopLevel
+
+  def initialize
+    add_mode :user
+    add_mode :bist
+    add_configuration :nvm
+    add_configuration :ram
+  end
+
+  def enter_rambist_mode
+    self.mode = :bist
+    self.configuration = :ram
+    # In a test application you would generate the necessary vectors to actually do this here
+    # Upon exit from this method 3rd parties will now be able to tell that the DUT is in RAMBIST mode/configuration
+  end
+end
+
+$dut.enter_rambist_mode       # => nil
+$dut.mode.bist?               # => true
+$dut.configuration            # => :ram
+~~~
+
+Note that currently the configuration is not represented as an object and therefore cannot
+store additional attributes associated with the given configuration.
+
+% end

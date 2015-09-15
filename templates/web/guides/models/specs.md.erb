@@ -1,0 +1,262 @@
+% render "layouts/guides.html" do
+
+A specifications or spec is defined as:
+
+*An act of describing or identifying something precisely or of stating a precise requirement*
+
+In Origen, the definition is refined to mean a parametric measure that has the following basic
+attributes:
+
+* Name
+* Symbol
+* Type
+* Mode
+* Audience
+* Description
+* Limits (min, max, typ)
+
+This is not the complete list of attributes but a well defined spec should define these
+attributes.
+
+#### Specification API
+
+**The spec API is in the preliminary stages so please send feedback for enhancements**
+
+Most engineers are probably familiar with a data sheet specification that looks something
+like this:
+
+|  Parameter      |    Symbol    |   Min   |   Typ   |   Max   |  Unit  |  Notes    |
+|:----------------|:-------------|:-------:|:-------:|:-------:|:------:|:----------|
+| ADDR/CMD Setup  | tddkhas      | 495     |         |         | ps     | wrt MCK   |
+
+There are three attributes required to define a Spec: name, mode, and type.  A fourth
+attribute (sub_type) can further delineate a Spec but it is not required.  The basic
+spec API can take two syntactical forms.  The first is a more traditional Ruby syntax
+and the second makes the API feel more like a custom DSL.
+
+~~~ruby
+spec :soc_vdd, :dc do |spec|
+  spec.symbol = "Vdd"
+  spec.description = "Soc Core Power Supply"
+  spec.min = "1.00.V - 50.mV"
+  spec.max = 1.05
+  spec.unit = "V"
+  spec.audience = :external
+end
+~~~
+
+~~~ruby
+spec :soc_vdd, :dc do
+  symbol "Vdd"
+  description "Soc Core Power Supply"
+  min "1.00.V - 50.mV"
+  max 1.05
+  unit "V"
+  audience :external
+end
+~~~
+
+While the user can be free to add various attributes over time, they must assign a valid
+name and have valid limits to complete instantiation.  **A valid name must not start with
+letters and cannot contain special characters forbidden by Ruby.**  Dashes and underscores
+are allowed but the preferred method is to make spec name Symbols in the [snake-case format](http://en.wikipedia.org/wiki/Snake_case).
+Limits can be of type Numeric or String so the API is flexible enough to handle
+specs with a formula as the limit.  Valid limits are defined as:
+
+* If Min && Max: Min < Max if limit is Numeric.
+
+* If Target, Min < Target < Max
+
+A target can be thought of as an unofficial typical value.  Targets are typically used when
+specs are exported for use in data analysis and also help understand if a min anx max limit
+are not symetrical.
+
+During spec limit assignment the user just can either input a numeric value, a symbol or
+a string.
+
+~~~ruby
+[1] pry()> @ip.specs(:ip_setup_time).min
+=> #<struct Origen::Specs::Spec::Limit exp="250.ps + 25.ps", maturity=nil, value=2.7e-10>
+[2] pry()> @ip.specs(:ip_setup_time).min.exp
+=> "250.ps + 25.ps"
+[3] pry()> @ip.specs(:ip_setup_time).min.value
+=> 2.7e-10
+~~~
+
+The Spec model will save the original user input as an expression and will
+attempt to evaluate the string to a numeric value or lookup the symbol within the
+Parameters and Specs database.  Currently only the numeric and string expressions are working.
+
+Notice how the mode attribute is never specified.  This is because the Spec API will
+always use the mode of the current object as a default.  If no mode is specified (nil)
+the user intends for the Spec to be available to all modes of the defining object.  The
+user, of course, can specify a mode as shown below.  The Spec API will only return
+specs that match that specified mode instead of returning globally defined specs.
+
+~~~ruby
+spec :soc_vdd, :dc, :mymode do
+  symbol "Vdd"
+  description "Soc Core Power Supply"
+  min "1.00.V - 50.mV"
+  max 1.05
+  unit "V"
+  audience :external
+end
+~~~
+
+Another thing to note about modes is that specs defined with no mode will be
+catalogued as :global if the owning object is Origen.top_level and :local for
+any other owning IP.  This allows certain specs to be used across the Origen
+ecosystem and other local specs to be contained inside the owning IP.
+
+The user can search for specs using filters for any of the following:
+
+1. Name
+2. Mode
+3. Type
+4. Sub-Type
+
+If any of the options are nil it will not filter by that option when interrogating the
+spec database.  The API is:
+
+~~~ruby
+specs(:myspecname, options)
+~~~
+
+In the example above a symbol is passed for the spec name but all four filter options
+can be a String, Number or a Regexp.  If an object defined three specs named :soc_vdd,
+:io_vdd, :pll_vdd the following call would occur.
+
+~~~ruby
+specs(/vdd/,verbose: true)
+~~~
+
+~~~text
+================================================================================================
+| IP: soc                                                                                      |
+================================================================================================
+| Name    | Symbol | Mode    | Type | Parameter             | Min     | Max  | Unit | Audience |
+------------------------------------------------------------------------------------------------
+| soc_vdd | Vdd    | :global | dc   | Soc Core Power Supply | 0.95    | 1.05 | V    | external |
+| io_vdd  | OVdd   | :global | dc   | Soc IO Power Supply   | 1.45    | 1.55 | V    | external |
+| pll_vdd | AVdd   | :global | dc   | Soc PLL Power Supply  | 1.15    | 1.25 | V    | external |
+------------------------------------------------------------------------------------------------
+~~~
+
+If the 'verbose' argument is not included, only an array of spec objects is returned.  If only a
+single spec is found a Spec object is returned instead of an array of a single spec.  The console
+printing method only displays attributes which have content for at least one of the specs
+found.  It also auto-adjusts the attribute column padding so no space is wasted.
+
+#### Specs and Modes in Detail
+
+Specs can be defined globally or within nested [sub_blocks](http://origen.freescale.net/origen/v2_4_0/api/Origen/SubBlock.html)
+ or [controllers](http://origen.freescale.net/origen/v2_4_0/api/Origen/Controller.html).  A spec
+is defined in the context of a mode, even if it only has a single mode.  A mode is defined as
+a known device state with a unique name or id.  An simple example could be a basic PORESET
+that defines the clocking and register space state after turning a chip on.  The spec
+API does not require a mode to be defined but it will assign some reserved modes if none is
+provided.
+
+If the owner of the block is equal to Origen.top_level a mode named :global is assigned,
+otherwise a mode named :local is assigned.  Specs with a local mode are not accessible
+outside the model in which they are defined.  A spec with a global mode is accessible
+everywhere but will be overwritten is defined both globally and locally.  Here is an
+example where a spec is defined within three modes.
+
+~~~ruby
+class SoC_With_Specs
+  include Origen::TopLevel
+
+  def initialize
+    sub_block :ip_with_specs, class_name: "IP_With_Specs", base_address: 0x1000_0000
+    add_mode :default
+    add_mode :low_power
+    add_mode :high_performance
+
+    modes.each do |mode|
+      case mode
+      when :default
+        vdd_nom = 1.0.V
+      when :low_power
+        vdd_nom = 0.95.V
+      when :high_performance
+        vdd_nom = 1.05.V
+      end
+      spec :soc_vdd, :dc, mode do
+        symbol "Vdd"
+        description "Soc Core Power Supply"
+        min "#{vdd_nom} - 50.mV"
+        max "#{vdd_nom} + 50.mV"
+        audience :external
+      end
+    end
+  end
+end
+~~~
+
+Notice below how both the limit expression and value get changed based on the mode
+selection of the owning IP.
+
+~~~text
+[8] pry()> @dut.mode
+=> high_performance
+[9] pry()> @dut.specs(:soc_vdd).min.exp
+=> "1.05 - 50.mV"
+[10] pry()> @dut.specs(:soc_vdd).min.value
+=> 1.0
+[11] pry()> @dut.mode = :low_power
+=> :low_power
+[12] pry()> @dut.specs(:soc_vdd).min.value
+=> 0.9
+[13] pry()> @dut.specs(:soc_vdd).min.exp
+=> "0.95 - 50.mV"
+~~~
+
+Specs have an audience attribute that can be set to :internal or :external.  They
+also have a read-only attribute called 'limit_type' which is either :single_sided
+or :double_sided.  Here are some attribute access examples:
+
+~~~text
+[7] pry()> @ip.specs(:ip_setup_time).mode
+=> :new_mode_with_altered_specs
+[8] pry()> @ip.specs(:ip_setup_time).limit_type
+=> :double_sided
+[10] pry()> @ip.specs(:ip_setup_time).notes = "my note"
+=> "my note"
+[11] pry()> @ip.specs(:ip_setup_time).notes
+=> "my note"
+[12] pry()> @ip.specs(:ip_setup_time).symbol # Defaults to name if no value supplied
+=> :ip_setup_time
+[13] pry()> @ip.specs(:ip_setup_time).testable
+=> true
+[14] pry()> @ip.specs(:ip_setup_time).audience
+=> :internal
+[15] pry()> @ip.specs(:ip_setup_time).description
+=> "IP Setup Time with Double-Sided Limits"
+~~~
+
+The Origen::Specs::Spec class is available to all models and as such has a method ot find all specs
+that exist in the model itself or any child models.  This method is useful when trying to
+export the spec information of a model to other API.
+
+~~~ruby
+[2] pry(#<RSpec::ExampleGroups::OrigenSpecsModule>)> @dut.find_specs.size
+=> 8
+~~~
+
+#### Remaining Issues and Documentation
+
+* Add in support for spec 'notes' being more than just a text string.
+  Will require adding in a Note class to Origen.
+
+* Add in support for Specs and Parameters lookup for formula evaluation.
+
+* Enable more attributes required for traceability and test plan creation
+
+* Formalize a spec guardband definition and methodology
+
+* Enable Spec name lookup for symbols used in limit formulas
+
+
+% end

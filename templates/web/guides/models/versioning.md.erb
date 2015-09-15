@@ -1,0 +1,80 @@
+% render "layouts/guides.html" do
+
+Adding a version attribute is **strongly encouraged** since this will be how bugs and
+features will be tracked in the future.
+
+Since this is such a common attribute all Origen models already have a version attribute and if
+this key is passed to a sub_block definition it will automatically be attached to the sub-block,
+even in the case where a custom class is used.
+
+When instantiating an SoC model we can supply a version and this should then cascade down
+the hierarchy affecting what versions of the sub-modules get instantiated.
+
+Let's say that two different versions of our Eagle device exist, and in turn each one instantiated
+a different version of the NVM IP.
+We can model that like this:
+
+~~~ ruby
+# lib/soc/eagle_m352.rb
+module SOC
+  class EAGLE_M352
+    include Origen::TopLevel
+
+    def initialize(options={})
+      case version
+      when 0
+        sub_block :nvm, class_name: "NVM_M682", version: 3
+      when 1
+        sub_block :nvm, class_name: "NVM_M682", version: 5
+      else
+        fail "The BOM for version #{version} has not been defined!"
+      end
+    end
+  end
+end
+~~~
+
+Note that we define an error condition if our application attempts to instantiate a version that we
+have not defined.
+
+We then cascade this information down the tree, so our NVM module should also instantiate it's
+components based on the required version:
+
+~~~ ruby
+# lib/nvm/nvm_m682.rb
+module NVM
+  class NVM_M682
+    include Origen::Model
+
+    def initialize(options={})
+      case version
+      when 3
+        sub_block  :analog,        class_name: "ANALOG_T921", version: 11
+        sub_blocks :memory,        class_name: "MEMORY_128_B954", instances: 4, version: 12
+        sub_block  :state_machine, class_name: "CONTROL_D345", version: 20
+
+      when 5
+        sub_block  :analog,        class_name: "ANALOG_T921", version: 12
+        sub_blocks :memory,        class_name: "MEMORY_128_B954", instances: 4, version: 12
+        sub_block  :state_machine, class_name: "CONTROL_D345", version: 24
+
+      else
+        fail "The BOM for version #{version} has not been defined!"
+      end
+    end
+
+  end
+end
+~~~
+
+We can test this out in the console:
+
+~~~ruby
+$dut = SOC::EAGLE_M352.new(version: 0)
+$dut.nvm.state_machine.version   # => 20
+
+$dut = SOC::EAGLE_M352.new(version: 1)
+$dut.nvm.state_machine.version   # => 24
+~~~  
+
+% end

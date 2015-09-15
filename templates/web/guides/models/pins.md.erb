@@ -1,0 +1,447 @@
+% render "layouts/guides.html" do
+
+Origen provides a pin (and pin group) API that should be used to define and manipulate the
+physical pins of the device.
+
+Pins are mainly intended to be defined on models that will be used for pattern generation
+and where the pins represent the physical device pins that the tester can interact with.
+However in its basic form a pin is just an object that can hold a data state and there
+are probably some creative uses of the pin models outside of pattern generation.
+
+The pin API is made available to your model by including the
+<code>Origen::TopLevel</code> or <code>Origen::Model</code> modules.
+
+While pins can be added
+from any sub-module the ownership of all pins is always assigned to the top-level object,
+this is reflecting real life where the pin is a physical property of the top-level SoC.
+Therefore it is recommended that pin definitions are always made on the top-level object
+and most modern Origen applications now take this approach.
+
+#### Defining Pins
+
+Pins should be defined as part of the object initialization process, but to avoid the
+initialize method growing out of hand it is recommended that pins are instantiated in a
+dedicated method that is called upon initialization.
+
+Here is an example of how to define some JTAG interface pins in an SoC model:
+
+~~~ruby
+class MySoC
+  include Origen::TopLevel
+
+  def initialize(options={})
+    instantiate_pins(options)
+  end
+
+  def instantiate_pins(options={})
+    add_pin :tclk, reset: :drive_hi
+    add_pin :tdi, direction: :input
+    add_pin :tdo, direction: :output
+    add_pin :tms
+  end
+end
+~~~
+
+Some points to note in the above code:
+
+* <code>add_pin</code> will instantiate an instance of [Origen::Pins::Pin](<%= path "/api/Origen/Pins/Pin.html" %>)
+* Each pin must be given a name, or handle, similar to how registers are named. However unlike
+  registers **the name must not only be unique within the parent object but it must also be unique
+  within the scope of all objects instantiated by a target**. The easiest way to comply with this requirement
+  is to follow the advice of handling all pin definitions at the top level.
+* Pins are initialized in the don't care state by default, an alternative default state can be specified via
+  the <code>:reset</code> option.
+* Pins are I/Os by default, however they can be defined as input or output only by using the <code>:direction</code>
+  option.
+
+Pins are accessed via the <code>pin</code> method:
+
+~~~ruby
+$dut.pin(:tdi)     # => <pin object>
+~~~
+
+Note that pins can be accessed locally from any object that includes the <code>Origen::Model</code> module:
+
+~~~ruby
+$dut.pin(:tdi) == $dut.memories.rambist.pin(:tdi)   # => true
+~~~
+
+However references to pins within a sub-block would typically use an alias that reflected the pin function related to
+that sub-block.
+
+Pin aliases are added like this:
+
+~~~ruby
+has_pin?(:tdi)               # => true
+has_pin?(:bisti)             # => false
+
+add_pin_alias :bisti, :tdi
+
+has_pin?(:bisti)             # => true
+pin(:bisti) == pin(:tdi)     # => true
+~~~
+
+Or called directly on the pin:
+
+~~~ruby
+pin(:tdi).add_alias(:bisti)
+~~~
+
+#### Defining Pin Groups
+
+Pin groups are modelled by an object called a [PinCollection](<%= path "/api/Origen/Pins/PinCollection.html" %>)
+which is very similar in principle to the BitCollection used for modelling registers.
+A [PinCollection](<%= path "/api/Origen/Pins/PinCollection.html" %>) is essentially an extension of a regular Ruby
+array object which has some of its own attributes (such as an id for example) and everything else is proxied to
+the contained pin objects.
+
+For pattern generation pins and pin groups will support the same API so that application code does not have to
+give much concern as to whether it is dealing with one or the other.
+
+Pin groups are defined in a similar manner to single pins:
+
+~~~ruby
+add_pins :porta, size: 32
+add_pins :portb, size: 16, endian: :little
+~~~
+
+Some points to note in the above code:
+
+* <code>add_pins</code> will generate a new pin group, e.g. named <code>:porta</code> and individual pin
+  objects named <code>:porta0</code> through <code>:porta31</code>.
+  See below for how to define pin groups based on existing pins.
+* Pin groups can be any size, define via the <code>:size</code> option.
+* Pin groups are big endian by default, however little endian can be specified via the
+  <code>:endian</code> option. Changing this attribute will have the effect of reversing the
+  order that data is applied in a test pattern.
+  
+Pin groups can be looked up like regular pins, or via a dedicated method if it makes application code clearer:
+
+~~~ruby
+pins(:porta)               # => <pin collection>
+pin_group(:porta)          # => <pin collection>
+~~~
+
+A pin group is a regular Ruby array and can be iterated on and so on:
+
+~~~ruby
+pins(:porta).size          # => 32
+
+pins(:porta).each do |pin|
+  # Do this for pin :porta0, :porta1, etc.
+end
+~~~
+
+Within a pin group individual pins can be addressed via a local index:
+
+~~~ruby
+pins(:porta)[0] == pins(:porta0)   # => true
+~~~
+
+Anonymous pin groups can be composed from a range of indexes at runtime:
+
+~~~ruby
+pins(:porta).data                 # => 0x0000_0000
+pins(:porta)[0,1,2,3].drive(0xF)
+pins(:porta).data                 # => 0x0000_000F
+pins(:porta)[8..15].drive(0x55)
+pins(:porta).data                 # => 0x0000_550F  
+~~~
+
+Pin groups can be composed from any arbitrary group of existing pins using the <code>add_pin_group</code> method:
+
+~~~ruby
+# The first argument is the ID for the new pin group, followed by the IDs of the pins it should contain
+add_pin_group :jtag, :tdi, :tdo, :tclk, :tms
+
+pins(:jtag).size   # => 4
+~~~
+
+Pin groups can be aliased in the same way as pins, for readability the method <code>add_pin_group_alias</code>
+can be used, although internally it is the same as <code>add_pin_alias</code>:
+
+~~~ruby
+add_pin_group_alias :porta, :data
+
+pin_group(:data).dont_care  # Can now be used as if it were a regular first class pin group
+~~~
+
+It is possible to alias a single pin within a pin group, in that case a pin number argument
+must be supplied to <code>add_pin_alias</code>:
+
+~~~ruby
+add_pin_alias :moda, :porta, pin: 4
+~~~
+
+It is also possible to create a pin group from a subset of pins of a regular pin group, simply
+pass in a range or an array of pin indexes to <code>add_pin_group_alias</code>:
+
+~~~ruby
+add_pin_group_alias :data_byte_0, :porta, pins: [7..0]
+add_pin_group_alias :data_byte_1, :porta, pins: [8,9,10,11,12,13,14,15]
+
+port(:data_byte_0).dont_care  # Can now be used as if it were a regular first class pin group
+~~~
+
+#### Power and Ground Pin Modelling
+
+The API supports modelling power and ground pins as follows:
+
+~~~ruby
+add_pin :pinx
+
+add_power_pin :vdd1
+add_power_pin :vdd2
+
+add_ground_pin :gnd1
+add_ground_pin :gnd2
+add_ground_pin :gnd3
+
+add_power_pin_group :vdd, :vdd1, :vdd2
+
+add_ground_pin_group :gnd, :gnd1, :gnd2, :gnd3
+~~~
+
+This will cause these pins to be stored in separate collections to make pattern and other content generation easier:
+
+~~~ruby
+# Based on the above example
+pins.size           # => 1
+power_pins.size     # => 2
+ground_pins.size    # => 3
+~~~
+
+Power and ground pin lookup should be done via dedicated methods:
+
+~~~ruby
+power_pin(:vdd1)
+ground_pins(:gnd)
+
+ground_pin_groups.each do |id, group|
+  # Do this for each ground pin group
+end
+~~~
+  
+#### Changing Data State
+
+See the [Pin API](<%= path "/api/Origen/Pins/Pin.html" %>)
+for full details of what methods are available. 
+
+Here are a few examples of working with pins:
+
+~~~ruby
+# Make the tester drive a value on a pin
+pin(:tdi).drive_hi
+
+# Equivalent to above, this form is better when serially applying data in a loop...
+pin(:tdi).drive(1)  
+# ...like this...
+reg(:data).shift_out_left do |bit|
+  pin(:porta).drive(bit.data)
+end
+
+# Asserting that a pin drives a certain value has various aliases, these are all equivalent
+pin(:tdo).assert(1)
+pin(:tdo).compare(1)
+pin(:tdo).expect(1)
+
+# Current state can be queried
+pin(:tdo).driving?    # false
+pin(:tdo).comparing?  # true
+pin(:tdo).dont_care
+pin(:tdo).comparing?  # false
+
+pin(:tms).drive_lo
+pin(:tms).toggle
+
+# Pin groups support the same methods as pins
+port(:porta).drive(0x55)   # 01010101
+port(:porta).assert(0x55)  # LHLHLHLH
+port(:porta).dont_care     # XXXXXXXX
+
+# Individual pins within a pin group can be accessed by index
+port(:porta)[1].drive(0)   # XXXXXX0X
+~~~
+
+#### Bang (!) Methods
+
+Almost all pin methods have a bang form, for example:
+
+~~~ ruby
+pin(:tdi).drive!(1)
+~~~
+
+The bang methods will set the state on the pin in the same way as the regular method but
+will then automatically fire off a tester cycle to generate a vector.
+
+In other words the above is the shorthand equivalent of:
+
+~~~ ruby
+pin(:tdi).drive(1)
+$tester.cycle
+~~~
+
+#### Pin Availability by Package
+
+Pins can be defined based on a specific [package context](<%= path "guides/models/modes/#Package" %>)
+which can be used to gate their availability.
+
+Here is an example:
+
+~~~ruby
+# Initially define the available packages at the top level before adding any pins
+
+class MySoC
+  include Origen::TopLevel
+
+  def initialize
+    add_package :pkg1
+    add_package :pkg2
+  end
+end
+~~~
+
+Pins can then be defined by package:
+
+~~~ruby
+add_pin :pin1, packages: :all
+add_pin :pin2                           # No constraint is equivalent to :all
+add_pin :pin3, package: :pkg2
+add_pin :pin4, packages: [:pkg1, :pkg2]
+
+# Pins can also be added within a package scope, these will add to :pkg1 only
+with_package :pkg1 do
+  add_pin :pin5
+  add_pin :pin6
+end
+
+# All pins are available when the package is set to nil, no package represents the die
+package              # => nil
+pins.size            # => 6
+package = :pkg1
+pins.size            # => 5 (no pin3)
+has_pin?(:pin3)      # => false
+package = :pkg2
+pins.size            # => 4 (no pin5 or pin6)
+has_pin?(:pin3)      # => true
+~~~
+
+Pin groups can contain different sets of pins in different packages:
+
+~~~ruby
+add_pin(:pin1)
+add_pin(:pin2)
+add_pin(:pin3)
+
+add_pin_group :g1, :pin1, :pin2,        package: :pkg1
+add_pin_group :g1, :pin1, :pin2, :pin3, package: :pkg2
+
+has_pins?(:g1)      # => false
+pin_groups.size     # => 0
+
+package = :pkg1
+has_pins?(:g1)      # => true
+pins(:g1).size      # => 2
+pin_groups.size     # => 1
+
+package = :pkg2
+has_pins?(:g1)      # => true
+pins(:g1).size      # => 3
+pin_groups.size     # => 1
+~~~
+
+#### Package Attributes
+
+The attributes listed in the constant <code>PACKAGE_SCOPED_ATTRIBUTES</code> in the [Pin API](<%= path "api/Origen/Pins/Pin.html" %>)
+can be set to specific values per package.
+
+Here is an example of how to set the pin location by package:
+
+~~~ruby
+# At definition time
+add_pin :pin1, packages: {pkg1: {location: "A2"}, pkg2: {location: "A3"}}
+add_pin :pin2
+
+# Or later
+pins(:pin2).add_location "A5", package: :pkg1
+pins(:pin2).add_location "B2", package: :pkg2
+
+package = :pkg1
+pins(:pin1).location       # => "A2"
+pins(:pin2).location       # => "A5"
+
+package = :pkg2
+pins(:pin1).location       # => "A3"
+pins(:pin2).location       # => "B2"
+~~~
+
+A context can also be supplied when reading such attributes to override the current context:
+
+~~~ruby
+package = :pkg1
+pins(:pin1).location                   # => "A2"
+pins(:pin1).location(package: :pkg2)   # => "A3"
+~~~
+
+Origen will automatically create an alias for the given location (a lower cased symbol) that is scoped to the package.
+
+~~~ruby
+package = :pkg1
+has_pin?(:a2)              # => true
+has_pin?(:a3)              # => false
+package = :pkg2
+has_pin?(:a2)              # => false
+has_pin?(:a3)              # => true
+~~~
+
+#### Pin Functions
+
+Pin aliases are an example of modelling different pin functions that can be mux'd onto the same pin, in this case
+the pin attributes are the same regardless of the function name being used.
+
+However sometimes it is necessary to model different attributes depending on the pin function - for example under
+one function the pin may be an input, but when used as another function it is an output.
+
+The attributes listed in the constant <code>FUNCTION_SCOPED_ATTRIBUTES</code> in the [Pin API](<%= path "api/Origen/Pins/Pin.html" %>)
+can be set to specific values per context (mode and/or configuration).
+
+Here is an example of adding a function:
+
+~~~ruby
+class MySoC
+  include Origen::TopLevel
+
+  def initialize
+    add_pin :pin1
+    add_pin :pin2
+
+    # Define some pin functions
+    pin(:pin1).add_function :nvm_fail, direction: :output
+    pin(:pin2).add_function :nvm_done, direction: :output
+    pin(:pin1).add_function :tdi, direction: :input
+    pin(:pin2).add_function :tdo, direction: :output
+
+    # Add some groupings that are associated with specific pin functions
+    add_pin_group :jtag, :tdi, :tdo
+    add_pin_group :nvm,  :nvm_fail, :nvm_done
+  end
+end
+
+$dut = MySoC.new
+
+# The name used to look up a pin now returns the pin with a thin wrapper around it
+# which defines its current function:
+$dut.pin(:nvm_fail).direction    # => :output
+$dut.pin(:nvm_done).direction    # => :output
+$dut.pin(:tdi).direction         # => :input
+$dut.pin(:tdo).direction         # => :output
+
+# If a function name is given when defining a pin group, the pin will always have
+# that function when it is accessed through the resultant group
+$dut.pins(:jtag)[0].direction    # => :output
+$dut.pins(:jtag)[1].direction    # => :input
+$dut.pins(:nvm)[0].direction     # => :output
+$dut.pins(:nvm)[1].direction     # => :output
+~~~
+
+% end

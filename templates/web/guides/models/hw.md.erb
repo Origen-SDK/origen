@@ -1,0 +1,106 @@
+% render "layouts/guides.html" do
+
+The need to model abstract hardware properties can sometimes arise, most
+commonly when generating a view of the models which needs to contain some detailed
+information about the RTL architecture - generating an IP-XACT view of the IP for use
+in verification would be a good example of this.
+
+#### HDL Paths
+
+For designers using Origen as the master definition of their registers and other metadata, it
+is always preferable to setup the Origen models to mirror the eventual hierarchy of
+the RTL.
+In that case nothing special is required to extract HDL path information and the
+<code>path</code> method available on all sub-blocks, registers and bits should do a
+good job:
+
+~~~ruby
+$dut.atd.path             # => "mydut.atd"            (Where 'mydut' is the lowercased class name)
+$dut.atd.reg1.path        # => "mydut.atd.reg1"  
+$dut.atd.reg1.data.path   # => "mydut.atd.reg1[15:0]" (Where 'data' are some named bits in reg1)  
+~~~
+
+However in cases where that is not possible the following API exists to reconcile
+any differences. 
+
+For any point in the tree the default can be overridden by setting the <code>@path</code>
+instance variable within the
+given object, this can also be supplied at sub-block declaration time. e.g.
+
+~~~ruby
+class MyDut
+  include Origen::TopLevel
+
+  def initialize
+    sub_block :atd, class_name: "ATD", base: 0x1000_0000, path: "atds.atd0"
+  end
+end
+
+$dut.atd.reg1.data.path        # => "mydut.atds.atd0.reg1[15:0]"
+$dut.atd.path = "atds.atd1"
+$dut.atd.reg1.data.path        # => "mydut.atds.atd1.reg1[15:0]"
+~~~
+
+Layers can be taken out of the hierarchy altogether by setting the path attribute to <code>:hidden</code>:
+
+~~~ruby
+sub_block :atd, class_name: "ATD", base: 0x1000_0000, path: :hidden
+
+$dut.atd.reg1.data.path        # => "mydut.reg1[15:0]"
+~~~
+
+Register and bit definitions can also be given a path override:
+
+~~~ruby
+reg :reg1, 0 do |reg|
+  reg.bits 31..0, :data
+end
+
+reg :reg2, 0x4, path: "reg2_reg" do |reg|
+  reg.bits 31..0, :data
+end
+
+reg :reg3, 0xC, path: "reg3_reg" do |reg|
+  reg.bits 31..0, :data, path: "data_reg"
+end
+
+reg1.data.path     # => "mydut.atd.reg1[15:0]"
+reg2.data.path     # => "mydut.atd.reg2_reg[15:0]"
+reg3.data.path     # => "mydut.atd.data_reg"
+~~~
+
+Note that in the case of the path being given to the bits it bypasses the
+register altogether, to include the register prefix the bit path name with
+a <code>.</code>
+
+~~~ruby
+reg :reg3, 0xC, path: "reg3_reg" do |reg|
+  reg.bits 31..0, :data, path: ".data_reg"
+end
+
+reg3.data.path     # => "mydut.atd.reg3_reg.data_reg"
+~~~
+
+#### Absolute Paths
+
+Sometimes for a given node that is handled 'unusually' in RTL it is easier just
+to give an absolute path, the <code>abs_path</code> attribute can be set in
+place of the <code>path</code> attribute for any of the examples above.
+
+When resolving paths from a child object the final path will be returned
+immediately when an absolute path is encountered, this is best shown by example:
+
+~~~ruby
+sub_block :sub1
+sub_block :sub2, path: "memory_block.ram"
+sub_block :sub3, abs_path: "p2.flash"
+
+sub1.reg1.path      # => "p1.sub1.reg1" (where p1 is the path of the parent)
+sub2.reg1.path      # => "p1.memory_block.ram.reg1"
+sub3.reg1.path      # => "p2.flash.reg1"
+~~~
+
+Registers and bits will also accept <code>abs_path</code> in place of <code>path</code>.
+
+
+% end

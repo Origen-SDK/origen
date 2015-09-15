@@ -1,0 +1,269 @@
+% render "layouts/guides.html" do
+
+A given model, or indeed an application, will often have some parameters associated with
+it.
+While any standard Ruby accessors and instance variables can be used to define such
+parameters the following API is provided to define them in a standardized way. The 
+advantages to using this API vs. a roll-your-own solution are as follows:
+
+* The API provides a number of features that go above and beyond what basic Ruby
+  attribute accessors provide, this would require significant application-side code to
+  replicate
+* Using standard APIs gives your code a familiar look and feel to any new developers who
+  may work on it in future
+* You will be able to benefit from future additions to the Origen ecosystem that hook into
+  this API, e.g. a documentation helper to automatically generate a parameter summary
+  will almost certainly emerge
+
+#### Basic Idea
+
+Parameters are defined as a group of named values that will apply in a given context, many
+different sets of values to apply in different contexts can be defined.
+A context can be used to represent any abstract concept that you like, but a good example 
+would be to have a set of parameter values that will apply at probe, a different set for final test and a
+different set for spec operation.
+
+The current parameter context can be set and changed dynamically at runtime as required
+by your application, typically this would be set on a per-target/environment basis or for pattern
+generation on a per-pattern basis.
+A common approach for pattern generation is to leverage [sourceless pattern generation](<%= path "guides/pattern/name" %>)
+and employ the convention that the first field in the pattern name refers to the spec
+context - e.g. probe_mypat, ft_mypat, spec_mypat.
+It is then trivial to set the parameter context based on the pattern name, thereby providing a bulletproof way to update any
+given parameter for every probe pattern by simply updating its value in the probe parameter
+set definition.
+
+#### Including the Parameters API
+
+To use the parameters API in an abstract class the following module can be included:
+
+~~~ruby
+include Origen::Parameters
+~~~
+
+However this is already included the <code>Origen::Model</code> and <code>Origen::TopLevel</code>
+modules and any class which includes those will already have access to this API.
+
+#### Defining a Set of Parameters
+
+Parameters are defined as shown below, it is always a good idea to create a parameter
+context called <code>:default</code>, these are the values that will be enabled when
+a parameter context has not explicitly been set:
+
+~~~ruby
+define_params :default do |params|
+  params.tprog = 20.uS
+  params.terase = 100.mS
+end
+~~~
+
+Parameters can be organized into namespaces by simply writing them, no upfront definition
+is required and there is no limit to how deeply nested they can be:
+
+~~~ruby
+define_params :default do |params|
+  params.program.time = 20.uS
+  params.erase.time = 100.mS
+  params.erase.pulse_count = 10
+  params.test.dc.vdd.min = 1.5
+  params.test.dc.vdd.max = 2.5
+end
+~~~
+
+Parameters are read back in application code via the <code>params</code> method:
+
+~~~ruby
+params.test.dc.vdd.min   # => 1.5
+~~~
+
+Each namespace in the chain returns an object that can be used like a hash:
+
+~~~ruby
+def print_erase_parameters
+  params.erase.each do |name, value|
+    puts "#{name}: #{value}"
+  end
+end
+
+print_erase_parameters   # => time: 0.1 
+                         # => pulse_count: 10
+~~~
+
+The current parameter context is set as follows:
+
+~~~ruby
+params.context        # => :default
+params = :probe
+params.context        # => :probe
+with_params :ft do
+  params.context      # => :ft
+end
+params.context        # => :probe
+~~~
+
+#### Tracking the Context of Another Object
+
+The parameter context for a given object can be configured to automatically track that of another object by
+specifying a Ruby path to the object to be tracked as shown below:
+
+~~~ruby
+# A short hand is available to track the parameter context from the top level ($dut)
+class MyObject
+  include Origen::Model
+  parameters_context :top
+end
+
+# Or you can supply a path to the object in the form of a string, here the path reference is local to the MyObject
+# instance
+class MyObject
+  include Origen::Model
+  parameters_context 'parent.mbist'
+end
+
+# Or another example where the target object is found via the global scope
+class MyObject
+  include Origen::Model
+  parameters_context '$dut.pll'
+end
+~~~
+
+Then whenever the parameter context is set on the tracked object the same context name will be applied
+when referencing a parameter within the tracking object, for example:
+
+~~~ruby
+$dut.params.context           # => :default
+my_object.params.context      # => :default
+$dut.params.context = :probe
+$dut.params.context           # => :probe
+my_object.params.context      # => :probe
+~~~
+
+#### Late Defined Parameters
+
+Occasionally the need may arise to base a parameter value on a property of the model
+or the wider environment that is not yet finalized or known at the time when the parameter
+definition code is being executed.
+In that case the parameter can be defined as a function and Origen will hold off evaluating
+it until the last possible moment when it is first referenced:
+
+~~~ruby
+define_params :default do  |params|
+  params.test.dc.vdd.min = -> { $dut.vdd * 0.9 }
+end
+~~~
+
+Such parameters will behave identically to standard parameters in all respects and consumers
+will not be able to tell if a given parameter originated from a function.
+
+#### Defining Child Sets
+
+Complete parameter sets can be defined for different named contexts, however in many cases
+only a subset of the parameters will have different values vs. another context.
+To make maintenance of such cases efficient the API allows parameter sets to be defined in a
+hierarchy such that a given set can be defined with a parent and if it does not define
+a value for a given parameter then the value from the parent will be returned instead.
+
+~~~ruby
+define_params :ate, inherit: :default do |params|
+  params.erase.time = 40.mS
+end
+
+define_params :probe, inherit: :ate do |params|
+  params.erase.time = 20.mS
+  params.erase.pulse_count = 5
+end
+
+define_params :ft, inherit: :ate do |params|
+  params.erase.pulse_count = 7
+end
+
+with_params :probe do
+  params.program.time        # => 20uS (inherited from :default)
+  params.erase.time          # => 20ms
+  params.erase.pulse_count   # => 5
+end
+
+with_params :ft do
+  params.program.time        # => 20uS (inherited from :default)
+  params.erase.time          # => 40ms (inherited from :ate)
+  params.erase.pulse_count   # => 7
+end
+~~~
+
+Sometimes the parameter definition for a child context should be a function of the
+value from the parent, when defining a child context the parent can be accessed
+like this:
+
+~~~ruby
+define_params :ate, inherit: :default do |params, parent|
+  params.test.dc.vdd.min = parent.test.dc.vdd.min * 0.9
+  params.test.dc.vdd.max = parent.test.dc.vdd.max * 1.1
+end
+
+params.context            # => :default
+params.test.dc.vdd.min    # => 1.5
+params.test.dc.vdd.max    # => 2.5
+params = :ate
+params.test.dc.vdd.min    # => 1.35
+params.test.dc.vdd.max    # => 2.75
+~~~
+
+
+
+#### Live Updating Parameters
+
+When a parameter is referenced a static value is returned which thereafter has no
+relationship to the current parameter context, for example:
+
+~~~ruby
+terase = params.erase.time
+params.erase.time                # => 100ms
+terase                           # => 100ms
+params = :probe                 
+params.erase.time                # => 20ms
+terase                           # => 100ms
+~~~
+
+The above should not be surprising and is what would normally be expected, however
+through the magic of Ruby a live updating parameter can be returned by referring
+to it via <code>params.live</code>:
+
+~~~ruby
+terase = params.live.erase.time
+terase                           # => 100ms
+params = :probe               
+terase                           # => 20ms
+~~~
+
+This is an experimental feature and developers are encouraged to play around with it and
+report back on any useful applications that they may find for it.
+Potentially this is a good way to expose parameters via an interface to 3rd parties without coupling
+them tightly to the namespacing and organization of the parameters within the owning class.
+
+It is certainly only really useful when applied in conjunction with parameter contexts that can
+change within the scope of a pattern or other Origen thread of execution. While the examples
+so far have focussed on parameter contexts that will be permanent for a given thread,
+like probe or ft, contexts can be used to represent more dynamic concepts. For example a given
+NVM pattern may read the flash under different read conditions where the configuration for
+each one is modelled by parameter contexts defined within the read controller.
+
+Another possible use case is to bind register bit values to parameters, due to the way
+that Origen stores register data at bit level a register cannot simply be written to a live
+parameter, however a dedicated API is provided for this case:
+
+~~~ruby
+reg :erase, 0x0 do
+  bits 3..0, :pulses
+end
+
+erase.pulses.data    # => 0
+erase.pulses.bind params.live.erase.pulse_count
+erase.pulses.data    # => 10
+params = :probe
+erase.pulses.data    # => 5
+~~~
+
+In other words anytime that register gets written in the course of a pattern generation
+run its value will automatically track the current parameter context.
+
+% end

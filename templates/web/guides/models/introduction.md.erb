@@ -1,0 +1,37 @@
+% render "layouts/guides.html" do
+
+Models are at the heart of an Origen application and can be thought of as
+object representations of the silicon in the application domain.
+Models can instantiate other models and they can be nested arbitrarily deep
+depending on the needs of your application.
+
+For example, if your application is only concerned with generating dynamic 
+documentation for a small number of devices, then it may be sufficient
+to have a single model representing each device.
+
+If on the other hand, your application is concerned with generating complex
+design or test code, then a lot more information will be encapsulated within your
+models. In these cases your application will be much easier to manage
+using multiple models
+to represent the sub-blocks that make up the device or module in
+question.
+
+Model responsibilities include but are not limited to:
+
+* Defining the architecture of the target device
+* Defining what bugs or features are present in the target device
+* Defining register and bit maps 
+* Defining any other attributes of the target device, e.g. memory size
+
+Within the Origen ecosystem, the model is intended to be the master of
+the universe and everything from documents, to test patterns, even to
+the design IP itself, can be considered different ways of viewing or consuming the
+model.
+
+It is important to spend
+the time to architect the models in an organized manner and one which closely
+resembles the silicon that you are trying to represent.
+Once the solid model foundation is in place, it then becomes very easy to decide
+where to add additional data in the future.
+
+% end

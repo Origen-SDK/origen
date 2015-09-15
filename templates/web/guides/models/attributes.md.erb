@@ -1,0 +1,268 @@
+% render "layouts/guides.html" do
+
+Origen is an object-oriented environment and we have already seen that the application
+domain will be modelled by creating object instances which represent the physical silicon.
+However the real power of object-oriented programming comes when we start assigning attributes
+to our objects.
+
+#### Static Attributes
+
+Continuing our example of modelling a fictional NVM module, an obvious attribute to start with is the
+size of our NVM memory blocks, we can add this attribute like this:
+
+~~~ruby
+# lib/nvm/memory_128_b954.rb
+module NVM
+  class MEMORY_128_B954
+    include Origen::Model
+
+    def initialize(options={})
+      @size_in_kb = 128
+    end
+  end
+end
+~~~
+
+<code>@size_in_kb</code> is an example of an instance variable in Ruby. An instance variable
+is one where the value it contains is unique to each object instance, so for example if we have multiple
+instances of the same class then we can update the value held by an instance variable in one of them without
+affecting the value held by the same variable in the other instances.
+
+Instances variables are globally available within a class definition, in other words you can make
+a reference to <code>@size_in_kb</code> from any methods that are defined within that class. However to
+access them externally we need to create a getter method:
+
+~~~ruby
+# lib/nvm/memory_128_b954.rb
+module NVM
+  class MEMORY_128_B954
+    include Origen::Model
+
+    def initialize(options={})
+      @size_in_kb = 128
+    end
+
+    def size_in_kb
+      @size_in_kb
+    end
+  end
+end
+~~~
+
+In Ruby a method implicitly returns the value of the last piece of code it executed, so the method we
+just added will return the value held by <code>@size_in_kb</code>.
+We can now ask a memory block it's size:
+
+~~~ruby
+$dut = SOC::EAGLE_M352.new
+
+$dut.nvm.memories.first.size_in_kb     # => 128
+~~~  
+
+Note that we have used a method named <code>first</code> above but we have not defined that anywhere.
+The <code>memorys</code> method created by Origen (which we aliased as <code>memories</code>
+returns the associated sub-blocks within a Ruby array. In Ruby everything
+is an object, so an array is a built-in object that comes complete with it's own set of useful methods
+that we can leverage.
+Ruby is very well documented, here is the page describing all of the methods available to an Array:
+[Ruby Array](http://www.ruby-doc.org/core-2.2.0/Array.html).
+
+Because the above example of creating a getter method is so common, Ruby provides a shorthand. We can re-write
+the above example as:
+
+~~~ruby
+# lib/nvm/memory_128_b954.rb
+module NVM
+  class MEMORY_128_B954
+    include Origen::Model
+
+    attr_reader :size_in_kb
+    
+    def initialize(options={})
+      @size_in_kb = 128
+    end
+  end
+end
+~~~
+
+This creates a reader (or getter) method which will look for an instance variable of the same name and
+return it. If the variable of the same name doesn't exist then it will return <code>nil</code>.
+
+#### Calculated Attributes
+
+Attributes can also be derived from functions.
+
+For example within our application it may be useful to consume the size attribute in various formats,
+let's create a method to return the size in bytes:
+
+~~~ruby
+# lib/nvm/memory_128_b954.rb
+module NVM
+  class MEMORY_128_B954
+    include Origen::Model
+
+    attr_reader :size_in_kb
+    
+    def initialize(options={})
+      @size_in_kb = 128
+    end
+
+    def size_in_bytes
+      @size_in_kb * 1024
+    end
+  end
+end
+~~~
+
+Of course such functions can also incorporate multiple attributes, here we create a method to return
+the size in longwords:
+
+~~~ruby
+# lib/nvm/memory_128_b954.rb
+module NVM
+  class MEMORY_128_B954
+    include Origen::Model
+
+    attr_reader :size_in_kb, :longword_size_in_bytes
+    
+    def initialize(options={})
+      @size_in_kb = 128
+      @longword_size_in_bytes = 8
+    end
+
+    def size_in_bytes
+      @size_in_kb * 1024
+    end
+
+    def size_in_longwords
+      size_in_bytes / longword_size_in_bytes
+    end
+  end
+end
+~~~
+
+Note that sometimes you will see attribute or method references using the keyword <code>self</code>
+which means "the current instance". Our size_in_longwords method could be re-written as:
+
+~~~ruby
+def size_in_longwords
+  self.size_in_bytes / self.longword_size_in_bytes
+end
+~~~
+
+Whether or not to use the self notation is really a matter of personal preference but be aware
+of it as you may see it used in other code whether or not you use it yourself.
+
+Another point to note is that the method was not written like this:
+
+~~~ruby
+def size_in_longwords
+  @size_in_bytes / @longword_size_in_bytes
+end
+~~~
+
+While this would have worked equally well, it is generally bad practice to reference instance variables
+directly and instead it is preferable to access them through a reader method, even when referencing
+them internally.
+
+The reason for this is that if you ever need to transform or filter the value of an attribute, it can
+be done easily in a single place if all references to the variable are made through a reader method.
+
+#### Dynamic Attributes
+
+Some attributes will change value during the course of executing your application, therefore in such
+cases we need a way of setting the value of the attribute in addition to reading it. 
+
+Sticking with our NVM memory model such an attribute might be the value held by certain addresses in
+the flash memory. Let's create a new attribute to represent the data held by a location which we
+will call <code>config</code>.
+
+~~~ruby
+# lib/nvm/memory_128_b954.rb
+module NVM
+  class MEMORY_128_B954
+    include Origen::Model
+
+    def initialize(options={})
+      @config_data = 0xFF
+    end
+
+    def config_data
+      @config_data
+    end
+
+    def config_data=(value)
+      @config_data = value
+    end
+  end
+end
+~~~
+
+With our new getter and setter methods for the <code>config_data</code> attribute we can now change
+the value of it dynamically:
+
+~~~ruby
+$dut = SOC::EAGLE_M352.new
+
+mem = $dut.nvm.memories.first
+
+mem.config_data          # => 0xFF
+mem.config_data = 5
+mem.config_data          # => 5
+~~~  
+
+Again this is such a common pattern that a shorthand exists, to create getter and setter methods equivalent to
+those above we can do:
+
+~~~ruby
+# lib/nvm/memory_128_b954.rb
+module NVM
+  class MEMORY_128_B954
+    include Origen::Model
+
+    attr_reader :config_data
+    attr_writer :config_data
+  end
+end
+~~~
+
+Or to create both, a further shorthand exists:
+
+~~~ruby
+# lib/nvm/memory_128_b954.rb
+module NVM
+  class MEMORY_128_B954
+    include Origen::Model
+
+    attr_accessor :config_data
+
+  end
+end
+~~~
+
+#### Anonymous Sub-blocks with Attributes
+
+Sub-blocks without a specific class definition also support attributes, any attributes can either be
+directly written to the sub-block or supplied in the sub-block definition:
+
+~~~ruby
+class MySoC
+  include Origen::TopLevel
+
+  def initialize(options={})
+    sub_block :ram, size_in_kb: 128
+
+    # Once defined any additional attributes can be declared on the fly
+    ram.clk_domain = :ipg
+  end
+end
+
+$dut = MySoC.new
+
+$dut.ram.size_in_kb        # => 128
+$dut.ram.clk_domain        # => :ipg
+$dut.ram.vendor = "Mentor"
+$dut.ram.vendor            # "Mentor"
+~~~
+
+% end

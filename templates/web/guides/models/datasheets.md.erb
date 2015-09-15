@@ -1,0 +1,149 @@
+% render "layouts/guides.html" do
+
+Origen provides an API for creating and manipulating datasheets within an Origen application. 
+
+Datasheets are intended to provide all of the specific spec-tables, revision-history, 
+and notes that are associated with a particular device. Including a datasheet in your 
+application will allow you to quickly call up any relevant information about a device
+directly to your console. 
+
+The API is made available by including the Origen::Datasheet module. 
+
+~~~ruby
+module MyApplication
+  class TopLevel
+    include Origen::Datasheet # => makes the Datasheet available to application
+    attr_accessor :datasheet
+    
+  end
+end
+~~~
+
+### Creating Datasheets
+
+Creating a datasheet is very simple and is demonstrated in the following code sample: 
+
+~~~ruby 
+module MyApplication
+  class TopLevel
+    include Origen::Datasheet # => makes the Datasheet available to application
+    attr_accessor :datasheet
+    
+    @datasheet = TopLevel.new.ds #=> Creates instance of a Datasheet in your application.
+    
+  end
+end
+~~~
+
+Note: Creating a Datasheet in your Origen application does not physically instantiate an 
+XML Datasheet, but rather an Origen model of one that is visible to your application.
+
+### Importing an Existing Datasheet
+
+Through the RosettaStone plug-in, Origen is able to consume existing XML datasheets provided
+they conform to the XML standards that the program expects. Importation is done via
+the rs_import method like in the code sample below.
+
+The importation process is very fast in will complete in just a few seconds, even for very large XML
+files.
+
+~~~ruby
+module MyApplication
+  class TopLevel
+    include Origen::Datasheet # => makes the Datasheet available to application
+    attr_accessor :datasheet
+    
+    @datasheet = TopLevel.new.ds #=> Creates instance of a Datasheet in your application.
+    @datasheet = rs_import(:path => "path_to_your_datasheet.xml")
+    
+  end
+end
+~~~
+
+###Spec Tables
+Spec Tables contain all of the relevant spec information for a particular device. 
+Any given Spec contains information such as the Min and Max values, Note references, 
+Units, and Spec symbol, along with dozens of other possible attributes specified in the 
+Spec API. 
+
+Calling up Spec Tables from a datasheet to the console is very simple. All you will need is 
+the unique Spec Table ID. In the case that the specific Spec Table ID is not known, you will 
+need to follow the command examples below. 
+
+~~~ruby
+$dut.ds.spec_tables # => This command lists every Spec Table in a datasheet, along with information including the ID.
+~~~
+
+Once the correct ID is provided the Spec Table will be displayed on the console in a very friendly
+table-view format. 
+
+~~~ruby
+$dut.ds.spec_tables[:unique_id] # => Displays the Spec Table to the console
+~~~
+
+You can also add a Spec Table to your datasheet and provide your own values if necessary. This
+is shown below. 
+
+~~~ruby
+@datasheet.spec_table :unique_id do |t|
+  t.full_name = "Information you want to specify is done like this!"
+end
+~~~
+
+### Revision History
+
+Often it is useful to know a datasheet has changed over time, and the revision history contains 
+exactly that information. A Revision History is organized into a list of different Versions, 
+where each Version lists every change that was made to the datasheet. 
+
+Calling up information from the Revision History is very simple. If you are unsure of exactly
+which version you will need to look at, the below command will display a list of different Versions
+for a datasheet's Revision History, along with some information about each Version including the 
+access-key for each one. 
+
+~~~ruby
+$dut.ds.revision_history # => diplays a list of each Version in a Revision History
+~~~
+
+To view a specific Version use the following command
+
+~~~ruby
+$dut.ds.revision_history.versions[:access_key] # => displays the version to the console!
+~~~
+
+Each Version will display a small table with the specific information concerning that version, 
+as well as the list of changes displayed as text.
+
+
+### Notes
+
+Notes provide engineers a way to include extra information about a Spec that may not
+fit into a specific attribute. Each note contains information like the item_area, the note text,
+and a unique ID for easy referencing and retrieval. 
+
+Typing the following command into the Origen console will display a list of all notes and their IDs 
+associated with the datasheet. 
+
+~~~ruby
+$dut.ds.notes
+~~~
+
+If you would like to get a specific note use the following command
+
+~~~ruby
+$dut.ds.notes[:note_id]
+~~~
+
+### Searching
+
+Sometimes when a datasheet is very large it's not always convenient to spend time looking up
+different IDs to get the information you want. Currently, searching can be performed on Spec Tables
+and Notes. The way to perform a search is outlined in the following command examples. 
+
+~~~ruby
+$dut.ds.spec_tables.search("search_string") => this will display every Spec Table that matches "search_string."
+
+$dut.ds.notes.search("search_string") => displays every note corresponding to "search_string."
+~~~
+
+% end

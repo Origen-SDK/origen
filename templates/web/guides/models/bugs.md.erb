@@ -1,0 +1,133 @@
+% render "layouts/guides.html" do
+
+The [example code](<%= path "/guides/models/versioning" %>) for tracking versions may seem like a
+lot of effort but it is very quick to implement additional
+configurations by copying and pasting the previous one, and remember that this only
+needs to be done for revisions that make it to silicon.
+
+While it may seem like overkill initially, the benefit will become apparent as the
+number of silicon derivatives that your application must support begins to grow. By following
+this architecture you will find that your application can scale to any number of derivatives easily and
+most importantly you will continue to feel in control of it - especially when it comes to tracking which
+bugs and features exist on each device.
+
+#### Assigning Bugs to the Responsible Module
+
+A primary goal of Origen is to help with the creation of complex applications that remain easy to manage and a key
+component of this is the creation of high level code flows that are both easy to follow and to understand. Therefore we do
+not want our application to be littered with things like _"if the device version is 50 then do this..."_, but rather to use the
+more descriptive *"if the device has the low reference voltage bug then do this..."*.
+
+Furthermore bugs should be assigned to the sub-block that is actually responsible for them - **they should not
+be assigned at SoC level**. Adding bugs at SoC-level is equivalent to adding branches to your code like
+*"if the device is an Eagle then do this..."* which may seem reasonable but that has proven to be the path to a maintenance
+nightmare.
+
+The problem with that approach is that you have now set yourself up to have to answer the question *"does this
+device have this bug?"* for every new device that you ever add support for in the future. As the number of
+devices and bugs (and features) grows, the number of such cases to manually track will grow exponentially.
+
+The solution to this problem is to track the bug or feature at component level and change your branch to
+*"if the analog module in the NVM module of the current device has the low reference voltage bug then do this..."*. 
+Then in the future simply add new device configurations
+by declaring the BOM as we have seen in the [versioning guide](<%= path "/guides/models/versioning" %>).
+
+Your job is then done.
+
+This is because the bug workaround has been implemented in a way that requires no further human interaction
+ever again - if we create a new device that instantiates a version of the NVM analog that has the bug then
+our workaround will kick in automatically. Similarly if we add a new device which instantiates a version 
+of the analog that doesn't have the bug then the workaround will be bypassed automatically.
+
+#### Recording a Bug
+
+Here are some examples of adding bugs to the analog module within our example NVM module, note that bug
+method is a class method that must be called outside of the initialize (or any other) instance method:
+
+~~~ruby
+# file: lib/nvm/analog_t921.rb
+module NVM
+  class ANALOG_T921
+    include Origen::Model
+
+    bug :low_vref, :affected_version => 11
+    bug :low_iref, :affected_versions => [11, 12]
+    bug :dac_code, :fixed_on_version => 12
+    bug :unfixable
+
+    def initialize(options={})
+    end
+  end
+end
+~~~
+
+We have defined these bugs in terms of the affected versions and since our models already contain
+version information the presence of bugs will be modelled accurately.
+
+We can test this in the console:
+
+~~~ruby
+# This will instantiate version 11 of the analog block
+$dut = SOC::EAGLE_M352.new(version: 0)
+$dut.nvm.analog.has_bug?(:low_vref)    # => true
+$dut.nvm.analog.has_bug?(:low_iref)    # => true
+$dut.nvm.analog.has_bug?(:dac_code)    # => true
+$dut.nvm.analog.has_bug?(:unfixable)   # => true
+
+# This will instantiate version 12 of the analog block
+$dut = SOC::EAGLE_M352.new(version: 1)
+$dut.nvm.analog.has_bug?(:low_vref)    # => false
+$dut.nvm.analog.has_bug?(:low_iref)    # => true
+$dut.nvm.analog.has_bug?(:dac_code)    # => false
+$dut.nvm.analog.has_bug?(:unfixable)   # => true
+~~~  
+
+When we get to the point of implementing a template or source file we will then be able to deal with these
+bugs via logic like:
+
+~~~ruby
+if $dut.nvm.analog.has_bug?(:low_vref)
+  # Workaround the bug
+else
+  # Proceed as normal
+end
+~~~
+
+#### Recording a Feature
+
+Feature identification can be added in a similar way, this API also supports optionally adding descriptions: 
+
+~~~ruby
+# file: lib/nvm/analog_t921.rb
+module NVM
+  class ANALOG_T921
+    include Origen::Model
+
+    feature :feature1
+    feature :feature2, :description =>"feature2 description, this API for tools"
+    # This is feature 3 description, this API is for humans
+    # and markdown should be used for formatting
+    feature :feature3
+
+    def initialize(options={})
+    end
+  end
+end
+
+$dut = SOC::EAGLE_M352.new(version: 0)
+
+$dut.nvm.analog.has_feature?(:feature1)    # => true
+$dut.nvm.analog.has_feature?(:feature2)    # => true
+$dut.nvm.analog.has_feature?(:feature3)    # => true
+$dut.nvm.analog.has_feature?(:feature4)    # => false
+
+
+$dut.nvm.analog.feature(:feature1).description    # => []
+$dut.nvm.analog.feature(:feature2).description    # => ["feature2 description, this API for tools"]
+$dut.nvm.analog.feature(:feature3).description    # => ["This is feature 3...", "and markdown should be.."]
+~~~
+
+Note that it is not currently possible to track features by version like it is for bugs, however it would not
+be very difficult to add this should the need arise.
+
+% end

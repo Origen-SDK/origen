@@ -1,0 +1,66 @@
+% render "layouts/guides.html" do
+
+One of the hardest things in computer science is said to be naming things.
+
+Model naming convention may vary from company to company, but we recommend aligning to whatever
+system is used by the hardware design teams. In other words the Origen model name for a given
+IP should be the same as whatever the RTL or macro is called for the corresponding object in the
+design world.
+
+The overall goal is to eliminate ambiguity and end up with a system where it straightforward to
+identify what silicon IP is represented by a given Origen model.
+
+#### Class Naming
+
+Each of your model definitions will be a Ruby class and it is required by Ruby that the class
+name starts with a capital letter. It is also Ruby convention to use CamelCase for class names,
+however in our experience this is not necessarily easy to stick to if you are also trying to
+keep your class names in sync with a 3rd party naming system as recommended above.
+
+If not following CamelCasedNaming, then we recommend that you uppercase and underscore
+THE_CLASS_NAME for consistency.
+
+It is Ruby (and Origen) conventions that each class is contained within it's own file that
+has been assigned the lower_cased_and_underscored version of the class name.
+
+So for example the model for <code>EAGLE_M352</code> would look like this:
+
+~~~ruby
+# lib/eagle_m352.rb
+class EAGLE_M352
+
+  # Model definition and logic goes here
+  
+end
+~~~
+
+#### Namespacing
+
+Namespacing your code is good practice and is also recommended, in Ruby a namespace involves wrapping
+all of your code in a uniquely named module.
+
+For example all of the Origen code is contained within the <code>Origen</code> namespace and this
+(as we will see shortly) is why the Origen register API is accessible via <code>Origen::Registers</code>
+instead of just <code>Registers</code>.
+
+The name used for the namespace should uniquely identify your application within your ecosystem,
+if you were writing an application to test a RAM module at a 28nm node for example, then you might go
+with simply <code>C28RAM</code>.
+
+The namespacing is also mirrored in the file system hierarchy, so all of the files for <code>C28RAM</code>
+should live in <code>lib/c28ram</code>.
+
+Wrapping the above example in the namespace would change it to:
+
+~~~ruby
+# lib/c28ram/eagle_m352.rb
+module C28RAM
+  class EAGLE_M352
+
+    # Model definition and logic goes here
+    
+  end
+end
+~~~
+
+% end

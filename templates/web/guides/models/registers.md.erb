@@ -1,0 +1,442 @@
+% render "layouts/guides.html" do
+
+When modelling semiconductor IP, there will almost always be a need to define register
+and bit maps and Origen provides an API specifically for this purpose.
+
+When modelling silicon with Origen, the hardware should be the guide as to
+where logic or attributes should go and if you have followed the advice so far
+then you will already have a model framework that closely resembles the physical hardware.
+The registers then, are simply instantiated within the model of the corresponding hardware
+that owns them.
+
+#### Defining Registers
+
+Registers should be defined as part of the object initialization process, but to avoid the
+initialize method growing out of hand it is recommended that you instantiate registers in a
+dedicated method that is called upon initialization.
+
+When defining registers you can either take the approach of defining them all up front
+or defining them individually on an as-needed basis - the latter is recommended as it is the most
+efficient in terms of effort.
+
+Here is an example of how to define this register in our memory map:
+
+<img src="<%= path "img/reg1.png" %>" style="margin-left: 70px; width: 700px; height: 255px;">
+
+
+~~~ruby
+# file: lib/nvm/analog_t921.rb
+module NVM
+  class ANALOG_T921
+    include Origen::Model
+
+    def initialize(options={})
+      instantiate_registers(options)
+    end
+
+    def instantiate_registers(options={})
+      reg :ctrl, 0x0024, size: 16 do |reg|
+        reg.bit 7, :coco, access: :ro
+        reg.bit 6, :aien
+        reg.bit 5, :diff
+        reg.bit 4..0, :adch, reset: 0x1F
+      end
+    end
+  end
+end
+~~~
+
+Some points to note in the above code:
+
+* Even though we have not used it we have continued the practice of setting up every method with
+  an optional option argument and we have passed this between method calls - i.e. we passed the
+  initialize options when calling instantiate_registers. This keeps things extremely flexible for
+  the future and means that it is easy to influence the register instantiation externally, for
+  example: <code>NVM::ANALOG_T921.new(include_test_registers: true)</code>
+* The <code>reg</code> method takes a name, address and size as arguments. The size is optional
+  and is 32 by default.
+* Bit definitions are contained within the <code>do..end</code> block passed to the <code>reg</code>
+  method. By default bits are writable and will reset to 0, but this can be overridden as shown
+  in the example.
+* When defining bits the size is 1 by default and the reset state is 0 by default, these can be
+  overridden on an as needed basis as shown above.
+
+#### Accessing Registers
+
+Origen will automatically create accessor methods for the register and its bits, the above register
+would be accessed like this:
+
+~~~ruby
+$dut.nvm.analog.ctrl         # => <register object>
+$dut.nvm.analog.ctrl.adch    # => <subset of bits>
+~~~
+
+The Origen console will show a nice graphical representation of the register which reflects its
+current state, this can be very useful when debugging or more generally as an interactive
+version of the block guide:
+
+~~~text
+> origen i
+
+>> $dut.nvm.analog.ctrl
+=>
+0x24 - :ctrl
+  ================================================================================================================
+  |     15      |     14      |     13      |     12      |     11      |     10      |      9      |      8      |
+  |             |             |             |             |             |             |             |             |
+  |             |             |             |             |             |             |             |             |
+  ----------------------------------------------------------------------------------------------------------------
+  |      7      |      6      |      5      |      4      |      3      |      2      |      1      |      0      |
+  |    :coco    |    :aien    |    :diff    |                             :adch[4:0]                              |
+  |    0(RO)    |      0      |      0      |                                0x1F                                 |
+  ----------------------------------------------------------------------------------------------------------------
+~~~
+
+Origen supports some more verbose APIs that you may see used in some codebases or documentation,
+these are now considered legacy APIs but are equivalent to the above:
+
+~~~ruby
+$dut.nvm.analog.reg(:ctrl)
+$dut.nvm.analog.reg(:ctrl).bits(:adch)
+$dut.nvm.analog.reg(:ctrl)[:adch]
+~~~
+
+Origen supports Verilog style part selects to access an ad-hov subset of bits, although unfortunately
+<code>[3:0]</code> is not valid Ruby and <code>[3..0]</code> is used instead.
+
+~~~ruby
+$dut.nvm.analog.ctrl[1]           # => bit 1 of the register
+$dut.nvm.analog.ctrl.adch[1]      # => bit 1 of the adch bits
+$dut.nvm.analog.ctrl[3..0]
+$dut.nvm.analog.ctrl.adch[1..0]
+~~~
+
+#### Base Addresses
+
+When defining registers the address specified should be the local address within the owning
+IP block.
+
+Base addresses can be passed in within the sub block definition, <code>base_address</code> is an official
+option that Origen will recognize and automatically deal with.
+
+~~~ruby
+# lib/nvm/nvm_m682.rb
+sub_block :analog, class_name: "ANALOG_T921", base_address: 0x4000_0000
+~~~
+
+Registers will automatically pick up the base address of their parent, the local address can
+be accessed via the <code>offset</code> method:
+
+~~~ruby
+$dut.nvm.analog.ctrl.address   # => 0x4000_0024
+$dut.nvm.analog.ctrl.offset    # => 0x24
+~~~
+
+Note that when resolving a base address Origen will look right up the hierarchy until it reaches the top
+level object and all base addresses in that branch of the tree will be added together.
+
+#### Register Domains
+
+An API is available to model register domains, where domain could mean what bus or clk domain that the
+register is on, or any similar concept.
+
+Domains must first be declared in the object that owns them and then they can be passed to sub block
+definitions:
+
+~~~ruby
+domain: :ips
+domain: :ahb, endian: :little
+
+sub_block :analog, class_name: "ANALOG_T921", base_address: 0x4000_0000, domain: :ips
+~~~
+
+The domain attribute will also accept an array of multiple domain names as required.
+
+The child block and any of its registers will then be associated with the given domains:
+
+~~~ruby
+$dut.nvm.analog.domains            # => {ips: <object>}
+$dut.nvm.analog.ctrl.domains       # => {ips: <object>}
+~~~
+
+Note that the <code>domains</code> method returns a hash pointing to objects that represent the domains,
+this can therefore be associated with attributes such as the <code>:endian</code> attribute in the
+example above.
+
+See the [Domain Class API](<%= path "api/Origen/Registers/Domain.html" %>) for an up to date list of
+supported attributes.
+
+#### Per-Domain Base Addresses
+
+Domain specific base addresses can be assigned to a sub-block by passing a hash to the <code>:base_address</code>
+option as shown in the example below:
+
+~~~ruby
+class Top
+  include Origen::TopLevel
+
+  def initialize
+    domain :ips
+    domain :ahb
+
+    sub_block :subx1, class_name: "SubX", base_address: 0x1000_0000
+    sub_block :subx2, class_name: "SubX", base_address: { ips: 0x2000_0000, ahb: 0x3000_0000 }
+  end
+end
+
+class SubX
+  include Origen::Model
+
+  def initialize
+    reg :reg1, 0x200 do
+      bits 31..0, :data
+    end
+    sub_block :suby1, class_name: "SubY", domain: :ips
+    sub_block :suby2, class_name: "SubY", domain: :ahb
+  end
+end
+
+class SubY
+  include Origen::Model
+
+  def initialize
+    reg :reg1, 0x300 do
+      bits 31..0, :data
+    end
+  end
+end
+
+$dut = Top.new
+$dut.subx1.reg1.address                # => 0x1000_0200
+$dut.subx1.suby1.reg1.address          # => 0x1000_0300
+$dut.subx1.suby2.reg1.address          # => 0x1000_0300
+# Where a register falls into the case where multiple domains are specified for it, you must
+# indicate the one you want
+$dut.subx1.reg1.address(domain: :ips)  # => 0x2000_0200
+$dut.subx1.reg1.address(domain: :ahb)  # => 0x3000_0200
+$dut.subx2.suby1.reg1.address          # => 0x2000_0300
+$dut.subx2.suby2.reg1.address          # => 0x3000_0300
+~~~
+
+In the case where a register owned by a child sub-block is not in any of the domains listed in the base address
+hash then it will pick up a base address of 0.
+
+An alternative default can be set by adding a <code>:default</code> key to the hash:
+
+~~~ruby
+sub_block :subx2, class_name: "SubX", base_address: { default: 0x1000_0000, ips: 0x2000_0000, ahb: 0x3000_0000 }
+~~~
+
+#### Documenting Registers
+
+Registers can be documented by Ruby comments like this:
+
+~~~ruby
+# ** MGATE Clock Divider Register **
+# The MCLKDIV register is used to divide down the frequency of the HBOSCCLK input. If the MCLKDIV
+# register is set to value "N", then the output (beat) frequency of the clock divider is OSCCLK / (N+1). The
+# resulting beats are, in turn, counted by the PTIMER module to control the duration of Flash high-voltage
+# operations.
+reg :mclkdiv, 0x0003, size: 16 do |reg|
+  # **Oscillator (Hi)** - Firmware FMU clk source selection. (Note that in addition to this firmware-controlled bit, the
+  # FMU clock source is also dependent on test and power control discretes).
+  #
+  # 0 | FMU clock is the externally supplied bus clock ipg_clk
+  # 1 | FMU clock is the internal oscillator from the TFS hardblock
+  reg.bit 15, :osch, reset: 1
+end
+~~~
+
+The descriptions are then programmatically accessible via the following methods:
+
+~~~ruby
+mclkdiv.full_name                          # => "MGATE Clock Divider Register"
+mclkdiv.description(include_name: false)   # => ["The MCLKDIV register is...", "register is set...", ...] 
+
+bit = mclkdiv.osch
+bit.full_name  # => "Oscillator (Hi)"
+bit.description(include_name: false, include_bit_values: false)  # => ["Firmware FMU clk...", "FMU clock...", ...] 
+bit.bit_value_descriptions[0]   # => "FMU clock is the externally supplied bus block ipg_clk"
+bit.bit_value_descriptions[1]   # => "FMU clock is the internal oscillator from the TFS hardblock"
+~~~
+
+Most commonly these descriptions will be used for documentation, for example the 
+[Documentation Helpers](http://origen-sdk.org/doc_helpers/) plugin provides
+helpers to easily present registers in Origen documentation as shown here -
+[Register Helpers](http://origen-sdk.org/doc_helpers/latest/examples/register/).
+
+The descriptions can also be supplied as in-line arguments, **but doing so overrides any comment-based
+documentation.**  Thus, it is intended to be used
+only when the register is being declared programmatically by an importer and humans
+should stick to the above API for clarity:
+
+~~~ruby
+reg :mclkdiv, 0x0003, size: 16, description: "** MGATE Clock Divider Register **\nThe MCLKDIV reg..." do |reg|
+  reg.bit 15, :osch, reset: 1, description: "** Oscillator (Hi) ** - Firmware FMU clk source selection..."
+end
+~~~
+
+#### Defining Application-Specific Metadata
+
+Within a given application it may be desired to attach some meta-data to a register or bits to
+track application-specific properties, for example whether a register is only readable in test
+mode or not.
+
+The object owning the register can define a default set of custom attributes and then override
+these for specific registers and bits.
+Here is an example:
+
+~~~ruby
+def instantiate_registers(options={})
+
+  default_reg_metadata do |reg|
+    reg.user_reg = false
+  end
+
+  default_bit_metadata do |bit|
+    bit.time_to_respond = 0
+  end
+
+  reg :fstat, 0x0001, size: 8, user_reg: true do |reg|
+    reg.bit 8, :ccif, time_to_respond: 10.us
+    reg.bit 7, :rdcolerr
+    reg.bit 6, :accerr, access: :w1c
+    reg.bit 5, :fpviol, access: :w1c
+    reg.bit 0, :mgstat, access: :ro
+  end
+
+  reg :mclkdiv, 0x0002, size: 16 do |reg|
+    reg.bit 15, :osch, reset: 1
+    reg.bit 13..12, :mode_rdy, writable: false
+    reg.bit 10, :eccen, reset: 1
+    reg.bit 9..8, :cmdloc
+    reg.bit 7..0, :div
+  end
+
+end
+
+fstat.user_reg?     # => true
+mclkdiv.user_reg?   # => false
+
+fstat.ccif.time_to_respond     # => 10us
+fstat.accerr.time_to_respond   # => 0
+~~~
+
+Global attributes can also be added, when done in this way the meta data
+will be applied to all registers within the scope of an application.
+
+If the same attribute is later declared within a class as above then the value
+from the class will take precedence.
+
+As with the above example the attribute values can be overridden when
+defining registers and bits.
+
+~~~ruby
+Origen::Registers.default_reg_metadata do |reg|
+  reg.attr_x        # Adds the attribute with a default value of nil
+  reg.attr_y = 10   # Adds the attribute with a default value of 10
+end
+
+Origen::Registers.default_bit_metadata do |reg|
+  reg.attr_z = 15
+end
+~~~
+
+Plugins may also use this approach to globally extend the attributes of
+registers and bits.
+
+#### Importing Registers
+
+If the register data for the target device/module is already mastered somewhere else, for
+example in IP-XACT format, then it can be imported directly to save having to manually duplicate the
+register definitions in Origen.
+This will generate the exact same models of the registers as if they had been declared directly
+into Origen.
+
+This import (and export) functionality is provided via the [Cross Origen](http://origen-sdk.org/cross_origen/)
+plugin and this should be consulted directly for the latest information on the API and the supported formats.
+
+However here is a brief example of how it can be used to import from a local XML file:
+
+~~~ruby
+# lib/nvm/nvm_m682.rb
+module NVM
+  class NVM_M682
+    include Origen::Model
+    include CrossOrigen
+
+    def initialize(options={})
+      cr_import(path: "#{Origen.root}/ipxact_files/nvm_m682.xml")
+    end
+  end
+end
+~~~
+
+#### Understanding the Origen Register Model
+
+By using the above API Origen has now built an accurate register model that will look and behave like the
+real register on silicon.
+This is extremely convenient and useful for pattern generation as we will see later, but it can also
+be very useful for other applications such as [generating documentation](http://origen-sdk.org/doc_helpers/examples/register/).
+
+Each register created by Origen is an instance of the
+[Origen::Registers::Reg](<%= path "api/Origen/Registers/Reg.html" %>)
+class.
+This does not by itself provide that much functionality and its main purpose is as a container for the
+individual bits that make up the register.
+
+Each bit is an instance of the [Origen::Registers::Bit](<%= path "api/Origen/Registers/Bit.html" %>)
+class. The main function of the bit object is to store a single bit of data and to track the state of various
+attribute flags that monitor such things as whether the bit is writable, or readable, or whether a particular bit
+is required to be read during a test pattern operation.
+
+Similar to the <code>Reg</code> the <code>Bit</code> API is mainly for internal use.
+
+Instead the public facing API is implemented by the [Origen::Registers::BitCollection](<%= path "api/Origen/Registers/BitCollection.html" %>)
+class.
+This class provides a consistent API whether you are working with an entire register or a subset of bits in
+the register.
+
+By calling <code>ctrl</code> a new <code>BitCollection</code> is generated on the fly and populated
+with all of the bit objects contained in the register.
+Similarly if you call <code>ctrl.adch</code> then a <code>BitCollection</code> will be
+returned that contains only the subset of requested bits.
+
+#### Examples
+
+Here are a few examples of working with the register that we recently added:
+
+~~~ruby
+$dut = SOC::EAGLE_M352.new(version: 1)
+
+reg = $dut.nvm.analog.ctrl
+
+reg.data                  # => 31
+reg.data.to_hex           # => "0x1F"
+
+# Only bits that are writable can hold data, the same as real silicon
+reg.write(0xFFFF)
+reg.data.to_hex           # => "0x7F"
+  
+# Individual bits can be manipulated
+reg.adch.data             # => 31
+reg.adch.write(0)       
+reg.adch.data             # => 0
+                          
+reg.data.to_hex           # => "0x60"
+
+# Bits can be marked for read
+reg.is_to_be_read?        # => false
+reg.coco.read
+reg.coco.is_to_be_read?   # => true
+reg.aien.is_to_be_read?   # => false
+reg.is_to_be_read?        # => true
+
+# The register can be reset
+reg.reset
+reg.is_to_be_read?        # => false
+reg.data.to_hex           # => "0x1F"
+~~~
+
+
+% end

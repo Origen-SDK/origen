@@ -109,15 +109,15 @@ class OrigenCoreApplication < Origen::Application
     end
   end
 
-  def before_deploy_site
-    Dir.chdir Origen.root do
-      system "origen specs -c"
-      system "origen examples -c"
-      dir = "#{Origen.root}/web/output/coverage"       
-      FileUtils.remove_dir(dir, true) if File.exists?(dir) 
-      system "mv #{Origen.root}/coverage #{dir}"
-    end
-  end
+  #def before_deploy_site
+  #  Dir.chdir Origen.root do
+  #    system "origen specs -c"
+  #    system "origen examples -c"
+  #    dir = "#{Origen.root}/web/output/coverage"       
+  #    FileUtils.remove_dir(dir, true) if File.exists?(dir) 
+  #    system "mv #{Origen.root}/coverage #{dir}"
+  #  end
+  #end
 
   def after_release_email(tag, note, type, selector, options)
     begin
