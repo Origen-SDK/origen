@@ -5,14 +5,44 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta property="og:locale" content="en_US">
+    <meta name="content-language" content="en_US">
 
-    <title><%= @item[:title] %></title>
-    <% if @item[:description] %>
-      <meta name="description" content="<%= @item[:description] %>">
-    <% end %>    
-    <% if @item[:author] %>
-      <meta name="author" content="<%= @item[:author] %>">
-    <% end %>
+    <% title = @item[:title] || "Origen, The Semiconductor Developer's Kit" %>
+    <title><%= title %></title>
+    <meta property="og:title" content="<%= title %>">
+    <meta name="twitter:title" content="<%= title %>">
+    <meta itemprop="name" content="<%= title %>">
+  <% if @item[:description] %>
+    <meta name="description" content="<%= @item[:description] %>">
+    <meta name="twitter:description" content="<%= @item[:description] %>">
+    <meta property="og:description" content="<%= @item[:description] %>">
+    <meta itemprop="description" content="<%= @item[:description] %>">
+  <% end %>    
+  <% if @item[:author] %>
+    <meta name="author" content="<%= @item[:author] %>">
+  <% end %>
+  <% if @item[:author_url] %>
+    <link rel="author" href="<%= @item[:author_url] %>">
+  <% end %>
+  <% if @item[:url] %>
+    <meta property="og:url" content="<%= @item[:url] %>">
+    <meta name="twitter:url" content="<%= @item[:url] %>">
+  <% end %>
+  <% image = @item[:image] || "http://origen-sdk.org/favicon-260x260.png" %>
+    <meta property="og:image" content="<%= image %>">
+    <meta name="twitter:image" content="<%= image %>">
+    <meta itemprop="image" content="<%= image %>">
+    <meta name="twitter:card" content="summary">
+  <% if @item[:site_name] %>
+    <meta property="og:site_name" content="<%= @item[:site_name] %>">
+  <% end %>
+  <% if @item[:facebook] %>
+    <meta property="fb:admins" content="<%= @item[:facebook] %>">
+  <% end %>
+  <% if @item[:twitter] %>
+    <meta name="twitter:site" content="@<%= @item[:twitter] %>">
+  <% end %>
 
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">

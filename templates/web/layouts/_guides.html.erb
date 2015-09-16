@@ -1,6 +1,6 @@
 ---
 title: Origen - Guides
-analytics: UA-64455560-1
+<%= origen_core_frontmatter(options) %>
 ---
 <%= render "templates/web/partials/navbar.html", tab: :guides %>
 
@@ -41,7 +41,7 @@ analytics: UA-64455560-1
 %   models_parameters: "Parameters",
 %   models_specs: "Specifications",
 % }
-% s["Compiler"] = {
+% s["Compiler (Views)"] = {
 %   compiler_introduction: "Introduction",
 %   compiler_creating: "Creating Templates",
 %   compiler_subtemplates: "Using Sub-Templates",
@@ -49,21 +49,25 @@ analytics: UA-64455560-1
 %   compiler_running: "Running The Compiler",
 %   compiler_inline: "Inline Compiler",
 % }
-%# s["Pattern Generator"] = {
-%#   pattern_introduction: "Introduction",
-%#   pattern_creating: "Creating Patterns",
-%#   pattern_pins: "Pins",
-%#   pattern_timing: "Timing and Waiting",
-%#   pattern_registers: "Registers",
-%#   pattern_documenting: "Documenting Patterns",
-%#   pattern_name: "Generating by Name",
-%#   pattern_j750: "J750",
-%#   pattern_v93k: "V93K",
-%#   pattern_ultraflex: "UltraFlex",
-%#   pattern_custom: "Custom Testers",
-%#   pattern_running: "Running The PatGen",
-%#   pattern_compiler: "Compiling Patterns",
-%# }
+% s["Controllers"] = {
+%   controllers_introduction: "Introduction",
+%   controllers_shadow: "Shadow Controllers",
+%   controllers_direct: "Direct Controllers",
+% }
+% s["Pattern Generator"] = {
+%   pattern_introduction: "Introduction",
+%   pattern_creating: "Creating Patterns",
+%   pattern_pins: "Pins",
+%   pattern_timing: "Timing and Waiting",
+%   pattern_registers: "Registers",
+%   pattern_documenting: "Documenting Patterns",
+%   pattern_name: "Generating by Name",
+%   pattern_j750: "J750",
+%   pattern_v93k: "V93K",
+%   pattern_ultraflex: "UltraFlex",
+%   pattern_custom: "Custom Testers",
+%   pattern_running: "Running The PatGen",
+% }
 %# s["Test Program Generator"] = {
 %#   program_introduction: "Introduction",
 %#   program_philosophy: "Philosophy",

@@ -1,0 +1,38 @@
+% render "layouts/guides.html" do
+
+Origen was initially conceived to be a pattern generator and as you would
+expect it provides
+powerful APIs to generate tester patterns from your device models.
+These APIs endeavour to abstract as much of the underlying ATE API as possible
+so that quite often all that is required to switch ATE platforms is to change
+the tester model instantiated by the environment.
+
+With Origen, an application can also easily create custom tester
+drivers which (for example) can be used to generate patterns in a format that
+can be run on
+the bench (as a J-Link command file for example) or in a functional
+simulation - basically generating your pattern as a Verilog stimulus file.
+
+Origen is a simulation-less pattern generation tool and it is therefore very
+quick and lightweight compared to more traditional simulation-based pattern generation
+workflows.
+When combined with the growing number of quality [Origen plugins](<%= path "plugins" %>)
+that are available to provide common hardware (e.g. JTAG) and protocol drivers
+(e.g. ARM Debug, Nexus), the speed of pattern development that can be
+achieved with Origen is unrivaled. With a bit of practice you can literally go from
+nothing to a working pattern for a new application within 10 minutes.
+
+#### Use Simulations for What They Are Good At
+
+Simulations still have their place, after all they are the only way to get pre-silicon
+feedback on whether a given pattern will actually work or not.
+An Origen-based workflow can still make heavy use of simulations for pre-silicon
+validation of test IP, however the downsides of requiring a simulation to actually
+generate a pattern (workflow complexity, slow generation times) are removed.
+
+This leads to much quicker turn around of pattern changes, which means that they can be regenerated
+in real time while debugging on the tester.
+
+<img src="<%= path "img/pattern_workflow.png" %>" style="display: block; margin: auto; width: 400px; height: 306px;">
+
+% end

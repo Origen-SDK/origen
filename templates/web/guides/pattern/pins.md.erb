@@ -1,0 +1,125 @@
+% render "layouts/guides.html" do
+
+The control of pin states represents the lowest level of Origen's pattern generation
+API.
+
+Generally for most modern applications you should need to do this very rarely
+and mainly when creating mode entry and reset sequences for your
+device.
+For most applications a [plugin](<%= path "plugins" %>)
+such as the [JTAG driver](http://origen-sdk.org/jtag) should be used to
+abstract much of the lower level details about the values to be applied to a given
+pin by a given test vector.
+If your application uses a proprietary interface then it is recommended that you
+create a dedicated class to implement the interface
+protocol and to deal with all of the manipulation of pin states.
+
+#### Basic Concept
+
+All of Origen's vector-based tester models will support a <code>cycle</code> method
+which will drive or expect the current values held by all pins for one clock cycle.
+In other words the cycle method takes a snapshot of the current pin states and then
+applies them to the DUT.
+
+Origen's pin API provides models that represent a DUT's pins and pin groups
+and methods with which to manipulate their states between tester cycles.
+
+See the [Pins](<%= path "guides/models/pins" %>) section of
+the [Models](<%= path "guides/models/introduction" %>) guide for details and examples
+of how to add and manipulate pin states within your model logic.
+
+#### Recommended Architecture
+
+Here are the key components of the recommended architecture:
+
+1. All pins and aliases are defined within the top-level models only, the top-level model is the only object
+   that owns pins in the entire application for a given target setup.
+2. Functions should be added to the pins to represent the different functionality available
+   on the pins depending on the mode.
+3. The availability of the required functions is a contract between a given sub-model
+   and the top-level, i.e. the NVM models and test logic assume that all top-level models will
+   provide functions named *nvm_fail* and *nvm_done*.
+4. Each model only refers to the pins using the name/function that it understands.
+5. The test block/plugin that is primarily responsible for a given test pattern
+   can still control the pin order of the created pattern by using the <code>pin_pattern_order</code>
+   method.
+
+The above approach has the benefits of encapsulating all pin definitions within the top-level model, so
+that a device's TE could implement the details straight from the top-level DFT guide for example, while the lower level
+modules can talk to the pins/signals that they know about.
+
+Here is an example of how to implement this scheme in a top-level SoC model:
+
+~~~ruby
+class MySoC
+  include Origen::TopLevel
+
+  def initialize(options)
+    instantiate_pins(options)
+  end
+
+  def instantiate_pins(options)
+    # Common pins required by all to support mode entry sequences
+    add_pin :tclk,      reset: :drive_lo
+    add_pin :trst,      reset: :drive_hi
+    add_pin :extal
+    add_pin :xtal,      reset: :drive_lo
+    add_pin :tms
+    add_pin :tdo
+    add_pin :tdi
+    add_pin :resetb
+
+    add_pins :data, size: 8
+
+    # Add NVM BIST mode functions
+    pin(:extal).add_function :nvm_clk
+    pin(:data)[2].add_function :nvm_fail
+    pin(:data)[3].add_function :nvm_done
+    pin(:data)[4].add_function :nvm_invoke
+
+    # Add additional function groups here... 
+  end
+end
+~~~
+
+#### Controlling the Pattern Pin Order
+
+As a test engineer for a specific test module you may want more importance to be given to some pins
+than others, or to otherwise order them to make them most readable for debugging the target module.
+
+This can be achieved by calling the <code>pin_pattern_order</code> method:
+
+~~~ruby
+class NVM
+  include Origen::Model
+
+  def initialize
+    # Unspecified pins will appear in arbitrary order at the end
+    pin_pattern_order :nvm_clk, :nvm_invoke, :nvm_done, :nvm_fail
+  end
+end
+~~~
+
+Aside from specifying the order of the pins this also specifies what the name should be, i.e. if a given
+pin/pin group has multiple aliases then the one used to refer to the pin in the <code>pin_pattern_order</code>
+is that one that will appear in the generated pattern.
+
+By default any unspecified pins will appear in arbitrary order at the end. To include only the pins
+specified then append the <code>:only</code> option at the end:
+
+~~~ruby
+# Only include these pins in the output pattern and in this order
+pin_pattern_order :nvm_clk, :nvm_invoke, :nvm_done, :nvm_fail, only: true
+~~~                      
+
+Alternatively specific pins or pin groups can be excluded from appearing in the output file via
+the <code>pin_pattern_exclude</code> method:
+
+~~~ruby
+# Don't include these pins in the pattern
+pin_pattern_exclude :porte, :portf
+~~~
+
+An error will be raised if the same pin appears in both <code>pin_pattern_order</code> and <code>pin_pattern_exclude</code>.
+
+% end

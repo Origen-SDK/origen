@@ -276,7 +276,7 @@ module Origen
     end
     alias_method :add_ground_pins, :add_ground_pin
 
-    # Specifiy the order that pins will appear in the output pattern, unspecified
+    # Specify the order that pins will appear in the output pattern, unspecified
     # pins will appear in an arbitrary order at the end
     #
     # API v2, deprecated
@@ -296,7 +296,7 @@ module Origen
       Origen.app.pin_pattern_order << options unless options.empty?
     end
 
-    # Specifiy the pins will not appear in the output pattern
+    # Specify the pins will not appear in the output pattern
     def pin_pattern_exclude(*pin_ids)
       if pin_ids.last.is_a?(Hash)
         options = pin_ids.pop
