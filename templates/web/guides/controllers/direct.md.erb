@@ -1,0 +1,91 @@
+% render "layouts/guides.html" do
+
+Direct controllers provide identical functionality to [Shadow controllers](<%= path "guides/controllers/shadow" %>)
+and you should read that guide first to understand the background here.
+
+Direct controllers are designed to work in the case where the model for a given IP block
+is managed by a 3rd party and not the test engineer responsible for the given block. Often
+this may exist as part of a complete device model as shown here:
+
+<img src="<%= path "img/direct_controller.png" %>" style="display: block; margin: auto; width: 488px; height: 133px;">
+
+From the perspective of the ATD test engineer, how the model is constructed is unimportant and
+the main thing they need to know is what is the path to their sub-model of interest.
+Let's say in our example that the model is instantiated as <code>$model</code> and the path to the
+ATD model is <code>$model.atd</code>.
+
+#### Controller Implementation
+
+Creation of the controller is almost identical to the example [Shadow controller](<%= path "guides/controller/shadow/#Controller_Implementation" %>).
+
+The key difference is that instead of linking the controller to a model class who's instances it should shadow,
+it is instead linked to a model instance:
+
+~~~ruby
+# lib/atd_test_block/atd_controller.rb
+module ATDTestBlock
+  class ATDController
+    include Origen::Controller
+
+    model path: "$model.atd"
+
+    # ATD pattern API implementation as before
+  end
+end
+~~~
+
+#### Instantiating the Controller
+
+This is where the main difference between Shadow and Direct controllers exists, the direct controller
+needs to be instantiated directly:
+
+~~~ruby
+$model = SoC::Eagle.new    # Instantiates a model of the target device
+
+atd = ATDTestBlock::ATDController.new
+
+atd.convert(10)  # => <BitCollection>
+~~~
+
+Once instantiated the <code>atd</code> object above will otherwise behave identically to the
+[Shadow controller example](<%= path "guides/controller/shadow/#Instantiating_the_Controller" %>).
+
+#### Typical Integration
+
+Application environments designed in this manner are a fairly recent development, and the best
+practices for how to build them are probably still to emerge.
+
+However here is one approach that would work;
+first the top-level controller would be created and managed by the top-level test engineer:
+
+~~~ruby
+class EagleController
+  include Origen::Controller
+
+  model path: "$model"
+
+  # Instantiate a model whenever a new controller is instantiated
+  def initialize(options = {})
+    $model = Eagle.new(options)
+  end
+
+  # Instantiate an ATD controller as required
+  def atd
+    @atd ||= ATDTestBlock::ATDController.new
+  end
+end
+~~~
+
+The target would instantiate the top-level controller, not the model:
+
+~~~ruby
+$dut = EagleController.new
+~~~
+
+The ATD API is now available within the ecosystem as per the [Shadow controller example](<%= path "guides/controller/shadow/#Typical_Integration" %>):
+
+~~~ruby
+$dut.atd.convert(10)  # => <BitCollection>
+~~~
+
+% end

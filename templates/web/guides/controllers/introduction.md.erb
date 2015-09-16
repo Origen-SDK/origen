@@ -1,0 +1,42 @@
+% render "layouts/guides.html" do
+
+Controllers are a concept used for pattern generation and they are responsible for
+controlling a given model.
+
+As will be discussed in more detail in the [pattern generation section](<%= path "guides/pattern/introduction" %>),
+it is bad practice for any 3rd party to reach into a model and directly
+access its registers. This is because it tightly couples the 3rd party to the current
+implementation of the given IP, which means that if the IP changes in the future then all
+of the 3rd parties who directly access the model's internals may need to understand the
+change. This can lead to test bugs, brittle
+environments, and significant maintenance issues as an application begins to scale.
+
+Instead it is better for the model to expose a consistent API (a set of methods) to allow the
+3rd party to invoke the functionality provided by the given IP, while shielding them from
+the internal implementation details and the impact of future changes.
+Originally there was no concept of a controller and such an API was created directly
+within the model itself,
+however this led to the model being used for two distinct concerns:
+
+1. Modelling the properties of the silicon IP and tracking state
+2. Implementing an API for pattern generation
+
+The first concern can generally be thought of as the responsibility of the design engineer,
+it is an immutable and unambiguous representation of the hardware as it was at the point
+when it taped out. As such, it never really changes until a new version of the hardware is released.
+
+The second concern has a different owner, the test engineer, and it is also much more fluid - 
+new functions can be added and the implementation of existing functions can change over time.
+
+It therefore made sense to separate these two completely different responsibilities given
+their completely different ownership models and lifecycles. So a given IP now has the following
+components in the Origen domain:
+
+1. A model - responsible for modelling the hardware properties of the IP and tracking its state
+2. A controller - responsible for implementing an API to control the IP within test patterns
+
+A significant advantage of this architecture is that it allows the model to be created manually
+at first, and then later swapped out for a fully or partially imported model with no changes required
+to the controller or the wider ecosystem.
+
+% end
