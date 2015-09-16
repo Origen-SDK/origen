@@ -37,6 +37,7 @@ module Origen
       # to find out about more information on the note.
       attr_accessor :internal_comment
 
+      # Initialize the class
       def initialize(id, type, options = {})
         @id = id
         @type = type
