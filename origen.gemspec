@@ -52,7 +52,8 @@ Gem::Specification.new do |spec|
 
   # Conditional logic in development dependencies is allowed as this is only evaluated when
   # the app is run from its own workspace
-  unless RUBY_PLATFORM == 'i386-mingw32'
+  # Added support for Ruby running on Windows x64
+  unless RUBY_PLATFORM == 'i386-mingw32' || RUBY_PLATFORM == 'x64-mingw32'
     spec.add_development_dependency "stackprof", "~>0"
   end
   spec.add_development_dependency "origen_core_support", "0.2.1"
