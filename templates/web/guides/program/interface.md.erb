@@ -1,0 +1,166 @@
+% render "layouts/guides.html" do
+
+To re-cap the purpose of an interface is to translate your behavioral
+description of the test flow into a test program for a specific ATE
+platform.
+This step is where most of the work comes in and interfaces can grow to
+be quite large pieces of code depending on the complexity of your flow.
+
+An interface is a regular Ruby class which would be created in your lib
+directory.
+Continuing with the vreg example and assuming that all of our code was
+[namespaced](<%= path "guides/models/naming" %>) in the Vreg module,
+we could create an initial interface like this:
+
+~~~ruby
+# lib/vreg/interface.rb
+module Vreg
+  class Interface
+    include OrigenTesters::ProgramGenerators
+
+    # The methods called by the flow files will be implemented here
+  end
+end
+~~~
+
+#### Required Methods
+
+For an interface to run it must implement all of the methods that will be called
+by your flow.
+It is also customary to create an initialize method that will capture any options
+that are passed in to <code>Flow.create</code> (such as declaring the environment
+as probe in our flow example).
+
+Here is an interface shell to handle the test flow that we created in the previous
+section:
+
+~~~ruby
+# lib/vreg/interface.rb
+module Vreg
+  class Interface
+    include OrigenTesters::ProgramGenerators
+
+    # Add a regular attribute to our interface to allow us to query the
+    # execution environment
+    attr_reader :environment
+
+    # Any options passed to Flow.create can be captured here and assigned
+    # to instance variables which can be used later to modify the output from
+    # your other interface methods.
+    def initialize(options={})
+      options = {
+        environment: :ft,  # Set the environment to FT unless otherwise specified
+      }.merge(options)
+      @environment = options[:environment]
+    end
+
+    # Record the given message to the datalog
+    def log(msg, options={})
+    end
+
+    # Create a functional test and call it from the flow
+    def func(name, options={})
+    end
+
+    # Create a parametric test and call it from the flow
+    def para(name, options={})
+    end
+
+  end
+end
+~~~
+
+Note that you do not need to define methods to handle the
+[Flow Control API](<%= path "guides/program/flowapi" %>), the included generator
+module will already take care of those.
+
+At this point you can now generate your flow for the first time to make sure
+that there are no methods missing:
+
+~~~text
+origen p path/to/your/flow.rb
+~~~
+
+All being well this should run cleanly without actually generating any of your tests,
+if you get some errors your should be able to work out what methods need to be added to
+your interface from the error messages.
+
+The contents of these methods will be discussed in the following platform-specific
+section of the test program guide.
+
+#### Avoiding Duplicate Tests
+
+The astute reader may at this point note that the intention of the above methods
+is to both generate a test and to add it to the flow. Well how do we avoid duplicate
+tests from being generated if the same method is called multiple times within the same flow?
+
+The answer is that you don't need to worry about this, Origen will take care of suppressing
+duplicate entries in things like a test instance or a test pattern file, depending on the
+needs of the target platform.
+So your interface does not need to keep track of details like whether a test has previously
+been generated or not. Just generate all the resources required to run a particular test
+every time that your method is called and Origen will take care of optimizing it.
+
+When assessing whether or not a test already exists Origen does not simply just look at the
+name, all of the attributes of a particular test are considered as well. If a test of the
+same name already exists but with different attributes then Origen will create a new test
+and apply a version of '_v1' to the original test and '_v2' to the new one. The flow will
+call the correct version at the correct place as you would expect.
+
+Generally you should keep an eye on what is being generated and if you start to see
+'v1' or 'v2' tests being generated then it is a sign that your test naming
+convention is not including some detail that is required to uniquely identify each test.
+So while the program generated will be functionally correct, it will not be obvious to
+a user of the test program what the difference is between 'test_v1' and 'test_v2'.
+For example say that your test name does not include the vdd, yet your flow generates the same
+test to run at min, nom and max vdd. In that case Origen will generate these as versions
+1, 2 and 3.
+Adding the vdd to you test names would resolve this problem and the program would now
+include tests called 'test_min', 'test_nom' and 'test_max' which is much more
+descriptive.
+
+If you are not comfortable with this approach for some reason and would prefer separate
+control over test generation and flow insertion then Origen also supports a
+a more traditional workflow where you can generate a library of tests and then call them
+from a separate flow definition.
+How to do that is discussed in the [Resources](<%= path "guides/program/resources" %>)
+section.
+However the combined test generation and flow insertion is the recommended way and
+fully leverages Origen's unique ability to completely generate a new test from adding a single
+line to the test flow (once you have an interface already setup).
+
+#### Additional Methods
+
+The interface can also define whatever additional methods it needs to help implement
+the main flow API.
+In this example, let's just add the following method to help us generate the full
+test names:
+
+~~~ruby
+# lib/vreg/interface.rb
+
+def namer(basename, options={})
+  name = basename
+  if options[:vdd]
+    # In our world let's have the convention that if the vdd is not included in
+    # the name then it is nominal, otherwise it will be in the name
+    unless options[:vdd] == :nom 
+      name = "#{name}_#{options[:vdd]}"
+    end
+  end
+  name
+end
+~~~
+
+In reality some interfaces can get quite complex, and breaking the code down to additional
+Ruby class or modules is common.
+
+#### Re-using Interface Methods
+
+The interface, or portions of it, can be easily extracted to a plugin
+for future use in another application.
+
+See the [Origen Plugins](<%= path "guides/plugins/introduction" %>)
+section for details on how to do this.
+
+% end

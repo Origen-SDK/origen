@@ -1,0 +1,56 @@
+% render "layouts/guides.html" do
+
+Origen provides a powerful object-oriented test program generator which has a
+unique architecture which fully separates an application's test flow logic
+from its implementation on a given test platform.
+
+This architecture offers many advantages but most notably:
+
+* It is extremely efficient. Adding additional tests is very quick after you have
+  initially bootstrapped your program generator, in many cases only requiring
+  one line to be added to your source code.
+* It keeps you sane. As test flows and programs get larger and larger it really
+  helps to be able to use object-oriented programming techniques to keep
+  everything organized.  
+* It eliminates bugs. The architecture encourages you to write the least amount of
+  code possible to create a new test, this maximizes the re-use of working code
+  and reduces the number of moving parts and opportunities for bugs to occur. 
+* It supports multi-platform and documentation. The same test flow source file
+  can be used to generate the program on different platforms, including
+  creating documentation of the test program.
+* Dynamic custom code is supported. Custom VB/C++ code can be compiled through
+  Origen, this eliminates the need to keep DUT configuration information in your
+  test program code - write it to support a single device, then modify it later
+  to work with another configuration with Origen.
+
+#### Architecture
+
+An overview of the program generator architecture is shown below:
+
+<p style="text-align: center">
+  <img src="http://origen-sdk.org/img/prog_gen.png" width="700" height="410">
+</p>
+
+Origen provides a rich generator for each supported platform, this takes care of
+all formatting concerns and tries to automate some details of the platform API which
+can be particularly error prone - for example flow control logic.
+
+The application then provides a Flow file which contains a behavioural description
+of each test and the order that they should be executed in.
+<strong>Note that there should be no consideration given to the underlying platform implementation
+of the test at this level</strong>, the job of the flow is to describe the electrical
+properties of each test and pattern dependencies, but should not worry about things
+like test instances, interpose functions, test methods, etc.
+
+The application must then provide an interface which has
+the job of translating the flow definition to the one or more of the target test platform APIs.
+For example the interface may say "ok when the flow asks
+for a functional test then create a new patset, create a new functional test instance
+which will reference that patset, setup the instance based on the electrical
+properties of the test, and then finally add an entry in the flow sheet".
+
+In this way the tedium of having to create a test instance, then a pattern set, then
+a flow entry, then go back to the test instance because you named the pattern set
+wrong, etc, etc...is eliminated along with many opportunities for errors.
+
+% end

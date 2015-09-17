@@ -1,0 +1,78 @@
+% render "layouts/guides.html" do
+
+A big advantage that the Origen program generator has over other
+tools is that even if you need to generate a test program file that is not
+officially supported by the generator you can easily work around it 
+by dropping down to a template for that specific section of the program.
+
+A nice offshoot of this capability is that any custom code in your
+test program (such as custom Visual Basic or C++ code for example) can be
+dynamically generated via code templates.
+
+#### A Dynamic VB Example
+
+Generally using templates within the context of a test program is the same
+as using them in any other context and therefore the
+[Compiler Guide](<%= path "guides/compiler/introduction" %>) should be consulted
+for more details on the compiler syntax that should be used.
+
+For a tester oriented example here is a snippet of some VB code that has been
+marked up with Origen compiler directives:
+
+~~~eruby
+NUM_VREGS = <%= "<" + "%= $dut.vregs.size %" + ">" %>
+
+' Now initialize DUT variables for each site
+For lSite = 0 To lSiteCnt
+  With oDUTData(lSite)
+    Call .Clear
+<%= "%" %> $dut.vregs.each do |vreg|
+    Call .AddVreg(<%= "<" + "%= vreg.nominal_level %" + ">" %>)
+<%= "%" %> end
+  End With
+Next
+~~~  
+
+So for a device with a 1.2V and a 3V regulator this would compile to:
+
+~~~text
+NUM_VREGS = 2
+
+' Now initialize DUT variables for each site
+For lSite = 0 To lSiteCnt
+  With oDUTData(lSite)
+    Call .Clear
+    Call .AddVreg(1.2)
+    Call .AddVreg(3)
+  End With
+Next
+~~~  
+
+Whereas for a device with only a single 1.2V regulator we would end up with:
+
+~~~text
+NUM_VREGS = 1
+
+' Now initialize DUT variables for each site
+For lSite = 0 To lSiteCnt
+  With oDUTData(lSite)
+    Call .Clear
+    Call .AddVreg(1.2)
+  End With
+Next
+~~~  
+
+#### Building Dynamic Code
+
+Compiling any templates that form part of your test program can be co-ordinated
+within a Resources file by calling the <code>compile</code> method.
+Any option arguments passed in will be available within the <code>options</code>
+hash within the template.
+
+~~~ruby
+Resources.create do
+  compile "templates/j750/vreg_funcs.bas", max_vdd: 5.V
+end
+~~~
+
+% end

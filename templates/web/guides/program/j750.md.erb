@@ -1,0 +1,514 @@
+% render "layouts/guides.html" do
+
+Be sure to read and understand the guide to
+[Creating an Interface](<%= path "guides/program/interface" %>) before
+reading this section.
+This guide will describe the API to generate J750/IG-XL test program 
+components from within an interface file.
+
+To re-cap this is the shell required to implement an interface: 
+
+~~~ruby
+# lib/vreg/interface.rb
+module Vreg
+  class Interface
+    include OrigenTesters::ProgramGenerators
+
+    # An example method that can be called from your test flow to generate a functional test
+    def func(name, options={})
+      # If your interface supports multiple platforms, add conditional logic like this, if you
+      # only ever want to support one platform then you don't need this
+      if tester.j750?
+        # Functional test implementation for J750
+      elsif tester.v93k?
+        # Functional test implementation for V93K
+      end
+    end
+
+  end
+end
+~~~
+
+The <code>OrigenTesters::ProgramGenerators</code> will provide the interface
+with access to all of the platform generator APIs for the platforms that it supports.
+
+If your interface supports multiple platforms then add conditional logic to separate
+them as shown above.
+
+### Creating a Test Instance
+
+When generating a J750 program most of the effort is in generating the test
+instances. To start with the basic method of creating and decorating test instance
+objects will be discussed and then at the end of this section some recommendations
+will be given on how to structure your test instance generation methods.
+
+The method <code>test_instances</code> returns an instance of
+<code>OrigenTesters::IGXLBasedTester::J750::TestInstances</code> which provides additional
+methods to generate new test instances.
+The [API](http://origen-sdk.org/testers/api/OrigenTesters/IGXLBasedTester/J750/TestInstances.html)
+should be consulted for the most up to date information on the methods available.
+
+A new test instance can be instantiated like this:
+
+~~~ruby
+test_instances.add(:vreg_func, :functional)
+~~~
+
+This one line of code does a lot of things:
+
+* Creates a new test instance sheet if one doesn't exist already
+* Instantiates a new test instance object
+* Sets its name to 'vreg_func'
+* Applies the default attributes for a J750 functional test instance
+  (basically the same attributes that would be present when you added a new functional
+  test instance within IG-XL)
+* Adds the new test instance to the test instance sheet  
+
+If you were to add that line and generate your program you would now get
+a test instance sheet generated with a single functional test instance in it
+called 'vreg_func'. Not bad.
+
+Convenience methods exist where you can call a method named after the type of the test instance,
+this is equivalent:
+
+~~~ruby
+test_instances.functional(:vreg_func)
+~~~
+
+You will of course want to decorate your new test instance with attributes that are specific
+to your application, to do that you simply assign the returned instance to a variable and
+then you can programmatically set the attributes that you want.
+For example:
+
+~~~ruby
+ins = test_instances.functional(:vreg_func)
+ins.ac_category = "Spec"
+ins.ac_selector = "Default"
+ins.time_sets = "Tim"
+ins.pin_levels = "Lvl"
+~~~
+
+The name of these methods is the underscored (to align with general Ruby conventions)
+version of the name in the IG-XL columns headers and they should hopefully be very
+intuitive.
+
+Note that you don't need to do anything here to save or push the instance into the sheet,
+this will all be done automatically.
+
+Attributes can also be passed in when instantiating the new instance, this is equivalent
+if you prefer:
+
+~~~ruby
+ins = test_instances.functional :vreg_func, ac_category: "Spec",
+                                            ac_selector: "Default",
+                                            time_sets: "Tim",
+                                            pin_levels: "Lvl"
+~~~
+
+#### Instance Type Specific Attributes
+
+Additional methods will be available depending on the instance type that you
+specified.
+For example in our functional instance we can set the pattern and call a pre-test
+interpose function like this:
+
+~~~ruby
+ins.pattern = "vreg_functional"
+ins.pre_test_func = "someInterposeFunc"
+~~~
+
+Again the method names should hopefully be intuitive and should correspond to
+the IG-XL names.
+
+To see what the method names are called refer to the <code>TEST_INSTANCE_ALIASES</code> constant
+definition at the top of the
+[J750 TestInstance API](http://origen-sdk.org/testers/api/OrigenTesters/IGXLBasedTester/J750/TestInstance.html).
+
+#### Supported Test Instance Types
+
+Currently supported test instance types are (although check the
+[API](http://origen-sdk.org/testers/api/OrigenTesters/IGXLBasedTester/J750/TestInstances.html) for the latest
+information):
+
+* functional
+* board_pmu (bpmu)
+* pin_pmu (ppmu)
+* other
+* empty
+
+If you need a different type you can still call the add method, the difference in the
+returned instance for an unrecognized type is:
+
+* The instance will be completely empty and all attributes will need to be
+  added by your application code.
+* The named attribute methods will not be available. 
+
+The latter means that instead of using convenience methods to set the attributes you
+will need to use argX format instead, where argX corresponds to the column name
+in IG-XL.
+
+So the previous example of adding a pattern and interpose function call to our functional
+instance could be re-written as shown below:
+
+~~~ruby
+ins.arg0 = "vreg_functional"
+ins.arg3 = "someInterposeFunc"
+~~~
+
+You would also need to configure the basic attributes such as the template type and name.
+To get an idea of what is required refer to the <code>TEST_INSTANCE_DEFAULTS</code> constant
+definition near the top of the
+[J750 TestInstance API](http://origen-sdk.org/testers/api/OrigenTesters/IGXLBasedTester/J750/TestInstance.html).
+
+If you do find yourself in this situation please get in touch via 
+[the community channels](<%= path "community" %>) and
+we can quickly work with you to add the new instance type to Origen, then the names attribute
+methods will be available for everyone.
+
+#### What Are the Defaults?
+
+Generally the test instance defaults should match exactly what you get from IG-XL (that is
+the intention at least).
+
+To see what the defaults are for a given test instance type refer to the <code>TEST_INSTANCE_DEFAULTS</code> constant
+definition near the top of the
+[J750 TestInstance API](http://origen-sdk.org/testers/api/OrigenTesters/IGXLBasedTester/J750/TestInstance.html).
+
+#### Helper Methods
+
+A number of helper methods are available to make test instance generation easier.
+
+A good example is setting the current range of a parametric test instance where the value
+stored in the IG-XL workbook is not at all intuitive and bears little resemblance to the numeric
+range value that it represents.
+A [set_irange](http://origen-sdk.org/testers/api/OrigenTesters/IGXLBasedTester/Base/TestInstance.html#set_irange-instance_method)
+method is available to help, here are some examples:
+
+~~~ruby
+ins.set_irange(:smart)
+ins.set_irange(ua: 2)
+ins.set_irange(2.uA) # Same as above
+ins.set_irange(ma: 200)
+ins.set_irange(0.2) # Same as above
+ins.set_irange(a: 0.2) # Same as above
+~~~
+
+A useful pattern when using this method is just to set the range to the test upper
+spec limit, Origen will then take care of rounding this to the correct range.
+
+See the
+[J750 TestInstance API](http://origen-sdk.org/testers/api/OrigenTesters/IGXLBasedTester/J750/TestInstance.html)
+for details on the currently available helper methods.
+
+If you have a good helper method in your application that you think would be a
+useful addition to Origen please do create a pull request with the additions to the
+[Origen Testers plugin](https://github.com/Origen-SDK/origen_testers).
+
+#### Avoiding Duplicate Test Instances
+
+Your interface does not need to keep track of duplicate instances, Origen will automatically
+get rid of them.
+See the discussion "Avoiding Duplicate Tests" in the
+[Creating an Interface](<%= path "guides/program/interface" %>) guide.
+
+#### A Note on Test Instance Groups
+
+IG-XL has the concept of a test instance group, that is a group of test instances that
+you can call from a single line in the test flow. However the syntax for this in the test instance
+sheet does not lend itself to easy generation - 
+that is a test instance with the same name as an existing one will be treated as a group if
+they occur next to each other, whereas it will be a validation error if they are apart.
+This poses some problems for Origen when it comes to test instance generation - how does it
+know when the instance your application has requested is a duplicate that should be screened
+vs. an intentional generation of a group?
+
+To avoid pushing responsibility of duplicate tracking to the application there is a dedicated
+method for generating groups. Any instances generated within the given block of code will
+be treated as a group:
+
+~~~ruby
+test_instances.group("vreg_func_all") do |group|
+  $dut.vregs.each_with_index do |vreg, i|
+    test_instances.functional("vreg_func")
+  end
+end
+~~~
+
+See the [group method API](http://origen-sdk.org/testers/api/OrigenTesters/IGXLBasedTester/Base/TestInstances.html#group-instance_method)
+for more details and examples.
+
+#### Structuring Your Instance Methods
+
+As mentioned at the start the vast majority of your J750 interface code will be concerned
+with generating test instances, so it pays to spend a bit of time up front thinking about
+how to organize this code into a maintainable architecture.
+
+The following techniques have proved to be useful in organizing the test instance generation
+for some very large and complex test flows.
+
+##### Create Base Instances
+
+Add methods to create base test instances, that is
+test instances which contains all of the attributes that every instance in your
+application will have.
+
+~~~ruby
+def base_instance(name, type, options={})
+  ins = test_instances.add(name, type)
+  ins.dc_category = "VREG"
+  if options[:vdd]
+    ins.dc_selector = options[:vdd].to_s.capitalize  # If :min, :max for example
+  else
+    ins.dc_selector = "Typ"
+  end
+  ins.ac_category = "Spec"
+  ins.ac_selector = "Default"
+  ins.time_sets = "Tim"
+  ins.pin_levels = "Lvl"
+  ins    # Remember to return the newly created instance object to the caller
+end
+
+def func(name, options={})
+  ins = base_instance(name, :functional, options)
+  # Additional functional specific configuration here
+end
+~~~
+
+This pattern can be extended to provide additional methods like "base_functional_instance", 
+"base_bpmu_instance" and so on.
+
+##### Use Decorator Methods
+
+A decorator method is a method that decorates (or adds to) a test instance with specific
+functionality.
+For example in the flagship Origen application, some of our functional test instances required match
+loop support while others did not, so we created a decorator that we could call to add
+this feature:
+
+~~~ruby
+def add_match(ins)
+  ins.post_test_f = "MatchBinFails"
+  ins.pat_flag_f = "MatchLoopPatFlagFunc"
+  ins.set_wait_flags :a
+end
+
+def func(name, options={})
+  ins = base_instance(name, :functional, options)
+  ins.add_match(ins) if some_logic_to_gate_this
+end
+~~~
+
+##### Split Your Application Instances into Logical Groups
+
+In the flagship application we found it best to conceptually split our test instance
+generators by application-specific types rather than by sticking to the IG-XL types
+like functional, BPMU, PPMU, etc.
+
+It is hard to give a universal example here since this area is so application specific,
+but to hopefully give you some food for thought...
+
+In the flagship application we had a lot of parametric tests and initially we went down the
+path of having an instance generation method for all BPMU tests and one for all PPMU tests.
+However within those groups some of the tests were very different and it led to a
+lot of complexity within those methods.
+
+When we took a step back and looked at our application our tests were not really split into
+2 types, rather they were comprised of 4 types - a high-voltage measurement, a high-voltage
+calibration, a low-voltage measurement and a low-voltage calibration.
+When we continued this process through our test flow as a whole we ended up with 14 different
+test classifications and we then added a method dedicated to generating the test instance
+for each one.
+
+You should probably not go down this path initially, but once you get a feel for the
+generation process and if your interface is starting to get complex, then this is a step
+to consider.
+
+### Creating a Pattern Entry
+
+The hard part is over, creating pattern sets and groups is trivial by comparison to
+creating test instances.
+A similar API is provided to generate pattern resources in your test program and a nice
+by product is that Origen will keep track of the referenced patterns and will produce a required
+list of patterns at the end (which you can then pass to the pattern generator).
+
+As with test instance generation Origen will deal with the suppression of duplicates in all
+cases.
+
+To add a pattern set call as follows:
+
+~~~ruby
+patsets.add("vreg_func_pset", pattern: "patterns/VREG/vreg_func.PAT")
+~~~
+
+Multiple patterns can be specified by passing an array as the 2nd argument:
+
+~~~ruby
+patsets.add("vreg_func_pset", [{pattern: "patterns/VREG/vreg_func.PAT"},
+                               {pattern: "patterns/VREG/vreg_global_subs.PAT", start_label: "subr"}
+                              ])
+~~~
+
+Creating pattern groups is identical, just substitute <code>patsets</code> with
+<code>patgroups</code>.
+
+Normally you would create a dedicated method for creating pattern sets to avoid
+duplication, something like this:
+
+~~~ruby
+def add_patset(name)
+  patsets.add("#{name}_pset", pattern: "patterns/VREG/#{name}.PAT")
+end
+~~~
+
+The pattern set or group object can be assigned to the pattern attribute of a test
+instance directly:
+
+~~~ruby
+def func(name, options={})
+  ins = test_instances.functional(name)
+  ins.pattern = add_patset(name)
+end
+~~~
+
+If you just want to add a pattern reference outside of a pattern set or group then
+add it to the <code>referenced_patterns</code> array to ensure that it gets added
+to the list of required patterns that is output from the program generation process:
+
+~~~ruby
+referenced_patterns << "some_vreg_pattern"
+~~~  
+
+### Creating a Flow Entry
+
+Within your interface the <code>flow</code> method will return an instance of
+the J750 flow generator which provides methods for adding tests and other entries
+to your test flow. See the [API](http://origen-sdk.org/testers/api/OrigenTesters/IGXLBasedTester/J750/Flow.html)
+for full details.
+
+So for example to enter a log print statement in the flow you can call:
+
+~~~ruby
+flow.logprint "Start of the vreg test section"
+~~~
+
+Going back to the earlier example from the [Creating Flows](<%= path "guides/program/flows" %>)
+guide we had this in our flow:
+
+~~~ruby
+log "Vreg test module"
+~~~
+
+This is probably the simplest method to implement in our interface:
+
+~~~ruby
+def log(msg)
+  flow.logprint(msg)
+end
+~~~
+
+The most common call will be to the <code>test</code> method which will insert a call
+to a test instance in the flow.
+**Note that it is recommended that you pass all options from the test flow into any flow methods,
+this ensures that any [flow control](<%= path "guides/program/flowapi" %>)
+logic will get implemented**.
+
+Here is a complete interface method for the first time that will generate a test instance,
+add a pattern set reference to it, and now finally call the instance from the
+test flow:
+
+~~~ruby
+def func(name, options={})
+  ins = test_instances.functional(name)
+  ins.pattern = add_patset(name)
+  flow.test(ins, options)
+end
+~~~
+
+The object returned from <code>flow.test</code> is an instance of
+[OrigenTesters::IGXLBasedTester::J750::FlowLine](http://origen-sdk.org/testers/api/OrigenTesters/IGXLBasedTester/J750/FlowLine.html)
+and this does provide a few methods that may be of use. However in general most of the
+methods are there to support flow control and it is not recommended that you use these
+directly, rather use the [flow control API](<%= path "guides/program/flowapi" %>) to
+do this.
+
+However it is recommended that you look at the
+[TESTER_FLOWLINE_ATTRS](http://origen-sdk.org/testers/api/OrigenTesters/IGXLBasedTester/J750/FlowLine.html),
+[ALIASES](http://origen-sdk.org/testers/api/OrigenTesters/IGXLBasedTester/Base/FlowLine.html),
+and [DEFAULTS](http://origen-sdk.org/testers/api/OrigenTesters/IGXLBasedTester/Base/FlowLine.html)
+definitions as this will tell you what the generator calls the IG-XL attributes. For example you can
+see that the test number attribute is called <code>tnum</code> and that this is also aliased
+to <code>'number'</code>.
+
+This means that you can set this attribute via this style (which is most useful
+for passing attributes through directly from the flow file):
+
+~~~ruby
+flow.test(ins, tnum: 10000)
+~~~
+
+Or it can also be set via a method call:
+
+~~~ruby
+flow_line = flow.test(ins)
+flow_line.tnum = 10000
+~~~
+
+It is recommended that you create a dedicated method for flow insertion as this gives you
+a single place to implement defaults and to perform any translation between what the flow has
+called an attribute and what the J750 generator would call it:
+
+~~~ruby
+def add_flow_entry(ins, options)
+  # Defaults
+  options = {
+    bin: 5,
+    tname: options[:tname] || options[:name] || ins.name,
+  }.merge(options)
+
+  # Some translations
+  options[:softbin] = options[:sbin] if options[:sbin]
+
+  # Add the flow entry
+  flow_line = flow.test(ins, options)
+
+  # Some final decoration
+  flow_line.continue_on_fail if options[:continue]
+
+  flow_line
+end
+~~~
+
+Here is an example interface method using this add to flow method:
+
+~~~ruby
+def func(name, options={})
+  ins = test_instances.functional(name, options)
+  ins.pattern = add_patset(name)
+  add_flow_entry(ins, options)
+end
+~~~
+
+Finally you may on occasion wish to call a test from your flow where the instance
+is not available - maybe the instance is generated by another test module for example.
+In this case the <code>:instance_not_available</code> option can be set to <code>true</code>
+to prevent Origen from trying to match up the flow with an instance object.
+
+~~~ruby
+flow.test("POR_INSTANCE", instance_not_available: true)
+~~~
+
+### What About My DC Specs?
+
+Other IG-XL sheets do not currently have generators available, although that is likely
+to change in the future.
+
+For now though the existing Origen-based applications have found that the other sheets tend
+to be simple enough that they can be easily handled via a template-based approach.
+
+To create a template simply build the sheet in IG-XL, export it to ASCII and this becomes
+your initial template, then add Ruby snippets as required to make parts of it dynamic.
+
+See the [Dynamic Custom Code](<%= path "guides/program/code" %>) guide for more details
+on how to compile a template automatically during a program generation process.
+
+% end
