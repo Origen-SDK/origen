@@ -2,9 +2,44 @@ module Origen
   module Specs
     # This class is used to store text information to help with documentation processes
     class Doc_Resource
-      attr_accessor :mode, :type, :sub_type, :audience, :table_title
-      attr_accessor :note_refs, :exhibit_refs, :before_table, :after_table, :doc_options
+      # Mode is part of the 4-D Hash for the Tables.  Corresponds to Spec 4-D Hash
+      attr_accessor :mode
 
+      # Type is part of the 4-D Hash for the Tables.  Corresponds to Spec 4-D Hash
+      # Usual values
+      #
+      # * DC -> Direct Current
+      # * AC -> Alternate Current
+      # * Temp -> Temperature
+      # * Supply -> Supply
+      attr_accessor :type
+
+      # SubType is part of the 4-D Hash for the Tables. Corresponds to Spec 4-D Hash
+      attr_accessor :sub_type
+
+      # Audience is part of the 4-D Hash for the Tables.  Corresponds to Spec 4-D Hash
+      attr_accessor :audience
+
+      # Table Title that should appear for the table.  If blank, generic Table Title will be used
+      # Hash is created from mode, type, sub_type, and audience.
+      attr_accessor :table_title
+
+      # Note References that should be referenced within the table title
+      attr_accessor :note_refs
+
+      # Exhibit References that should be referenced within the table title
+      attr_accessor :exhibit_refs
+
+      # DITA Formatted Text that appears before the table
+      attr_accessor :before_table
+
+      # DITA Formatted Text that appears after the table
+      attr_accessor :after_table
+
+      # Documentation Options that will change the appearance of the output.
+      attr_accessor :doc_options
+
+      # Initialize the Class
       def initialize(selector = {}, table_title = {}, text = {}, options = {})
         @mode = selector[:mode]
         @type = selector[:type]
@@ -18,6 +53,7 @@ module Origen
         @doc_options = options
       end
 
+      # Converts to an XML file.
       def to_xml
         tmp = {}
         tmp['mode'] = @mode unless @mode.nil?
@@ -67,15 +103,27 @@ module Origen
             unless @before_table.nil? && @after_table.nil?
               xml.paragraphs do
                 unless @before_table.nil?
-                  if @before_table.is_a? Nokogiri::XML::Node
-                    xml.before_table @before_table.inner_html
+                  if (@before_table.is_a? Nokogiri::XML::Node) || (@before_table.is_a? Nokogiri::XML::Element)
+                    xml.before_table do
+                      if @before_table.name == 'body'
+                        xml << @before_table.children.to_xml
+                      else
+                        xml << @before_table.to_xml
+                      end
+                    end
                   else
                     xml.before_table @before_table
                   end
                 end
                 unless @after_table.nil?
-                  if @after_table.is_a? Nokogiri::XML::Node
-                    xml.after_table after_table.inner_html
+                  if (@after_table.is_a? Nokogiri::XML::Node) || (@after_table.is_a? Nokogiri::XML::Element)
+                    xml.after_table do
+                      if @after_table.name == 'body'
+                        xml << @after_table.children.to_xml
+                      else
+                        xml << @after_table.to_xml
+                      end
+                    end
                   else
                     xml.after_table @after_table
                   end
