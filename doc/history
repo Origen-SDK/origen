@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_4_3"></a>
+<h1><a href="#v0_4_3">Tag: v0.4.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 18-Sep-2015 08:52AM
+
+
+Origen.add.rc will now return nil instead of a non-functional revision controller instance
+in the case where config.rc\_url is undefined
+
 <a class="anchor release_tag" name="v0_4_2"></a>
 <h1><a href="#v0_4_2">Tag: v0.4.2</a></h1>
 
