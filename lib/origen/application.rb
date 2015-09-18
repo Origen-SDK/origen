@@ -115,7 +115,7 @@ module Origen
             )
 
           end
-        else
+        elsif config.vault
           @revision_controller ||= RevisionControl::DesignSync.new(
             local:  root,
             remote: config.vault
