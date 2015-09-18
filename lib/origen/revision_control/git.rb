@@ -293,7 +293,7 @@ module Origen
       end
 
       def changes_pending_commit?
-        !(git('status --verbose', verbose: false).last =~ /^(no changes|nothing to commit)/)
+        !(git('status --verbose', verbose: false).last =~ /^(no changes|nothing to commit|nothing added to commit but untracked files present)/)
       end
 
       def initialize_local_dir
