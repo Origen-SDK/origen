@@ -1,11 +1,10 @@
 % render "layouts/guides.html" do
 
-A specifications or spec is defined as:
+[Dictionary.com](http://dictionary.reference.com/browse/specification?s=t) defines a specifications (or spec):
 
-*An act of describing or identifying something precisely or of stating a precise requirement*
+*a detailed description or assessment of requirements, dimensions, materials, etc., as of proposed building, machine, bridge, etc.*
 
-In Origen, the definition is refined to mean a parametric measure that has the following basic
-attributes:
+Origen refines spec to mean a parametric measure that has the following basic attributes:
 
 * Name
 * Symbol
@@ -150,8 +149,8 @@ found.  It also auto-adjusts the attribute column padding so no space is wasted.
 
 #### Specs and Modes in Detail
 
-Specs can be defined globally or within nested [sub_blocks](http://origen.freescale.net/origen/v2_4_0/api/Origen/SubBlock.html)
- or [controllers](http://origen.freescale.net/origen/v2_4_0/api/Origen/Controller.html).  A spec
+Specs can be defined globally or within nested [sub_blocks](http://origen-sdk.org/origen/api/Origen/SubBlock.html)
+ or [controllers](http://origen-sdk.org/origen/api/Origen/Controller.html).  A spec
 is defined in the context of a mode, even if it only has a single mode.  A mode is defined as
 a known device state with a unique name or id.  An simple example could be a basic PORESET
 that defines the clocking and register space state after turning a chip on.  The spec
