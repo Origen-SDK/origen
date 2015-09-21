@@ -45,6 +45,10 @@ module Origen
       end
     end
 
+    def inspect
+      "Controller: <#{self.class}:#{object_id}>"
+    end
+
     def is_a?(*args)
       if model
         super(*args) || model.is_a?(*args)

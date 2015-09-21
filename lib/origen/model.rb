@@ -27,6 +27,10 @@ module Origen
       end
     end
 
+    def inspect
+      "Model: <#{self.class}:#{object_id}>"
+    end
+
     def is_an_origen_model?
       true
     end
