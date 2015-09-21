@@ -552,6 +552,7 @@ module Origen
       # if tester && obj
       #  raise "You can only instantiate 1 tester, you have already created an instance of #{tester.class}}"
       # end
+      $tester = obj
       set_dynamic_resource(:tester, [obj])
     end
 

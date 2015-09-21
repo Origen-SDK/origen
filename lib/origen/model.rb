@@ -269,6 +269,22 @@ module Origen
       result
     end
 
+    # Used to proxy all method and attribute requests not implemented on the model
+    # to the controller.
+    #
+    # On first call of a missing method a method is generated to avoid the missing lookup
+    # next time, this should be faster for repeated lookups of the same method, e.g. reg
+    def method_missing(method, *args, &block)
+      if controller.respond_to?(method)
+        define_singleton_method(method) do |*args, &block|
+          controller.send(method, *args, &block)
+        end
+        send(method, *args, &block)
+      else
+        super
+      end
+    end
+
     private
 
     def _modes

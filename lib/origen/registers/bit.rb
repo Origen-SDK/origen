@@ -320,6 +320,7 @@ module Origen
         @read = true if @readable && @read_data_matches_write
         self
       end
+      alias_method :assert, :read
 
       # Sets the store flag attribute
       def store

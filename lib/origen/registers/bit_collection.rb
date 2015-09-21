@@ -255,6 +255,7 @@ module Origen
         end
         self
       end
+      alias_method :assert, :read
 
       # Returns a value representing the bit collection / register where a bit value of
       # 1 means the bit is enabled for the given operation.
@@ -387,6 +388,7 @@ module Origen
         @reg.request(:read_register, options)
         self
       end
+      alias_method :assert!, :read!
 
       # Normally whenever a register is processed by the $top.read_register method
       # it will call Reg#clear_flags to acknowledge that the read has been performed,

@@ -656,10 +656,10 @@ module Origen
       def request(operation, options = {}) # :nodoc:
         if operation == :read_register
           object = reader
-          owner.read_register_missing!(self) unless object
+          (Origen.top_level || owner).read_register_missing!(self) unless object
         else
           object = writer
-          owner.write_register_missing!(self) unless object
+          (Origen.top_level || owner).write_register_missing!(self) unless object
         end
         object.send(operation, self, options)
         self

@@ -618,12 +618,13 @@ module Origen
     end
 
     def write_register_missing!(reg)
+      klass = (try(:controller) || self).class
       puts ''
       puts ''
       puts <<-EOT
-You have made a request to write register: #{reg.name}, however the #{self.class}
-class does not know how to do this yet. You must implement a write_register
-method in the #{self.class} like this:
+You have made a request to write register: #{reg.name}, however the #{klass}
+class does not know how to do this yet. You should implement a write_register
+method in the #{klass} like this:
 
   def write_register(reg, options={})
     <logic to handle the writing of the reg object here>
@@ -634,12 +635,13 @@ method in the #{self.class} like this:
     end
 
     def read_register_missing!(reg)
+      klass = (try(:controller) || self).class
       puts ''
       puts ''
       puts <<-EOT
-You have made a request to read register: #{reg.name}, however the #{self.class}
-class does not know how to do this yet. You must implement a read_register
-method in the #{self.class} like this:
+You have made a request to read register: #{reg.name}, however the #{klass}
+class does not know how to do this yet. You should implement a read_register
+method in the #{klass} like this:
 
   def read_register(reg, options={})
     <logic to handle reading the reg object here>
