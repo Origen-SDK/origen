@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_5_2"></a>
+<h1><a href="#v0_5_2">Tag: v0.5.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 21-Sep-2015 08:11AM
+
+
+Removed branch restrictions from 'origen rc tag' when using Git by default. Restrictions
+will only be in place if app.config.rc\_workflow == :gitflow.
+
 <a class="anchor release_tag" name="v0_5_1"></a>
 <h1><a href="#v0_5_1">Tag: v0.5.1</a></h1>
 
