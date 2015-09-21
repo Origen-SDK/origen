@@ -1,3 +1,28 @@
+<a class="anchor release_tag" name="v0_5_1"></a>
+<h1><a href="#v0_5_1">Tag: v0.5.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 21-Sep-2015 08:01AM
+
+
+Targets/environments can now just instantiate top-level models and testers and they will be
+automatically assigned to $dut and $tester respectively.
+
+~~~ruby
+# target/eagle.rb
+Eagle.new
+OrigenTesters::J750.new
+
+# Somewhere else
+$dut      # => <eagle instance>
+$tester   # => <j750 instance>
+~~~
+
+Update to Origen::Model to proxy unrecognized methods to the model's controller.
+
+Made bits.assert an alias of bits.read.
+
 <a class="anchor release_tag" name="v0_5_0"></a>
 <h1><a href="#v0_5_0">Tag: v0.5.0</a></h1>
 
