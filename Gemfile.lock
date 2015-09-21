@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    origen (0.5.2)
+    origen (0.5.3)
       activesupport (~> 4.1)
       bundler (~> 1.7)
       coderay (~> 1.1)
@@ -180,3 +180,6 @@ DEPENDENCIES
   origen_doc_helpers (>= 0.2.0)
   origen_testers (~> 0)
   stackprof (~> 0)
+
+BUNDLED WITH
+   1.10.6

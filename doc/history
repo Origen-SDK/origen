@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_5_3"></a>
+<h1><a href="#v0_5_3">Tag: v0.5.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 21-Sep-2015 17:31PM
+
+
+Added concise inspect method to all controllers and models, this makes for much better
+browsing of a model's hierarchy in the console
+
 <a class="anchor release_tag" name="v0_5_2"></a>
 <h1><a href="#v0_5_2">Tag: v0.5.2</a></h1>
 
