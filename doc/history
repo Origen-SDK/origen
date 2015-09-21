@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_5_0"></a>
+<h1><a href="#v0_5_0">Tag: v0.5.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 21-Sep-2015 04:07AM
+
+
+Made 'dut' and 'tester' global methods e.g. allows tester.j750? from anywhere in addition
+to $tester.j750?
+
 <a class="anchor release_tag" name="v0_4_3"></a>
 <h1><a href="#v0_4_3">Tag: v0.4.3</a></h1>
 
