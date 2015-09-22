@@ -28,7 +28,11 @@ module Origen
     end
 
     def inspect
-      "Model: <#{self.class}:#{object_id}>"
+      if controller
+        "<Model/Controller: #{self.class}:#{object_id}/#{controller.class}:#{controller.object_id}>"
+      else
+        "<Model: #{self.class}:#{object_id}>"
+      end
     end
 
     def is_an_origen_model?
@@ -290,6 +294,10 @@ module Origen
     end
 
     private
+
+    def _controller=(controller)
+      @controller = controller
+    end
 
     def _modes
       @_modes ||= {}
