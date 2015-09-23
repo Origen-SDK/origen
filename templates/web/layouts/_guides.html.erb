@@ -127,7 +127,7 @@ title: Origen - Guides
 %# }
 
 %# render "doc_helpers/searchable.html", options.merge(:index => s, :root => "guides", :pdf_title => "Origen Guides") do
-% render "doc_helpers/searchable.html", options.merge(:index => s, :root => "guides") do
+% render "doc_helpers/searchable.html", options.merge(index: s, root: "guides", prompt: "Search the guides...") do
 
 <%= yield %>
 

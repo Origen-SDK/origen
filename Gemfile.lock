@@ -67,7 +67,7 @@ GEM
       nesty
       sinatra (>= 1.2.7)
     gems (0.8.3)
-    highline (1.7.6)
+    highline (1.7.7)
     http-cookie (1.0.2)
       domain_name (~> 0.5)
     httparty (0.13.6)
@@ -97,7 +97,7 @@ GEM
     origen_debuggers (0.5.1)
       origen (>= 0.2.6)
       origen_testers (>= 0.5.0)
-    origen_doc_helpers (0.2.0)
+    origen_doc_helpers (0.2.1)
       origen (~> 0.2, >= 0.2.1)
     origen_testers (0.5.1)
       origen (>= 0.4.0)
@@ -180,6 +180,3 @@ DEPENDENCIES
   origen_doc_helpers (>= 0.2.0)
   origen_testers (~> 0)
   stackprof (~> 0)
-
-BUNDLED WITH
-   1.10.6

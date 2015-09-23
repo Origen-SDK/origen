@@ -1,0 +1,207 @@
+% render "layouts/videos.html", id: "v2OsgmClfyU", title: "Create a Semiconductor ATE Pattern in 20 Minutes",
+%   summary: "Learn how to build a basic IP model and then use this to create a single-source pattern to target multiple ATEs and devices." do
+
+#### References
+
+* [Full source code on Github](https://github.com/Origen-Demos/1-pattern-in-20-minutes)
+* [Defining registers](<%= path "guides/models/registers" %>)
+* [Controllers](<%= path "guides/controllers/introduction" %>)
+* [Common tester API](<%= path "guides/pattern/common" %>)
+
+#### Code
+
+##### IP Model and Controller
+
+~~~ruby
+# lib/atd_test/atd.rb
+module ATDTest
+  class ATD
+    include Origen::Model
+
+    def initialize(options = {})
+      instantiate_registers(options)
+    end
+
+    def instantiate_registers(options = {})
+      reg :sc1, 0x0, size: 32 do |reg|
+        reg.bit 7, :coco, access: :ro
+        reg.bit 6, :aien
+        reg.bit 5, :diff
+        reg.bit 4..0, :adch
+      end
+
+      reg :r, 0x10, size: 32 do |reg|
+        reg.bit 15..0, :d
+      end
+    end
+  end
+end
+~~~
+
+~~~ruby
+# lib/atd_test/atd_controller.rb
+module ATDTest
+  class ATDController
+    include Origen::Controller
+
+    def convert(channel)
+      ss "Performing an ATD conversion on channel #{channel}"
+      sc1.adch.write!(channel)
+      tester.wait time_in_us: 100
+      sc1.coco.assert!(1)
+      r.d # Return the result bits
+    end
+  end
+end
+~~~
+
+##### Test Pattern
+
+~~~ruby
+# pattern/atd_convert_ch10.rb
+Pattern.create do
+  result = dut.atd0.convert(10)
+  result.store!
+end
+~~~
+
+##### Device Models and Controllers
+
+~~~ruby
+# lib/atd_test/falcon.rb
+module ATDTest
+  class Falcon
+    include Origen::TopLevel
+
+    def initialize(options = {})
+      instantiate_pins(options)
+      instantiate_registers(options)
+      instantiate_sub_blocks(options)
+    end
+
+    def instantiate_pins(options = {})
+      add_pin :tclk
+      add_pin :tdi
+      add_pin :tdo
+      add_pin :tms
+      add_pin :resetb
+      add_pins :port_a, size: 8
+    end
+
+    def instantiate_registers(options = {})
+    end
+
+    def instantiate_sub_blocks(options = {})
+      sub_block :atd, instances: 2, class_name: 'ATD',
+        base_address: [0x1000_0000, 0x1000_1000]
+    end
+  end
+end
+~~~
+
+~~~ruby
+# lib/atd_test/falcon_controller.rb
+module ATDTest
+  class FalconController
+    include Origen::Controller
+    include OrigenNexus
+
+    # Hook the Nexus module into the register API, any register read
+    # requests will use the Nexus by default
+    def read_register(reg, options = {})
+      nexus.read_register(reg, options)
+    end
+
+    # As above for write requests
+    def write_register(reg, options = {})
+      nexus.write_register(reg, options)
+    end
+
+    def startup(options)
+      pp 'Enter test mode' do
+        tester.set_timeset('func_25mhz', 40)   # Where 40 is the period in ns
+        pin(:tclk).drive!(1)
+        pin(:resetb).drive!(1)
+        nexus.jtag.write_ir(0x5, size: 8)
+        nexus.jtag.write_dr(0x25, size: 16)
+        tester.wait time_in_us: 100
+      end
+    end
+
+    def shutdown(options)
+      pp 'Reset the device' do
+        pin(:resetb).drive!(0)
+        pin(:tclk).drive!(0)
+      end
+    end
+  end
+end
+~~~
+
+~~~ruby
+# lib/atd_test/eagle.rb
+module ATDTest
+  class Eagle
+    include Origen::TopLevel
+
+    def initialize(options = {})
+      instantiate_pins(options)
+      instantiate_registers(options)
+      instantiate_sub_blocks(options)
+    end
+
+    def instantiate_pins(options = {})
+      add_pin :swd_clk
+      add_pin :swd_dio
+      add_pin :tclk
+      add_pin :resetb
+      add_pins :port_a, size: 8
+    end
+
+    def instantiate_registers(options = {})
+    end
+
+    def instantiate_sub_blocks(options = {})
+      sub_block :atd, instances: 2, class_name: 'ATD'
+    end
+  end
+end
+~~~
+
+~~~ruby
+# lib/atd_test/eagle_controller.rb
+module ATDTest
+  class EagleController
+    include Origen::Controller
+    include OrigenARMDebug
+    include OrigenSWD
+
+    def read_register(reg, options = {})
+      arm_debug.read_register(reg, options)
+    end
+
+    # As above for write requests
+    def write_register(reg, options = {})
+      arm_debug.write_register(reg, options)
+    end
+
+    def startup(options)
+      pp 'Enter test mode' do
+        tester.set_timeset('func_25mhz', 40)   # Where 40 is the period in ns
+        pin(:tclk).drive!(1)
+        pin(:resetb).drive!(1)
+        tester.wait time_in_us: 100
+      end
+    end
+
+    def shutdown(options)
+      pp 'Reset the device' do
+        pin(:resetb).drive!(0)
+        pin(:tclk).drive!(0)
+      end
+    end
+  end
+end
+~~~
+
+% end
