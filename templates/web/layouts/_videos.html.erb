@@ -12,7 +12,7 @@ title: <%= options[:title] %>
 % }
 
 %# render "doc_helpers/searchable.html", options.merge(:index => s, :root => "guides", :pdf_title => "Origen Guides") do
-% render "doc_helpers/searchable.html", options.merge(topic: "Videos", heading: options[:title], index: s, root: "videos", prompt: "Search the videos...") do
+% render "doc_helpers/searchable.html", options.merge(topic: "Videos", heading: options[:title], index: s, root: "videos", prompt: "Search the videos...", tab: options[:top_level_file].basename.to_s.sub(/\..*/, '')) do
 
 <p><%= options[:summary] %></p>
 
