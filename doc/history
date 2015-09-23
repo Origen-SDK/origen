@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_5_5"></a>
+<h1><a href="#v0_5_5">Tag: v0.5.5</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 23-Sep-2015 09:57AM
+
+
+Disabled 'origen fetch' command, this will be re-introduced in future once an Origen
+server is available
+
 <a class="anchor release_tag" name="v0_5_4"></a>
 <h1><a href="#v0_5_4">Tag: v0.5.4</a></h1>
 
