@@ -53,9 +53,9 @@ when '--version', '-v'
   require 'origen/commands/version'
   exit 0
 
-when 'fetch', 'f'
-  require 'origen/commands/fetch'
-  exit 0
+# when 'fetch', 'f'
+#  require 'origen/commands/fetch'
+#  exit 0
 
 when 'interactive'
   IRB.start
@@ -70,10 +70,10 @@ The following commands are available:
               new origen application workspace in "./my_app"
  interactive  Start an interactive Origen console (short-cut alias: "i"), this is just
               IRB with the 'origen' lib loaded automatically
- fetch        Automatically creates the workspace for the requested plugin and
-              populates the latest version of the plugin (short-cut alias: "f")
 
 Many commands can be run with -h (or --help) for more information.
   EOT
+  # fetch        Automatically creates the workspace for the requested plugin and
+  #              populates the latest version of the plugin (short-cut alias: "f")
   exit 0
 end
