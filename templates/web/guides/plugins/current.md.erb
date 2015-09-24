@@ -1,0 +1,77 @@
+% render "layouts/guides.html" do
+
+The current plugin is a concept that comes into play whenever a plugin provides pattern
+and test program sources to a parent application.
+
+The current plugin is selected in a similar way to the current target, either at 
+runtime to set the current plugin for a given job only:
+
+~~~text
+origen g atd_ramp --plugin atd_test
+~~~
+
+or the workspace default can be set via the <code>origen pl</code> command:
+
+~~~text
+origen pl atd_test
+~~~
+
+Identifying a current plugin performs two main functions:
+
+* Limits the search scope when dynamically searching for pattern sources and avoids
+  ambiguity over which pattern is being requested
+* Selects which application callbacks and configuration context should be enabled
+
+The first function is fairly self explanatory and means that Origen will search for the requested
+pattern only within the subset of all available patterns that are owned by the current plugin.
+The second function warrants some more discussion...
+
+Application instances (as defined in config/application.rb) are automatically registered
+as listeners into [Origen's callback system](<%= path "guides/misc/callbacks" %>) and this
+is often used to implement pattern generation features like
+[sourceless pattern generation](<%= path "guides/pattern/name" %>).
+
+That works fine when an application is running standalone, but once it starts to
+incorporate many plugin instances who can all synthesize pattern sources then we have a
+problem over which one to choose to fulfill a given request. Similarly there could be issues when
+a 3rd party callback listener kicks in when generating a completely unrelated pattern.
+
+The selection of the current plugin therefore gives Origen some help by specifying what area
+of the wider application should be enabled when generating a particular pattern.
+Ideally a more automated system would be developed for this, and it may be in future, but for
+now the current plugin concept solves the problem and doesn't seem to be much of an hindrance to
+use in practice.
+
+Aside from callbacks, the current plugin selection also selects which plugin's configuration
+overrides should be applied to a given generation job, see [the plugin configuration guide](<%= path "guides/plugins/app" %>)
+for some more discussion on this.
+
+#### Programmatically Setting the Current Plugin
+
+The current plugin can be set in Ruby code using the below API.
+
+~~~~~ruby
+Origen.app.plugins.current   = :atd_test    # Sets the default plugin
+Origen.app.plugins.temporary = :atd_test    # Temporarily sets the current plugin (for this thread only)
+Origen.app.plugins.temporary = nil          # Discard the temp plugin and set it back to the default
+Origen.app.plugins.current.name             # Returns current plugin name
+~~~~~
+
+A common usage pattern for modern 'BOM' style applications is to have a target corresponding to each
+main pattern type, which typically will correspond to the main plugins that are providing pattern
+sources to the application.
+
+The current plugin can therefore be set in the target and then forgotten about, such that it
+will automatically be set to the correct thing based on the current target:
+
+~~~ruby
+# target/atd.rb
+load "#{Origen.root}/target/dut.rb"  # Load and instantiate the DUT
+Origen.app.plugins.temporary = :atd_test
+
+# target/nvm.rb
+load "#{Origen.root}/target/dut.rb"  # Load and instantiate the DUT
+Origen.app.plugins.temporary = :nvm_test
+~~~
+
+% end

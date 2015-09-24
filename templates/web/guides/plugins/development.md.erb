@@ -1,0 +1,52 @@
+% render "layouts/guides.html" do
+
+Here are some basic development considerations that all plugin developers should
+follow:
+
+#### Use Semantic Versioning
+
+Use semantic versioning (e.g. v1.2.3) for the plugin application and
+respect the conventions.
+See [semver.org](http://semver.org/) for details on what is expected.
+
+The main takeaway is that breaking API changes are only allowed when changing the
+major version counter. In other words an application that depends on version
+1.1.0 of your plugin, should be able to run fine under version 1.99.0.
+
+#### Add Tests
+
+Consumers of the plugin should not have to keep their fingers crossed or
+extensively test at their end when pulling a new version of the plugin.
+The plugin itself needs to take responsibility for ensuring that things don't
+break between releases.
+
+Tests are most easily written using diffs - create some dummy patterns
+within the plugin application to fully exercise all methods, then make
+sure that the output remains consistent when making changes or adding new
+features.
+
+Additionally unit tests can be created using the Ruby Test::Unit or RSpec
+libraries (new Origen apps come pre-configured for the latter out the box).
+
+Origen core already does a good job of testing using both methods described above
+and can be consulted for examples.
+
+#### Use Namespaces
+
+The possibilities for naming clashes will increase as more Origen code is
+imported from shared plugins, therefore all plugins should be good
+citizens and ensure that they don't pollute the global namespace.
+
+All classes defined within a plugin should be contained within a module
+named after the plugin.
+
+See the section on namespacing here for more details - [Naming Models](<%= path "guides/models/naming" %>)
+
+#### Document as You Go
+
+Users of your plugin will appreciate good documentation, the easiest way
+to do this is to document your methods via useful descriptions as you
+write them. These descriptions can then be automatically extracted into API
+documentation later.
+
+% end

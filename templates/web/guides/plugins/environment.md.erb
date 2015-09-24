@@ -1,0 +1,28 @@
+% render "layouts/guides.html" do
+
+Your plugin development environment may need to be setup slightly
+differently compared to when working on a standalone application.
+
+If the plugin can function and be fully tested standalone, then no special
+consideration is required and it can be developed like a regular application.
+However in some cases you may need a receiving application to
+import the plugin to allow its
+functionality to be fully evaluated and tested.
+
+In that case setup up two workspaces: one for the plugin and another to be the receiving application.
+
+Within the receiving application's <code>Gemfile</code>, add a path reference to the plugin
+workspace like this:
+
+~~~ruby
+# Gemfile
+gem "atd_test", path: "/proj/origen_dev/thao/blocks/atd_test"
+~~~
+
+The receiving application will now be using the plugin from the workspace in exactly the same
+way as it would if it was imported through the Ruby gems system.
+
+Origen will not allow the receiving application to be tagged when a path reference is active,
+so you don't need to worry too much about forgetting to remove it!
+
+% end
