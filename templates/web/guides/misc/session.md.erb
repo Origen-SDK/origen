@@ -1,0 +1,97 @@
+% render "layouts/guides.html" do
+
+The session store can be used to persist information (or state) across Origen threads
+of execution within a given workspace.
+
+Setting the current target with <code>origen t</code> is a example
+of session information being used to setup some state that will persist into
+future Origen commands that are executed within that workspace, while having no bearing on what happens
+in other workspaces.
+
+To access the session store:
+
+~~~ruby
+Origen.app.session
+~~~
+
+The session is split into named stores which will be automatically created as soon as data
+is added to them,
+this gives application developers a namespace level to keep their data organized.
+
+The namespace returns a key-value store containing all of the values in that namespace:
+
+~~~ruby
+Origen.app.session.main      # => A key-value store
+Origen.app.session.blah      # => A different key-value store
+~~~
+
+Plugin developers should use a store named after their plugin, for example the <code>ATDTest</code>
+plugin would use:
+
+~~~ruby
+Origen.app.session.atd_test  # => A key-value store for use by the ATDTest plugin
+~~~
+
+To store values to the session simply set them like this:
+
+~~~ruby
+Origen.app.session.main[:exec_count] = 10
+~~~
+
+Unlike assigning values to a regular Hash variable, this value will survive between Origen
+threads - go on fire up an <code>origen i</code> session and try it out:
+
+~~~ruby
+Origen.app.session.main[:exec_count]    # => 10
+~~~
+
+Generally you can store hashes, arrays and even objects to the session although your
+mileage-may-vary with particularly rich objects. Note that in the case of storing objects the class
+definition must still be around when Origen tries to resurrect it from the session. i.e. you
+cannot store an object, delete the class definition for that object, and then materialize it
+from the session later. Similarly binary data cannot be stored to the session.
+
+For now no API is provided to delete things from the session, although you can set values to nil:
+
+~~~ruby
+Origen.app.session.main[:exec_count] = nil
+~~~
+
+#### A Practical Example
+
+In one of our applications, called 'NVM', there is a need to program firmware images
+that are provided by the design team.
+
+Rather than duplicate the firmware images in the design and test repositories they are typically
+imported from the design repository into the test workspace at runtime (on as as-required
+basis).
+It is critical to keep track of what version of the firmware exists locally so
+that if the production firmware version changes then the new version will be fetched, but if it
+is the same as what is already there then the user is not made to wait for a redundant import operation.
+
+In early Origen applications, significant logic had to be added to the application to implement
+such a system, but the availability of the session store now makes this trivial:
+
+~~~ruby
+# Return the associated firmware file, this will automatically fetch the new version
+# if the production firmware tag has changed since this was last called
+def firmware_file
+  path_to_local_file = "#{Origen.app.imports_dir}/firmware/production.hex"
+  f = Pathname.new(path_to_local_file)
+  if !f.exist? || Origen.app.session.nvm[:local_firmware_version] != production_tag
+    # Clear this up front as we won't know what we will have if the checkout fails
+    Origen.app.session.nvm[:local_firmware_version] = nil
+    firmware_rc.checkout("production.hex", force: true, version: production_tag)
+    Origen.app.session.nvm[:local_firmware_version] = production_tag
+  end
+  f
+end
+
+# Returns a revision controller to manage local import of firmware files
+def firmware_rc
+  @firmware_rc ||= Origen::RevisionControl.new remote: "sync://sync-15000:15000/nvm/firmware",
+                                                local: "#{Origen.app.imports_dir}/firmware"
+end
+~~~
+
+% end

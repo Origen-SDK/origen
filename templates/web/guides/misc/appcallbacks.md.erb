@@ -1,0 +1,72 @@
+% render "layouts/guides.html" do
+
+The callback pattern can also be used in application code where it can be used
+to provide applications and plugins with a de-coupled way to hook into each
+other's processes/flows.
+
+A call to all listeners for a specific callback method is made like this:
+
+~~~ruby
+Origen.listeners_for(:my_specific_callback_method).each do |listener|
+  listener.my_specific_callback_method(any: :options, you: :want, to: :pass)
+end
+~~~
+
+Callback handlers (the <code>my_specific_callback_method</code> in the example above) can be
+implemented in the application's (or plugin's) application.rb or any instantiated
+object that includes the <code>Origen::Callbacks</code> module (this is automatically
+included by <code>Origen::Model</code>).
+
+<div class="alert alert-danger">
+  <strong>Note:</strong> If adding the callback handler to the <code>config/application.rb</code> file in a
+  plugin, it will only be called when it is considered the current
+  plugin within its host application.
+  See <a href="<%= path "guides/plugins/current" %>">Current Plugin</a> for
+  more information on how to set the current plugin.
+</div>  
+
+#### A Practical Example
+
+Let's say in a test engineering scenario that the top-level model has some logic to generate
+some vectors to sync the DUT to the tester.
+Once the DUT has been sync'd individual test block owners may want to take some action within
+their models to reflect this change of events.
+
+Since this top-level model could potentially be used by many test blocks it is not
+practical for the top-level to maintain a list of them and call them individually.
+Instead it is better to use a callback pattern where the top-level broadcasts that
+an event has just taken place and then anyone who cares can listen for the broadcast
+and anyone who doesn't care need take no action.
+
+To implement such a system the top-level object can do this:
+
+~~~ruby
+class MySoC
+  include Origen::TopLevel
+
+  # Sync the DUT to the tester
+  def sync_up
+    # Logic to sync up the DUT goes here
+
+    # Now let everyone know that the DUT is now sync'd
+    Origen.listeners_for(:on_sync_up).each do |listener|
+      listener.on_sync_up
+    end
+  end
+end
+~~~
+
+Then in the test block code the test engineer who wants to do something on sync up
+can simply implement the necessary callback handler:
+
+~~~ruby
+class MyTestBlockModel
+  include Origen::Model
+
+  def on_sync_up
+    # Action to take when the DUT has been sync'd
+  end
+end
+~~~
+
+% end

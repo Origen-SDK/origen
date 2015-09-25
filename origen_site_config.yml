@@ -31,7 +31,7 @@ gem_use_from_system:
 #   # Without email_domain specified
 #   User.new("ax1234@company.com").email  # => "ax1234@company.com"  
 #email_domain: company.com
-#email_server: remotesmtp.company.net
+#email_server: smtp.company.net
 #email_port: 25
 
 # Required parameters to connect to your company's LDAP system

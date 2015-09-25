@@ -1,0 +1,538 @@
+% render "layouts/guides.html" do
+
+Callbacks provide a way for an application to hook into the Origen process
+and have the opportunity to modify the standard behavior in some way.
+
+This could also be accomplished by redefining any of Origen's code at application-level
+but that approach
+is not recommended since it leaves the application at risk of breaking if Origen ever
+makes changes to how things work internally.
+
+Callbacks on the other hand are an official API that will always work between releases.
+
+Note that it is very easy to add additional callbacks to Origen, so if you can see the need
+for one that is not already covered please [contact us via the community channels](<%= path "community" %>)
+to discuss.
+
+#### Registering Listeners
+
+Callbacks work by registering _listeners_ with Origen. As the Origen process executes
+it will come across various points where callbacks have been enabled and which will cause
+Origen to pause and ask all of the listeners if they have any code that they wish to execute.
+If so control will transfer to the listener who will execute something and who may or may not return
+control back to the Origen process when complete.
+
+In other words Origen will call-back to the application at various points during the process.
+
+A listener can be any object instance within your application and by default the application
+itself (as defined in <code>config/application.rb</code>) and any classes which include
+<code>Origen::TopLevel</code> or <code>Origen::Model</code>
+are already registered as listeners.
+
+Additional custom classes can be registered by simply including the callbacks module:
+
+~~~ruby
+module NVM
+  class CallbackHandlers
+
+    include Origen::Callbacks
+
+  end
+end
+~~~
+
+Note that listeners have to be object instances, so in the example above the listener is only
+registered when the application creates a new instance of <code>CallbackHandlers</code>.
+If an instance is never created then the callbacks implemented in that class will never be
+called.
+
+#### Persistent Listeners
+
+By default the pool of listeners is cleared out before a target load and they will be replaced
+by whatever objects are instantiated by the new target.
+In most cases this is the desired behavior and everything in the application will behave
+as you would expect.
+
+However in some cases it may be desired to setup callback listeners that will persist across
+target loads so that they keep listening for the entire duration of an Origen thread.
+This can be achieved by including the <code>PersistentCallbacks</code> module instead:
+
+~~~ruby
+module NVM
+  class PersistentCallbackHandlers
+
+    include Origen::PersistentCallbacks
+
+  end
+  # Instantiate an instance of this class immediately when this file is loaded, this object will
+  # then listen for the remainder of the Origen thread
+  PersistentCallbackHandlers.new
+end
+~~~
+
+A common use case is to use a persistent callback listener that implements <code>on_load_target</code> to
+implement common target behavior - i.e. implement logic that should run for every target.
+Most crucially plugins can take full advantage of this to augment all of the targets of their
+host application.
+
+#### Implementing a Callback
+
+Implementing a callback is simply a matter of implementing an agreed method name within a
+listener.
+
+So at each callback point the Origen code is basically:
+
+~~~ruby
+listeners.each do |listener|
+  if listener.respond_to?(callback_x)
+    listener.callback_x(arg_x, arg_y)
+  end
+end  
+~~~
+
+So any listeners which don't implement a specific callback are simply ignored.
+
+To enable the above callback our custom listener would be changed to:
+
+~~~ruby
+module NVM
+  class CallbackHandlers
+
+    include Origen::Callbacks
+
+    def callback_x(arg_x, arg_y)
+      if arg_x == :ft_pattern
+        puts "Final test not supported yet!"
+        exit 0
+      end
+      # Otherwise return to Origen
+    end
+
+  end
+end
+~~~
+
+As mentioned the application is already registered as a listener, so the above <code>callback_x</code>
+method could be added to <code>config/application.rb</code> and it would be called at the appropriate
+time.
+
+#### Calling Order
+
+If an application has mutliple listeners for the same callback then they will all get called,
+however the order that they are called in is undefined unless otherwise specified in the
+documentation for a particular callback (e.g. startup and shutdown callbacks).
+
+Generally if calling order is important the recommended approach is for the application to
+implement a single callback and then from there co-ordinate calling any additional application
+methods that need to be run.
+
+### Available Callbacks
+
+There now follows a listing of all available callbacks, these have been split up by function:
+
+* [Environment Setup](#environment_setup)
+* [Generation](#generation)
+* [Reset](#reset)
+* [Pattern Generation](#pattern_generation)
+* [Web Compiler](#web_compiler)
+* [Release Process](#release_process)
+
+<a class="anchor" name="environment_setup"></a>
+
+### Environment Setup
+
+#### on_create
+
+This callback is triggered immediately after the target is loaded.
+
+The intended use case is to allow the application to complete any target object initialization that may
+be dependent on other target objects. 
+In other words you can think of this like a regular <code>initialize</code> method but one where
+all objects instaniated by the target are guaranteed to be available.
+
+No return value is expected.
+
+~~~ruby
+include Origen::Callbacks
+
+def initialize
+  # Would be creating a target instantiation order dependency by doing this here
+  # tester.do_something
+end
+
+def on_create
+  # But not here
+  tester.do_something
+end
+~~~
+
+#### on_load_target
+
+This is basically an alias of on_create and it behaves in exactly the same way.
+
+Conceptually though it reflects a different way of using this callback: on_create can be thought of
+as an enhanced version of initialize at a model level, whereas on_load_target can be thought of as
+a way to augment all targets with common behavior.
+
+See the section on Persistent Listeners above for some more discussion on this.
+
+#### on_top_level_instantiated(top_level_object)
+
+This callback is triggered immediately after a top-level object (an object that includes the
+<code>Origen::TopLevel</code> module, normally an object representing the top-level of the SoC)
+is instantiated.
+
+
+No return value is expected.
+
+~~~ruby
+include Origen::Callbacks
+
+# Automatically instantiate a RAM model whenever a DUT model is instantiated, the size will
+# be determined by the ram_size attribute of the DUT
+def on_top_level_instantiated(dut)
+  $ram = MyPlugin::RAM.new size: dut.ram_size
+end
+~~~
+
+
+<a class="anchor" name="generation"></a>
+
+### Generation
+
+#### before_lsf_submission
+
+This callback is triggered immediately before submitting a batch of jobs to the LSF.
+
+No return value is expected.
+
+#### before_generate(options)
+
+This callback is triggered immediately before launching a generate operation, that is before
+starting the current batch of program generation, pattern generation or compile jobs.
+
+No return value is expected.
+
+#### before_generate_local(options)
+
+As above but only called when running locally.
+
+#### before_generate_remote(options)
+
+As above but only called when running on a remote LSF machine.
+
+
+<a class="anchor" name="reset"></a>
+
+### Reset
+
+The reset callbacks will kick in when the <code>reset</code> or <code>reset!</code> method
+is called on the top-level object.
+
+They will be executed in the following order:
+
+* **before_top_level_reset**
+* **shutdown** (reset! only)
+* **on_top_level_reset!** (reset! only)
+* **on_top_level_reset**
+* registers are reset here
+* **startup** (reset! only)
+* **after_top_level_reset**
+
+Generally with all reset callbacks the application code is not expected to take care of
+reseting registers or any other Origen-owned objects.
+Only state specifically setup by the application code should need to be teared down and
+re-established.
+
+#### before_top_level_reset
+
+Called as soon as the <code>reset</code> or <code>reset!</code> method is called on the
+top-level object and before any other reset activity takes place.
+
+This callback should not be used to generate reset vectors, use the <code>shutdown</code>
+callback for that.
+
+No return value is expected.
+
+~~~ruby
+def before_top_level_reset
+  @some_state_attribute = nil
+end
+~~~
+
+#### on_top_level_reset
+
+Called when the <code>reset</code> or <code>reset!</code> method has been called on the
+top-level object and after the top-level has been shutdown.
+
+No return value is expected.
+
+~~~ruby
+def on_top_level_reset
+  @some_state_attribute = nil
+end
+~~~
+
+#### on_top_level_reset!
+
+Called only when the <code>reset!</code> method has been called on the top-level object,
+otherwise the same as <code>reset</code>.
+
+#### after_top_level_reset
+
+Called at the very end of a reset sequence initiated by calling <code>reset</code>
+or <code>reset!</code> on the
+top-level object at which point the top-level has already been re-started.
+
+This callback should not be used to generate reset vectors, use the <code>startup</code>
+callback for that.
+
+No return value is expected.
+
+~~~ruby
+def after_top_level_reset
+  @some_state_attribute = nil
+end
+~~~
+
+
+<a class="anchor" name="pattern_generation"></a>
+
+### Pattern Generation
+
+
+#### startup(options)
+
+Called at the start of a Pattern.create block, this callback provides an opportunity to
+implement startup vectors.
+
+It will also be called as part of a within-pattern reset sequence initiated by calling
+<code>reset!</code> on the top-level object.
+
+Any options supplied to Pattern.create are passed in as an argument.
+
+The top-level (DUT) object is guaranteed to be called first for this callback, this enables
+the common case where the top-level will generate the mode entry vectors from
+this callback and then child modules can generate any additional vectors safe in the knowledge
+that mode has already been entered.
+
+No return value is expected.
+
+~~~ruby
+def startup(options)
+  tester.set_timeset("nvmbist", 40)
+  dut.pin(:reset).drive!(1)
+end
+~~~
+
+#### shutdown(options)
+
+Called at the very end of a Pattern.create block, this callback provides an opportunity to
+implement reset vectors.
+
+It will also be called as part of a within-pattern reset sequence initiated by calling
+<code>reset!</code> on the top-level object.
+
+Any options supplied to Pattern.create are passed in as an argument.
+
+The top-level (DUT) object is guaranteed to be called last for this callback, this enables
+the common case where the child modules can insert any shutdown/safe-state vectors before
+the top-level finally pulls reset.
+
+No return value is expected.
+
+~~~ruby
+def shutdown(options)
+  dut.pin(:reset).drive!(0)
+end
+~~~
+
+#### before_pattern(pattern_name)
+
+This callback is triggered immediately before running a Pattern.create block.
+
+At this point the target is fully loaded but the pattern is not yet opened - so you can't
+generate vectors from here.
+
+The intended use case for this callback is to establish state within your models based on the
+pattern name. This can be used in conjunction with a pattern name translator to generate
+variants of your existing patterns without having to create a new pattern source.
+
+No return value is expected.
+
+~~~ruby
+# If the requested pattern has 'trimmed' in the name then look for the equivalent
+# source file without 'trimmed' in the name.
+# The output pattern will still contain 'trimmed' in the name.
+config.pattern_name_translator do |name|
+  if name =~ /trimmed/
+    {source: name.gsub("trimmed_", ""), output: name}
+  else
+    name
+  end
+end
+
+# Setup the dut model differently if generating a pattern for a trimmed device
+def before_pattern(pattern_name)
+  if name =~ /trimmed/
+    dut.apply_default_trims = false
+  end
+end
+
+~~~
+
+#### before_pattern_lookup(requested_pattern)
+
+This callback is triggered before Origen searches for the requested pattern source.
+
+The intended use case is to give the application a chance to dispatch the pattern itself,
+or to decide to withhold it based on some properties of the current target.
+
+If the callback returns a value of false or nil then Origen will abort further processing
+of this pattern and move onto the next one.
+Origen will proceed to dispatch the pattern as normal
+if any other value is returned.
+
+~~~ruby
+def before_pattern_lookup(requested_pattern)
+  if requested_pattern =~ /blk_1/
+    # Only proceed with this pattern if the current target has a blk 1
+    dut.has_blk1?
+  else # Proceed as normal
+    requested_pattern
+  end
+end
+~~~
+
+#### pattern_generated(path_to_generated_pattern)
+
+This callback is triggered at the end of every pattern that is generated, the path to
+the generated file (wrapped in a Pathname) is passed to the listener.
+
+The intended use case is to give plugins a hook to kick off additional operations at the
+end of a pattern being generated, such as to go and simulate it or to compile it to a
+binary. Normally this callback would be implemented in a persistent listener within a plugin
+to have the plugin called after every pattern that is generated.
+
+No return value is expected.
+
+~~~ruby
+module VirtualTester
+  class PersistentCallbackHandlers
+    include Origen::PersistentCallbacks
+
+    def pattern_generated(path_to_generated_pattern)
+      if $vt_simulation_enabled  # Set this back when the command was launched or however you want to enable
+        VirtualTester::Runner.new(path_to_generated_pattern)
+      end
+    end
+  end
+  # Instantiate an instance of this class immediately when this file is required, this object will
+  # then listen for the remainder of the Origen thread
+  PersistentCallbackHandlers.new
+end
+~~~
+
+<a class="anchor" name="web_compiler"></a>
+
+### Web Compiler
+
+#### before_web_compile(options)
+
+This is called immediately prior to running the requested 'origen web compile' operation
+and it provides the application with an opportunity to dynamically generate some templates
+for the compiler to execute.
+
+No return value is expected.
+
+#### after_web_compile(options)
+
+This is called immediately after running the requested 'origen web compile' operation
+and provides the application with an opportunity to add anything else to the web/output
+directory.
+
+No return value is expected.
+
+
+<a class="anchor" name="release_process"></a>
+
+### Release Process
+
+#### validate_release
+
+This is called immediately prior to the release (origen rc tag) process and gives the application
+a chance to do any final checks to authorize that the release can go ahead.
+
+No return value is expected but the callback handler is expected to exit the process if
+it decides that the release should be aborted.
+
+Typically this hook would be used to launch the application's test suite and if it fails
+abort the process, here is an example:
+
+~~~ruby
+# Ensure that all tests pass before allowing a release to continue
+def validate_release
+  if !system("origen specs") || !system("origen examples")
+    puts "Sorry but you can't release with failing tests, please fix them and try again."
+    exit 1
+  else
+    puts "All tests passing, proceeding with release process!"
+  end
+end
+~~~
+
+#### before_release_tag(identifier, note, type, selector, options)
+
+This callback is triggered immediately before the application is tagged, all release properties
+are available in the arguments.
+
+No return value is expected.
+
+#### after_release_tag(identifier, note, type, selector, options)
+
+This callback is triggered immediately after the application has been tagged and before the
+release email has been sent.
+
+If the callback doesn't return then the release email will not be sent.
+
+No return value is expected.
+
+#### after_release_email(identifier, note, type, selector, options)
+
+Called at the very end of the release process.
+
+This callback is commonly used to kick off any doc builds or other post release tasks within
+the application.
+
+No return value is expected.
+
+~~~ruby
+# Example of automatically deploying documents after a tag
+def after_release_email(tag, note, type, selector, options)
+  command = "origen web compile --remote --api"
+  Dir.chdir Origen.root do
+    system command
+  end
+end
+~~~
+
+#### before_deploy_site
+
+Called immediately before a web site is deployed.
+
+This gives the application a chance to add any additional files to the web site
+before it is deployed.
+
+No return value is expected.
+
+~~~ruby
+# Generate a test coverage report and add it to the web site
+def before_deploy_site
+  Dir.chdir Origen.root do
+    system "origen specs -c"
+    system "mv #{Origen.root}/coverage #{Origen.root}/web/output/coverage"
+  end
+end
+~~~  
+
+% end

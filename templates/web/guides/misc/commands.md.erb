@@ -1,0 +1,226 @@
+% render "layouts/guides.html" do
+
+Applications can add their own custom commands to the Origen namespace which makes
+it very easy to distribute and document custom scripts that support the application environment.
+Of course like everything else these scripts will have full access to the device models
+by default.
+
+Commands should be added to the file
+<code>config/commands.rb</code> in the first instance
+and as they grow you can extract the larger commands out to their own files.  
+
+A skeleton <code>config/commands.rb</code> file should already exist in your application and
+when an <code>origen</code> command is launched via the command line Origen gives the application
+command file the first shot at fulfilling it.
+So in fact it is also possible to override the built-in commands if you ever have a need to do so.
+
+An empty command file has this structure:
+
+~~~ ruby
+aliases ={
+}
+
+# The requested command is passed in here as @command, this checks it against
+# the above alias table and should not be removed.
+@command = aliases[@command] || @command
+
+# Now branch to the specific task code
+case @command
+
+else
+  @application_commands = <<-END
+  END
+
+end 
+~~~
+
+When the command is launched the first argument, the command name, will be available in the instance
+variable <code>@command</code>.
+Your code should interrogate this variable to decide whether the command request is one that should be
+handled by your application, or else left for Origen to dispatch (in the skeleton commands file all
+requests are simply passed through to Origen by default).
+
+Let's say for example that we want to implement a command that will print the current time, we could
+accomplish this like so:
+
+~~~ ruby
+aliases ={
+  "time" => "current_time"
+}
+
+# The requested command is passed in here as @command, this checks it against
+# the above alias table and should not be removed.
+@command = aliases[@command] || @command
+
+# Now branch to the specific task code
+case @command
+
+when "current_time"
+  puts Time.now
+  exit 0
+
+else
+  @application_commands = <<-END
+ current_time      Print the current time (aliased as "time") 
+  END
+
+end 
+~~~
+
+The following points are worth noting from this example:
+
+* We implemented an alias of "time" for the "current_time" command. This means that it
+  can be launched either via <code>origen current_time</code> or the more succinct <code>origen time</code>. The
+  use of aliases is completely at your discretion and they are not required.
+* The command code should always complete with <code>exit 0</code>. This is to end the current command
+  request since otherwise the request will then fall through to Origen which will attempt to process it.    
+* You can document your commands via the <code>@application_commands</code> variable, this should
+  be a simple one liner that describes what your command does. This information will be available to the
+  user when they run <code>origen -h</code>. More detailed documentation for your command can be added
+  by adding support for command options (see below).
+
+#### Loading the Application
+
+Such commands will execute very quickly since they don't bother to load any of your
+application environment, but what if you need to access your models?
+
+The application will load automatically anytime you reference <code>Origen.app</code>, this
+will load your <code>config/boot.rb</code> file and all of your models and other logic
+will then become available.
+One other useful side effect of this for
+scripting purposes is that it will make the root directory of your application available
+via <code>Origen.root</code>.
+
+For example:
+
+~~~ruby
+MyClass.do_something    # => I want to access my code here but this is giving an error
+
+Origen.app   # Make a reference to the application, this will load it if is not already loaded
+
+MyClass.do_something    # => Now it works
+~~~
+
+#### Loading the Target
+
+See the dedicated section on [Programming the Runtime Environment](<%= path "guides/runtime/programming" %>).
+
+#### Handling Command Options
+
+Most scripts will benefit from giving the user some options to configure the behavior and this is easy to add.
+Any command arguments or options passed in by the user will be available via the <code>ARGV</code> array.
+
+<div class="alert alert-danger" markdown="1">
+
+#### Note!
+
+<code>-d</code> is a reserved option which you cannot use, Origen uses this to enable the debugger and will strip it
+out of <code>ARGV</code> before handing it over to your command code.
+</div>
+
+You can actually query this variable manually to decide what to do, but it is recommended that you use
+the Ruby [OptionParser](http://ruby-doc.org/stdlib-2.2.0/libdoc/optparse/rdoc/OptionParser.html) library
+which makes it very easy to both parse user options and to document them.
+
+Let's say that we wanted to give the user the ability to specify what format the time should be presented
+in by using the [strftime](http://www.ruby-doc.org/core-2.2.0/Time.html#method-i-strftime) method. This could
+be accomplished like this:
+
+~~~ ruby
+aliases ={
+  "time" => "current_time"
+}
+
+# The requested command is passed in here as @command, this checks it against
+# the above alias table and should not be removed.
+@command = aliases[@command] || @command
+
+# Now branch to the specific task code
+case @command
+
+when "current_time"
+  options = {}
+  opt_parser = OptionParser.new do |opts|
+    opts.banner = <<-END_DESC
+ origen time - This command will print the current time using the default Time
+               format, alternatively specify your own format via the -f option.
+    END_DESC
+    opts.on("-f", "--format FORMAT", String, "FORMAT should use strftime notation") { |t| options[:format] = t }
+    opts.separator ""
+    opts.on("-h", "--help", "Show this message") { puts opts; exit }
+  end
+  opt_parser.parse! ARGV
+
+  if options[:format]
+    puts Time.now.strftime(options[:format])
+  else
+    puts Time.now
+  end
+  exit 0
+
+else
+  @application_commands = <<-END
+ current_time      Print the current time (aliased as "time") 
+  END
+
+end 
+~~~
+
+Note the following in the above example:
+
+* We initially declare an empty hash called <code>options</code> which we will then populate based on the
+  user input.
+* <code>opts.banner</code> can be used to specify a detailed description of how the command works. This is
+  used in conjunction with the <code>-h</code> option which we have handled at the bottom. This should be
+  included in all of your commands to provided a consistent user interface, the user can now
+  run <code>origen time -h</code> to display the command description and a summary of all 
+  available options. The <code>-h</code> implementation is an example of how to handle Boolean options.
+* The <code>-f</code> option itself is implemented as an option that accepts a String parameter, which we
+  collect and place in the options hash to make it easily available to downstream code. This allows
+  the user to run <code>origen time -f "%Y"</code> for example which will display the current year only.
+
+#### Moving To a New File
+
+As your application becomes more complex you will find that you want to organize your commands better instead
+of having them all dumped into a single file.
+
+In this case we could extract the command code above into the application library, <code>lib/commands/current_time.rb</code>, 
+for example, and then include it like this:
+
+~~~ ruby
+aliases ={
+  "time" => "current_time"
+}
+
+# The requested command is passed in here as @command, this checks it against
+# the above alias table and should not be removed.
+@command = aliases[@command] || @command
+
+# Now branch to the specific task code
+case @command
+
+when "current_time"
+  require "commands/current_time"
+  exit 0
+
+else
+  @application_commands = <<-END
+ current_time      Print the current time (aliased as "time") 
+  END
+
+end 
+~~~
+
+#### More Examples
+
+This is obviously a very trivial example and real commands can grow to be infinitely complex.
+For some real world examples you can look at the implementation of the
+[built in Origen commands](https://github.com/Origen-SDK/origen/tree/master/lib/origen/commands)
+which have been implemented using the
+same techniques described above.
+
+Also be sure to check out the 
+[OptionParser](http://ruby-doc.org/stdlib-2.2.0/libdoc/optparse/rdoc/OptionParser.html) documentation
+which contains further examples and documentation on option parsing.
+
+% end

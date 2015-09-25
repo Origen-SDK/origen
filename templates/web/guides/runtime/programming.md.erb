@@ -6,7 +6,7 @@ reload the environment as discussed here:
 <a href="<%= path "guides/runtime/introduction/#How_the_Runtime_Environment_is_Applied" %>">How the Runtime Environment is Applied</a>
 </div>
 
-If you start [writing your own commands](<%= path "guides/custom/commands" %>)
+If you start [writing your own commands](<%= path "guides/misc/commands" %>)
 you may want to programmatically define or manipulate the target.
 
 A single target should always be loaded by using the following method, it
@@ -14,6 +14,13 @@ can be called again to later switch to a different target:
 
 ~~~ ruby
 Origen.load_target("falcon_1")
+~~~
+
+To load the default target, or to reload the current target, call the same method
+with no argument:
+
+~~~ ruby
+Origen.load_target
 ~~~
 
 <div class="alert alert-danger">

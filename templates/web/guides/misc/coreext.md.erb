@@ -1,0 +1,97 @@
+% render "layouts/guides.html" do
+
+Ruby allows for any object, including all of its core classes, to be extended with new or modified
+functionality and such modifications are typically known as core extensions.
+
+Origen adds a number of methods to Ruby to make it more useful for use in Origen applications and more generally
+within the semiconductor domain.
+
+For a complete list of the available extensions go to
+the [Origen API](<%= path "api" %>), click on **Class List** in the top-right, and then all of the
+classes listed under the **Top Level Namespace** contain extension. For example see
+the extensions added to the [String](<%= path "api/String.html" %>) class.
+
+Here now is a summary of some of the most useful helpers that are available:
+
+#### Unit Helpers
+
+When engineering semiconductor devices we often have to deal with very large or very small numbers, Ruby's
+numeric classes have been extended to support most common units and to make writing spec
+limits more descriptive, here are some examples:
+
+~~~ruby
+50        # => 50
+50.V      # => 50
+50.mV     # => 50E-03
+50.uA     # => 50E-06
+50.nS     # => 50E-09
+50.pA     # => 50E-12
+50.kHz    # => 50,000
+50.MHz    # => 50,000,000
+50.GHz    # => 50,000,000,000
+~~~
+
+#### Number Formatting Helpers
+
+Displaying numbers in hex or binary format is very common, some helpers exist for that:
+
+~~~ruby
+100.to_hex          # => "0x64"
+100.to_bin          # => "0b1100100"
+100.to_hex.to_dec   # => 100
+100.to_bin.to_dec   # => 100
+~~~
+
+#### Part Select
+
+Ruby does not natively support a Verilog style part select to allow the numeric value of a subset
+of bits to be extracted.
+Unfortunately the Ruby parser will
+never consider <code>0x1234[7:0]</code> to be valid due to Ruby's use of a colon to pre-fix
+symbol names.
+However with a little compromise we can get very close:
+
+~~~ruby
+number = 0x1234
+number[3..0]           # => 0x4
+number[7..0]           # => 0x34
+number[15..8]          # => 0x12
+~~~
+
+#### Try Method
+
+All objects within Origen have a <code>try</code> method to allow application developers to preferentially
+select the source of a given attribute. The first value provided by the first option to return a value
+will be returned, if none return a value then nil will be returned:
+
+~~~ruby
+# Take the value assigned to db_version if present, if not fall back to version
+$dut.try(:db_version, :version)                  # => 5
+$dut.try(:missing_method_x, :missing_method_y)   # => nil
+~~~
+
+#### Hash
+
+Hashes can be transformed to a version which will accept either string or symbol key references:
+
+~~~ruby
+# A standard hash
+my_hash = {:one => 1, "two" => 2}
+my_hash[:one]   # => 1
+my_hash["one"]  # => nil
+my_hash[:two]   # => nil
+my_hash["two"]  # => 2
+
+# A hash with indifferent access
+my_hash = my_hash.with_indifferent_access
+my_hash[:one]   # => 1
+my_hash["one"]  # => 1
+my_hash[:two]   # => 2
+my_hash["two"]  # => 2
+~~~
+
+Over time Origen will transition to returning this kind of hash to application-facing methods by
+default, but for now you can easily apply the transform on the application side if you want to use
+this feature.
+
+% end

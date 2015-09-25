@@ -1,0 +1,100 @@
+% render "layouts/guides.html" do
+
+This guide describes some APIs that are available to customize the output or behavior of
+your application to the current user, or to send emails to the current user or a group
+of users.
+
+To access an object representing the current user simply call <code>User.current</code>
+and from there many attributes can be accessed:
+
+~~~ruby
+User.current                # => <user object>
+User.current.name           # => "John Doe"
+User.current.email          # => "johndoe@example.com"
+~~~
+
+See the [User API](<%= path "api/Origen/Users/User.html" %>) for a full list of available
+attributes.
+Note that this is contingent on the current user setting up their name and email
+[as described here](<%= path "guides/starting/commit/#Setting_Your_Name_and_Email" %>).
+
+User objects for 3rd parties can be created by supplying a name and/or email like this:
+
+~~~ruby
+thao = User.new("thao@example.com")
+thao = User.new("thao@example.com", "Thao Huynh")
+~~~
+
+#### LDAP Integration
+
+Origen can be integrated with an LDAP employee directory, to enable this configure the LDAP
+attributes in [your company's Origen configuration](<%= path "guides/starting/company" %>).
+To look up a user within the LDAP system an ID is required, by default Origen will take the
+login name of the current Linux user as there ID.
+
+User objects can now be created by supplying a single ID argument:
+
+~~~ruby
+thao = User.new("b53254")
+~~~
+
+To see the full information that is available for a user:
+
+~~~ruby
+User.new("b53254").display   # => Prints a listing of all information available
+~~~
+
+All attributes returned by your LDAP system will have accessors, in most cases these will
+return an array:
+
+~~~ruby
+User.new("b53254").country    # => ["Vietnam"]
+~~~
+
+#### Sending Emails
+
+If details of your company's email server have been added to
+[your company's Origen configuration](<%= path "guides/starting/company" %>), then you can
+easily send emails from your application.
+
+An email can be sent to a given user by calling the <code>send</code> method on the user object,
+try this in the console to send yourself an email:
+
+~~~ruby
+User.current.send subject: "Hello", message: "Origen is cool!"
+~~~
+
+Multi-line emails can be composed using Ruby's multi-line string syntax:
+
+~~~ruby
+user = User.new("b53254")
+
+user.send subject: "Hello", message: <<-END
+Hi #{user.name},
+
+This is just a short email, to say hello!
+
+Cheers,
+#{User.current.name}
+END
+~~~
+
+Group emails can be sent by talking to the Origen mailer directly, an array of user objects or
+email addresses can be given to the <code>:to</code> option:
+
+~~~ruby
+message = <<-END
+Hi All,
+
+Just to say have a nice day!
+
+Thanks,
+#{User.current.name}
+END
+
+distribution_list = [User.new("r49409"), User.new("r6aanf")]
+
+Origen.mailer.send_email(subject: "Hello", to: distribution_list, body: message)
+~~~
+
+% end

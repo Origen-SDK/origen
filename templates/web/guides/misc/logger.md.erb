@@ -1,0 +1,52 @@
+% render "layouts/guides.html" do
+
+Every Origen thread will log output data to the console and to the files in the log directory.
+
+Currently, Origen implements 5 types of logging messages and they can be called globally as shown below:
+
+~~~ruby
+  # INFO messages will always appear
+  Origen.log.info "This is an INFO message." 
+  # WARNING messages will always appear
+  Origen.log.warn "This is a WARNING message."  
+  # ERROR messages will always appear
+  Origen.log.error "This is an ERROR message."  
+  # DEPRECATE messages will always appear
+  Origen.log.deprecate "This is a DEPRECATE message."  
+  # DEBUG messages will only appear when logging verbosity level is set to 'VERBOSE'
+  Origen.log.debug "This is a DEBUG message."    
+~~~~
+
+#### Logging Verbosity Levels
+
+There are in total three verbosity levels, they are 'VERBOSE', 'QUIET' and 'SILENT'. These levels
+only affect the output which appear on the console window, the log file will always capture everything
+regardless of the verbosity level.
+
+You can set logging verbosity level to 'VERBOSE' by adding '-verbose' to your Origen command line:
+
+~~~text
+origen compile templates/web/index.html.erb -verbose
+~~~
+
+When in verbose mode, Origen will output and store all 5 types of log messages to 
+shell windows and log files.
+
+To set verbosity level to 'QUIET', you simply just need to run Origen commands without the '-verbose' option:
+
+~~~text
+origen compile templates/web/index.html.erb 
+~~~
+
+When in quiet mode, Origen will NOT log any 'DEBUG' messages in the code either to shell window.
+
+To set verbosity level to 'SILENT' run Origen commands with the '-silent' option:
+
+~~~text
+origen compile templates/web/index.html.erb -silent
+~~~
+
+When in silent mode, Origen will NOT output anything to the linux console window and will save
+everything to the log file only. 
+
+% end

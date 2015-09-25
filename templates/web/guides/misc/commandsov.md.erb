@@ -1,0 +1,75 @@
+% render "layouts/guides.html" do
+
+Occasionally you might come across the need to extend Origen's built in commands
+with application specific functionality.
+
+In extreme cases the entire command can be overridden entirely by using the
+procedure described in [Adding Commands](<%= path "guides/misc/commands" %>).
+However in most scenarios the desire will be to add additional command switches
+to implement the custom behavior.
+
+This can be achieved by overriding the command as normal and then setting a flag
+(usually an application attribute or global variable) that your downstream application code can then act on,
+before handing control back to Origen to complete the command processing as normal.
+
+To document the new option you can pass the details to Origen via the 
+<code>@application_options</code> variable and the new option will appear in the help
+as if it was a built-in part of the command.
+
+#### Example
+
+In one application we added an MD5 checksum to the names of all generated patterns
+but sometimes we needed the ability to revert back to the original names.
+
+Such an option could be implemented by using different targets but for something
+so trivial it is not worth the overhead of requiring duplicate versions of all targets
+that need this functionality.
+
+A more efficient implementation is therefore to add a runtime option:
+
+~~~ruby
+# config/application.rb  
+# Add an attribute to disable md5 pattern names
+attr_accessor :no_md5  
+~~~
+
+~~~ruby
+# config/commands.rb
+# Add an additional option to the standard command, important not
+# to exit here to allow the standard Origen command to run afterwards
+when "generate"
+  @application_options << ["--no_md5", "Don't apply the MD5 checksum to pattern names"],
+  Origen.app.no_md5 = true if ARGV.delete("--no_md5")
+  # Don't exit here, allow the flow to fall through to Origen to implement the rest of the command
+~~~  
+
+In our application code we then implement something to the effect of:
+
+~~~ruby
+def pattern_name
+  if Origen.app.no_md5
+    # code to generate original name 
+  else
+    # code to generate with MD5
+  end
+end
+~~~
+
+Now when we run <code>origen g -h</code> we see our new option alongside the standard options:
+
+~~~text
+Usage: origen g [space separated patterns or lists] [options]
+    -t, --target NAME                Override the default target, NAME can be ...
+    -l, --lsf [ACTION]               Submit jobs to the LSF, optionally specify ...
+    -c, --continue                   Continue on error (to the next pattern)
+    -f, --file FILE                  Override the default log file
+    -o, --output DIR                 Override the default output directory
+    -r, --reference DIR              Override the default reference directory
+    -d, --debugger                   Enable the debugger
+        --no_md5                     Don't apply the MD5 checksum to pattern names
+
+    -h, --help                       Show this message
+~~~
+
+
+% end

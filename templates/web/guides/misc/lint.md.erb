@@ -1,0 +1,97 @@
+% render "layouts/guides.html" do
+
+### What is 'Lint and Style Testing'?
+
+Lint testing refers to looking for suspicious or unusual coding patterns which could be an
+indication of buggy or hard to maintain code.
+
+Style checking refers to ensuring that the general coding style, for example the use of indentation,
+is consistent and follows generally accepted conventions.
+
+Since Origen applications are typically developed and maintained by multiple engineers it is
+important to establish common coding practices so that code can be easily read and reasoned
+about by anyone involved in the project.
+
+The Origen lint test uses a [3rd party tool](https://github.com/bbatsov/rubocop) to enforce
+the Ruby community maintained [style guide](https://github.com/bbatsov/ruby-style-guide).
+Best of all this tool can **automatically correct many of the common style violations, including
+the (very common) inconsistent use of indentation.**
+
+By taking this approach individual preferences are taken out of the equation and adherence
+to the standards are no longer reliant on individuals remembering to use spaces instead
+of tabs (for example).
+
+### How to Run the Tests
+
+Invoke the lint tests via the following command, by default this will run on the application's
+<code>lib</code> directory:
+
+~~~text
+origen lint
+~~~
+
+To run on individual files, or other directories:
+
+~~~text
+origen lint pattern config/application.rb
+~~~
+
+To automatically correct violations where possible:
+
+~~~text
+origen lint -c
+~~~
+
+### Waivers for Legacy Applications
+
+By default the tests will be fairly strict and will enforce most of the requirements of
+the [Ruby style guide](https://github.com/bbatsov/ruby-style-guide).
+
+However many of the checks will involve some manual modification of the code to resolve them
+and for legacy applications with large code bases this is probably not worth the effort.
+In that case an easier set of tests can be run instead:
+
+~~~text
+origen lint -e
+~~~
+
+The easier set will mainly limit the tests to those which can be corrected automatically,
+which still covers the most annoying issues such as inconsistent indentation and general
+code formatting problems.
+
+**However all new applications should use the strict tests and Origen core has already been
+made clean to the strict checks.**
+
+### Setting Application Defaults
+
+An application configuration option can be added to specify the default
+options that should be applied when the <code>origen lint</code> command is run without
+any arguments.
+
+Here is the default value that will be present in all new Origen applications:
+
+~~~ruby
+# config/application.rb
+
+config.lint_test = {
+  # Require the lint tests to pass before allowing a release to proceed
+  run_on_tag: true,
+  # Auto correct violations where possible whenever 'origen lint' is run
+  auto_correct: true, 
+  # Limit the testing for large legacy applications
+  #level: :easy,
+  # Run on these directories/files by default
+  #files: ["lib", "config/application.rb"],
+}
+~~~
+
+### Pre-Release Validation
+
+The lint test will be run automatically when a user tries to tag/release the application
+whenever the <code>Origen.config.lint_test[:run_on_tag]</code> attribute is set to <code>true</code>
+as shown above.
+
+In such a case the user will not be allowed to release until the issues are resolved and
+this should be the approach taken by all new applications.
+
+% end
