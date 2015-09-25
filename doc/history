@@ -1,3 +1,25 @@
+<a class="anchor release_tag" name="v0_5_6"></a>
+<h1><a href="#v0_5_6">Tag: v0.5.6</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 25-Sep-2015 05:52AM
+
+
+Added a new API to get a path to an application's imports directory. This is a directory that
+should be used to import 3rd party dependency data which is revision controlled outside of
+the current application.
+
+Origen will ensure that this directory is outside of the scope of the current application's revision
+control system to prevent any conflicts that could arise from having nested revision controlled
+workspaces.
+
+~~~ruby
+Origen.root              # => "/home/thao/my\_app"
+
+Origen.app.imports\_dir   # => "/home/thao/.my\_app\_imports\_DO\_NOT\_HAND\_MODIFY"
+~~~
+
 <a class="anchor release_tag" name="v0_5_5"></a>
 <h1><a href="#v0_5_5">Tag: v0.5.5</a></h1>
 
