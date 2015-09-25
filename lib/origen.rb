@@ -231,7 +231,7 @@ unless defined? RGen::ORIGENTRANSITION
         application.target
       end
 
-      def load_target(t=nil, options = {})
+      def load_target(t = nil, options = {})
         t, options = nil, t if t.is_a?(Hash)
         target.temporary = t if t
         application.load_target!(options)

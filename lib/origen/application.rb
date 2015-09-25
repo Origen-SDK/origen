@@ -167,7 +167,7 @@ module Origen
     def imports_directory
       workspace_manager.imports_directory
     end
-    alias :imports_dir :imports_directory
+    alias_method :imports_dir, :imports_directory
 
     # Returns the namespace used by the application as a string
     def namespace
