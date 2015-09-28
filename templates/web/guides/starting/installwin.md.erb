@@ -45,6 +45,7 @@ All commands mentioned below need to be typed in the command prompt running as a
 Start → run → cmd runas /user:Administrator
 ~~~
 
+* if the above command does not work, please follow the solution [here](http://www.howtogeek.com/howto/windows-vista/run-a-command-as-administrator-from-the-windows-vista-run-box/)
 
 ##### 1. Chocolatey
 
@@ -72,6 +73,8 @@ Please check the ruby version and make a note of it. We will need it later for t
 ~~~text
 ruby -v
 ~~~
+
+* You *might* need to close the command prompt and open a new one after installing Ruby for ruby -v to work.
 
 Once the installer finishes, please close the current window and open a new one (as administrator)
 
@@ -123,6 +126,23 @@ gem --version
 ~~~
 
 The Gem version should be **v2.0.15** for Ruby v2.1.X or v2.2.3 for Ruby v2.2.X
+
+Before attempting to install the Origen gem, please confirm that the DevKit has been installed successfully and that it has successfully detected the ruby installation.
+
+Please follow the steps below:
+
+~~~text
+ - open C:\Tools\DevKit\config.yml in your favorite editor and type the path to your ruby installation directory 
+   (see image below for example). 
+~~~
+   config.yml: ![config.yml](https://a.disquscdn.com/uploads/mediaembed/images/2542/9947/original.jpg)
+
+~~~text
+ - Open a command prompt window and type the following:
+     - cd C:\Tools\DevKit\
+     - ruby dk.rb install
+~~~
+   commands: ![type these commands](https://a.disquscdn.com/uploads/mediaembed/images/2542/9948/original.jpg)
 
 ### Install Origen
 
