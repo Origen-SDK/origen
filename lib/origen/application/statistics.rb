@@ -174,6 +174,7 @@ module Origen
         Origen.log.success '    PP     AA      AA   SS  SS  SS  SS'
         Origen.log.success '    PP    AA        AA   SSSS    SSSS'
         Origen.log.success ''
+        # exit with code 0 on pass
         exit(true)
       end
 
@@ -186,6 +187,7 @@ module Origen
         Origen.log.error '    FF     AA      AA   II   LL'
         Origen.log.error '    FF    AA        AA  II   LLLLLL'
         Origen.log.error ''
+        # exit with code 1 on fail
         exit(false)
       end
     end
