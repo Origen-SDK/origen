@@ -327,6 +327,7 @@ module Origen
         @reference_directory = relative_to_absolute(options[:reference])
       else
         @reference_directory = Pathname.new(Origen.config.reference_directory)
+        FileUtils.mkdir_p(@reference_directory) unless @reference_directory.exist?
       end
       if options[:create]
         # Delete any broken symlinks in the top level .ref

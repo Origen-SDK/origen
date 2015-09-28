@@ -174,6 +174,7 @@ module Origen
         Origen.log.success '    PP     AA      AA   SS  SS  SS  SS'
         Origen.log.success '    PP    AA        AA   SSSS    SSSS'
         Origen.log.success ''
+        exit(true)
       end
 
       def report_fail
@@ -185,6 +186,7 @@ module Origen
         Origen.log.error '    FF     AA      AA   II   LL'
         Origen.log.error '    FF    AA        AA  II   LLLLLL'
         Origen.log.error ''
+        exit(false)
       end
     end
   end
