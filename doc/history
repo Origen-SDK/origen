@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_5_7"></a>
+<h1><a href="#v0_5_7">Tag: v0.5.7</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 02-Oct-2015 08:50AM
+
+
+Fixed bug with Origen.app.rc (app revision controller) which did not work if the workspace
+was based on a fork of the main app repo.
+
 <a class="anchor release_tag" name="v0_5_6"></a>
 <h1><a href="#v0_5_6">Tag: v0.5.6</a></h1>
 
