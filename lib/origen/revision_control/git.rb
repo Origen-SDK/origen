@@ -1,6 +1,16 @@
 module Origen
   module RevisionControl
     class Git < Base
+      # Returns the origin for the PWD
+      def self.origin
+        git('remote --verbose', verbose: false).each do |remote|
+          if remote =~ /^origin\s+([^\s]+)/
+            return Regexp.last_match(1)
+          end
+        end
+        nil
+      end
+
       def build(options = {})
         if Dir["#{local}/*"].empty? || options[:force]
           FileUtils.rm_rf(local.to_s)

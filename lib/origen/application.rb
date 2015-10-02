@@ -111,7 +111,9 @@ module Origen
           elsif config.rc_url =~ /git/
             @revision_controller ||= RevisionControl::Git.new(
               local:  root,
-              remote: config.rc_url
+              # If a workspace is based on a fork of the master repo, config.rc_url may not
+              # be correct
+              remote: RevisionControl::Git.origin || config.rc_url
             )
 
           end
