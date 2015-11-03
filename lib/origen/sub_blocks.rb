@@ -180,7 +180,14 @@ module Origen
             root = "#{p.path(options)}."
           end
         else
-          root = ''
+          # If a path variable has been set on a top-level object, then we will
+          # include that in path, otherwise by default the top-level object is not
+          # included in the path
+          if p || path_var
+            root = ''
+          else
+            return ''
+          end
         end
         local = (path_var || name || self.class.to_s.split('::').last).to_s
         if local == 'hidden'

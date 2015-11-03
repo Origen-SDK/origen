@@ -19,6 +19,7 @@ module Origen
       include Origen::SubBlocks
       include Origen::Parameters
       include Origen::Specs
+      include Origen::Ports
     end
 
     module ClassMethods
@@ -293,7 +294,16 @@ module Origen
       end
     end
 
+    # Returns true after the model's initialize method has been run
+    def initialized?
+      !!@initialized
+    end
+
     private
+
+    def initialized
+      @initialized = true
+    end
 
     def _controller=(controller)
       @controller = controller

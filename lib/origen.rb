@@ -28,6 +28,7 @@ unless defined? RGen::ORIGENTRANSITION
     autoload :Generator, 'origen/generator'
     autoload :Pins,      'origen/pins'
     autoload :Registers, 'origen/registers'
+    autoload :Ports,     'origen/ports'
     autoload :Users,     'origen/users'
     autoload :FileHandler, 'origen/file_handler'
     autoload :RegressionManager, 'origen/regression_manager'
