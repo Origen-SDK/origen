@@ -92,7 +92,7 @@ GEM
     netrc (0.10.3)
     nokogiri (1.6.4.1)
       mini_portile (~> 0.6.0)
-    origen_core_support (0.2.1)
+    origen_core_support (0.2.2)
       origen (>= 0.2.6)
     origen_debuggers (0.5.1)
       origen (>= 0.2.6)
@@ -175,7 +175,7 @@ DEPENDENCIES
   coveralls
   loco
   origen!
-  origen_core_support (= 0.2.1)
+  origen_core_support (= 0.2.2)
   origen_debuggers (~> 0)
   origen_doc_helpers (>= 0.2.0)
   origen_testers (~> 0)

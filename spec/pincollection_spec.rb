@@ -204,15 +204,8 @@ describe 'Origen PinCollection API v3' do
   end
 
   describe 'v3 Backwards Compatibility' do
-    it 'add_port method works' do
-      $dut.add_port(:portx, size: 8)
-      $dut.pin(:portx).size.should == 8
-      $dut.pin_groups.size.should == 3
-      $dut.pin_groups.include?(:portx).should == true
-    end
-
-    it 'add_port_alias/add_pin_group_alias methods work' do
-      $dut.add_port_alias(:g1, :group1)
+    it 'add_pin_group_alias methods work' do
+      $dut.add_pin_group_alias(:g1, :group1)
       $dut.pin_groups.size.should == 3 # pin group added
       $dut.pin(:g1).map { |i| i }.join(' ').should == $dut.pin(:group1).map { |i| i }.join(' ')
       $dut.add_pin_group_alias(:datums, :pdata)
@@ -226,15 +219,14 @@ describe 'Origen PinCollection API v3' do
       $dut.pin_group(:g1).map { |i| i }.join(' ').should == $dut.pins(:group1).map { |i| i }.join(' ')
     end
 
-    it 'groups/ports/belongs_to_a_port?/belongs_to_a_pin_group? methods work' do
+    it 'groups/belongs_to_a_pin_group? methods work' do
       $dut.pin(:pdata2).groups.include?(:pdata).should == true
       $dut.add_pin_group(:dis_data, :pdata2)
-      $dut.pin(:pdata2).ports.size.should == 2
       $dut.pin(:pdata2).groups.size.should == 2
       $dut.add_pin(:loner)
-      $dut.pins(:loner).belongs_to_a_port?.should == false
+      $dut.pins(:loner).belongs_to_a_pin_group?.should == false
       $dut.pins(:pinx).belongs_to_a_pin_group?.should == true
-      $dut.pins(:pinx).belongs_to_a_port?.should == true
+      $dut.pins(:pinx).belongs_to_a_pin_group?.should == true
     end
 
     it 'add_pin_alias :g2, :g1, pins: [3..0] works' do
@@ -266,7 +258,7 @@ describe 'Origen PinCollection API v3' do
       $tester.current_pin_vals.size.should == 3
     end
 
-    it 'pin_pattern_order works for groups composed of pins from another port' do
+    it 'pin_pattern_order works for groups composed of pins from another pin group' do
       $dut.add_pin :clk
       $dut.add_pins :cti_data, size: 5
       $dut.add_pin :reset

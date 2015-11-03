@@ -22,8 +22,6 @@ module Origen
       attr_accessor :repeat_previous
       attr_reader :owner
       attr_reader :size
-      # If the pin belongs to a port then this will return the port object
-      attr_accessor :port
       # Returns a hash containing the aliases associated with the given pin
       attr_reader :aliases
       # Returns a hash containing the functions associated with the given pin
@@ -273,7 +271,6 @@ module Origen
           group.include?(self)
         end
       end
-      alias_method :ports, :groups
       alias_method :pin_groups, :groups
 
       def invalidate_group_cache
@@ -453,18 +450,17 @@ module Origen
         end
       end
 
-      # Returns true if the pin belongs to a port.
+      # Returns true if the pin belongs to a pin group.
       #
-      #   add_port :jtag, :size => 6
+      #   add_pins :jtag, size: 6
       #   add_pin  :done
-      #   add_pin_alias :fail, :jtag, :pin => 4
+      #   add_pin_alias :fail, :jtag, pin: 4
       #
-      #   pin(:done).belongs_to_a_port?  # => false
-      #   pin(:fail).belongs_to_a_port?  # => true
-      def belongs_to_a_port?
+      #   pin(:done).belongs_to_a_pin_group?  # => false
+      #   pin(:fail).belongs_to_a_pin_group?  # => true
+      def belongs_to_a_pin_group?
         !groups.empty?
       end
-      alias_method :belongs_to_a_pin_group?, :belongs_to_a_port?
 
       def value
         @value

@@ -170,7 +170,6 @@ module Origen
   # about dealing with a single pin vs. a collection.
   module Pins
     autoload :Pin,           'origen/pins/pin'
-    autoload :Port,          'origen/pins/port'
     autoload :PinCollection, 'origen/pins/pin_collection'
     autoload :PinBank,       'origen/pins/pin_bank'
     autoload :PinCommon,     'origen/pins/pin_common'
@@ -313,11 +312,6 @@ module Origen
       Origen.app.pin_pattern_exclude << options unless options.empty?
     end
 
-    # API v2, deprecated
-    def add_port(id, options = {})
-      add_pins(id, options)
-    end
-
     def add_pin_alias(new_name, original_name, options = {})
       if pin_groups.include?(original_name) # this is a pin group
         if options[:pin] # alias single pin from a pin group
@@ -331,7 +325,6 @@ module Origen
     end
     alias_method :pin_alias, :add_pin_alias
     alias_method :alias_pin, :add_pin_alias
-    alias_method :add_port_alias, :add_pin_alias
 
     def add_pin_group_alias(new_name, original_name, options = {})
       group = Origen.pin_bank.find_or_create_pin_group(new_name, self, options)
@@ -592,8 +585,6 @@ If you meant to define the pin then use the add_pin method instead.
       end
     end
     alias_method :pin, :pins
-    alias_method :port, :pins
-    alias_method :ports, :pins
 
     # Equivalent to the pins method but considers power pins rather than regular pins
     def power_pins(id = nil, options = {}, &block)
@@ -629,68 +620,6 @@ If you meant to define the pin then use the add_pin method instead.
       else
         fail "Error: the object #{id} you tried to delete is not a pin or pingroup"
       end
-    end
-
-    # @api private
-    #
-    # If the pin is a port it will select the target pin from it based on the options
-    #
-    # API v2, deprecated
-    def resolve_pin(obj, options)
-      if obj.is_a?(Port)
-        pins = options[:pin] || options[:pins]
-        if pins
-          pins = clean_pin_arg(pins)
-          if pins.size == 1
-            obj[pins.first]
-          else
-            port = Port.new("subset_of_#{obj.id}", obj.owner, add_pins: false, size: pins.size)
-            pins.each do |pin|
-              port.add_pin_object(obj[pin])
-            end
-            port
-          end
-        else
-          obj
-        end
-      else
-        obj
-      end
-    end
-
-    # @api private
-    #
-    # Returns an array of ids, regardless if the input is a single number, an array,
-    # a range, or an array contaning a range
-    #
-    # API v2, deprecated
-    def clean_pin_arg(pin)
-      pin = [pin].flatten
-      pin.map { |obj| range_to_array(obj) }.flatten.sort
-    end
-
-    # @api private
-    #
-    # API v2, deprecated
-    def range_to_array(range)
-      if range.is_a?(Range)
-        a = range.first
-        b = range.last
-        if a > b
-          (b..a).to_a
-        else
-          (a..b).to_a
-        end
-      else
-        range
-      end
-    end
-
-    # API v2, deprecated
-    # @api private
-    def add_pin_object(pin)
-      @pins ||= {}
-      @pins[@pins.size] = pin
     end
   end
 end

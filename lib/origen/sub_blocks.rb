@@ -185,6 +185,8 @@ module Origen
         local = (path_var || name || self.class.to_s.split('::').last).to_s
         if local == 'hidden'
           root.chop
+        elsif is_a?(Origen::Registers::BitCollection) && parent.path_var == :hidden
+          "#{root.chop}#{local}"
         else
           "#{root}#{local}"
         end

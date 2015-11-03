@@ -193,12 +193,12 @@ and a serial protocol write:
 
 ~~~ruby
 # Writing on a parallel port, let's say we have a 16-bit register and the
-# data needs to be written on a port called data which is 8-bits
+# data needs to be written on a pin group called data which is 8-bits
 def write_register(reg, options={})
   pin(:din).drive(1)   # Let's say when this pin is high data is captured
   # Drive the data in MSB -> LSB order
-  port(:data).drive!(reg[15..8].data)
-  port(:data).drive!(reg[7..0].data)
+  pins(:data).drive!(reg[15..8].data)
+  pins(:data).drive!(reg[7..0].data)
   pin(:din).drive(0)   # Turn off capture
 end
 
@@ -208,7 +208,7 @@ def read_register(reg, options={})
   pin(:din).drive(1)   # Let's say when this pin is high data is captured
   # Drive the data in MSB -> LSB order
   reg.shift_out_left do |bit|
-    port(:data).drive!(bit.data)
+    pin(:data).drive!(bit.data)
   end
   pin(:din).drive(0)   # Turn off capture
 end
@@ -220,7 +220,7 @@ Here is a parallel and serial protocol example which supports bit-level read ope
 
 ~~~ruby
 # Reading on a parallel port, let's say we have a 16-bit register and the
-# data needs to be read on a port called data which is 8-bits
+# data needs to be read on a pin group called data which is 8-bits
 def write_register(reg, options={})
   pin(:dout).drive(1)   # Let's say when this pin is high data is presented
 
@@ -228,9 +228,9 @@ def write_register(reg, options={})
   8.times do |i|
     bit = reg.bit(i + 8)
     if bit.is_to_be_read?
-      port(:data)[i].assert(bit.data)
+      pins(:data)[i].assert(bit.data)
     else
-      port(:data)[i].dont_care
+      pins(:data)[i].dont_care
     end
   end
   $tester.cycle
@@ -239,9 +239,9 @@ def write_register(reg, options={})
   8.times do |i|
     bit = reg.bit(i)
     if bit.is_to_be_read?
-      port(:data)[i].assert(bit.data)
+      pins(:data)[i].assert(bit.data)
     else
-      port(:data)[i].dont_care
+      pins(:data)[i].dont_care
     end
   end
   $tester.cycle
@@ -257,9 +257,9 @@ def read_register(reg, options={})
   # Drive the data in MSB -> LSB order
   reg.shift_out_left do |bit|
     if bit.is_to_be_read?
-      port(:data).assert!(bit.data)
+      pin(:data).assert!(bit.data)
     else
-      port(:data).dont_care!
+      pin(:data).dont_care!
     end
   end
 
