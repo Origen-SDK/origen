@@ -12,18 +12,18 @@ Pattern.create do
   end
 
   ss "Test that the port API works"
-  $nvm.port(:porta).drive(0x55)
+  $nvm.pins(:porta).drive(0x55)
   $tester.cycle
-  $nvm.port(:porta).expect(0xAA)
+  $nvm.pins(:porta).expect(0xAA)
   $tester.cycle
-  $nvm.port(:porta).drive!(0x55)
-  $nvm.port(:porta).dont_care!
-  $nvm.port(:porta).drive_hi!
-  $nvm.port(:porta).drive_very_hi!
-  $nvm.port(:porta).drive_lo!
-  $nvm.port(:porta).assert_hi!
-  $nvm.port(:porta).assert_lo!
-  $nvm.port(:porta).drive_lo
+  $nvm.pins(:porta).drive!(0x55)
+  $nvm.pins(:porta).dont_care!
+  $nvm.pins(:porta).drive_hi!
+  $nvm.pins(:porta).drive_very_hi!
+  $nvm.pins(:porta).drive_lo!
+  $nvm.pins(:porta).assert_hi!
+  $nvm.pins(:porta).assert_lo!
+  $nvm.pins(:porta).drive_lo
 
   ss "Test that the store method works"
   cc "This vector should capture the FAIL pin data"
@@ -34,7 +34,7 @@ Pattern.create do
   $tester.cycle
   $tester.cycle
   $tester.cycle
-  $tester.store $nvm.pin(:fail), $nvm.port(:porta), :offset => -2
+  $tester.store $nvm.pin(:fail), $nvm.pins(:porta), :offset => -2
   $tester.cycle
   $tester.store_next_cycle $nvm.pin(:fail)
   cc "This vector should capture the FAIL pin data"
@@ -74,25 +74,25 @@ Pattern.create do
 
   ss "Test looping, these vectors should be executed once"
   $tester.loop_vector("test_loop_1", 1) do
-    $nvm.port(:porta).drive(0xAA)
+    $nvm.pins(:porta).drive(0xAA)
     $tester.cycle
-    $nvm.port(:porta).drive(0x55)
+    $nvm.pins(:porta).drive(0x55)
     $tester.cycle
   end
 
   ss "Test looping, these vectors should be executed 3 times"
   $tester.loop_vector("test_loop_2", 3) do
-    $nvm.port(:porta).drive(0xAA)
+    $nvm.pins(:porta).drive(0xAA)
     $tester.cycle
-    $nvm.port(:porta).drive(0x55)
+    $nvm.pins(:porta).drive(0x55)
     $tester.cycle
   end
 
   ss "Test looping, these vectors should be executed 5 times"
   $tester.loop_vectors 5 do
-    $nvm.port(:porta).drive(0xAA)
+    $nvm.pins(:porta).drive(0xAA)
     $tester.cycle
-    $nvm.port(:porta).drive(0x55)
+    $nvm.pins(:porta).drive(0x55)
     $tester.cycle
   end
 

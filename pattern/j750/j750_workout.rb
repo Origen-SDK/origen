@@ -13,22 +13,22 @@ Pattern.create do
   end
 
   if !$tester.respond_to?('hpt_mode')
-  ss "Test that the port API works"
-  $nvm.port(:porta).drive(0x55)
+  ss "Test that the pin group API works"
+  $nvm.pins(:porta).drive(0x55)
   $tester.cycle
-  $nvm.port(:porta).expect(0xAA)
+  $nvm.pins(:porta).expect(0xAA)
   $tester.cycle
-  $nvm.port(:porta).drive!(0x55)
-  $nvm.port(:porta).dont_care!
-  $nvm.port(:porta).drive_hi!
-  $nvm.port(:porta).drive_very_hi!
-  $nvm.port(:porta).drive_lo!
-  $nvm.port(:porta).assert_hi!
-  $nvm.port(:porta).assert_lo!
-  $nvm.port(:porta).drive_lo
-  $nvm.port(:porta)[1].assert(1)
-  $nvm.port(:porta)[2].assert!(1)
-  $nvm.port(:porta).drive_lo
+  $nvm.pins(:porta).drive!(0x55)
+  $nvm.pins(:porta).dont_care!
+  $nvm.pins(:porta).drive_hi!
+  $nvm.pins(:porta).drive_very_hi!
+  $nvm.pins(:porta).drive_lo!
+  $nvm.pins(:porta).assert_hi!
+  $nvm.pins(:porta).assert_lo!
+  $nvm.pins(:porta).drive_lo
+  $nvm.pins(:porta)[1].assert(1)
+  $nvm.pins(:porta)[2].assert!(1)
+  $nvm.pins(:porta).drive_lo
   end
 
   ss "Test that the store method works"
@@ -107,25 +107,25 @@ Pattern.create do
   if !$tester.respond_to?('hpt_mode')
   ss "Test looping, these vectors should be executed once"
   $tester.loop_vector("test_loop_1", 1) do
-    $nvm.port(:porta).drive(0xAA)
+    $nvm.pins(:porta).drive(0xAA)
     $tester.cycle
-    $nvm.port(:porta).drive(0x55)
+    $nvm.pins(:porta).drive(0x55)
     $tester.cycle
   end
 
   ss "Test looping, these vectors should be executed 3 times"
   $tester.loop_vector("test_loop_2", 3) do
-    $nvm.port(:porta).drive(0xAA)
+    $nvm.pins(:porta).drive(0xAA)
     $tester.cycle
-    $nvm.port(:porta).drive(0x55)
+    $nvm.pins(:porta).drive(0x55)
     $tester.cycle
   end
   
     ss "Test looping with label first, these vectors should be executed 3 times"
     $tester.loop_vector("test_loop_2", 3, false, true) do
-      $nvm.port(:porta).drive(0xAA)
+      $nvm.pins(:porta).drive(0xAA)
       $tester.cycle
-      $nvm.port(:porta).drive(0x55)
+      $nvm.pins(:porta).drive(0x55)
       $tester.cycle
     end
   end
@@ -183,14 +183,14 @@ Pattern.create do
     $nvm.pin(:invoke).drive!(0)
     
     if !$tester.respond_to?('hpt_mode')
-      ss "Test memory test port states"
-      $nvm.port(:porta).drive_mem
+      ss "Test memory test pin group states"
+      $nvm.pins(:porta).drive_mem
       $tester.cycle
-      $nvm.port(:porta).drive_mem!
-      $nvm.port(:porta).expect_mem
+      $nvm.pins(:porta).drive_mem!
+      $nvm.pins(:porta).expect_mem
       $tester.cycle
-      $nvm.port(:porta).expect_mem!
-      $nvm.port(:porta).drive!(0x0)
+      $nvm.pins(:porta).expect_mem!
+      $nvm.pins(:porta).drive!(0x0)
     end
   end
 
