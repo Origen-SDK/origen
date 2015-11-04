@@ -1,6 +1,8 @@
 module Origen
   module Ports
     class Section
+      include Netlist::Connectable
+
       attr_reader :port
       attr_reader :index
 
@@ -32,6 +34,10 @@ module Origen
 
       def [](index)
         Section.new(port, align_to_port(index))
+      end
+
+      def data
+        data_from_netlist
       end
 
       private

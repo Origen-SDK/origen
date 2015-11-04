@@ -50,6 +50,7 @@ unless defined? RGen::ORIGENTRANSITION
     autoload :Encodings, 'origen/encodings'
     autoload :Log,       'origen/log'
     autoload :Chips,     'origen/chips'
+    autoload :Netlist,   'origen/netlist'
 
     APP_CONFIG = File.join('config', 'application.rb')
 

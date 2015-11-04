@@ -20,6 +20,7 @@ module Origen
       include Origen::Parameters
       include Origen::Specs
       include Origen::Ports
+      include Origen::Netlist
     end
 
     module ClassMethods

@@ -1,6 +1,8 @@
 module Origen
   module Ports
     class Port
+      include Netlist::Connectable
+
       attr_reader :size
       attr_reader :parent
       attr_reader :id
@@ -49,6 +51,10 @@ module Origen
 
       def [](val)
         Section.new(self, val)
+      end
+
+      def data
+        data_from_netlist
       end
 
       private
