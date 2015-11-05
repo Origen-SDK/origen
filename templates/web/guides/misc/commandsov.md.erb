@@ -38,8 +38,11 @@ attr_accessor :no_md5
 # Add an additional option to the standard command, important not
 # to exit here to allow the standard Origen command to run afterwards
 when "generate"
+  # Option definitions must be pushed into the @application_options array, don't re-assign it!
   @application_options << ["--no_md5", "Don't apply the MD5 checksum to pattern names"],
-  Origen.app.no_md5 = true if ARGV.delete("--no_md5")
+  # Note that it is important not to delete the argument from ARGV, this is necessary to make Origen
+  # fully aware of it, so that it can be passed on to any additional jobs invoked from this process
+  Origen.app.no_md5 = true if ARGV.include?("--no_md5")
   # Don't exit here, allow the flow to fall through to Origen to implement the rest of the command
 ~~~  
 
