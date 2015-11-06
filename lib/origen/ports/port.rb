@@ -45,8 +45,8 @@ module Origen
         end
       end
 
-      def respond_to?(sym)
-        @bit_names.key?(sym) || super(sym)
+      def respond_to?(*args)
+        @bit_names.key?(args.first) || super(*args)
       end
 
       def [](val)

@@ -321,6 +321,7 @@ module Origen
     # next time, this should be faster for repeated lookups of the same method, e.g. reg
     def method_missing(method, *args, &block)
       return regs(method) if self.has_reg?(method)
+      return ports(method) if self.has_port?(method)
       if method.to_s =~ /=$/
         define_singleton_method(method) do |val|
           instance_variable_set("@#{method.to_s.sub('=', '')}", val)

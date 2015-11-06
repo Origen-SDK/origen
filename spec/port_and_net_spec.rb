@@ -60,6 +60,42 @@ describe 'Ports and Nets' do
     b.pa[4].data.should == 0
     b.pa[3..0].data.should == 0
     
+    b = Block.new
+    b.pa.connect_to(0x5A)
+    b.pa.data.should == 0x5A
+    n = b.pa[3..0]
+    n.data.should == 0xA
+    b.pa[7..4].data.should == 0x5
+  end
 
+  it 'vectors are considered identical if they have the same attributes' do
+    V = Origen::Netlist::Vector
+    v1 = V.new("sub1.x", nil, 0)
+    v2 = V.new("sub1.x", nil, 0)
+    v3 = V.new("sub1.x", [1..0], 0)
+    v4 = V.new("sub1.x", nil, 1)
+    (v1 == v2).should == true
+    (v1 == v3).should == false
+    (v1 == v4).should == false
+    [v2, v3, v4].include?(v1).should == true
+  end
+
+  it 'ports can be connected to a value via other ports' do
+    class Block
+      include Origen::Model
+      def initialize
+        port :pa, size: 8
+        sub_block :sub1
+      end
+    end
+
+    b = Block.new
+    b.sub1.add_port :pb, size: 8
+    b.sub1.pb.connect_to(0x5A)
+    b.pa.connect_to(b.sub1.pb)
+    n = b.sub1.pb
+    n.data.should == 0x5A
+    b.pa.data.should == 0x5A
+    b.pa[7..4].data.should == 0x5
   end
 end

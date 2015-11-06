@@ -12,12 +12,16 @@ module Origen
       end
 
       def add(a, b)
-        table[a.path] ||= {}
-        table[b.path] ||= {}
-        table[a.path][a.index] ||= []
-        table[b.path][b.index] ||= []
-        table[a.path][a.index] << b
-        table[b.path][b.index] << a
+        unless a.is_a?(Value)
+          table[a.path] ||= {}
+          table[a.path][a.index] ||= []
+          table[a.path][a.index] << b
+        end
+        unless b.is_a?(Value)
+          table[b.path] ||= {}
+          table[b.path][b.index] ||= []
+          table[b.path][b.index] << a
+        end
       end
 
       def connections(vector)
