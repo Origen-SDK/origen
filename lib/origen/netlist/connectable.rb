@@ -8,14 +8,9 @@ module Origen
       end
 
       def connect_to(node, options = {})
-        if node.is_a?(Fixnum)
-          node = Value.new(node)
-        elsif node.is_a?(String)
-          node = Connectable.path_to_vector(node, netlist_top_level)
-        end
-        netlist.add(to_v, node.to_v)
+        node = node.path if node.respond_to?(:path)
+        netlist.connect(path, node)
       end
-      alias_method :connected_to, :connect_to
       alias_method :connect, :connect_to
 
       def connections
@@ -58,7 +53,6 @@ module Origen
       def to_v
         Connectable.path_to_vector(path, netlist_top_level)
       end
-      alias_method :to_vector, :to_v
 
       def self.path_to_vector(path, top_level_object)
         # http://rubular.com/r/4eBMdIjusV

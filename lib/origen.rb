@@ -21,6 +21,7 @@ unless defined? RGen::ORIGENTRANSITION
   require 'origen/logger_methods'
   require 'option_parser/optparse'
   require 'bundler'
+  require 'origen/undefined'
 
   module Origen
     autoload :Features,  'origen/features'
