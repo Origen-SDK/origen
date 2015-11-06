@@ -98,4 +98,35 @@ describe 'Ports and Nets' do
     b.pa.data.should == 0x5A
     b.pa[7..4].data.should == 0x5
   end
+
+  it 'ports can be connected to a register' do
+    class Block
+      include Origen::Model
+      def initialize
+        port :pa, size: 8
+        sub_block :sub1, class_name: "Sub"
+        pa.connect_to(sub1.pa)
+      end
+    end
+
+    class Sub
+      include Origen::Model
+      def initialize
+        port :pa, size: 8
+        reg :rega, 0, size: 8 do |reg|
+          reg.bits 7..4, :upper
+          reg.bits 3..0, :lower
+        end
+        pa.connect_to(rega)
+      end
+    end
+
+    b = Block.new
+    n = b.pa
+    n.data.should == 0
+    b.sub1.rega.write(0x5A)
+    n.data.should == 0x5A
+    n[3..0].data.should == 0xA
+    n[7..4].data.should == 0x5
+  end
 end

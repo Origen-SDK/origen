@@ -10,6 +10,7 @@ module Origen
     # or a group of Bit objects, the same API can be used as described below.
     class BitCollection < Array
       include Origen::SubBlocks::Path
+      include Netlist::Connectable
 
       DONT_CARE_CHAR = 'X'
       OVERLAY_CHAR = 'V'
@@ -24,6 +25,10 @@ module Origen
         @reg = reg
         @name = name
         [data].flatten.each { |item| self << item }
+      end
+
+      def terminal?
+        true
       end
 
       def bind(live_parameter)
@@ -540,7 +545,8 @@ module Origen
       end
 
       # Recognize that BitCollection responds to some Bit methods via method_missing
-      def respond_to?(sym) # :nodoc:
+      def respond_to?(*args) # :nodoc:
+        sym = args.first
         first.respond_to?(sym) || super(sym)
       end
 

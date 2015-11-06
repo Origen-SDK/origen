@@ -24,37 +24,33 @@ module Origen
       alias_method :nets, :connections
 
       def terminals(processed_vectors = [])
-        vectors = []
+        nodes = []
         nets.each do |vector|
           if vector.terminal?
-            vectors << vector
+            nodes << vector
           else
             unless processed_vectors.include?(vector)
               processed_vectors << vector
               if vector.respond_to?(:terminals)
-                vectors += vector.terminals(processed_vectors)
+                nodes += vector.terminals(processed_vectors)
               end
             end
           end
         end
-        vectors.uniq
-      end
-
-      def terminal_node?
-        to_v.terminal?
+        nodes.uniq
       end
 
       def data_from_netlist
-        if terminal_node?
-          data
+        t = terminals
+        if t.size > 1
+          fail 'Multiple terminal nodes found!'
+        elsif t.size == 0
+          fail 'No terminal node found!'
         else
-          t = terminals
-          if t.size > 1
-            fail 'Multiple terminal nodes found!'
-          elsif t.size == 0
-            fail 'No terminal node found!'
+          if i = to_v.index
+            t.first.data[i]
           else
-            t.first.data(to_v.index)
+            t.first.data
           end
         end
       end

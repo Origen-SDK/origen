@@ -283,8 +283,7 @@ module Origen
           puts ''
           fail 'Sub block does not include Origen::Model!'
         end
-        block = klass.new(options.merge(parent: self))
-        block.name = name
+        block = klass.new(options.merge(parent: self, name: name))
         if sub_blocks[name]
           fail "You have already defined a sub-block named #{name} within class #{self.class}"
         else

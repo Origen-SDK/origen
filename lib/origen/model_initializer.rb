@@ -21,6 +21,9 @@ module Origen
           parent = options.delete(:parent)
           x.parent = parent if parent
         end
+        options.each do |k, v|
+          x.send(:instance_variable_set, "@#{k}", v) if x.respond_to?(k)
+        end
         if x.method(:initialize).arity == 0
           x.send(:initialize, &block)
         else

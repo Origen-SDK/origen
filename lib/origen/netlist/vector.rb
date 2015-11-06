@@ -4,6 +4,12 @@ module Origen
     class Vector < ::Delegator
       attr_reader :path, :index, :root_object
 
+      TERMINALS = [
+        Registers::BitCollection,
+        Registers::Reg,
+        Registers::Bit
+      ]
+
       def initialize(path, index, root_object)
         @path = path
         @index = index
@@ -16,13 +22,7 @@ module Origen
       alias_method :to_vector, :to_v
 
       def __getobj__
-        @obj ||= begin
-          if path.is_a?(::Object::Fixnum)
-            path
-          else
-            instance_eval "root_object.#{path}"
-          end
-        end
+        @obj ||= instance_eval("root_object.#{path}")
       end
 
       def inspect
@@ -30,26 +30,7 @@ module Origen
       end
 
       def terminal?
-        path.is_a?(Fixnum)
-      end
-
-      def data
-        if path.is_a?(Fixnum)
-          if index
-            return path[index]
-          else
-            if size == 1
-              return path[0]
-            else
-              return path[(size - 1)..0]
-            end
-          end
-        elsif path.is_a?(String)
-          fail 'Not implemented yet'
-        else
-          fail 'Not implemented yet'
-        end
-        path
+        @terminal ||= TERMINALS.any? { |c| __getobj__.is_a?(c) }
       end
 
       def ==(vector)

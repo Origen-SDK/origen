@@ -440,7 +440,8 @@ module Origen
         self
       end
 
-      def respond_to?(sym) # :nodoc:
+      def respond_to?(*args) # :nodoc:
+        sym = args.first
         meta_data_method?(sym) || super(sym)
       end
 

@@ -1122,8 +1122,8 @@ module Origen
 
       # Recognize that Reg responds to all BitCollection methods methods based on
       # application-specific meta data properties
-      def respond_to?(sym) # :nodoc:
-        sym = sym.to_sym
+      def respond_to?(*args) # :nodoc:
+        sym = args.first.to_sym
         meta_data_method?(sym) || has_bits?(sym) || super(sym) || BitCollection.instance_methods.include?(sym)
       end
 
