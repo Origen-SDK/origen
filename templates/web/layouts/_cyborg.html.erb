@@ -75,6 +75,15 @@ layout: none
         /* Set the fixed height of the footer here */
         height: 250px;
       }
+      .gitter-chat-embed {
+        z-index: 10000 !important;
+      }
+      .gitter-open-chat-button {
+        background-color: #2a9fd6 !important;
+      }
+      .gitter-open-chat-button:hover {
+        background-color: #2180ac !important;
+      }
 
     </style>
 
@@ -137,5 +146,11 @@ layout: none
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <script src="<%= path "js/landing.js" %>"></script>
+    <script>
+      ((window.gitter = {}).chat = {}).options = {
+        room: 'Origen-SDK/users'
+      };
+    </script>
+    <script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
   </body>
 </html>

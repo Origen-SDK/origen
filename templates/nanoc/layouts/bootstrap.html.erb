@@ -114,5 +114,13 @@
     <script src="http://origen-sdk.org/js/lunr.min.js"></script>
     <script src="http://origen-sdk.org/js/highlight.js"></script>
     <script src="http://origen-sdk.org/js/custom.js"></script>
+    <% if @item[:gitter_chat] %>
+      <script>
+        ((window.gitter = {}).chat = {}).options = {
+          room: '<%= @item[:gitter_chat] %>'
+        };
+      </script>
+      <script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
+    <% end %>
   </body>
 </html>
