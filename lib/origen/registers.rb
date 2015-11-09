@@ -310,8 +310,11 @@ module Origen
       if block_given?
         @new_reg_attrs = { meta: bit_info }
         yield self
-        bit_info = @new_reg_attrs
+      else
+        # If no block given then init with all writable bits that reset to 0 by default
+        @new_reg_attrs = { meta: bit_info, d: { reset: 0, pos: 0, bits: size } }
       end
+      bit_info = @new_reg_attrs
       if _registers[id] && Origen.config.strict_errors
         puts ''
         puts "Add register error, you have already added a register named #{id} to #{self.class}"
@@ -472,7 +475,7 @@ module Origen
     # Can also be used to define a new register if a block is supplied in which case
     # it is equivalent to calling add_reg with a block.
     def reg(*args, &block)
-      if block_given?
+      if block_given? || (args[1].is_a?(Fixnum) && !try(:initialized?))
         @reg_define_file = define_file(caller[0])
         add_reg(*args, &block)
       else

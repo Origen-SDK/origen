@@ -734,6 +734,52 @@ module Origen
         make_hex_like(str, size / 4)
       end
 
+      # Shifts the data in the collection left by one place. The data held
+      # by the rightmost bit will be set to the given value (0 by default).
+      #
+      # @example
+      #   myreg.data          # => 0b1111
+      #   myreg.shift_left
+      #   myreg.data          # => 0b1110
+      #   myreg.shift_left
+      #   myreg.data          # => 0b1100
+      #   myreg.shift_left(1)
+      #   myreg.data          # => 0b1001
+      #   myreg.shift_left(1)
+      #   myreg.data          # => 0b0011
+      def shift_left(data = 0)
+        prev_bit = nil
+        reverse_each do |bit|
+          prev_bit.write(bit.data) if prev_bit
+          prev_bit = bit
+        end
+        prev_bit.write(data)
+        self
+      end
+
+      # Shifts the data in the collection right by one place. The data held
+      # by the leftmost bit will be set to the given value (0 by default).
+      #
+      # @example
+      #   myreg.data          # => 0b1111
+      #   myreg.shift_right
+      #   myreg.data          # => 0b0111
+      #   myreg.shift_right
+      #   myreg.data          # => 0b0011
+      #   myreg.shift_right(1)
+      #   myreg.data          # => 0b1001
+      #   myreg.shift_right(1)
+      #   myreg.data          # => 0b1100
+      def shift_right(data = 0)
+        prev_bit = nil
+        each do |bit|
+          prev_bit.write(bit.data) if prev_bit
+          prev_bit = bit
+        end
+        prev_bit.write(data)
+        self
+      end
+
       private
 
       # Converts a binary-like representation of a data value into a hex-like version.

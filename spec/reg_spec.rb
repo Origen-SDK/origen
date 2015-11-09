@@ -1277,5 +1277,51 @@ module RegTest
         reg(:reg).bits(:field4).data.should == 0xa
     end
 
+    it 'regs with all bits writable can be created via a shorthand' do
+      class RegBlock
+        include Origen::Model
+        def initialize
+          reg :reg1, 0
+          reg :reg2, 4, size: 8
+        end
+      end
+
+      b = RegBlock.new
+      b.reg1.size.should == 32
+      b.reg2.size.should == 8
+      b.reg1.write(0xFFFF_FFFF)
+      b.reg1.data.should == 0xFFFF_FFFF
+      b.reg2.write(0xFF)
+      b.reg2.data.should == 0xFF
+    end
+
+    it 'regs can shift left' do
+      reg :sr1, 0, size: 4
+      sr1.write(0xF)
+      sr1.data.should == 0b1111
+      sr1.shift_left
+      sr1.data.should == 0b1110
+      sr1.shift_left
+      sr1.data.should == 0b1100
+      sr1.shift_left(1)
+      sr1.data.should == 0b1001
+      sr1.shift_left(1)
+      sr1.data.should == 0b0011
+    end
+
+    it 'regs can shift right' do
+      reg :sr2, 0, size: 4
+      sr2.write(0xF)
+      sr2.data.should == 0b1111
+      sr2.shift_right
+      sr2.data.should == 0b0111
+      sr2.shift_right
+      sr2.data.should == 0b0011
+      sr2.shift_right(1)
+      sr2.data.should == 0b1001
+      sr2.shift_right(1)
+      sr2.data.should == 0b1100
+    end
+
   end
 end
