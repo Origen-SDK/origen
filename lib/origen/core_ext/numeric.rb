@@ -1,4 +1,8 @@
 class Numeric
+  def undefined?
+    false
+  end
+
   def to_hex
     "0x#{to_s(16).upcase}"
   end

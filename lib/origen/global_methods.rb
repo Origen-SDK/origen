@@ -57,6 +57,10 @@ module Origen
       binding
     end
 
+    def undefined
+      Origen::UndefinedClass.instance
+    end
+
     Pattern = Origen.pattern unless defined?(Pattern)
     Flow = Origen.flow unless defined?(Flow)
     Resources = Origen.resources unless defined?(Resources)

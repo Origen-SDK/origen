@@ -206,7 +206,10 @@ module Origen
       #   reg(:control).data         #  => 0x55, assuming the reg has the required bits to store that
       def data
         data = 0
-        each_with_index { |bit, i| data |= bit.data << i }
+        each_with_index do |bit, i|
+          return undefined if bit.is_a?(Origen::UndefinedClass)
+          data |= bit.data << i
+        end
         data
       end
       alias_method :val, :data

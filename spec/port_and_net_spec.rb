@@ -165,4 +165,41 @@ describe 'Ports and Nets' do
     b.pa[0].drive(0)
     b.sub1.pa[0].data.should == 0
   end
+
+  it 'ports can be connected via a Proc' do
+    class Block
+      include Origen::Model
+
+      attr_accessor :select
+
+      def initialize
+        port :pa, size: 8
+        port :pb, size: 8
+        sub_block :sub1, class_name: "Sub"
+
+        @select = :pa
+
+        sub1.pa.connect_to do |i|
+          send(select)[i].path
+        end
+      end
+    end
+
+    class Sub
+      include Origen::Model
+      def initialize
+        port :pa, size: 8
+      end
+    end
+
+    b = Block.new
+
+    b.pa.drive(0x11)
+    b.pb.drive(0x22)
+    b.sub1.pa.data.should == 0x11
+    b.select = :pb
+    b.sub1.pa.data.should == 0x22
+    b.select = :pa
+    b.sub1.pa.data.should == 0x11
+  end
 end

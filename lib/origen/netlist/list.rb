@@ -13,7 +13,8 @@ module Origen
 
       # Connect two paths together in the netlist, one can be a numeric
       # value to represent a logic level connection
-      def connect(a, b)
+      def connect(a, b = nil, &block)
+        b ||= block
         align(a, b) do |path, index, target|
           table[path] ||= {}
           table[path][index] ||= []
@@ -26,7 +27,7 @@ module Origen
         if bits.size > 1
           fail "Multiple data bit connections found for node #{path}[#{index}]"
         elsif bits.size == 0
-          fail "No data bit connections found for node #{path}[#{index}]"
+          return undefined
         end
         bits.first
       end
@@ -42,9 +43,10 @@ module Origen
             # drive value applied to a port
             vals << "#{path}[#{i}]" if i != '*' && !options[:sublevel]
             vals.each do |val|
+              val = val.call(index) if val.is_a?(Proc)
               if val.is_a?(Fixnum)
                 bits << Registers::Bit.new(nil, index, access: :ro, data: i == '*' ? val[index] : val)
-              else
+              elsif val
                 vp, vi = *to_v(val)
                 bc = eval("top_level.#{vp}[#{vi || index}]")
                 if bc.is_a?(Registers::BitCollection)
@@ -72,11 +74,13 @@ module Origen
             size = a[:size] || b[:size]
           end
 
-          unless a[:numeric]
+          unless a[:numeric] || a[:proc]
             size.times do |i|
               index = a[:indexes] ? a[:indexes][i] : i
               if b[:numeric]
                 target = b[:path][i]
+              elsif b[:proc]
+                target = b[:path]
               else
                 if b[:indexes]
                   target = "#{b[:path]}[#{b[:indexes][i]}]"
@@ -88,11 +92,13 @@ module Origen
             end
           end
 
-          unless b[:numeric]
+          unless b[:numeric] || b[:proc]
             size.times do |i|
               index = b[:indexes] ? b[:indexes][i] : i
               if a[:numeric]
                 target = a[:path][i]
+              elsif a[:proc]
+                target = a[:path]
               else
                 if a[:indexes]
                   target = "#{a[:path]}[#{a[:indexes][i]}]"
@@ -105,14 +111,16 @@ module Origen
           end
 
         else
-          yield a[:path], '*', b[:path] unless a[:numeric]
-          yield b[:path], '*', a[:path] unless b[:numeric]
+          yield a[:path], '*', b[:path] unless a[:numeric] || a[:proc]
+          yield b[:path], '*', a[:path] unless b[:numeric] || b[:proc]
         end
       end
 
       def clean(path)
         if path.is_a?(Fixnum)
           { path: path, numeric: true }
+        elsif path.is_a?(Proc)
+          { path: path, proc: true }
         else
           if path =~ /(.*)\[(\d+):?(\d*)\]$/
             if Regexp.last_match(3).empty?
