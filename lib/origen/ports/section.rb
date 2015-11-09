@@ -32,6 +32,18 @@ module Origen
         port.id
       end
 
+      def drive(value = nil)
+        port.drive(value, index: index)
+      end
+
+      def drive_value
+        if size == 1
+          port.drive_values[index]
+        else
+          fail 'drive_value is only supported for a single bit port section'
+        end
+      end
+
       def [](index)
         Section.new(port, align_to_port(index))
       end

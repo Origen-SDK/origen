@@ -45,6 +45,23 @@ describe 'Ports and Nets' do
     b.pa[7..4][1..0].path.should == "pa[5:4]"
   end
 
+  it 'creates lower-cased accessors' do
+    class Block
+      include Origen::Model
+
+      def initialize
+        port :DI, size: 8
+        port :SR, size: 16 do |port|
+          port.bits 7..0, :d1
+        end
+      end
+    end
+
+    b = Block.new
+    b.DI.should == b.di
+    b.SR.should == b.sr
+  end
+
   it 'ports can be tied off to a value' do
     class Block
       include Origen::Model
@@ -123,5 +140,29 @@ describe 'Ports and Nets' do
     n[3..0].data.should == 0xA
     n[7..4].data.should == 0x5
     b.pb.data.should == 0xA5
+  end
+
+  it 'ports can be driven' do
+    class Block
+      include Origen::Model
+      def initialize
+        port :pa, size: 8
+        sub_block :sub1, class_name: "Sub"
+        pa.connect_to(sub1.pa)
+      end
+    end
+
+    class Sub
+      include Origen::Model
+      def initialize
+        port :pa, size: 8
+      end
+    end
+
+    b = Block.new
+    b.pa[0].drive(1)
+    b.sub1.pa[0].data.should == 1
+    b.pa[0].drive(0)
+    b.sub1.pa[0].data.should == 0
   end
 end

@@ -38,6 +38,9 @@ module Origen
           unless processed_paths.include?("#{path}[#{i}]")
             processed_paths << "#{path}[#{i}]"
             vals = (table[path] || {})[i] || []
+            # Also consider anything attached directly to the requested path, e.g. a
+            # drive value applied to a port
+            vals << "#{path}[#{i}]" if i != '*' && !options[:sublevel]
             vals.each do |val|
               if val.is_a?(Fixnum)
                 bits << Registers::Bit.new(nil, index, access: :ro, data: i == '*' ? val[index] : val)
@@ -46,8 +49,10 @@ module Origen
                 bc = eval("top_level.#{vp}[#{vi || index}]")
                 if bc.is_a?(Registers::BitCollection)
                   bits << bc.bit
+                elsif bc.is_a?(Ports::Section) && bc.drive_value
+                  bits << Registers::Bit.new(nil, index, access: :ro, data: bc.drive_value)
                 else
-                  bits += data_bits(vp, vi || index, processed_paths: processed_paths) || []
+                  bits += data_bits(vp, vi || index, processed_paths: processed_paths, sublevel: true) || []
                 end
               end
             end

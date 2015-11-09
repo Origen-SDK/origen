@@ -11,7 +11,7 @@ module Origen
           yield p
         end
       end
-      _ports[name] = p
+      _ports[name.to_s.symbolize] = p
       p
     end
 
@@ -21,7 +21,7 @@ module Origen
       else
         if args.first
           if has_port?(args.first)
-            _ports[args.first]
+            _ports[args.first.to_s.symbolize]
           else
             if initialized?
               puts "Model #{self.class} does not have a port named #{args.first}, the available ports are:"
@@ -41,19 +41,19 @@ module Origen
     alias_method :ports, :port
 
     def has_port?(name)
-      _ports.key?(name)
+      _ports.key?(name.to_s.symbolize)
     end
 
     def method_missing(method, *args, &block)
-      if _ports.key?(method)
-        _ports[method]
+      if _ports.key?(method.to_s.symbolize)
+        _ports[method.to_s.symbolize]
       else
         super
       end
     end
 
     def respond_to?(sym)
-      _ports.key?(sym) || super(sym)
+      has_port?(sym) || super(sym)
     end
 
     private

@@ -33,6 +33,28 @@ module Origen
         end
       end
 
+      def drive(value = nil, options = {})
+        value, options = nil, value if value.is_a?(Hash)
+        if options[:index]
+          if options[:index].is_a?(Fixnum)
+            drive_values[options[:index]] = value ? value[0] : nil
+          else
+            options[:index].to_a.each do |i|
+              drive_values[i] = value ? value[i] : nil
+            end
+          end
+        else
+          size.times do |i|
+            drive_values[i] = value ? value[i] : nil
+          end
+        end
+        @drive_value = value
+      end
+
+      def drive_values
+        @drive_values ||= Array.new(size)
+      end
+
       def to_section
         Section.new(self, (size - 1)..0)
       end
