@@ -234,8 +234,12 @@ module Origen
       # This does not account for any overridding that may have been applied to
       # this bit specifically however, use the meta method to get that.
       def default_bit_metadata
-        Origen::Registers.default_bit_metadata.merge(
-          Origen::Registers.bit_metadata[owner.owner.class] || {})
+        if owner
+          Origen::Registers.default_bit_metadata.merge(
+            Origen::Registers.bit_metadata[owner.owner.class] || {})
+        else
+          Origen::Registers.default_bit_metadata
+        end
       end
 
       def inspect

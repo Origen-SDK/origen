@@ -21,17 +21,45 @@ module Origen
         end
       end
 
-      def connections(vector)
-        nets = (table[vector.path] || {}).select do |index, nets|
-          !index || index == vector.index || overlap?(index, vector.index)
+      def data_bit(path, index, options = {})
+        bits = data_bits(path, index, options)
+        if bits.size > 1
+          fail "Multiple data bit connections found for node #{path}[#{index}]"
+        elsif bits.size == 0
+          fail "No data bit connections found for node #{path}[#{index}]"
         end
-        nets.values.flatten
+        bits.first
+      end
+
+      def data_bits(path, index, options = {})
+        processed_paths = options[:processed_paths] || []
+        bits = []
+        ['*', index].each do |i|
+          unless processed_paths.include?("#{path}[#{i}]")
+            processed_paths << "#{path}[#{i}]"
+            vals = (table[path] || {})[i] || []
+            vals.each do |val|
+              if val.is_a?(Fixnum)
+                bits << Registers::Bit.new(nil, index, access: :ro, data: i == '*' ? val[index] : val)
+              else
+                vp, vi = *to_v(val)
+                bc = eval("top_level.#{vp}[#{vi || index}]")
+                if bc.is_a?(Registers::BitCollection)
+                  bits << bc.bit
+                else
+                  bits += data_bits(vp, vi || index, processed_paths: processed_paths) || []
+                end
+              end
+            end
+          end
+        end
+        bits.uniq
       end
 
       private
 
       def align(a, b)
-        a,b = clean(a), clean(b)
+        a, b = clean(a), clean(b)
         if a[:size] || b[:size]
           if a[:size] && b[:size]
             size = [a[:size], b[:size]].min
@@ -79,37 +107,26 @@ module Origen
 
       def clean(path)
         if path.is_a?(Fixnum)
-          {path: path, numeric: true}
+          { path: path, numeric: true }
         else
           if path =~ /(.*)\[(\d+):?(\d*)\]$/
             if Regexp.last_match(3).empty?
-              {path: $1, size: 1, indexes: [$2.to_i]}
+              { path: Regexp.last_match(1), size: 1, indexes: [Regexp.last_match(2).to_i] }
             else
               a = ((Regexp.last_match(2).to_i)..(Regexp.last_match(3).to_i)).to_a
-              {path: $1, size: a.size, indexes: a}
+              { path: Regexp.last_match(1), size: a.size, indexes: a }
             end
           else
-            {path: path}
-          end 
+            { path: path }
+          end
         end
       end
 
-      def overlap?(master, subset)
-        master = to_array(master)
-        to_array(subset).all? { |i| master.include?(i) }
-      end
-
-      def to_array(i)
-        if i.is_a?(Range)
-          first = i.first
-          last = i.last
-          if first > last
-            (last..first).to_a
-          else
-            (first..last).to_a
-          end
+      def to_v(path)
+        if path =~ /(.*)\[(\d+)\]$/
+          [Regexp.last_match(1), Regexp.last_match(2).to_i]
         else
-          [i]
+          [path, nil]
         end
       end
     end

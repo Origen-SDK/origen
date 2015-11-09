@@ -40,21 +40,24 @@ module Origen
       def method_missing(method, *args, &block)
         if @bit_names.key?(method)
           Section.new(self, @bit_names[method])
+        elsif BitCollection.instance_methods.include?(method)
+          to_bc.send(method, *args, &block)
         else
           super
         end
       end
 
       def respond_to?(*args)
-        @bit_names.key?(args.first) || super(*args)
+        @bit_names.key?(args.first) || super(*args) ||
+          BitCollection.instance_methods.include?(args.first)
       end
 
       def [](val)
         Section.new(self, val)
       end
 
-      def data
-        data_from_netlist
+      def to_bc
+        to_section.to_bc
       end
 
       private

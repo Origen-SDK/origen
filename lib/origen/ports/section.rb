@@ -36,8 +36,25 @@ module Origen
         Section.new(port, align_to_port(index))
       end
 
-      def data
-        data_from_netlist
+      def respond_to?(*args)
+        super(*args) || BitCollection.instance_methods.include?(args.first)
+      end
+
+      def method_missing(method, *args, &block)
+        if BitCollection.instance_methods.include?(method)
+          to_bc.send(method, *args, &block)
+        else
+          super
+        end
+      end
+
+      def to_bc
+        b = BitCollection.new(port, port.id)
+        indexes = index.respond_to?(:to_a) ? index.to_a : [index]
+        indexes.reverse_each do |i|
+          b << netlist.data_bit(port.path, i)
+        end
+        b
       end
 
       private
