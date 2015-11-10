@@ -4,8 +4,8 @@ describe 'The Origen Scan Register model' do
   class Block
     include Origen::Model
 
-    def initialize
-      sub_block :reg4, class_name: "Origen::Models::ScanRegister", size: 4
+    def initialize(options={})
+      sub_block :reg4, class_name: "Origen::Models::ScanRegister", size: 4, reset: options[:reset]
     end
   end
 
@@ -16,42 +16,66 @@ describe 'The Origen Scan Register model' do
     b.reg4.size.should == 4
   end
 
-  it 'can shift data in and out via a clock' do
+  it 'can shift data in and out via a clock when SE is high' do
     b = Block.new
     sr = b.reg4
     sr.so.data.should == 0
     sr.si.drive(1)
-    sr.u.data.should == 0
+    sr.sr.data.should == 0
     b.clock!
-    sr.u.data.should == 0b1000
+    sr.sr.data.should == 0
+    sr.se.drive(1)
+    b.clock!
+    sr.sr.data.should == 0b1000
     sr.so.data.should == 0
     b.clock!
     b.clock!
     b.clock!
-    sr.u.data.should == 0b1111
+    sr.sr.data.should == 0b1111
     sr.so.data.should == 1
+    sr.si.drive(0)
+    b.clock!
+    sr.sr.data.should == 0b0111
+    sr.se.drive(0)
+    b.clock!
+    b.clock!
+    b.clock!
+    sr.sr.data.should == 0b0111
   end
 
-  it 'can capture data' do
-    b = Block.new
+  it 'can capture data when CE is high' do
+    b = Block.new(reset: 0b1111)
     sr = b.reg4
+    sr.sr.data.should == 0b1111
     sr.si.drive(0)
     sr.c.drive(0b1010)
-    sr.u.data.should == 0
-    sr.mode = :capture
+    sr.sr.data.should == 0b1111
     b.clock!
-    sr.u.data.should == 0b1010
-    sr.mode = :shift
-    sr.so.data.should == 0
+    sr.sr.data.should == 0b1111
+    sr.ce.drive(1)
     b.clock!
-    sr.so.data.should == 1
-    b.clock!
-    sr.so.data.should == 0
-    b.clock!
-    sr.so.data.should == 1
-    b.clock!
-    sr.so.data.should == 0
-    sr.u.data.should == 0b0000
+    sr.sr.data.should == 0b1010
   end
+
+  it 'can update data when UE is high' do
+    b = Block.new(reset: 0b1010)
+    sr = b.reg4
+    sr.data.should == 0b1010
+
+    sr.si.drive(1)
+    sr.se.drive(1)
+    b.clock!
+    b.clock!
+    b.clock!
+    b.clock!
+
+    sr.data.should == 0b1010
+    sr.se.drive(0)
+    sr.ue.drive(1)
+    sr.data.should == 0b1010
+    b.clock!
+    sr.data.should == 0b1111
+  end
+  
 
 end

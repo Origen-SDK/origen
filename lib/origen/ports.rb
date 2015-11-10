@@ -3,6 +3,7 @@ module Origen
     autoload :Port,     'origen/ports/port'
     autoload :Section,  'origen/ports/section'
     autoload :BitCollection,  'origen/ports/bit_collection'
+    autoload :PortCollection,  'origen/ports/port_collection'
 
     def add_port(name, options = {})
       p = Port.new(self, name, options)
@@ -11,7 +12,7 @@ module Origen
           yield p
         end
       end
-      _ports[name.to_s.symbolize] = p
+      _ports.add(name.to_s.symbolize, p)
       p
     end
 
@@ -59,7 +60,7 @@ module Origen
     private
 
     def _ports
-      @_ports ||= {}.with_indifferent_access
+      @_ports ||= PortCollection.new
     end
   end
 end

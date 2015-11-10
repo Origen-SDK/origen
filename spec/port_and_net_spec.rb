@@ -175,12 +175,21 @@ describe 'Ports and Nets' do
       def initialize
         port :pa, size: 8
         port :pb, size: 8
+        port :pc, size: 8
         sub_block :sub1, class_name: "Sub"
 
         @select = :pa
 
         sub1.pa.connect_to do |i|
           send(select)[i].path
+        end
+
+        pc.connect_to do |i|
+          if i < 4
+            0
+          else
+            1
+          end
         end
       end
     end
@@ -201,5 +210,22 @@ describe 'Ports and Nets' do
     b.sub1.pa.data.should == 0x22
     b.select = :pa
     b.sub1.pa.data.should == 0x11
+    b.pc.data.should == 0xF0
+  end
+
+  it 'ports can be given a type and looked up by type' do
+    class Block
+      include Origen::Model
+
+      def initialize
+        port :si, type: :scan_in
+        port :di, size: 8, type: :data_in
+      end
+    end
+
+    b = Block.new
+    b.si.type.should == :scan_in
+    b.di.type.should == :data_in
+    b.ports.by_type[:scan_in].first.should == b.si
   end
 end

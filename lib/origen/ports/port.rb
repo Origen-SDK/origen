@@ -6,6 +6,7 @@ module Origen
       attr_reader :size
       attr_reader :parent
       attr_reader :id
+      attr_reader :type
 
       alias_method :name, :id
       alias_method :owner, :parent
@@ -14,6 +15,7 @@ module Origen
         @size = options[:size] || 1
         @parent = parent
         @id = id
+        @type = options[:type]
         @bit_names = {}.with_indifferent_access
       end
 

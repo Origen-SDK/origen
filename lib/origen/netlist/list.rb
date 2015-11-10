@@ -43,9 +43,14 @@ module Origen
             # drive value applied to a port
             vals << "#{path}[#{i}]" if i != '*' && !options[:sublevel]
             vals.each do |val|
-              val = val.call(index) if val.is_a?(Proc)
+              if val.is_a?(Proc)
+                from_proc = true
+                val = val.call(index)
+              else
+                from_proc = false
+              end
               if val.is_a?(Fixnum)
-                bits << Registers::Bit.new(nil, index, access: :ro, data: i == '*' ? val[index] : val)
+                bits << Registers::Bit.new(nil, index, access: :ro, data: (i == '*' && !from_proc) ? val[index] : val)
               elsif val
                 vp, vi = *to_v(val)
                 bc = eval("top_level.#{vp}[#{vi || index}]")

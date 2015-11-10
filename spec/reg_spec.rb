@@ -759,7 +759,6 @@ module RegTest
       nvm.add_reg_with_block_format
       nvm.reg(:dreg3).description(include_name: false).size.should == 1
       nvm.reg(:dreg3).description(include_name: false).first.should == "This is dreg3"
-      $yo = true 
       nvm.reg(:dreg3).bit(:bit15).description.size.should == 1
       nvm.reg(:dreg3).bit(:bit15).description.first.should == "This is dreg3 bit 15"
       nvm.reg(:dreg3).bit(:lower).description.size.should == 2
@@ -1283,6 +1282,7 @@ module RegTest
         def initialize
           reg :reg1, 0
           reg :reg2, 4, size: 8
+          reg :reg3, 5, size: 8, reset: 0xFF
         end
       end
 
@@ -1293,6 +1293,7 @@ module RegTest
       b.reg1.data.should == 0xFFFF_FFFF
       b.reg2.write(0xFF)
       b.reg2.data.should == 0xFF
+      b.reg3.data.should == 0xFF
     end
 
     it 'regs can shift left' do

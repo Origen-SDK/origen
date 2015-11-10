@@ -311,8 +311,9 @@ module Origen
         @new_reg_attrs = { meta: bit_info }
         yield self
       else
-        # If no block given then init with all writable bits that reset to 0 by default
-        @new_reg_attrs = { meta: bit_info, d: { reset: 0, pos: 0, bits: size } }
+        # If no block given then init with all writable bits
+        @new_reg_attrs = { d: { pos: 0, bits: size }.merge(bit_info) }
+
       end
       bit_info = @new_reg_attrs
       if _registers[id] && Origen.config.strict_errors
