@@ -19,6 +19,39 @@ module Origen
         @bit_names = {}.with_indifferent_access
       end
 
+      def inspect
+        "<#{self.class}:#{object_id} id:#{id} path:#{path}>"
+      end
+
+      def describe(options = {})
+        desc = ['********************']
+        desc << "Port id:   #{id}"
+        desc << "Port path: #{path}"
+        desc << ''
+        desc << 'Connections'
+        desc << '-----------'
+        desc << ''
+        table = netlist.table
+        ((size - 1)..0).to_a.each do |i|
+          if table[path]
+            c = [table[path]['*'], table[path][i]].flatten.compact.map { |n| n.is_a?(Proc) ? 'Proc' : n }
+            desc << "#{i} - #{c.shift}"
+            c.each do |n|
+              desc << "     - #{n}"
+            end
+          else
+            desc << "#{i} - none"
+          end
+        end
+        desc << ''
+
+        if options[:return]
+          desc
+        else
+          puts desc.join("\n")
+        end
+      end
+
       def path
         if parent.path.empty?
           id.to_s

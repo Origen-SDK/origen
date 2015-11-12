@@ -1,10 +1,6 @@
 module Origen
   module Ports
     class PortCollection < ::Hash
-      def initialize(*args)
-        super.with_indifferent_access
-      end
-
       def add(name, port)
         self[name] = port
         by_type[port.type] ||= []

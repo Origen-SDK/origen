@@ -76,6 +76,43 @@ describe 'The Origen Scan Register model' do
     b.clock!
     sr.data.should == 0b1111
   end
+
+  it "chained registers don't collapse at the join" do
+    class ChainBlock
+      include Origen::Model
+
+      def initialize(options={})
+        port :si
+        port :so
+        sub_block :reg1, class_name: "Origen::Models::ScanRegister", size: 4, reset: options[:reset]
+        sub_block :reg2, class_name: "Origen::Models::ScanRegister", size: 4, reset: options[:reset]
+        si.connect_to reg1.si
+        reg1.so.connect_to reg2.si
+        so.connect_to reg2.so
+        reg1.se.drive(1)
+        reg2.se.drive(1)
+      end
+    end
+    b = ChainBlock.new
+    b.si.drive(1)
+    b.so.data.should == 0
+    b.clock!
+    b.so.data.should == 0
+    b.clock!
+    b.so.data.should == 0
+    b.clock!
+    b.so.data.should == 0
+    b.clock!
+    b.so.data.should == 0
+    b.clock!
+    b.so.data.should == 0
+    b.clock!
+    b.so.data.should == 0
+    b.clock!
+    b.so.data.should == 0
+    b.clock!
+    b.so.data.should == 1
+  end
   
 
 end
