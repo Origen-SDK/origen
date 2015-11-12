@@ -301,10 +301,17 @@ module Origen
     end
 
     def clock!
+      clock_prepare
+      clock_apply
+    end
+
+    def clock_prepare
       sub_blocks.each do |name, block|
         block.clock_prepare if block.respond_to?(:clock_prepare)
-        block.clock!
       end
+    end
+
+    def clock_apply
       sub_blocks.each do |name, block|
         block.clock_apply if block.respond_to?(:clock_apply)
       end

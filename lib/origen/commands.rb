@@ -218,6 +218,10 @@ when 'generate', 'program', 'compile', 'merge', 'interactive', 'target', 'enviro
   require "origen/commands/#{@command}"
   exit 0 unless @command == 'interactive'
 
+when 'exec'
+  load ARGV.first
+  exit 0
+
 when 'version'
   Origen.app # Load app
   require 'origen/commands/version'
@@ -242,6 +246,7 @@ The core origen commands are:
  program      Generate a test program (short-cut alias: "p")
  interactive  Start an interactive Origen console (short-cut alias: "i")
  compile      Compile a template file or directory (short-cut alias: "c")
+ exec         Execute any Ruby file with access to your app environment
 
  rc           Revision control commands, see -h for details
  save         Save the new or changed files from the last run or a given log file
