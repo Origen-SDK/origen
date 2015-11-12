@@ -48,4 +48,12 @@ describe Numeric do
     1.GB.should == 1024 * 1024 * 1024
   end
 
+  specify 'sized numbers work' do
+    0x1234.sized(16).size.should == 16
+    0x5.sized(8).to_bin.should == "0b00000101"
+    0x5.sized(8).to_hex.should == "0x05"
+    0x5.sized(16).to_hex.should == "0x0005"
+    0x1234.sized(8).should == 0x34
+  end
+
 end

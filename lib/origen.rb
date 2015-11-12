@@ -53,6 +53,7 @@ unless defined? RGen::ORIGENTRANSITION
     autoload :Chips,     'origen/chips'
     autoload :Netlist,   'origen/netlist'
     autoload :Models,    'origen/models'
+    autoload :SizedNumber,    'origen/sized_number'
 
     APP_CONFIG = File.join('config', 'application.rb')
 

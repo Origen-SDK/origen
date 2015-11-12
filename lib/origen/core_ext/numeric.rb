@@ -3,6 +3,10 @@ class Numeric
     false
   end
 
+  def sized(size)
+    Origen::SizedNumber.new(self, size)
+  end
+
   def to_hex
     "0x#{to_s(16).upcase}"
   end
