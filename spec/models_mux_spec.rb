@@ -5,13 +5,14 @@ describe 'The Origen MUX model' do
     include Origen::Model
 
     def initialize
-      sub_block :mux, class_name: "Origen::Models::Mux", select_lines: 2,
-        size: 8
+      sub_block :mux, class_name: "Origen::Models::Mux"
 
-      port :a, size: 8
-      port :b, size: 8
-      port :c, size: 8
-      port :sel, size: 2
+      port :a
+      port :b
+      port :c
+      port :sel
+
+      mux.select_by sel
 
       mux.input0.connect_to(a)
       mux.input1.connect_to(b)
@@ -21,6 +22,13 @@ describe 'The Origen MUX model' do
       mux.select.connect_to(sel)
     end
   end
+
+
+  # // implements compare_out = (check_mismatch) ? different : same
+  # ScanMux compare_out SelectedBy check_mismatch[1:0] {
+  #   1’b0,1’b1 | 1’b1,1’b0 : different;
+  #   1’b1,1’b1 | 1’b0,1’b0 : same;
+  # }
 
   it 'can be instantiated in a parent model' do
     b = MuxBlock.new
@@ -46,5 +54,39 @@ describe 'The Origen MUX model' do
     b.mux.output.data.should == 0x33
     b.sel.drive(3)
     b.mux.output.data.should == 0x22
+  end
+
+  it 'example 1' do
+    # Based on this real life example
+    #
+    #   ScanMux M_bypass SelectedBy tpr_bypass, tpr_input_en, tpr_output_en, tpr_config {
+    #      4'b0100 : R_2[0];
+    #      4'b1XXX : tdi;
+    #   }
+    class MuxBlock2
+      include Origen::Model
+
+      def initialize
+        port :a
+        port :b
+        port :c
+        port :tpr_bypass
+        port :tpr_input_en
+        port :tpr_output_en
+        port :tpr_config
+
+        sub_block :mux, class_name: "Origen::Models::Mux" do |mux|
+          mux.select_by tpr_bypass, tpr_input_en, tpr_output_en, tpr_config
+          mux.option 0b0100, a
+          mux.option :b4_1XXX, b
+        end
+
+        mux.output.connect_to c
+      end
+    end
+
+    b = MuxBlock2
+
+    b.c.data.should == undefined
   end
 end
