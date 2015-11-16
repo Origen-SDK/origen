@@ -54,6 +54,14 @@ describe Numeric do
     0x5.sized(8).to_hex.should == "0x05"
     0x5.sized(16).to_hex.should == "0x0005"
     0x1234.sized(8).should == 0x34
+
+    # Verify sized numbers can be created from symbols
+    Origen::SizedNumber.new(:h16_12_34).size.should == 16
+    Origen::SizedNumber.new(:h8_5).to_bin.should == "0b00000101"
+    Origen::SizedNumber.new(:h8_5).to_hex.should == "0x05"
+    Origen::SizedNumber.new(:h16_5).to_hex.should == "0x0005"
+    Origen::SizedNumber.new(:h8_1234).should == 0x34
+    Origen::SizedNumber.new(:b8_1100).to_bin.should == "0b00001100"
   end
 
 end

@@ -5,16 +5,16 @@ module Origen
     def initialize(number)
       number = number.to_s
 
-      if number =~ /^b(\d+)_([10xX]+)$/
+      if number =~ /^b(\d+)_([10xX_]+)$/
         @size = Regexp.last_match(1).to_i
-        str = Regexp.last_match(2).upcase
+        str = Regexp.last_match(2).gsub('_', '').upcase
         v = ((1 << @size) - 1)
         @value = str.gsub('X', '0').to_i(2) & v
         @mask = str.gsub('0', '1').gsub('X', '0').rjust(@size, '1').to_i(2) & v
         @format = :bin
-      elsif number =~ /^h(\d+)_([0-9a-fA-FxX]+)$/
+      elsif number =~ /^h(\d+)_([0-9a-fA-FxX_]+)$/
         @size = Regexp.last_match(1).to_i
-        str = Regexp.last_match(2).upcase
+        str = Regexp.last_match(2).gsub('_', '').upcase
         v = ((1 << @size) - 1)
         @value = str.gsub('X', '0').to_i(16) & v
         @mask = str.gsub(/[0-9A-F]/, 'F').gsub('X', '0').rjust(@size / 4, 'F').to_i(16) & v

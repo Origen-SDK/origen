@@ -1,8 +1,6 @@
 module Origen
   module Ports
     class Port
-      include Netlist::Connectable
-
       attr_reader :size
       attr_reader :parent
       attr_reader :id
@@ -12,12 +10,21 @@ module Origen
       alias_method :owner, :parent
 
       def initialize(parent, id, options = {})
-        @size = options[:size] || 1
+        @size = options[:size]
         @parent = parent
         @id = id
         @type = options[:type]
         @bit_names = {}.with_indifferent_access
       end
+
+      def connect_to(*nodes, &block)
+        options = nodes.last.is_a?(Hash) ? nodes.pop : {}
+
+
+        node = node.path if node.respond_to?(:path)
+        netlist.connect(path, node, &block)
+      end
+      alias_method :connect, :connect_to
 
       def inspect
         "<#{self.class}:#{object_id} id:#{id} path:#{path}>"
