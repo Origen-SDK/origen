@@ -4,6 +4,7 @@ module Origen
     autoload :Section,  'origen/ports/section'
     autoload :BitCollection,  'origen/ports/bit_collection'
     autoload :PortCollection,  'origen/ports/port_collection'
+    autoload :Connection,  'origen/ports/connection'
 
     def add_port(name, options = {})
       p = Port.new(self, name, options)
@@ -47,14 +48,18 @@ module Origen
 
     def method_missing(method, *args, &block)
       if _ports.key?(method.to_s.symbolize)
-        _ports[method.to_s.symbolize]
+        p = _ports[method.to_s.symbolize]
+        define_singleton_method "#{method}" do
+          p
+        end
+        send(method)
       else
         super
       end
     end
 
     def respond_to?(sym)
-      has_port?(sym) || super(sym)
+      super(sym) || has_port?(sym)
     end
 
     private

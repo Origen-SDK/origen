@@ -51,7 +51,6 @@ unless defined? RGen::ORIGENTRANSITION
     autoload :Encodings, 'origen/encodings'
     autoload :Log,       'origen/log'
     autoload :Chips,     'origen/chips'
-    autoload :Netlist,   'origen/netlist'
     autoload :Models,    'origen/models'
     autoload :SizedNumber,    'origen/sized_number'
     autoload :XNumber,    'origen/x_number'

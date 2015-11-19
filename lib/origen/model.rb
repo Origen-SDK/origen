@@ -20,7 +20,6 @@ module Origen
       include Origen::Parameters
       include Origen::Specs
       include Origen::Ports
-      include Origen::Netlist
     end
 
     module ClassMethods
@@ -34,6 +33,14 @@ module Origen
         "<Model/Controller: #{self.class}:#{object_id}/#{controller.class}:#{controller.object_id}>"
       else
         "<Model: #{self.class}:#{object_id}>"
+      end
+    end
+
+    def local_top_level
+      @local_top_level ||= begin
+        p = self
+        p = p.parent while p.respond_to?(:parent) && p.parent
+        p
       end
     end
 

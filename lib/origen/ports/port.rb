@@ -9,25 +9,80 @@ module Origen
       alias_method :name, :id
       alias_method :owner, :parent
 
+      def self.connections
+        @connections ||= {}
+      end
+
       def initialize(parent, id, options = {})
         @size = options[:size]
         @parent = parent
         @id = id
         @type = options[:type]
         @bit_names = {}.with_indifferent_access
+        @connections = []
       end
 
       def connect_to(*nodes, &block)
         options = nodes.last.is_a?(Hash) ? nodes.pop : {}
-
-
-        node = node.path if node.respond_to?(:path)
-        netlist.connect(path, node, &block)
+        if block_given?
+          if nodes.empty?
+            c = Connection.new(self, block, called_by: caller[0])
+          else
+            fail 'When supplying a block to connect_to, no other nodes can be given'
+          end
+        else
+          c = Connection.new(self, *nodes, called_by: caller[0])
+          # Store a centralized reference to this new connection, for each path or object
+          # it references
+          cs = Port.connections[top_level] ||= {}
+          nodes.each do |n|
+            if n.is_a?(String)
+              if n =~ /(.*)\[\d+:?\d*\]/
+                cs[Regexp.last_match(1)] = c
+              else
+                cs[n] = c
+              end
+            elsif n.is_a?(Ports::Section)
+              cs[n.port] = c
+            elsif n.is_a?(Ports::Port)
+              cs[n] = c
+            end
+          end
+        end
+        connections << c
       end
       alias_method :connect, :connect_to
 
       def inspect
         "<#{self.class}:#{object_id} id:#{id} path:#{path}>"
+      end
+
+      def connections
+        unless @referenced_connections_done
+          if cs = Port.connections[top_level]
+            if cs[self]
+              @connections << cs[self].from_pov(self)
+            end
+            if cs[path]
+              @connections << cs[path].from_pov(self)
+            end
+            @bit_names.each do |n|
+              if con = cs["#{path}.#{n}"]
+                @connections << con.from_pov(self)
+              end
+            end
+          end
+          @referenced_connections_done = true
+        end
+        @connections
+      end
+
+      def data
+        @drive_value ||
+          connections.each do |connection|
+            d = connection.data
+            return d unless d == undefined
+          end || undefined
       end
 
       def describe(options = {})
@@ -77,43 +132,7 @@ module Origen
 
       def drive(value = nil, options = {})
         value, options = nil, value if value.is_a?(Hash)
-        if options[:index]
-          if options[:index].is_a?(Fixnum)
-            drive_values[options[:index]] = value ? value[0] : nil
-          else
-            options[:index].to_a.each do |i|
-              drive_values[i] = value ? value[i] : nil
-            end
-          end
-        else
-          size.times do |i|
-            drive_values[i] = value ? value[i] : nil
-          end
-        end
         @drive_value = value
-      end
-
-      def drive_values
-        @drive_values ||= Array.new(size)
-      end
-
-      def to_section
-        Section.new(self, (size - 1)..0)
-      end
-
-      def method_missing(method, *args, &block)
-        if @bit_names.key?(method)
-          Section.new(self, @bit_names[method])
-        elsif BitCollection.instance_methods.include?(method)
-          to_bc.send(method, *args, &block)
-        else
-          super
-        end
-      end
-
-      def respond_to?(*args)
-        @bit_names.key?(args.first) || super(*args) ||
-          BitCollection.instance_methods.include?(args.first)
       end
 
       def [](val)
@@ -122,6 +141,26 @@ module Origen
 
       def to_bc
         to_section.to_bc
+      end
+
+      def method_missing(method, *args, &block)
+        if @bit_names[method]
+          s = self[@bit_names[method]]
+          define_singleton_method "#{method}" do
+            s
+          end
+          send(method)
+        else
+          super
+        end
+      end
+
+      def respond_to?(sym)
+        super || @bit_names[sym]
+      end
+
+      def top_level
+        parent.local_top_level
       end
 
       private

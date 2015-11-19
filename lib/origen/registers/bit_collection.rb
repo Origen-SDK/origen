@@ -10,7 +10,6 @@ module Origen
     # or a group of Bit objects, the same API can be used as described below.
     class BitCollection < Array
       include Origen::SubBlocks::Path
-      include Netlist::Connectable
 
       DONT_CARE_CHAR = 'X'
       OVERLAY_CHAR = 'V'

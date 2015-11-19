@@ -3,7 +3,7 @@ module Origen
   class SizedNumber < ::Delegator
     attr_reader :size
 
-    def initialize(number, size=0)
+    def initialize(number, size = 0)
       if number.is_a?(Symbol) || number.is_a?(String)
         number = number.to_s
         if number =~ /^b(\d+)_([10_]+)$/
@@ -19,9 +19,9 @@ module Origen
           fail "Bad formatted sized-number :#{number}, should be in the format :b4_1010, :h16_55DF or :d4_9"
         end
       elsif !size
-        fail "A size argument must be given when creating a new sized number from a numeric value"
+        fail 'A size argument must be given when creating a new sized number from a numeric value'
       end
-      @number = number & ((2**size)-1)
+      @number = number & ((2**size) - 1)
       @size = size
     end
 
