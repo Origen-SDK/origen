@@ -54,6 +54,7 @@ unless defined? RGen::ORIGENTRANSITION
     autoload :Models,    'origen/models'
     autoload :SizedNumber,    'origen/sized_number'
     autoload :XNumber,    'origen/x_number'
+    autoload :ZNumber,    'origen/z_number'
 
     APP_CONFIG = File.join('config', 'application.rb')
 

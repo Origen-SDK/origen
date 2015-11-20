@@ -22,6 +22,10 @@ module Origen
         @connections = []
       end
 
+      def port
+        self
+      end
+
       def connect_to(*nodes, &block)
         options = nodes.last.is_a?(Hash) ? nodes.pop : {}
         if block_given?
@@ -77,12 +81,22 @@ module Origen
         @connections
       end
 
-      def data
-        @drive_value ||
-          connections.each do |connection|
-            d = connection.data
-            return d unless d == undefined
-          end || undefined
+      def data(options = {})
+        # Always return a drive value regardless of contention with other values, this would normally
+        # only be used on top-level ports anyway, but being able to absolutely force an internal
+        # node is useful for debug
+        return @drive_value if @drive_value
+        if options[:exclude]
+          options[:exclude] << self
+        else
+          options[:exclude] = [self]
+        end
+        if connections.empty?
+          undefined
+        else
+          datas = connections.map { |c| c.data(options) }
+          datas.reduce(:|)
+        end
       end
 
       def describe(options = {})

@@ -254,6 +254,7 @@ module Origen
         define_singleton_method "#{name}s" do
           a
         end
+        yield a if block_given?
         a
       else
         class_name = options.delete(:class_name)
@@ -298,6 +299,7 @@ module Origen
             end
           end
         end
+        yield block if block_given?
         block
       end
     end

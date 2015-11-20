@@ -3,23 +3,39 @@ module Origen
     class Mux
       include Origen::Model
 
-      attr_reader :size
-      attr_reader :select_lines
-
       def initialize(options = {})
-        @input = []
-        (2**select_lines).times do |i|
-          @input << port("input#{i}".to_sym, size: size)
-        end
+        port :select
+        port :output
+        @inputs = {}
 
-        port :select, size: select_lines
-        port :output, size: size
-
-        output.connect_to do |i|
-          unless ports[:select].data.undefined?
-            send("input#{ports[:select].data}")[i].path
+        output.connect_to do
+          s = select.data
+          if s == undefined
+            undefined
+          else
+            option = @inputs.find do |v, connection|
+              connection.data if s == v
+            end
+            option ? option[1] : undefined
           end
         end
+      end
+
+      def select_by(*nodes)
+        select.connect_to(*nodes)
+      end
+
+      def option(val, *nodes)
+        [val].flatten.each do |val|
+          if val.is_a?(Symbol)
+            val = XNumber.new(val)
+          end
+          @inputs[val] = Ports::Connection.new(self, *nodes)
+        end
+      end
+
+      def select
+        port[:select]
       end
     end
   end

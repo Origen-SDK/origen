@@ -16,7 +16,7 @@ module Origen
         @declared_size = 0
       end
 
-      def data
+      def data(options = {})
         d = 0
         p = 0
         cleaned_nodes.each do |n|
@@ -26,11 +26,24 @@ module Origen
             data = n[:proc].call
             data = data.data if data.respond_to?(:data)
           else
-            data = n[:obj].data
+            if n[:obj].is_a?(Ports::Port) || n[:obj].is_a?(Ports::Section)
+              port = n[:obj].port
+              if (options[:exclude] || []).include?(port)
+                data = 0
+              else
+                data = n[:obj].data(options)
+              end
+            else
+              data = n[:obj].data
+            end
           end
-          return undefined if data == undefined
-          d |= data << p
-          p += n[:size] || missing_size
+          # Undefined states are not properly modelled right now, treat them as 0's
+          # in port connections for simplicity
+          data = 0 if data == undefined
+          d |= (data << p)
+          if cleaned_nodes.size > 1
+            p += n[:size] || missing_size
+          end
         end
         d
       end

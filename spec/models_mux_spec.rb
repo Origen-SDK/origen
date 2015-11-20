@@ -14,29 +14,17 @@ describe 'The Origen MUX model' do
 
       mux.select_by sel
 
-      mux.input0.connect_to(a)
-      mux.input1.connect_to(b)
-      mux.input2.connect_to(c)
-      mux.input3.connect_to(b)
-
-      mux.select.connect_to(sel)
+      mux.option 0, a
+      mux.option [1,3], b
+      mux.option 2, c
+      mux.option 4, a[3..0], b[3..0]
     end
   end
-
-
-  # // implements compare_out = (check_mismatch) ? different : same
-  # ScanMux compare_out SelectedBy check_mismatch[1:0] {
-  #   1’b0,1’b1 | 1’b1,1’b0 : different;
-  #   1’b1,1’b1 | 1’b0,1’b0 : same;
-  # }
 
   it 'can be instantiated in a parent model' do
     b = MuxBlock.new
     b.mux.is_a?(Origen::Models::Mux).should == true
     b.mux.parent.should == b
-    b.mux.size.should == 8
-    b.mux.select_lines.should == 2
-    b.mux.input0.size.should == 8
   end
 
   it 'can select the correct input' do
@@ -45,7 +33,7 @@ describe 'The Origen MUX model' do
     b.b.drive(0x22)
     b.c.drive(0x33)
   
-    b.mux.output.data.should == undefined
+    #b.mux.output.data.should == undefined
     b.sel.drive(0)
     b.mux.output.data.should == 0x11
     b.sel.drive(1)
@@ -54,10 +42,12 @@ describe 'The Origen MUX model' do
     b.mux.output.data.should == 0x33
     b.sel.drive(3)
     b.mux.output.data.should == 0x22
+    b.sel.drive(4)
+    b.mux.output.data.should == 0x12
   end
 
   it 'example 1' do
-    # Based on this real life example
+    # Based on this real life 1687 ICL example:
     #
     #   ScanMux M_bypass SelectedBy tpr_bypass, tpr_input_en, tpr_output_en, tpr_config {
     #      4'b0100 : R_2[0];
@@ -70,10 +60,10 @@ describe 'The Origen MUX model' do
         port :a
         port :b
         port :c
-        port :tpr_bypass
-        port :tpr_input_en
-        port :tpr_output_en
-        port :tpr_config
+        port :tpr_bypass, size: 1
+        port :tpr_input_en, size: 1
+        port :tpr_output_en, size: 1
+        port :tpr_config, size: 1
 
         sub_block :mux, class_name: "Origen::Models::Mux" do |mux|
           mux.select_by tpr_bypass, tpr_input_en, tpr_output_en, tpr_config
@@ -82,11 +72,21 @@ describe 'The Origen MUX model' do
         end
 
         mux.output.connect_to c
+        #c.connect_to mux.output
       end
     end
 
-    b = MuxBlock2
+    b = MuxBlock2.new
 
-    b.c.data.should == undefined
+    b.a.drive(0x11)
+    b.b.drive(0x22)
+    b.tpr_bypass.drive(1)
+    b.c.data.should == 0x22
+    b.tpr_bypass.drive(0)
+    b.c.data.should == 0 #undefined
+    b.tpr_input_en.drive(1)
+    b.tpr_output_en.drive(0)
+    b.tpr_config.drive(0)
+    b.c.data.should == 0x11
   end
 end

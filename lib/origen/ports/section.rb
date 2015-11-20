@@ -42,12 +42,8 @@ module Origen
       #  end
       # end
 
-      def data
-        if port.data == undefined
-          undefined
-        else
-          port.data[index]
-        end
+      def data(options = {})
+        port.data(options)[index]
       end
 
       def [](index)

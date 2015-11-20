@@ -159,7 +159,8 @@ describe 'Ports' do
 
     b = Block.new
     b.pa.drive(1)
-    b.pa.data.should == 1
+    n = b.pa
+    n.data.should == 1
     n = b.sub1.pa
     n.data.should == 1
     b.pa.drive(0)
@@ -244,7 +245,8 @@ describe 'Ports' do
 
     b = Block.new
 
-    b.p1.data.should == undefined
+    n = b.p1
+    n.data.should == 0#undefined
     b.p2.drive 0x55
     b.reg1.write 0xFF
     b.p1.data.should == 0x53
