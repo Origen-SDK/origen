@@ -80,6 +80,9 @@ module Origen
       end
 
       def clean(node)
+        if node.is_a?(String)
+          node = eval("top_level.#{node}")
+        end
         if node.is_a?(Origen::Ports::Section)
           @declared_size += node.size
           { size: node.size,
@@ -124,7 +127,11 @@ module Origen
           { proc: node }
 
         else
-          error "Don't know how to process a node of class #{node.class} in a port connection"
+          if node.respond_to?(:default_connection)
+            clean(node.default_connection)
+          else
+            error "Don't know how to process a node of class #{node.class} in a port connection"
+          end
         end
       end
 

@@ -95,7 +95,16 @@ module Origen
           undefined
         else
           datas = connections.map { |c| c.data(options) }
-          datas.reduce(:|)
+          d = datas.reduce(:|)
+          if size
+            if size > 1
+              d[(size - 1)..0]
+            else
+              d[0]
+            end
+          else
+            d
+          end
         end
       end
 

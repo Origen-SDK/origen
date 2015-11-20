@@ -69,6 +69,10 @@ module Origen
         @din = nil
         @mode = nil
       end
+
+      def default_connection
+        ur
+      end
     end
   end
 end

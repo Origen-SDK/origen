@@ -97,7 +97,7 @@ describe 'Ports' do
     b = Block.new
     b.sub1.add_port :pb, size: 8
     b.sub1.pb.connect_to(0x5A)
-    b.pa.connect_to(b.sub1.pb)
+    b.pa.connect_to "sub1.pb"
     n = b.sub1.pb
     n.data.should == 0x5A
     b.pa.data.should == 0x5A

@@ -37,6 +37,10 @@ module Origen
       def select
         port[:select]
       end
+
+      def default_connection
+        output
+      end
     end
   end
 end
