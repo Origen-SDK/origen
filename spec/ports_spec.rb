@@ -255,4 +255,14 @@ describe 'Ports' do
     b.p1.data.should == 0x50
     b.p3.data.should == 0x50
   end
+
+  it 'ports can be coerced for logic operations' do
+    b = Block.new
+    b.p1.drive(0)
+
+    (b.p1 & 0xFF).should == 0
+
+    b.p1.drive(0x55)
+    (b.p1 & 0xFF).should == 0x55
+  end
 end

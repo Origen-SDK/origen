@@ -23,9 +23,21 @@ module Origen
         so.connect_to(sr[0])
       end
 
+      # Use in conjunction with restore_sr_data to temporarily save and restore the SR value.
+      def save_sr_data
+        @sr_data = sr.data
+      end
+
+      def restore_sr_data
+        sr.write(@sr_data)
+      end
+
       def method_missing(method, *args, &block)
         if BitCollection.instance_methods.include?(method)
-          ur.send(method, *args, &block)
+          define_singleton_method "#{method}" do |*args|
+            ur.send(method, *args, &block)
+          end
+          send(method, *args, &block)
         else
           super
         end

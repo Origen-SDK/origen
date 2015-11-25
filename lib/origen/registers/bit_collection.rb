@@ -782,6 +782,65 @@ module Origen
         self
       end
 
+      def ~
+        data_b
+      end
+
+      def coerce(val)
+        if val.is_a?(Numeric)
+          [val, data]
+        elsif val.respond_to?(:data)
+          [val.data, data]
+        else
+          [val, self]
+        end
+      end
+
+      # Returns the BITWISE AND of reg with another reg or a number, the state of
+      # both registers remains unchanged
+      # ==== Example
+      #   reg(:data).write(0x5555)
+      #   reg(:data2).write(0xFFFF)
+      #   reg(:data) & 0xFF00         # => 0x5500
+      #   reg(:data) & reg(:data2)    # => 0x5555
+      def &(val)
+        data & Reg.clean_value(val)
+      end
+
+      # Returns the BITWISE OR of reg with another reg or a number, the state of
+      # both registers remains unchanged
+      def |(val)
+        data | Reg.clean_value(val)
+      end
+
+      # Returns the SUM of reg with another reg or a number, the state of
+      # both registers remains unchanged
+      def +(val)
+        data + Reg.clean_value(val)
+      end
+
+      # Returns the SUBTRACTION of reg with another reg or a number, the state of
+      # both registers remains unchanged
+      def -(val)
+        data - Reg.clean_value(val)
+      end
+
+      # Returns the DIVISION of reg with another reg or a number, the state of
+      # both registers remains unchanged
+      def /(val)
+        data / Reg.clean_value(val)
+      end
+
+      # Returns the PRODUCT of reg with another reg or a number, the state of
+      # both registers remains unchanged
+      def *(val)
+        data * Reg.clean_value(val)
+      end
+
+      def ^(val)
+        data ^ Reg.clean_value(val)
+      end
+
       private
 
       # Converts a binary-like representation of a data value into a hex-like version.

@@ -7,6 +7,7 @@ module Origen
         port :select
         port :output
         @inputs = {}
+        @input_ports = {}
 
         output.connect_to do
           s = select.data
@@ -26,12 +27,27 @@ module Origen
       end
 
       def option(val, *nodes)
+        @input_ix ||= -1
+        @input_ix += 1
+        p = add_port("input#{@input_ix}".to_sym)
+        nodes.each do |node|
+          p.connect_to node
+        end
         [val].flatten.each do |val|
           if val.is_a?(Symbol)
             val = XNumber.new(val)
           end
           @inputs[val] = Ports::Connection.new(self, *nodes)
+          @input_ports[val] = p
         end
+      end
+
+      def active_input
+        s = select.data
+        option = @input_ports.find do |v, port|
+          s == v
+        end
+        option ? option[1] : nil
       end
 
       def select

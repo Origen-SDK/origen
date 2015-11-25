@@ -1201,9 +1201,9 @@ module RegTest
         end
       end
       reg = RegOwner.new.reg1
-      reg.data # Ensure the reg is materialized
-      r = Marshal.load Marshal.dump reg
-      r.d1.val.should == 0
+      reg.d1.write(5)
+      r = Marshal.load Marshal.dump reg.marshal_safe
+      r.d1.val.should == 5
     end
 
     specify "cloned regs inherit bit accessors" do
@@ -1324,5 +1324,13 @@ module RegTest
       sr2.data.should == 0b1100
     end
 
+    it 'reg logic operations act on the register data' do
+      reg :reg4, 0, size: 4
+      (~reg4).should == 0b1111
+
+      (reg4 & 0b1111).should == 0
+      reg4.write(0b1010)
+      (reg4 & 0b1111).should == 0b1010
+    end
   end
 end

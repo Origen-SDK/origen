@@ -211,6 +211,7 @@ module Origen
       end
     end
     alias_method :children, :sub_blocks
+    alias_method :sbs, :sub_blocks
 
     # Delete all sub_blocks by emptyig the Hash
     def delete_sub_blocks

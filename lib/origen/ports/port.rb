@@ -42,18 +42,20 @@ module Origen
           nodes.each do |n|
             if n.is_a?(String)
               if n =~ /(.*)\[\d+:?\d*\]/
-                cs[Regexp.last_match(1)] = c
+                key = Regexp.last_match(1)
               else
-                cs[n] = c
+                key = n
               end
             elsif n.is_a?(Ports::Section)
-              cs[n.port] = c
+              key = n.port
             elsif n.is_a?(Ports::Port)
-              cs[n] = c
+              key = n
             end
+            cs[key] ||= []
+            cs[key] << c
           end
         end
-        connections << c
+        @connections << c
       end
       alias_method :connect, :connect_to
 
@@ -64,11 +66,11 @@ module Origen
       def connections
         unless @referenced_connections_done
           if cs = Port.connections[top_level]
-            if cs[self]
-              @connections << cs[self].from_pov(self)
+            (cs[self] || []).each do |c|
+              @connections << c.from_pov(self)
             end
-            if cs[path]
-              @connections << cs[path].from_pov(self)
+            (cs[path] || []).each do |c|
+              @connections << c.from_pov(self)
             end
             @bit_names.each do |n|
               if con = cs["#{path}.#{n}"]
@@ -80,6 +82,20 @@ module Origen
         end
         @connections
       end
+
+      def connected_ports
+        connections.map do |c|
+          c.nodes.map do |n|
+            if n.is_a?(String)
+              n = eval("top_level.#{n}")
+            end
+            if n.is_a?(Ports::Port) || n.is_a?(Ports::Section)
+              n
+            end
+          end
+        end.flatten.compact
+      end
+      alias :ports :connected_ports
 
       def data(options = {})
         # Always return a drive value regardless of contention with other values, this would normally
@@ -158,6 +174,12 @@ module Origen
         @drive_value = value
       end
 
+      def preserve_drive_data
+        d = @drive_value
+        yield
+        @drive_value = d
+      end
+
       def [](val)
         Section.new(self, val)
       end
@@ -184,6 +206,44 @@ module Origen
 
       def top_level
         parent.local_top_level
+      end
+
+      def coerce(val)
+        if val.is_a?(Numeric)
+          [val, data]
+        elsif val.respond_to?(:data)
+          [val.data, data]
+        else
+          [val, self]
+        end
+      end
+
+      def &(val)
+        data & Registers::Reg.clean_value(val)
+      end
+
+      def |(val)
+        data | Registers::Reg.clean_value(val)
+      end
+
+      def +(val)
+        data + Registers::Reg.clean_value(val)
+      end
+
+      def -(val)
+        data - Registers::Reg.clean_value(val)
+      end
+
+      def /(val)
+        data / Registers::Reg.clean_value(val)
+      end
+
+      def *(val)
+        data * Registers::Reg.clean_value(val)
+      end
+
+      def ^(val)
+        data ^ Registers::Reg.clean_value(val)
       end
 
       private

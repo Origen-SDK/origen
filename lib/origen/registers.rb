@@ -28,7 +28,11 @@ module Origen
 
     def method_missing(method, *args, &block) # :nodoc:
       if _registers.key?(method)
-        reg(method)
+        r = reg(method)
+        define_singleton_method "#{method}" do
+          r
+        end
+        r
       else
         super
       end

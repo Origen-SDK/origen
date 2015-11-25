@@ -286,8 +286,10 @@ module Origen
       # This does not account for any overridding that may have been applied to
       # this register specifically however, use the meta method to get that.
       def default_reg_metadata
-        Origen::Registers.default_reg_metadata.merge(
-          Origen::Registers.reg_metadata[owner.class] || {})
+        @default_reg_metadata ||= begin
+          Origen::Registers.default_reg_metadata.merge(
+            Origen::Registers.reg_metadata[owner.class] || {})
+        end
       end
 
       def bit_value_descriptions(bitname, options = {})
@@ -1110,15 +1112,45 @@ module Origen
         elsif meta_data_method?(method)
           extract_meta_data(method, *args)
         else
-          if BitCollection.instance_methods.include?(method)
-            BitCollection.new(self, name, @bits).send(method, *args, &block)
+          if to_bc.respond_to?(method)
+            to_bc.send(method, *args, &block)
           elsif has_bits?(method)
-            bits(method)
+            b = bits(method)
+            define_singleton_method "#{method}" do
+              b
+            end
+            b
           else
             super
           end
         end
       end
+
+      # Makes the register safe for Marshaling, this basically removes all singleton methods
+      # that have been added on the fly for quicker access to named bits.
+      #
+      # @example
+      #   reg.some_bits.write(5)
+      #   reg_copy = Marshal.load Marshal.dump reg.marshal_safe
+      #   reg_copy.some_bits.data   # => 5
+      def marshal_safe
+        owner.singleton_methods.each do |method|
+          owner.singleton_class.send(:remove_method, method)
+        end
+        singleton_methods.each do |method|
+          singleton_class.send(:remove_method, method)
+        end
+        self
+      end
+
+      def to_bc
+        @to_bc ||= BitCollection.new(self, name, @bits)
+      end
+
+      def data
+        to_bc.data
+      end
+      alias :value :data
 
       # Recognize that Reg responds to all BitCollection methods methods based on
       # application-specific meta data properties
@@ -1171,51 +1203,14 @@ module Origen
         self
       end
 
-      # Returns the BITWISE AND of reg with another reg or a number, the state of
-      # both registers remains unchanged
-      # ==== Example
-      #   reg(:data).write(0x5555)
-      #   reg(:data2).write(0xFFFF)
-      #   reg(:data) & 0xFF00         # => 0x5500
-      #   reg(:data) & reg(:data2)    # => 0x5555
-      def &(val)
-        data & Reg.clean_value(val)
-      end
-
-      # Returns the BITWISE OR of reg with another reg or a number, the state of
-      # both registers remains unchanged
-      def |(val)
-        data | Reg.clean_value(val)
-      end
-
-      # Returns the SUM of reg with another reg or a number, the state of
-      # both registers remains unchanged
-      def +(val)
-        data + Reg.clean_value(val)
-      end
-
-      # Returns the SUBTRACTION of reg with another reg or a number, the state of
-      # both registers remains unchanged
-      def -(val)
-        data - Reg.clean_value(val)
-      end
-
-      # Returns the DIVISION of reg with another reg or a number, the state of
-      # both registers remains unchanged
-      def /(val)
-        data / Reg.clean_value(val)
-      end
-
-      # Returns the PRODUCT of reg with another reg or a number, the state of
-      # both registers remains unchanged
-      def *(val)
-        data * Reg.clean_value(val)
-      end
-
       # Cleans an input value, in some cases it could be a register object, or an explicit value.
       # This will return an explicit value in either case.
       def self.clean_value(value) # :nodoc:
-        value = value.val if value.respond_to?('val')  # Pull out the data value if a reg object has been passed in
+        if value.respond_to?('val')  # Pull out the data value if a reg object has been passed in
+          value = value.val 
+        elsif value.respond_to?('data')
+          value = value.data 
+        end
         value
       end
 

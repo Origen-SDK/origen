@@ -72,6 +72,7 @@ module Origen
       end
 
       def cleaned_nodes
+        return @cleaned_nodes if @cleaned_nodes
         @cleaned_nodes ||= nodes.map { |node| clean(node) }
         if @unsized_items > 1
           error 'Only 1 item in a port connection can be unsized'
@@ -81,7 +82,7 @@ module Origen
 
       def clean(node)
         if node.is_a?(String)
-          node = eval("top_level.#{node}")
+          node = eval("top_level.#{node.gsub(':', '..')}")
         end
         if node.is_a?(Origen::Ports::Section)
           @declared_size += node.size
