@@ -58,8 +58,8 @@ module Origen
       end
     end
 
-    def respond_to?(sym)
-      super(sym) || has_port?(sym)
+    def respond_to?(*args)
+      super || has_port?(args.first)
     end
 
     private

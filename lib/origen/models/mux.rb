@@ -2,12 +2,14 @@ module Origen
   module Models
     class Mux
       include Origen::Model
+      attr_reader :number_of_options
 
       def initialize(options = {})
         port :select
         port :output
         @inputs = {}
         @input_ports = {}
+        @number_of_options = 0
 
         output.connect_to do
           s = select.data
@@ -27,6 +29,7 @@ module Origen
       end
 
       def option(val, *nodes)
+        @number_of_options += 1
         @input_ix ||= -1
         @input_ix += 1
         p = add_port("input#{@input_ix}".to_sym)

@@ -87,7 +87,7 @@ module Origen
         connections.map do |c|
           c.nodes.map do |n|
             if n.is_a?(String)
-              n = eval("top_level.#{n}")
+              n = eval("top_level.#{n.gsub(':', '..')}")
             end
             if n.is_a?(Ports::Port) || n.is_a?(Ports::Section)
               n
@@ -200,8 +200,8 @@ module Origen
         end
       end
 
-      def respond_to?(sym)
-        super || @bit_names[sym]
+      def respond_to?(*args)
+        super || @bit_names[args.first]
       end
 
       def top_level

@@ -38,8 +38,8 @@ module Origen
       end
     end
 
-    def respond_to?(sym) # :nodoc:
-      _registers.key?(sym) || super(sym)
+    def respond_to?(*args) # :nodoc:
+      _registers.key?(args.first) || super
     end
 
     def delete_registers

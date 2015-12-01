@@ -308,19 +308,23 @@ module Origen
     end
 
     def clock!
-      clock_prepare
-      clock_apply
+      clock_prepare if respond_to?(:clock_prepare)
+      _clock_prepare
+      clock_apply if respond_to?(:clock_apply)
+      _clock_apply
     end
 
-    def clock_prepare
+    def _clock_prepare
       sub_blocks.each do |name, block|
         block.clock_prepare if block.respond_to?(:clock_prepare)
+        block._clock_prepare if block.respond_to?(:_clock_prepare)
       end
     end
 
-    def clock_apply
+    def _clock_apply
       sub_blocks.each do |name, block|
         block.clock_apply if block.respond_to?(:clock_apply)
+        block._clock_apply if block.respond_to?(:_clock_apply)
       end
     end
 
