@@ -1,3 +1,18 @@
+<a class="anchor release_tag" name="v0_5_8"></a>
+<h1><a href="#v0_5_8">Tag: v0.5.8</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 08-Dec-2015 11:19AM
+
+
+Re-enabled support for a legacy register definition API to make existing application
+upgrade to Origen easier.
+
+Updated the DesignSync API to expose an import method, this allows files to be fetched
+from a vault to the local workspace without setting up a formal association between the
+local folder and the remote vault.
+
 <a class="anchor release_tag" name="v0_5_7"></a>
 <h1><a href="#v0_5_7">Tag: v0.5.7</a></h1>
 
