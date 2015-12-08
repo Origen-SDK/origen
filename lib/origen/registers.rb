@@ -310,12 +310,14 @@ module Origen
       if block_given?
         @new_reg_attrs = { meta: bit_info }
         yield self
+        bit_info = @new_reg_attrs
       else
-        # If no block given then init with all writable bits
-        @new_reg_attrs = { d: { pos: 0, bits: size }.merge(bit_info) }
-
+        # If no block given then init with all writable bits unless bit_info has
+        # been supplied
+        unless bit_info.any? { |k, v| v.is_a?(Hash) && v[:pos] }
+          bit_info = { d: { pos: 0, bits: size }.merge(bit_info) }
+        end
       end
-      bit_info = @new_reg_attrs
       if _registers[id] && Origen.config.strict_errors
         puts ''
         puts "Add register error, you have already added a register named #{id} to #{self.class}"

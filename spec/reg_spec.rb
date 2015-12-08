@@ -1324,5 +1324,17 @@ module RegTest
       sr2.data.should == 0b1100
     end
 
+    it 'the original reg definition API still works' do
+      add_reg :mclkdiv2,   0x03,  16,  :osch       => { :pos => 15 },
+                                       :asel       => { :pos => 14 },
+                                       :failctl    => { :pos => 13 },
+                                       :parsel     => { :pos => 12 },
+                                       :eccen      => { :pos => 11 },
+                                       :cmdloc     => { :pos => 8, :bits => 3, :res => 0b001 },
+                                       :clkdiv     => { :pos => 0, :bits => 8, :res => 0x18 }
+      mclkdiv2.clkdiv.size.should == 8
+      mclkdiv2.clkdiv.data.should == 0x18
+      mclkdiv2.data.should == 0x0118
+    end
   end
 end
