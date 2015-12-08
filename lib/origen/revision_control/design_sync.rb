@@ -35,6 +35,43 @@ module Origen
         FileUtils.rm_rf(scratch)
       end
 
+      # Import a file to the local workspace from another vault, where the first
+      # argument must include the full path to the requested file in the vault. You can optionally
+      # supply a destination for where you want the file to end up via the :local option, if no destination
+      # is supplied the file will end up in the PWD.
+      #
+      # This is a DesignSync only API and can be used in cases where you would to fetch a file
+      # directly from a vault without setting up an association between a local directory and the
+      # vault. i.e. it will not create or modify an existing .SYNC in the local destination directory.
+      #
+      # ==== Example
+      #
+      #   # Import this file and save it in RGen.root
+      #   file = "sync://sync-15088:15088/Projects/common_tester_blocks/rgen/lib/sys/design_sync.rb"
+      #   version = "v0.1.0"   # Version can be any valid DS identifier, e.g. a version number or tag
+      #
+      #   import(file, version: version, local: RGen.root)
+      def self.import(path_to_file_in_vault, options = {})
+        options = {
+          verbose: true,
+          version: 'Latest'
+        }.merge(options)
+        if options[:verbose]
+          puts 'Importing from DesignSync...'
+          puts "#{path_to_file_in_vault} #{options[:version]}"
+        end
+        dir = path_to_file_in_vault.split('/')
+        file = dir.pop
+        dir = dir.join('/')
+        cmd = "import -version #{options[:version]} -force #{dir} #{file}"
+        dssc(cmd, verbose: false)
+        if Origen.os.windows?
+          system("move /Y #{file} #{options[:local]}/.") if options[:local]
+        else
+          system("mv -f #{file} #{options[:local]}/.") if options[:local]
+        end
+      end
+
       # Recursively remove all .SYNC directories from the given directory
       def self.remove_dot_syncs!(dir, options = {})
         dir = Pathname.new(dir)
@@ -261,17 +298,18 @@ module Origen
       end
 
       # Execute a dssc operation, the resultant output is returned in an array
-      def dssc(command, options = {})
+      def self.dssc(command, options = {})
         options = {
           check_errors: true,
-          verbose:      true
+          verbose:      true,
+          local:        Dir.pwd
         }.merge(options)
         output = []
         if options[:verbose]
           Origen.log.info "dssc #{command}"
           Origen.log.info ''
         end
-        Dir.chdir local do
+        Dir.chdir options[:local] do
           Open3.popen2e("dssc #{command}") do |_stdin, stdout_err, wait_thr|
             while line = stdout_err.gets
               Origen.log.info line.strip if options[:verbose]
@@ -292,6 +330,12 @@ module Origen
           end
         end
         output
+      end
+
+      # Execute a dssc operation, the resultant output is returned in an array
+      def dssc(command, options = {})
+        options[:local] ||= local
+        DesignSync.dssc(command, options)
       end
     end
   end
