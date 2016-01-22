@@ -9,6 +9,6 @@ module Origen
         @author = author
         @changes = changes
       end
-    end
-  end
-end
+    end # class Version History
+  end # module Specs
+end # module Origen

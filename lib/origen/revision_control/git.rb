@@ -238,7 +238,9 @@ module Origen
         else
           rem = remote
         end
-        !git("ls-remote --heads #{rem} #{str}", verbose: false).empty?
+        # check if matches 40 digit hex string followed by branch name
+        git("ls-remote --heads #{remote} #{str}", verbose: false).any? do |line|
+          line =~ /^[0-9a-f]{40}\s+[a-zA-Z]/
       end
 
       def initialized?
