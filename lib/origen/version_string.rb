@@ -3,6 +3,12 @@ module Origen
     include Utility::TimeAndDate
     require 'date'
 
+    # returns version number string but strips out prefix
+    def initialize(version, prefix = 'v')
+      version.gsub!(/^#{prefix}/, '')  # remove leading prefix
+      super(version)
+    end
+
     # Returns a new production timestamp version string
     def self.production_timestamp
       VersionString.new("Rel#{time_now(format: :universal, include_time: false)}")

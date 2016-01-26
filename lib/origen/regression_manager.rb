@@ -77,6 +77,11 @@ module Origen
         yield options
         wait_for_completion(options) if options[:uses_lsf]
         summarize_results(options)
+
+        # call exit code false to force process fail
+        unless Origen.app.stats.clean_run?
+          exit 1
+        end
       end
     end
 
@@ -225,7 +230,12 @@ module Origen
         puts "Valid values are 'latest', 'last' (production release), or a tag."
       end
       puts ''
-      get_text(default: Origen.app.version, single: true)
+      v = VersionString.new(get_text(default: Origen.app.version, single: true))
+      if v.semantic?
+        v.prefixed
+      else
+        v
+      end
     end
 
     def version_to_tag(version)

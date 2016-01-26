@@ -169,10 +169,12 @@ end
 # overloading of Origen commands by the application.
 @application_options = []
 @plugin_commands = []
-@application_commands = []
+# Prevent plugins from being able to accidentally override app commands
+# @application_commands = []
 app_id = @application_options.object_id
 plugin_id = @plugin_commands.object_id
-app_cmd_id = @application_commands.object_id
+# Prevent plugins from being able to accidentally override app commands
+# app_cmd_id = @application_commands.object_id
 app_opt_err = false
 plugin_opt_err = false
 app_cmd_err = false
@@ -191,6 +193,8 @@ if File.exist? "#{Origen.root}/config/commands.rb"
     plugin_opt_err = true
   end
 end
+# Only the app can set this, so cache it locally prevent any plugins overriding it
+application_commands = @application_commands || ''
 
 shared_commands = Origen.app.plugins.shared_commands
 if shared_commands && shared_commands.size != 0

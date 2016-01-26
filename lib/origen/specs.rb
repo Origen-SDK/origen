@@ -14,7 +14,11 @@ module Origen
 
     attr_accessor :_specs, :_notes, :_exhibits, :_doc_resources, :_overrides, :_power_supplies, :_mode_selects, :_version_history, :_creation_info
 
-    SPEC_TYPES = [:dc, :ac, :temperature, :supply]
+    # Detailed description for the ip block
+    attr_accessor :description
+
+    # Added :impedance and :power to the spec types
+    SPEC_TYPES = [:dc, :ac, :temperature, :supply, :impedance, :power]
 
     NOTE_TYPES = [:spec, :doc, :mode, :feature, :sighting]
 
@@ -158,10 +162,10 @@ module Origen
       @_power_supplies[gen][act] = Power_Supply.new(gen, act)
     end
 
-    def mode_select(blk, use, mode_ref, support, loc)
+    def mode_select(block_information, mode_usage, power_information)
       _mode_selects
-      if use
-        @_mode_selects[blk][mode_ref] = Mode_Select.new(blk, use, mode_ref, support, loc)
+      if block_information[:usage]
+        @_mode_selects[block_information[:name]][mode_usage[:mode]] = Mode_Select.new(block_information, mode_usage, power_information)
       end
     end
 
@@ -421,7 +425,7 @@ module Origen
       fail 'Hash argument is not a Hash!' unless hash.is_a? Hash
       filtered_hash = {}
       select_logic = case filter
-        when String then 'k[Regexp.new(filter)]'
+        when String then 'k[Regexp.new(filter)] && k.length == filter.length'
         when (Fixnum || Integer || Float || Numeric) then "k[Regexp.new('#{filter}')]"
         when Regexp then 'k[filter]'
         when Symbol then
