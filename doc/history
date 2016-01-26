@@ -1,3 +1,31 @@
+<a class="anchor release_tag" name="v0_5_9"></a>
+<h1><a href="#v0_5_9">Tag: v0.5.9</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 26-Jan-2016 11:24AM
+
+
+* Fixed compatibility issue with Net/LDAP gem version 0.13.0
+* Made string compare in filter\_hash more dynamic by checking that the length of
+  strings match. Fix for ISC-906 (David Welguisz)
+* Updated git remote branch check to be more robust (Daniel Hadad)
+* Fix and issue with power\_supplies method where only the first value of the first key
+  was showing. ISC-867 work started. (David Welguisz)
+* Changed the initialize block to request three hashes that have block information, mode
+  information, and power information, instead of five different variables. (David Welguisz)
+* Caused specs.rb to be updated in the mode\_select method. (David Welguisz)
+* Updated regression manager to provide exit 1 status if regression results fail, to
+  support CI usage. (Daniel Hadad)
+* Added input\_display\_name and output\_display\_name for power\_supply.rb in 
+  lib/origen/specs (David Welguisz)
+* Fix regression manager bug causing failure when reference directory does not
+  exist (Priyavadan Kumar)
+* Expand power\_supply for specs by adding voltage levels for power supply (David Welguisz)
+* Added attr\_accessor called ip\_block\_name to creation\_info in spec model. (David Welguisz)
+  This will allow for instantiated versions of the ip to know where the base information is.
+* Added description attribute to Origen::Specs (David Welguisz)
+
 <a class="anchor release_tag" name="v0_5_8"></a>
 <h1><a href="#v0_5_8">Tag: v0.5.8</a></h1>
 
