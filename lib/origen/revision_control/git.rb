@@ -1,6 +1,16 @@
 module Origen
   module RevisionControl
     class Git < Base
+      # Returns the origin for the PWD
+      def self.origin
+        git('remote --verbose', verbose: false).each do |remote|
+          if remote =~ /^origin\s+([^\s]+)/
+            return Regexp.last_match(1)
+          end
+        end
+        nil
+      end
+
       def build(options = {})
         if Dir["#{local}/*"].empty? || options[:force]
           FileUtils.rm_rf(local.to_s)
@@ -228,7 +238,10 @@ module Origen
         else
           rem = remote
         end
-        !git("ls-remote --heads #{rem} #{str}", verbose: false).empty?
+        # check if matches 40 digit hex string followed by branch name
+        git("ls-remote --heads #{remote} #{str}", verbose: false).any? do |line|
+          line =~ /^[0-9a-f]{40}\s+[a-zA-Z]/
+        end
       end
 
       def initialized?
@@ -293,7 +306,7 @@ module Origen
       end
 
       def changes_pending_commit?
-        !(git('status --verbose', verbose: false).last =~ /^(no changes|nothing to commit)/)
+        !(git('status --verbose', verbose: false).last =~ /^(no changes|nothing to commit|nothing added to commit but untracked files present)/)
       end
 
       def initialize_local_dir

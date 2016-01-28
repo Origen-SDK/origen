@@ -55,26 +55,25 @@ Usage: origen i [options]
 
   if defined?(Pry) && options[:pry]
     include ConsoleMethods
+    # rubocop:disable Debugger, EmptyLines
+
+
+
+
+
+
+
+    binding.pry
+
+
+
+
+
+
+
+    # rubocop:enable Debugger, EmptyLines
   else
     IRB::ExtendCommandBundle.send :include, Origen::ConsoleMethods
     IRB.start
-    exit 0
   end
-  # rubocop:disable Debugger, EmptyLines
-
-
-
-
-
-
-
-  binding.pry
-
-
-
-
-
-
-
-  # rubocop:enable Debugger, EmptyLines
 end

@@ -311,6 +311,12 @@ module Origen
         @new_reg_attrs = { meta: bit_info }
         yield self
         bit_info = @new_reg_attrs
+      else
+        # If no block given then init with all writable bits unless bit_info has
+        # been supplied
+        unless bit_info.any? { |k, v| v.is_a?(Hash) && v[:pos] }
+          bit_info = { d: { pos: 0, bits: size }.merge(bit_info) }
+        end
       end
       if _registers[id] && Origen.config.strict_errors
         puts ''
@@ -472,7 +478,7 @@ module Origen
     # Can also be used to define a new register if a block is supplied in which case
     # it is equivalent to calling add_reg with a block.
     def reg(*args, &block)
-      if block_given?
+      if block_given? || (args[1].is_a?(Fixnum) && !try(:initialized?))
         @reg_define_file = define_file(caller[0])
         add_reg(*args, &block)
       else
@@ -618,12 +624,13 @@ module Origen
     end
 
     def write_register_missing!(reg)
+      klass = (try(:controller) || self).class
       puts ''
       puts ''
       puts <<-EOT
-You have made a request to write register: #{reg.name}, however the #{self.class}
-class does not know how to do this yet. You must implement a write_register
-method in the #{self.class} like this:
+You have made a request to write register: #{reg.name}, however the #{klass}
+class does not know how to do this yet. You should implement a write_register
+method in the #{klass} like this:
 
   def write_register(reg, options={})
     <logic to handle the writing of the reg object here>
@@ -634,12 +641,13 @@ method in the #{self.class} like this:
     end
 
     def read_register_missing!(reg)
+      klass = (try(:controller) || self).class
       puts ''
       puts ''
       puts <<-EOT
-You have made a request to read register: #{reg.name}, however the #{self.class}
-class does not know how to do this yet. You must implement a read_register
-method in the #{self.class} like this:
+You have made a request to read register: #{reg.name}, however the #{klass}
+class does not know how to do this yet. You should implement a read_register
+method in the #{klass} like this:
 
   def read_register(reg, options={})
     <logic to handle reading the reg object here>

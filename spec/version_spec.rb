@@ -303,9 +303,9 @@ describe Origen::VersionString do
     end
 
     specify "the minimum_version method works" do
-      Origen::VersionString.minimum_version("v1.2.3").should == "v1.2.3"
-      Origen::VersionString.minimum_version("== v1.2.3").should == "v1.2.3"
-      Origen::VersionString.minimum_version(">= v1.2.5").should == "v1.2.5"
+      Origen::VersionString.minimum_version("v1.2.3").should == "1.2.3"
+      Origen::VersionString.minimum_version("== v1.2.3").should == "1.2.3"
+      Origen::VersionString.minimum_version(">= v1.2.5").should == "1.2.5"
       Origen::VersionString.minimum_version("< v1.2.5").should == nil
       Origen::VersionString.minimum_version("<= v1.2.5").should == nil
 
@@ -317,11 +317,11 @@ describe Origen::VersionString do
     end
 
     specify "the maximum_version method works" do
-      Origen::VersionString.maximum_version("v1.2.3").should == "v1.2.3"
-      Origen::VersionString.maximum_version("== v1.2.3").should == "v1.2.3"
+      Origen::VersionString.maximum_version("v1.2.3").should == "1.2.3"
+      Origen::VersionString.maximum_version("== v1.2.3").should == "1.2.3"
       Origen::VersionString.maximum_version("> v1.2.4").should == nil
       Origen::VersionString.maximum_version(">= v1.2.5").should == nil
-      Origen::VersionString.maximum_version("<= v1.2.5").should == "v1.2.5"
+      Origen::VersionString.maximum_version("<= v1.2.5").should == "1.2.5"
 
       Origen::VersionString.maximum_version("1.2.3").should == "1.2.3"
       Origen::VersionString.maximum_version("== 1.2.3").should == "1.2.3"

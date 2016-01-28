@@ -1,0 +1,142 @@
+% render "layouts/guides.html" do
+
+The LSF is an [industry standard platform](https://en.wikipedia.org/wiki/Platform_LSF)
+that allows compute jobs, like running Origen, to be run in parallel across a pool
+of computers.
+
+As you may know, Origen makes it easy to utilize the LSF to speed up generate or compile jobs
+by simply appending <code>-l</code> (and optionally <code>-w</code> to make it automatically
+poll and wait for completion) to the command.
+
+However Origen's internal LSF API is also available to application developers if they wish
+to leverage the LSF in their application specific functionality.
+In fact this can even be used to wrap and manage non-Origen jobs (where the command to run
+the job is not 'origen ...').
+
+#### Preparing to Run Code Remotely
+
+Before submitting a new piece of code for remote execution give some thought as to whether
+it will cause any race conditions or competition for resources between jobs as they
+run in parallel.
+
+When jobs are run remotely they will be executing within the same workspace from which they have been
+launched locally. Therefore generally have a think about whether there would be any problems if
+you were to open up two terminals pointing to the same workspace and then run two instances
+of the same operation in parallel - this is the same as what happens when you submit to the LSF.
+
+A good example would be if your job involved importing some data to the workspace from a 3rd
+party area. In such a case it is better to import it once before launching the jobs rather
+than have 10 processes running in parallel all trying to import (and write to the same files)
+at the same time.
+
+To detect if code is running remotely or not you can use <code>Origen.running_remotely?</code>:
+
+~~~ruby
+if Origen.running_remotely?
+  # Branch to handle something differently to account for parallel execution
+else
+  # Conventional execution where the code is executing single-threaded locally 
+end
+~~~
+
+#### Main API
+
+Here is a summary of the main API methods, see the [LSFManager API](<%= path "api/Origen/Application/LSFManager.html" %>)
+for full details.
+
+All jobs submitted to the LSF through Origen will be monitored, to abandon monitoring of
+existing jobs the queue can be cleared like this:
+
+~~~ruby
+# Clear the LSF monitor queue
+Origen.lsf.clear_all
+~~~
+
+Jobs are submitted like this:
+
+~~~ruby
+# Submit any Origen commands to the queue like this, you should always supply a target
+Origen.lsf.submit_origen_job "generate bistcom -t p2_debug" 
+Origen.lsf.submit_origen_job "compile templates/j750 -t p3_debug" 
+
+# Any application-specific Origen commands will work in the same way
+Origen.lsf.submit_origen_job "my_custom_command -t p2_debug" 
+
+# Any non-origen commands can also be submitted and monitored using the more generic submit_job
+# method. The job will be considered passed/failed based on standard unix result codes
+Origen.lsf.submit_job "cd path/to/some/dir && do_something"
+~~~
+
+If a call to <code>submit_origen_job</code> will invoke the same command to that from which the
+submission is being made then Origen will automatically forward any command options that were
+passed to the parent process. This also applies to custom commands.
+
+The jobs can then be monitored from the command line with the <code>origen l</code> command:
+
+~~~text
+> origen l
+
+LSF Status
+----------
+Queuing:    2
+Running:    5
+Lost:       0
+
+Passed:     0
+Failed:     0
+
+Common tasks
+------------
+
+Reset the LSF manager (clear all jobs): origen lsf -c -t all
+~~~
+
+Origen will automatically re-launch any lost jobs and the common tasks section will tell
+you what command to run if you want to re-launch any failed jobs.
+
+You can also wait for job completion within the Ruby/Origen thread from which they were
+launched:
+
+~~~ruby
+# Wait for jobs to complete, this will automatically re-try lost jobs and optionally can
+# retry any failed jobs (should never really be required though, any failures due to the
+# remote host going down or similar will automatically re-try silently).
+Origen.lsf.wait_for_completion  # By default lost jobs will retry up to 10 times
+Origen.lsf.wait_for_completion(max_fail_retries: 1)  # Retry all failures once
+~~~
+
+#### Advanced Scheduling
+
+Sometimes a given job may not be able to run until another one has completed first, the
+API allows for such dependencies to be managed using job IDs.
+
+First capture the job ID of the parent job(s) when it is launched:
+
+~~~ruby
+# Each submission will return a job id which you can capture
+id = Origen.lsf.submit_origen_job "generate global_subs -t p2_debug" 
+~~~
+
+You can deal with the dependency resolution at Origen level by waiting for the
+individual jobs to complete:
+
+~~~ruby
+# Wait for the parent job(s) to complete
+Origen.lsf.wait_for_completion id: id
+Origen.lsf.wait_for_completion ids: [id1, id2]
+
+# Now launch the dependent jobs
+~~~
+
+The LSF itself has a mechanism for resolving such dependencies and that functionality
+is exposed via a <code>:depends</code> option when submitting jobs:
+  
+~~~ruby
+# Dependencies can also be resolved automatically by supplying a depends argument when
+# submitting, for example the 3rd job here will only run once the first two have completed
+id1 = Origen.lsf.submit_origen_job "g overlay_subs -t p2_debug" 
+id2 = Origen.lsf.submit_origen_job "g global_subs -t p2_debug" 
+Origen.lsf.submit_origen_job "g master_subs -t p2_debug", depends: [id1, id2]
+~~~
+
+% end

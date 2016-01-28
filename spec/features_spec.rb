@@ -103,10 +103,11 @@ describe "Feature API" do
     dut.reg(:r6).bits.write(0x1234_5678)
     dut.reg(:r6).data.should == 22136 # decimal of 0x5678
 
-    dut.add_reg(:data_reg, 25, feature: :f3, 
-                b0: {pos: 0, feature: [:f1, :f2]}, 
-                b1: {pos: 4},
-                b2: {pos: 9})
+    dut.reg :data_reg, 25, feature: :f3 do |reg|
+      reg.bit 0, :b0, feature: [:f1, :f2]
+      reg.bit 4, :b1
+      reg.bit 9, :b2
+    end
     dut.reg(:data_reg, enabled_features: :f3).bit(:b0, enabled_features: [:f3]).enabled?.should == false
   end
 

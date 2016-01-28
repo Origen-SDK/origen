@@ -132,7 +132,7 @@ module Origen
             end # unless @before_table.nil? && @after_table.nil?
           end # xml.doc_resource
         end # doc_resource_ml = Nokogiri::
-        doc_resource_ml
+        doc_resource_ml.doc.at_xpath('doc_resource').to_xml
       end  # to_xml
     end
   end

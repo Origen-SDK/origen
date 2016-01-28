@@ -55,7 +55,8 @@ class String
   # Sanitizes the string for conversion to a symbol and returns a lower
   # cased symbol version of the string
   def symbolize
-    gsub(/(\n|\s|\(|\)|\.|\[|\]|-|{|})/, '_').downcase.to_sym
+    @@symbolize ||= {}
+    @@symbolize[self] ||= gsub(/(\n|\s|\(|\)|\.|\[|\]|-|{|})/, '_').downcase.to_sym
   end
 
   # acronyms

@@ -1,0 +1,99 @@
+% render "layouts/guides.html" do
+
+Documentation of a test program is important to allow non-test-engineering stakeholders
+to understand what is in a given program, or what a given bin number refers to.
+So Origen fully embraces the notion that test programs should be documented, that
+this documentation should not have an opportunity to be wrong, and that no one
+should have to waste their time manually trying to keep a document and the program
+in sync.
+
+However many tools in this area approach this
+problem by trying to turn documentation into a test program.
+Origen turns this problem on its head and unashamedly asserts that the test program
+itself is the true source of authority as to what it does, and that documentation
+is the follower instead of the leader.
+
+This approach has the following advantages:
+
+* Test programs are large and complex, who really wants to write the whole thing
+  out manually? It is much more efficient (and less error prone) to write it in code,
+  then we can use subroutines, variables, object-orientation, meta-programming (code
+  that generates other code) and any other programming
+  techniques to eliminate duplication and opportunities for error.
+* Document first approaches are always constrained by the fact that some tests are
+  more complicated than others. In a recent industry conference a leading document-first
+  generator stated that typically it could handle 80% of tests, for the other 20%
+  you were on your own. With Origen's approach 100% of your tests will be generated.
+
+#### The Chicken and the Egg Problem
+
+One problem with the Origen approach is how do you bootstrap a new program, intuitively
+you may want to document it first.
+
+This problem can be solved via the following workflow:
+
+* The Flow file syntax is designed to be as simple and human-readable as possible,
+  and it is self contained and can exist long before any interfaces are ever written.
+  Therefore it you know enough to be able to write a document of a flow, then you
+  know enough to be able to write an Origen flow file for that flow.
+* Nonetheless some early stakeholders may want to get involved in the definition 
+  but won't feel comfortable with the code layer. In this case it is recommended
+  that you immediately setup a documentation interface (these are trivially simple
+  and will probably eventually come from free with Origen), and begin generating
+  documentation of the flow from day 1.
+* Definition can continue as required by iterating on the flow file, all the while
+  the documentation stays in sync.
+* When it comes to finally implementing the flow the test engineering team will
+  create the interface which will turn it into a real test program.
+
+An alternative approach is to have a short-lived hand-written document that is used
+to get the team up to the first release of the test program. At that point authority
+should switch to the program itself and a ticketing system should be used to iterate on
+the program...
+
+#### How Do I Specify a Program Change if I Don't Know How to Code?
+
+The underlying program application should use a ticketing system.
+Any non-test-engineering stake holders can review the documentation to see what the test program
+currently does, then if they want it to do something else they will raise a ticket
+requesting it.
+
+Once the change has been implemented the ticket can be closed and the documentation
+will automatically pick up the change.
+
+This workflow is much easier to monitor and track status vs. the alternative approach where
+the non-technical stakeholder release new versions of a document and the TE has the job of trying
+to keep the program in sync.
+
+#### But I already have a document containing a lot of my test details!
+
+As the flow file is written in Ruby, it is perfectly feasible to build higher level structures
+such as an importer, or even a spreadsheet-based interface on top of this.
+
+The early users of the Origen test program generator have not had a need for such an approach,
+however this is definitely an area where the [community](<%= path "community" %>) could start
+to build new features.
+
+#### Shouldn't a Program Generator build me a complete test?
+
+It's Origen's job to provide a solid generation platform, however it deliberately does not
+try to dictate how a functional/parametric/bitmap/ATD ramp/etc. test should be set up.
+Firstly the scope of such an effort is too large, but secondly the Origen developers do
+not necessarily have the knowledge required to dictate what is the best practice
+in a lot of these areas.
+
+However the idea of eliminating the interface layer is appealing and the good news is
+that it is achievable.
+
+The [Origen Plugins](<%= path "guides/plugins/introduction" %>) feature provides a way
+for Origen code to be easily packaged into a re-usable plugin and shared between projects. So for
+example, an ATD interface module could be written and then anyone wishing to create ATD
+tests, could import this into their application and completely bypass the interface
+creation step altogether. Just call the interface methods from the flow file and you will get a
+guaranteed working (and hopefully efficient!) ATD test.
+
+If you are a test expert in a given area, and you are using Origen to generate your program,
+then we would encourage you to share your expertize by making your test setups available
+as an Origen plugin.
+
+% end

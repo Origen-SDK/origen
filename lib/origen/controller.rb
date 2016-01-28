@@ -45,6 +45,14 @@ module Origen
       end
     end
 
+    def inspect
+      if model
+        "<Model/Controller: #{model.class}:#{model.object_id}/#{self.class}:#{object_id}>"
+      else
+        "<Controller: #{self.class}:#{object_id}>"
+      end
+    end
+
     def is_a?(*args)
       if model
         super(*args) || model.is_a?(*args)
@@ -57,7 +65,15 @@ module Origen
     def model
       @model ||= begin
         if self.class.path_to_model
-          eval(self.class.path_to_model)
+          m = eval(self.class.path_to_model)
+          if m
+            begin
+              m.send('_controller=', self)
+            rescue
+              # Model is not an Origen::Model
+            end
+          end
+          m
         end
       end
     end

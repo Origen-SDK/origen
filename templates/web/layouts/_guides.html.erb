@@ -1,6 +1,6 @@
 ---
 title: Origen - Guides
-analytics: UA-64455560-1
+<%= origen_core_frontmatter(options) %>
 ---
 <%= render "templates/web/partials/navbar.html", tab: :guides %>
 
@@ -41,7 +41,7 @@ analytics: UA-64455560-1
 %   models_parameters: "Parameters",
 %   models_specs: "Specifications",
 % }
-% s["Compiler"] = {
+% s["Compiler (Views)"] = {
 %   compiler_introduction: "Introduction",
 %   compiler_creating: "Creating Templates",
 %   compiler_subtemplates: "Using Sub-Templates",
@@ -49,80 +49,81 @@ analytics: UA-64455560-1
 %   compiler_running: "Running The Compiler",
 %   compiler_inline: "Inline Compiler",
 % }
-%# s["Pattern Generator"] = {
-%#   pattern_introduction: "Introduction",
-%#   pattern_creating: "Creating Patterns",
-%#   pattern_pins: "Pins",
-%#   pattern_timing: "Timing and Waiting",
-%#   pattern_registers: "Registers",
-%#   pattern_documenting: "Documenting Patterns",
-%#   pattern_name: "Generating by Name",
-%#   pattern_j750: "J750",
-%#   pattern_v93k: "V93K",
-%#   pattern_ultraflex: "UltraFlex",
-%#   pattern_custom: "Custom Testers",
-%#   pattern_running: "Running The PatGen",
-%#   pattern_compiler: "Compiling Patterns",
-%# }
-%# s["Test Program Generator"] = {
-%#   program_introduction: "Introduction",
-%#   program_philosophy: "Philosophy",
-%#   program_flows: "Creating Flows",
-%#   program_flowapi: "Managing Flow Control",
-%#   program_interface: "Creating an Interface",
-%#   program_resources: "Additional Resources",
-%#   program_code: "Dynamic Custom Code",
-%#   program_j750: "J750",
-%#   program_v93k: "V93K",
-%#   program_ultraflex: "UltraFlex",
-%#   program_doc: "Documenting the Program",
-%#   program_custom: "Creating Custom Testers",
-%#   program_generating: "Running the ProgGen",
-%# }
-%# s["Documentation Generator"] = {
-%#   documentation_introduction: "Introduction",
-%#   documentation_markdown: "Markdown",
-%#   documentation_linking: "Linking",
-%#   documentation_styling: "Styling",
-%#   documentation_testing: "Testing",
-%#   documentation_api: "API Generation",
-%#   documentation_deploying: "Deploying",
-%# }
-%# s["Plugins"] = {
-%#   plugins_introduction: "Introduction",
-%#   plugins_cli: "Plugin Command",
-%#   plugins_importing: "How to Import a Plugin",
-%#   plugins_creating: "How to Create a Plugin",
-%#   plugins_using: "Current Plugin",
-%#   plugins_environment: "Development Environment",
-%#   plugins_development: "Development Considerations",
-%#   plugins_paths: "Paths & Origen.root",
-%#   plugins_app: "Configuration & Origen.app",
-%# }
-%#s["Utilities"] = {
-%#   utilities_revisioncontrol: "Revision Control",
-%#   utilities_remotes: "Origen Remotes",
-%#   utilities_lint: "Lint Testing",
-%#   utilities_session: "Session Store",
-%#   utilities_lsf: "LSF API",
-%#   utilities_users: "Users & Emails",
-%#   utilities_coreext: "Ruby Extensions",
-%#   utilities_logger: "Logging Data & Debugging",
-%# }
+% s["Controllers"] = {
+%   controllers_introduction: "Introduction",
+%   controllers_shadow: "Shadow Controllers",
+%   controllers_direct: "Direct Controllers",
+% }
+% s["Pattern Generator"] = {
+%   pattern_introduction: "Introduction",
+%   pattern_creating: "Creating Patterns",
+%   pattern_pins: "Pins",
+%   pattern_timing: "Timing and Waiting",
+%   pattern_registers: "Registers",
+%   pattern_documenting: "Documenting Patterns",
+%   pattern_name: "Generating by Name",
+%   pattern_common: "Common API",
+%   pattern_j750: "J750 API",
+%   pattern_v93k: "V93K API",
+%   pattern_ultraflex: "UltraFlex API",
+%   pattern_custom: "Custom Testers",
+%   pattern_running: "Running The PatGen",
+% }
+% s["Test Program Generator"] = {
+%   program_introduction: "Introduction",
+%   program_philosophy: "Philosophy",
+%   program_flows: "Creating Flows",
+%   program_flowapi: "Managing Flow Control",
+%   program_interface: "Creating an Interface",
+%   program_resources: "Additional Resources",
+%   program_code: "Dynamic Custom Code",
+%   program_j750: "J750 API",
+%   program_v93k: "V93K API",
+%   program_ultraflex: "UltraFLEX API",
+%   program_doc: "Documenting the Program",
+%   program_custom: "Creating Custom Testers",
+%   program_generating: "Running the ProgGen",
+% }
+% s["Documentation Generator"] = {
+%   documentation_introduction: "Introduction",
+%   documentation_markdown: "Markdown",
+%   documentation_linking: "Linking",
+%   documentation_styling: "Styling",
+%   documentation_testing: "Testing",
+%   documentation_api: "API Generation",
+%   documentation_deploying: "Deploying",
+% }
+% s["Plugins"] = {
+%   plugins_introduction: "Introduction",
+%   plugins_importing: "Using a Plugin",
+%   plugins_creating: "Creating a Plugin",
+%   plugins_current: "Current Plugin",
+%   plugins_environment: "Dev Environment",
+%   plugins_development: "Dev Considerations",
+%   plugins_paths: "Paths & Origen.root",
+%   plugins_app: "Config & Origen.app",
+% }
+%s["Miscellaneous"] = {
+%   misc_revisioncontrol: "Revision Control",
+%   misc_remotes: "Origen Remotes",
+%   misc_lint: "Lint Testing",
+%   misc_session: "Session Store",
+%   misc_lsf: "LSF API",
+%   misc_users: "Users & Emails",
+%   misc_coreext: "Ruby Extensions",
+%   misc_logger: "Logger",
+%   misc_commands: "Adding Commands",
+%   misc_commandsov: "Overriding Commands",
+%   misc_callbacks: "Callbacks",
+%   misc_appcallbacks: "Application Callbacks",
+% }
 %#s["Test & Software Quality"] = {
 %#   testdebug_regression: "Acceptance Testing: Regression",
 %#   testdebug_approved:   "Acceptance Testing: Approval",
 %# }
-%# s["Customizing Origen"] = {
-%#   custom_introduction: "Introduction",
-%#   custom_commands: "Adding Commands",
-%#   custom_commandsov: "Overriding Commands",
-%#   custom_callbacks: "Callbacks",
-%#   custom_appcallbacks: "Application Callbacks",
-%# }
 
 %# render "doc_helpers/searchable.html", options.merge(:index => s, :root => "guides", :pdf_title => "Origen Guides") do
-% render "doc_helpers/searchable.html", options.merge(:index => s, :root => "guides") do
+% render "doc_helpers/searchable.html", options.merge(index: s, root: "guides", prompt: "Search the guides...") do
 
 <%= yield %>
 

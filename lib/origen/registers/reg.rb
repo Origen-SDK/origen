@@ -656,10 +656,10 @@ module Origen
       def request(operation, options = {}) # :nodoc:
         if operation == :read_register
           object = reader
-          owner.read_register_missing!(self) unless object
+          (Origen.top_level || owner).read_register_missing!(self) unless object
         else
           object = writer
-          owner.write_register_missing!(self) unless object
+          (Origen.top_level || owner).write_register_missing!(self) unless object
         end
         object.send(operation, self, options)
         self
@@ -1122,8 +1122,8 @@ module Origen
 
       # Recognize that Reg responds to all BitCollection methods methods based on
       # application-specific meta data properties
-      def respond_to?(sym) # :nodoc:
-        sym = sym.to_sym
+      def respond_to?(*args) # :nodoc:
+        sym = args.first.to_sym
         meta_data_method?(sym) || has_bits?(sym) || super(sym) || BitCollection.instance_methods.include?(sym)
       end
 

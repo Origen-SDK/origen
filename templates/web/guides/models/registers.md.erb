@@ -101,7 +101,7 @@ $dut.nvm.analog.reg(:ctrl).bits(:adch)
 $dut.nvm.analog.reg(:ctrl)[:adch]
 ~~~
 
-Origen supports Verilog style part selects to access an ad-hov subset of bits, although unfortunately
+Origen supports Verilog style part selects to access an ad-hoc subset of bits, although unfortunately
 <code>[3:0]</code> is not valid Ruby and <code>[3..0]</code> is used instead.
 
 ~~~ruby

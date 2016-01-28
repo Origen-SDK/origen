@@ -7,9 +7,9 @@ class PinsDut1
   def initialize 
     add_pin :pin1
     add_pin_alias :alias1, :pin1
-    add_port :jtag,    size: 2
-        add_pin_alias :tdo,      :jtag, pin: 1
-        add_pin_alias :tdi,      :jtag, pin: 0
+    add_pins :jtag,    size: 2
+    add_pin_alias :tdo,      :jtag, pin: 1
+    add_pin_alias :tdi,      :jtag, pin: 0
 
     add_pin_alias :nvm_invoke, :tdi
     add_pin_alias :nvm_done, :tdo
@@ -47,19 +47,19 @@ describe "Origen Pins Module" do
     $dut.pin(:nvm_invoke).is_alias_of?(:tdi).should == true
   end
 
-  it "belongs_to_a_port? method works" do
-    $dut.pin(:nvm_invoke).belongs_to_a_port?.should == true
-    $dut.pin(:tdo).belongs_to_a_port?.should == true
-    $dut.pin(:pin1).belongs_to_a_port?.should == false
+  it "belongs_to_a_pin_group? method works" do
+    $dut.pin(:nvm_invoke).belongs_to_a_pin_group?.should == true
+    $dut.pin(:tdo).belongs_to_a_pin_group?.should == true
+    $dut.pin(:pin1).belongs_to_a_pin_group?.should == false
   end
 
-  it "aliases of port aliases work" do
+  it "aliases of pin group aliases work" do
     $dut.has_pin?(:nvm_invoke).should == true
     $dut.pin(:nvm_invoke)  # Access it to make sure no error
   end
 
   # This currently fails, need a good real life case of how this should work
-  #it "aliases of port aliases work in pattern formatting" do
+  #it "aliases of pin group aliases work in pattern formatting" do
   #  # This can fail if these alias to the same name (e.g. jtag)
   #  $dut.pin_pattern_order(:tdo, :tdi)
   #  $tester.ordered_pins

@@ -159,9 +159,8 @@ describe "Origen Specs Module" do
     @ip.specs(:ip_setup_time).limit_type.should == :double_sided
   end
 
-  it "fuzzy finding works" do
-    # Should a string really be treated like a Regexp?
-    $dut.has_spec?("tnikhov").should == true  
+  it "fuzzy finding with a regex works" do
+    $dut.has_spec?("tnikhov").should == false  
     $dut.has_spec?(:tnikhov).should == false
     $dut.has_spec?(:tnikhov2).should == true
     $dut.has_spec?(/tnikhov/).should == true

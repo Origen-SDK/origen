@@ -180,7 +180,7 @@ pass in a range or an array of pin indexes to <code>add_pin_group_alias</code>:
 add_pin_group_alias :data_byte_0, :porta, pins: [7..0]
 add_pin_group_alias :data_byte_1, :porta, pins: [8,9,10,11,12,13,14,15]
 
-port(:data_byte_0).dont_care  # Can now be used as if it were a regular first class pin group
+pins(:data_byte_0).dont_care  # Can now be used as if it were a regular first class pin group
 ~~~
 
 #### Power and Ground Pin Modelling
@@ -255,12 +255,12 @@ pin(:tms).drive_lo
 pin(:tms).toggle
 
 # Pin groups support the same methods as pins
-port(:porta).drive(0x55)   # 01010101
-port(:porta).assert(0x55)  # LHLHLHLH
-port(:porta).dont_care     # XXXXXXXX
+pins(:porta).drive(0x55)   # 01010101
+pins(:porta).assert(0x55)  # LHLHLHLH
+pins(:porta).dont_care     # XXXXXXXX
 
 # Individual pins within a pin group can be accessed by index
-port(:porta)[1].drive(0)   # XXXXXX0X
+pins(:porta)[1].drive(0)   # XXXXXX0X
 ~~~
 
 #### Bang (!) Methods

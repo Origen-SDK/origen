@@ -19,11 +19,21 @@ module Origen
       include Origen::SubBlocks
       include Origen::Parameters
       include Origen::Specs
+      include Origen::Ports
+      include Origen::Netlist
     end
 
     module ClassMethods
       def includes_origen_model
         true
+      end
+    end
+
+    def inspect
+      if controller
+        "<Model/Controller: #{self.class}:#{object_id}/#{controller.class}:#{controller.object_id}>"
+      else
+        "<Model: #{self.class}:#{object_id}>"
       end
     end
 
@@ -269,7 +279,53 @@ module Origen
       result
     end
 
+    # Used to proxy all method and attribute requests not implemented on the model
+    # to the controller.
+    #
+    # On first call of a missing method a method is generated to avoid the missing lookup
+    # next time, this should be faster for repeated lookups of the same method, e.g. reg
+    def method_missing(method, *args, &block)
+      if controller.respond_to?(method)
+        define_singleton_method(method) do |*args, &block|
+          controller.send(method, *args, &block)
+        end
+        send(method, *args, &block)
+      else
+        super
+      end
+    end
+
+    # Returns true after the model's initialize method has been run
+    def initialized?
+      !!@initialized
+    end
+
+    def clock!
+      clock_prepare
+      clock_apply
+    end
+
+    def clock_prepare
+      sub_blocks.each do |name, block|
+        block.clock_prepare if block.respond_to?(:clock_prepare)
+      end
+    end
+
+    def clock_apply
+      sub_blocks.each do |name, block|
+        block.clock_apply if block.respond_to?(:clock_apply)
+      end
+    end
+
     private
+
+    def initialized
+      @initialized = true
+    end
+
+    def _controller=(controller)
+      @controller = controller
+    end
 
     def _modes
       @_modes ||= {}

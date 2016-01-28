@@ -1,0 +1,46 @@
+---
+title: <%= options[:title] %>
+<%= origen_core_frontmatter(options) %>
+---
+<%= render "templates/web/partials/navbar.html", tab: :videos %>
+
+%# Add/edit sections here, the code below will expand this with the correct markup,
+%# pass in the topic you want selected via the :tab option.
+% s = {}
+% s[nil] = {
+%   "1-pattern-in-20-minutes" => "1 - A Pattern in 20 Minutes",
+% }
+
+%# render "doc_helpers/searchable.html", options.merge(:index => s, :root => "guides", :pdf_title => "Origen Guides") do
+% render "doc_helpers/searchable.html", options.merge(topic: "Videos", heading: options[:title], index: s, root: "videos", prompt: "Search the videos...", tab: options[:top_level_file].basename.to_s.sub(/\..*/, '')) do
+
+<p><%= options[:summary] %></p>
+
+<div  style="text-align: center; margin-bottom: 20px;">
+  <iframe width="640" height="360" src="https://www.youtube.com/embed/<%= options[:id] %>?rel=0" frameborder="0" allowfullscreen></iframe>
+</div>
+
+<div>
+
+  <!-- Nav tabs -->
+  <ul id="videoTabs" class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#code" aria-controls="code" role="tab" data-toggle="tab">Code</a></li>
+    <li role="presentation"><a href="#comments" aria-controls="comments" role="tab" data-toggle="tab">Comments</a></li>
+  </ul>
+
+  <!-- Tab panes -->
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="code" markdown="1">
+
+<%= yield %>
+      
+
+</div>
+<div role="tabpanel" class="tab-pane" id="comments">
+<%= disqus_comments %>
+</div>
+</div>
+
+</div>
+
+% end

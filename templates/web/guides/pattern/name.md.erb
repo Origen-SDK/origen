@@ -1,0 +1,511 @@
+% render "layouts/guides.html" do
+
+In a large application the number of pattern source files can grow very large, for example in the
+flagship Origen application we grew to having more than 1500 pattern source files 
+at one time!
+In such a case even if you follow the 
+[golden rules for building maintainable patterns](<%= path "guides/pattern/creating" %>)
+the fact that there are so many of them becomes a maintenance concern by itself and
+worries start to creep in about whether all of the patterns really implement a given operation
+in exactly the same way.
+
+Even if you don't have so many patterns it can still become tedious to have to manually
+create the pattern every time a new test is added or modified, wouldn't it be nice if
+the pattern just created itself?!
+
+With Origen this is possible as long as your patterns lend themselves to being fully described
+by a naming convention. In short if it is possible to uniquely describe your pattern behavior
+with a name then it is possible to synthesize that pattern from that name - this is goal of
+sourceless pattern generation with Origen.
+
+This feature is particularly powerful when combined with the
+[Origen program generator](<%= path "guides/program/introduction" %>), since it means that
+your test program flow file becomes the only place where you define a test and the program
+generator will output a list of required pattern names. This can then be passed to the pattern
+generator which can synthesize all of the patterns without needing to create any pattern
+sources at all.
+Once you have invested some time in building a test program interface and sourceless
+pattern capability you can get to the point where to create a new test all you need to do
+is add a single line to the test flow and you are done! That level of automation and
+efficiency is simply not possible from any other test engineering framework.
+
+#### Enabling Name-Based Generation
+
+This feature is enabled via the <code>before_pattern_lookup</code>
+[callback](<%= path "guides/misc/callbacks" %>) which will be called immediately
+before Origen looks for a pattern source for the given pattern generation request.
+If this method returns false then Origen will cease processing that pattern and will
+assume that the application has dealt with the request. If the method returns
+the requested pattern name then the regular pattern lookup and generation flow
+will proceed as normal.
+
+It is recommended that you create a dedicated class called a pattern dispatcher within
+your application which will handle deciding whether or not a pattern request
+can be synthesized without a source file and then if so handle the synthesis and
+generation.
+
+Add these lines to your <code>application.rb</code> file to engage a pattern dispatcher
+(where MyApp is your application's namespace):
+
+~~~ruby
+# config/application.rb
+def before_pattern_lookup(requested_pattern)
+  MyApp::PatternDispatcher.new.dispatch_or_return(requested_pattern)
+end
+~~~
+
+Then create an initial pattern dispatcher shell like this:
+
+~~~ruby
+# lib/my_app/pattern_dispatcher.rb
+module MyApp
+  class PatternDispatcher
+
+    def dispatch_or_return(requested_pattern)
+      requested_pattern
+    end
+
+  end
+end
+~~~
+
+This initial dispatcher simply returns the requested pattern name, therefore Origen will
+behave as normal and look for a source file for every pattern request.
+
+Even if you adopt sourceless pattern generation for your application it is likely that
+you will still want to support conventional generation as well - having the ability
+to quickly hack together a engineering pattern at short notice is something that is
+most easily achieved by making a dedicated pattern source file.
+
+So the first question is what should be the default behavior - sourceless or lookup?
+
+If sourceless is the default then you can implement a convention where if a pattern
+name contains 'custom' then a source file will be expected. If lookup is the default
+then you could have the opposite convention where 'nosrc' in the pattern name means
+that it should be generated without a source.
+
+Let's go with sourceless being the default, here is how to modify the <code>dispatch_or_return</code>
+method to do that:
+
+~~~ruby
+def dispatch_or_return(requested_pattern)
+  # If the pattern name contains 'custom' just return the name to have Origen lookup a source file for it
+  if requested_pattern =~ /custom/
+    requested_pattern
+  else
+    generate(requested_pattern)
+    false   # Return false to Origen to prevent std pattern dispatch
+  end
+end
+
+def generate(requested_pattern)
+  # Logic to generate the pattern to be added here
+end
+~~~
+
+Now you can see the influence of the pattern dispatcher for the first time, any requests
+containing 'custom' will be processed as normal and any requests without this will
+do nothing.
+
+#### How to Generate a Pattern
+
+A pattern can be generated from within the dispatcher in much the same way as it is
+generated within a regular pattern source file.
+
+Here our <code>generate</code> method will now produce an empty pattern:
+
+~~~ruby
+def generate(requested_pattern)
+  Pattern.create(name: requested_pattern) do
+    # Logic to generate the pattern to be added here
+  end
+end
+~~~
+
+Within the <code>Pattern.create</code> block you can call the exact same methods
+that you would use in a regular pattern source, the difference of course is that
+here we want to dynamically create them based on the name rather than hard-coding
+them for a specific pattern.
+
+By going this route you also have to currently pick up a bit more responsibility
+for pre-processing the requested pattern name. For example via the regular
+dispatch mechanism Origen will clean up the name to remove things like a path,
+file extension, and pre and post-fixes that may or may not be present. In other
+words Origen allows you to very flexible over what name you request, for example
+these are equivalent:
+
+~~~text
+origen g bistcom
+origen g output/p2/nvm_bistcom_debug.atp
+~~~
+
+In due course the internal Origen methods may be exposed via an API, but for now
+your pattern dispatcher will have to deal with it (if you want to continue to
+have this flexibility).
+
+Here is an example method that you can use for this:
+
+~~~ruby
+def generate(requested_pattern)
+  requested_pattern = clean_pattern_name(requested_pattern)
+  Pattern.create(name: requested_pattern) do
+    # Logic to generate the pattern to be added here
+  end
+end
+
+def clean_pattern_name(name)
+  name = Pathname.new(name).basename.to_s  # Strip path
+  name.sub!(/\..*/, "")    # Strip any and all extensions
+  name.sub!(/^nvm_/, "")   # Strip prefix, this will unique to your app, here 'nvm_' is removed
+  name.sub!(/_debug$/, "") # Strip postfix, again unique to your app, here '_debug' occurring at the end is removed
+  name
+end
+~~~
+
+Now you should be able to create (albeit empty) patterns via your dispatcher in the
+same way as via the regular generator.
+
+#### Renaming Your Patterns to Make Parsing Easier
+
+To generate patterns by name you obviously need to have a comprehensive naming convention
+from which the behavior of each pattern can be fully described, you may even have
+this already in place.
+
+However what is easy for a human to parse from a naming convention is not necessarily
+easy for a computer.
+For example your patterns may have the general format:
+
+~~~text
+<parameter set>_<operation>_<identifier>_<block>
+~~~
+
+Here are a couple of examples:
+
+~~~text
+prb_pgm_ckbd_b0   # Program a checkerboard to block 0, using probe parameters
+ft_pgm_ckbd_b0    # Program a checkerboard to block 0, using FT parameters
+~~~
+
+That's fine, but what if these are allowed:
+
+~~~text
+pgm_ckbd_b0       # Program a checkerboard to block 0, using default parameters
+pgm_ckbd_20us_b0  # Program a checkerboard to block 0, using default parameters + 20us programming time
+~~~
+
+Again easy enough to understand, but we have just introduced somethings that will be
+difficult to interpret by our pattern dispatcher. Firstly how do we know if 'pgm'
+is a reference to an operation or a parameter set?
+
+One initial way to deal with it is to say that unspecified defaults are not allowed,
+but that would quickly get out of hand as it would mean that every pattern would need
+to declare every variable which is not realistic. So we need a way to unambiguously say
+from the pattern name what each field represents.
+
+Similarly in the 2nd example we have further qualified the program operation with '20us',
+but again this is going to add a lot of complexity to our parser - what does that field
+really represent? Is it program time, settling time, something else? Once again attaching
+something to the field name is going to really help us out when it comes to parsing and
+generating the pattern.
+
+So how can we re-write these examples to make our lives easier. Well one of the existing
+fields already has a good example for us. In the patterns above we have 'b0' which has
+unwittingly created the convention that a block reference within a pattern will consist
+of 'b' followed by a number. This is exactly the kind of thing that we can deal with easily.
+
+So extending that convention to prefix each field with a short mnemonic describing what it
+refers to we end up with:
+
+~~~text
+paraprb_oppgm_patckbd_b0 # Program a checkerboard to block 0, using probe parameters
+paraft_oppgm_patckbd_b0  # Program a checkerboard to block 0, using FT parameters
+oppgm_patckbd_b0         # Program a checkerboard to block 0, using default parameters
+oppgm_patckbd_tprog20_b0 # Program a checkerboard to block 0, using default parameters + 20us programming time
+~~~
+
+So we have paid a penalty here with a pattern name that is a bit more verbose than it really
+needs to be, but it is a small price to pay for being able to drop pattern sources
+completely and to end up with a relatively simple pattern dispatcher.
+
+#### Parsing the Pattern Name
+
+To create an automated pattern dispatcher you are going to have to get familiar with
+regular expressions (regexs). Providing a tutorial on this is beyond the scope of this guide, but
+a Google search for 'regular expression tutorial' should yield many resources to learn
+from.
+
+The following website is highly recommended to keep close by while developing your
+dispatcher - [www.rubular.com](http://www.rubular.com). Aside from having a quick reference
+guide to the Ruby regex syntax it has a live panel which you can paste in your pattern name
+and then experiment with the regex to ensure the correct thing is matched.
+Best of all you can even save a given regex setup and
+paste the link into into your code comments for future reference.
+
+The parsing methods you will need to implement are very much dependent on your application and
+naming convention, however a good way to get started is to
+define a method to handle each field. This breaks down the parsing into manageable chunks
+and also gives you a convenient place to set defaults.
+Here are some examples
+(here assuming that the requested pattern
+has been assigned to an instance variable by upstream code):
+
+~~~ruby
+# An example of a required field
+def operation
+  if @requested_pattern =~ /(^|_)op(\w+?)(_|$)/
+    $2
+  else
+    raise "No operation was contained in pattern: #{@requested_pattern}"
+  end
+end
+
+# An example of an optional field with a default
+def parameter_set
+  if @requested_pattern =~ /(^|_)para(\w+?)(_|$)/
+    $2
+  else
+    "default"   # Use the 'default' parameter set if not specified
+  end
+end
+
+# An example of an optional field that returns nil if not present, a default
+# may or may not be assigned later within the patgen logic
+def block
+  if @requested_pattern =~ /(^|_)b(\w+?)(_|$)/
+    $2
+  end
+end
+~~~
+
+No doubt the regex code may look a bit daunting at first and unfortunately regexs are
+unusual in that they tend to be easier to write than they are to read!
+However we have basically used the same regex in all of the above examples and most likely
+you could parse your entire pattern name like that.
+
+Here is a walkthrough of how it works:
+
+<div markdown="0">
+  <p>
+    <code> string =~ // </code> This is basic format of a regex, you can read this as
+    "does some section of the string match the rules inside //".
+  </p>
+  <p>
+    <code>/<strong style="font-size:18px">(^|_)</strong>para(\w+?)(_|$)/</code>
+    This means the start of the string (<code>^</code>) or an underscore...
+  </p>
+  <p>
+    <code>/(^|_)<strong style="font-size:18px">para</strong>(\w+?)(_|$)/</code>
+    ...followed by the op code that we are trying to match.
+  </p>
+  <p>
+    <code>/(^|_)para<strong style="font-size:18px">(\w+?)</strong>(_|$)/</code>
+    Then we have the section that we want to capture. <code>\w</code> means a
+    word character, that is a letter, number or unfortunately an underscore.
+    The <code>+</code> means one or more of the previous characters. Since the
+    <code>\w</code> rule includes underscores by default this will match as many
+    occurences as possible, so it would continue matching through the next underscore
+    and into the next field, this is called a 'greedy' match. To prevent this we
+    add the <code>?</code> which tells it to match as little as possible, sometimes
+    called a 'lazy' match.
+    This whole section is surrounded in parenthesis which means 'capture the values
+    that correspond to this section'.
+  </p>
+  <p>
+    <code>/(^|_)para(\w+?)<strong style="font-size:18px">(_|$)</strong>/</code>
+    Finally stop at the end of the string (<code>$</code>) or an underscore.
+  </p>
+</div>
+
+Our regex contains 3 sets of parenthesis, the part of the string that matched this
+section is available at the end via the variables <code>$1</code>, <code>$2</code>
+and <code>$3</code>. The field we want to capture is in position two and therefore
+our parse methods return this.
+
+Here are links to see each of these in action and for you to experiment with:
+
+* [operation](http://www.rubular.com/r/VNrfGJMifl)
+* [parameter_set](http://www.rubular.com/r/VN6Bj5MqPg)
+* [block](http://www.rubular.com/r/s7pdwIdxVJ)
+
+As a final optimization note, with ruby parameters can be used in regexs in the same
+way they can be used as strings, so actually we could abstract the regex portion of the
+code to a method like this:
+
+~~~ruby
+def extract(op_code)
+  if @requested_pattern =~ /(^|_)#{op_code}(\w+?)(_|$)/
+    $2
+  end
+end
+
+def operation
+  extract("op") || raise("No operation was contained in pattern: #{@requested_pattern}")
+end
+
+def parameter_set
+  extract("para") || "default"
+end
+
+def block
+  extract("b")
+end
+~~~
+
+#### Putting it All Together
+
+Now that we can generate a list of build options from the requested name we can start to
+generate the pattern.
+
+One of the first jobs of the dispatcher is to generate the list of options
+that should be passed into <code>Pattern.create</code>, in our example let's say that
+the parameter set option is passed into our startup method via <code>Pattern.create</code>.
+
+We can now do this by simply calling our <code>parameter_set</code> method:
+
+~~~ruby
+def generate(requested_pattern)
+  requested_pattern = clean_pattern_name(requested_pattern)
+  Pattern.create(name: requested_pattern, parameter_set: parameter_set) do
+    # Logic to generate the pattern to be added here
+  end
+end
+~~~
+
+What happens inside the pattern block very much depends on your application patgen API
+and if you are creating this from scratch
+some thought should be given to designing it to lend itself to pattern synthesis.
+In the flagship Origen application where this technique was first developed the original
+API was not at all designed with this in mind. This led to an extremely complex pattern
+dispatcher being required to handle all of the corner cases.
+
+To make life simpler for pattern synthesis it is recommended that the API is kept very simple
+with only a few methods being made available and all customization of the operation being
+done via an options hash.
+
+So for example a good API to handle our program checkerboard example might be:
+
+~~~ruby
+Pattern.create(params: :ft) do
+  $dut.nvm.pgm(pattern: :ckbd, tprog: 20, block: 0)
+end
+~~~
+
+Which could then be synthesized via the following method:
+
+~~~ruby
+def generate(requested_pattern)
+  requested_pattern = clean_pattern_name(requested_pattern)
+  Pattern.create(name: requested_pattern, parameter_set: parameter_set) do
+    $dut.nvm.send operation, pattern: pattern,
+                             tprog: tprog,
+                             block: block
+  end
+end
+~~~
+
+Even simpler would be:
+
+~~~ruby
+Pattern.create(params: :ft) do
+  $dut.nvm.execute(operation: :pgm, pattern: :ckbd, tprog: 20, block: block)
+end
+~~~
+
+And the equivalent synthesizer method:
+
+~~~ruby
+def generate(requested_pattern)
+  requested_pattern = clean_pattern_name(requested_pattern)
+  Pattern.create(name: requested_pattern, parameter_set: parameter_set) do
+    $dut.nvm.execute operation: operation,
+                     pattern: pattern,
+                     tprog: tprog,
+                     block: block
+  end
+end
+~~~
+
+A clear pattern is starting to emerge now that for every supported option we have
+a matching method of the same name in our dispatcher, so we can optimize this a bit:
+
+~~~ruby
+OPTIONS = %w(operation pattern tprog block)
+
+def generate(requested_pattern)
+  requested_pattern = clean_pattern_name(requested_pattern)
+  options = {}
+  OPTIONS.each do |option|
+    options[:option] = self.send(option)
+  end
+  Pattern.create(name: requested_pattern, parameter_set: parameter_set) do
+    $dut.nvm.execute(options) 
+  end
+end
+~~~
+
+Now if we want to add support for a new option we just add it to the <code>OPTIONS</code>
+array and create the corresponding parse method.
+
+We can probably go one better.
+
+As we have seen the parser methods are all very similar, do we really need them?
+
+Not really as long as we are willing to defer default setting and error checking to our
+models (where it probably makes more sense anyway).
+
+Here is a complete pattern dispatcher in around 30 lines of code, where if you want to
+add support for another field in the future just add it to the <code>OPTIONS</code>
+definition that maps the option name to the pattern name op code:
+
+~~~ruby
+# lib/my_app/pattern_dispatcher.rb
+module MyApp
+  class PatternDispatcher
+
+    OPTIONS = {
+      operation: "op",
+      pattern: "pat",
+      tprog: "tprog",
+      block: "b",
+    }
+
+    def generate(requested_pattern)
+      @requested_pattern = clean_pattern_name(requested_pattern)
+      options = {}
+      OPTIONS.each do |option, op_code|
+        options[:option] = extract(op_code)
+      end
+      Pattern.create(name: @requested_pattern, parameter_set: extract("para")) do
+        $dut.nvm.execute(options) 
+      end
+    end
+
+    def extract(op_code)
+      if @requested_pattern =~ /(^|_)#{op_code}(\w+?)(_|$)/
+        $2
+      end
+    end
+
+    def dispatch_or_return(requested_pattern)
+      # If the pattern name contains 'custom' just return the name to have Origen lookup a source file for it
+      if requested_pattern =~ /custom/
+        requested_pattern
+      else
+        generate(requested_pattern)
+        false   # Return false to Origen to prevent std pattern dispatch
+      end
+    end
+
+    def clean_pattern_name(name)
+      name = Pathname.new(name).basename.to_s  # Strip path
+      name.sub!(/\..*/, "")    # Strip any and all extensions
+      name.sub!(/^nvm_/, "")   # Strip prefix, this will unique to your app, here 'nvm_' is removed
+      name.sub!(/_debug$/, "") # Strip postfix, again unique to your app, here '_debug' occurring at the end is removed
+      name
+    end
+
+  end
+end
+~~~
+
+% end

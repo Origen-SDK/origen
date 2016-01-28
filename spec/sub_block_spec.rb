@@ -289,6 +289,57 @@ module SubBlocksSpec
         # Address is cached here, causing fail...
         $dut.sub2.reg1.address(domain: :ahb).should == 0x3000_0200
       end
+
+      it "bit index is output correctly when a parent register's path is hidden" do
+        class BITop
+          include Origen::TopLevel
+
+          def initialize
+            @path = :hidden
+            sub_block :sub1, class_name: "BISub"
+          end
+        end
+
+        class BISub
+          include Origen::Model
+
+          def initialize
+            reg :dr, 0, path: :hidden do |reg|
+              bits 31..0, :data
+            end
+          end
+        end
+
+        Origen.app.unload_target!
+
+        BITop.new
+
+        $dut.sub1.dr[0].path.should == "sub1[0]"
+        $dut.sub1.dr[7..0].path.should == "sub1[7:0]"
+      end
+
+      it 'options passed to sub_block definitions are applied when the class is named' do
+        class Top1
+          include Origen::TopLevel
+
+          def initialize
+            sub_block :sub1, class_name: "Sub1", x: 5, y: 10
+          end
+        end
+
+        class Sub1
+          include Origen::Model
+          attr_accessor :x
+          attr_reader :y
+        end
+
+        Origen.app.unload_target!
+
+        Top1.new
+
+        $dut.sub1.x.should == 5
+        $dut.sub1.y.should == 10
+      end
     end
   end
 end

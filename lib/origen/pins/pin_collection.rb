@@ -402,7 +402,7 @@ module Origen
         all?(&:repeat_previous?)
       end
 
-      # Returns true if the (data) from the port is marked to be captured
+      # Returns true if the (data) from the pin collection is marked to be captured
       def to_be_captured?
         all?(&:to_be_captured?)
       end

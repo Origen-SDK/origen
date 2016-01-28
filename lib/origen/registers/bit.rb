@@ -234,8 +234,12 @@ module Origen
       # This does not account for any overridding that may have been applied to
       # this bit specifically however, use the meta method to get that.
       def default_bit_metadata
-        Origen::Registers.default_bit_metadata.merge(
-          Origen::Registers.bit_metadata[owner.owner.class] || {})
+        if owner
+          Origen::Registers.default_bit_metadata.merge(
+            Origen::Registers.bit_metadata[owner.owner.class] || {})
+        else
+          Origen::Registers.default_bit_metadata
+        end
       end
 
       def inspect
@@ -320,6 +324,7 @@ module Origen
         @read = true if @readable && @read_data_matches_write
         self
       end
+      alias_method :assert, :read
 
       # Sets the store flag attribute
       def store
@@ -439,7 +444,8 @@ module Origen
         self
       end
 
-      def respond_to?(sym) # :nodoc:
+      def respond_to?(*args) # :nodoc:
+        sym = args.first
         meta_data_method?(sym) || super(sym)
       end
 

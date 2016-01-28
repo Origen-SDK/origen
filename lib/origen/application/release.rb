@@ -96,16 +96,6 @@ Your workspace has local modifications that are preventing the requested action
               puts "Production releases can only be made on the master branch, your current branch is: #{Origen.app.rc.current_branch}"
               exit 1
             end
-          else
-            unless Origen.app.rc.current_branch == 'master'
-              puts "With Git you can only release onto the master branch, your current branch is: #{Origen.app.rc.current_branch}"
-              puts
-              puts 'If you want to use a Gitflow workflow you will be able to do development releases on the develop branch, to'
-              puts 'do that set config.rc_workflow = :gitflow in your config/application.rb'
-              puts
-              puts 'Otherwise, for release on a non-standard branch you will need to manage it yourself.'
-              exit 1
-            end
           end
         end
       end

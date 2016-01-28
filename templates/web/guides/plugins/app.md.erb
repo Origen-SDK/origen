@@ -1,0 +1,78 @@
+% render "layouts/guides.html" do
+
+Every Origen application and plugin has an object that represents it, this is returned by
+<code>Origen.app</code> and is essentially an instance of the class defined in
+<code>config/application.rb</code>.
+
+When calling <code>Origen.app</code> within plugin code some thought has to be given to
+which application you mean, do you mean the plugin itself or the top-level application
+that it is plugged into?
+
+To deal with this ambiguity the following API exists which works the same as <code>Origen.root</code>:
+
+~~~ruby
+Origen.app                # Returns the current top-level app instance
+Origen.app!               # Returns the app instance associated with the code making the
+                          # call, typically use this to get a plugin's app instance
+Origen.app(:doc_helpers)  # Returns the app instance for the given plugin name
+~~~
+
+#### Am I the Current Application or Plugin?
+
+A common use case for examining the application instance is to see if a plugin is
+running standalone (in its own development workspace) or if it is running fully deployed as a plugin
+to a wider application.
+
+The following code can be used in this case:
+
+~~~ruby
+if Origen.app!.current?
+  # The plugin is running standalone in its own workspace (I am the current application)
+else
+  # The plugin is running as a component in a parent application
+end
+~~~
+
+A further question can arise if the plugin is found to be running as a component in a
+parent application: 'am I the current plugin?'
+
+
+To test for this:
+
+~~~ruby
+if Origen.app!.current_plugin?
+  # Do something special when I am the current plugin
+else
+  # Sigh, just another run-of-the-mill plugin
+end
+~~~
+
+#### Overriding the Application Config
+
+Some config options have the ability to be overridden by the current plugin,
+e.g. <code>config.pattern_prefix</code> will be set by the plugin that owns the pattern
+and not the top-level application.
+
+See <code>ATTRS_THAT_CURRENT_PLUGIN_CAN_OVERRIDE</code> in the [Configuration API](<%= path "api/Origen/Application/Configuration.html" %>)
+for a complete list of the config options that fall into this category.
+
+If the current plugin does not provide a value for a given config option then the value
+defined by the top-level application will be used instead.
+
+Typically a rich plugin which provides patterns and similar IP to an application will
+contain logic like this in its <code>config/application.rb</code>:
+
+~~~ruby
+# If this app is running standalone then it supports multiple devices and so in that
+# case namespace the output by device type. However if running as a plugin then it
+# will be in a single device app, in that case put everything in the 'atd' directory 
+config.output_directory do
+  if current? # If app is running standalone (i.e. not as a plugin)
+    "#{Origen.root}/output/#{dut.class}"
+  else
+    "#{Origen.root}/output/atd"
+  end
+end
+~~~
+
+% end

@@ -5,3 +5,5 @@ require "c99/doc_interface"
 # this is to test that the importing application can override and
 # extend imported classes.
 require_relative "../lib/c99/nvm"
+
+require_relative "../helpers/guides"

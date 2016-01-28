@@ -57,7 +57,7 @@ module Origen
       def service
         @service ||= Net::LDAP.new host:       HOST,
                                    port:       PORT,
-                                   encryption: :simple_tls,
+                                   encryption: { method: :simple_tls },
                                    auth:       { method: :simple, username: SERVICE_ACCOUNT, password: SERVICE_PASS }
       end
     end

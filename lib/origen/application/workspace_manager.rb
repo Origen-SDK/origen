@@ -18,7 +18,7 @@ module Origen
       # This may not necessarily be Origen.root if the application is embedded within
       # a larger project workspace (for example in tool_data/origen)
       def revision_control_root
-        Origen.app.rc.root
+        Origen.app.rc ? Origen.app.rc.root : Origen.root
       end
 
       # Origen.root may not necessarily be the same as the revision control root.

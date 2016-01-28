@@ -1,0 +1,429 @@
+% render "layouts/guides.html" do
+
+The test flow is where you describe everything about what your test program
+must do:
+
+* The tests it must run
+* The conditions applied by these tests
+* Test limits
+* Bin and test numbers
+* Conditional test execution and other flow control
+* Notes about the reason for running or the methodology behind each test
+
+When writing your flow file you should try and distill down the amount of information
+to the bare minimum, the goal here is to write as little as possible yet still
+capture the details about what makes each test unique.
+
+When describing each test the syntax and naming conventions are entirely
+up to you and based on your knowledge about the application domain and the
+type and variety of tests that you need to generate.
+It will be the job of the interface (which you will write later) to translate
+this description into method calls to the generation API for the target platform.
+
+#### Your First Flow File
+
+By convention all flow files should reside in the "program" directory within
+the application top-level directory.
+
+Create the file "program/probe.rb" as shown below:
+
+~~~ruby
+# program/probe.rb
+Flow.create do
+
+end
+~~~
+
+The above represents all of the officially required syntax to define a flow, what
+goes inside is now completely down to the needs of the application.
+
+When creating a flow like this it is often useful to supply some context about
+the environment in which it will run. For example we have indicated via the name that this
+is a flow intended to run at probe, we can also note this in the code:
+
+~~~ruby
+# program/probe.rb
+Flow.create(environment: :probe) do
+
+end
+~~~
+
+Again the naming of the terms <code>:environment</code> and <code>:probe</code> are
+completely arbitrary, you may want to note some details about the temperature, parallelism
+or other details which may be useful to you when it comes to actually generating
+the flow for a given ATE platform.
+Or not. Don't worry about this too much right now, in practice it is probably best to
+just add things like this as you find that you need them. The main thing for now is just to
+appreciate that you can pass some details about the execution environment of the given
+flow to the interface via this mechanism.
+
+#### Specifying Numbers
+
+Origen extends Ruby to add the following methods which are very helpful
+when specifying test conditions:
+
+~~~ruby
+3.A     # => 3 
+3.mA    # => 0.003 
+3.uA    # => 0.000003 
+3.nA    # => 0.000000003 
+3.pA    # => 0.000000000003 
+
+3.V     # => 3
+3.mV    # => 0.003
+        # => etc
+
+3.Hz    # => 3        
+3.kHz   # => 3000        
+3.MHz   # => 3000000
+~~~
+
+#### Adding Some Tests
+
+So let's say we are writing a test for a voltage regulator module, we have a functional
+test and then two parametric tests that we wish to run - one that simply tests the
+output and one that tests the output under load.
+Let's start with this:
+
+~~~ruby
+# program/probe.rb
+Flow.create(environment: :probe) do
+
+  log "Vreg test module"
+
+  func :vreg_functional, pattern: "vreg/functional", vdd: :min, bin: 5, softbin: 101, tnum: 101000
+
+  func :vreg_functional, pattern: "vreg/functional", vdd: :max, bin: 5, softbin: 101, tnum: 101001
+
+  para :vreg_meas, pattern: "vreg/meas", vdd: :min, bin: 5, softbin: 105, tnum: 105000, lo: 1.12, hi: 1.34
+
+  para :vreg_meas, pattern: "vreg/meas", vdd: :max, bin: 5, softbin: 105, tnum: 105001, lo: 1.12, hi: 1.34
+
+  para :vreg_meas, pattern: "vreg/meas", vdd: :min, bin: 5, softbin: 105, tnum: 105002, load: 5.mA, lo: 1.10, hi: 1.34
+
+  para :vreg_meas, pattern: "vreg/meas", vdd: :max, bin: 5, softbin: 105, tnum: 105003, load: 5.mA, lo: 1.12, hi: 1.34
+
+end
+~~~
+
+This is a good start, we have something that resembles a test flow and we have gone with the
+general convention that a flow line is structured like this:
+
+~~~text
+<function> <name>, <attributes>
+~~~
+
+* **function** - The main function of a particular test, here we have gone with the categories
+  'log', 'func(tional)' and 'para(metric)'. You may wish to have other categories based on your domain.
+  For example in some NVM applications we have 'program', 'read', 'erase', 'measure', 'bitmap',
+  and so on. Each of these functions correspond to the methods that you will need to implement
+  in your interface later.
+* **name** - Almost every test will need a name and so we make this a mandatory argument.
+* **attributes** - There then follows a free-format list of attributes, use these to describe
+  the test and especially including anything that makes the test unique, such as the load
+  attribute which has been used above.
+
+As mentioned previously this choice of convention is just that, a personal choice, however
+this is the convention that is currently used in the flagship Origen applications that are
+currently driving the development of the framework.
+As the Origen program generator matures and the number of applications using it grows, it is
+possible that alternative and better conventions will begin to emerge.
+If you come across a better approach then please come and tell us about via the
+[Origen community channels](<%= path "community" %>),
+however we will stick with this one for now.
+
+#### Eliminate Anything that can be Inferred
+
+Remember that the goal here is to be as concise as possible, since the more concise you
+are at this level then the more you can automate later. This eliminates duplication and
+redundancy, reduces the amount of code you need to write to add a new test later, and the
+more that can be generated the less chance there is for human error.
+
+There are a few opportunities for simplification that we can consider at this point:
+
+* The **pattern** field seems redundant - it very closely mirrors what has been assigned to the
+  test name, therefore we can infer the pattern name without explicitly declaring it. It is generally
+  a good approach to name the test after the pattern if you normally have one pattern per test.
+* The **bin** number also looks to be redundant, it is always 5. In a case like this what
+  we can do is set a default of 5 within the interface, then if it is not declared for a specific
+  test it will be 5, but we can always override it for a specific test.
+* The **tnum** attribute seems to follow the general rule that it is the softbin number * 1000
+  and then a counter. Anything that is the result of a function based on other
+  attributes is ripe for elimination.
+
+With those optimizations applied we end up with:
+
+~~~ruby
+# program/probe.rb
+Flow.create(environment: :probe) do
+
+  log "Vreg test module"
+
+  func :vreg_functional, vdd: :min, softbin: 101
+
+  func :vreg_functional, vdd: :max, softbin: 101
+
+  para :vreg_meas, vdd: :min, softbin: 105, lo: 1.12, hi: 1.34
+
+  para :vreg_meas, vdd: :max, softbin: 105, lo: 1.12, hi: 1.34
+
+  para :vreg_meas, vdd: :min, softbin: 105, load: 5.mA, lo: 1.10, hi: 1.34
+
+  para :vreg_meas, vdd: :max, softbin: 105, load: 5.mA, lo: 1.12, hi: 1.34
+
+end
+~~~
+
+Finally we seem to always be running our tests at min vdd and then max vdd, so again
+there seems to be a convention that we could choose to implement by default. One issue we
+have is that the loaded test has a different limit between min and max, so this a
+good example of one case where we would override the default.
+
+So switching to the convention that each test will execute at min and max vdd unless otherwise
+specified, our final flow is:
+
+~~~ruby
+# program/probe.rb
+Flow.create(environment: :probe) do
+
+  log "Vreg test module"
+
+  func :vreg_functional, softbin: 101
+
+  para :vreg_meas, softbin: 105, lo: 1.12, hi: 1.34V
+
+  para :vreg_meas, vdd: :min, softbin: 105, load: 5.mA, lo: 1.10, hi: 1.34
+
+  para :vreg_meas, vdd: :max, softbin: 105, load: 5.mA, lo: 1.12, hi: 1.34
+
+end
+~~~
+
+That very clearly and concisely describes what the flow must do. Also by establishing
+conventions and eliminating redundancy we have made it really easy for us to add
+a new test in the future.
+
+#### Flow Control
+
+See the next section for details on run-time flow control.
+
+For build-time flow control you have complete access to the current target objects if you
+need to conditionally build some tests.
+
+Lets say we have two DUT designs, and one of them has a bug which means that the
+vreg load test will not work properly. Let's say its a problem with the pad connection
+such that the vreg works ok but it just can't be tested via an external load.
+Our models to represent this situation would look something like this:
+
+~~~ruby
+# lib/dut_1.rb
+class DUT1
+  include Origen::Model
+end
+
+# lib/dut_2.rb
+class DUT2 < DUT
+  include Origen::Model
+
+  bug :vreg_pad
+end
+
+DUT1.new.has_bug?(:vreg_pad)  # => false
+DUT2.new.has_bug?(:vreg_pad)  # => true
+~~~
+
+There are two ways that we could build the flow to ensure that DUT2 can still give a bin 1 - either
+skip the loaded test completely, or else don't care its result.
+Here is an example of both:
+
+~~~ruby
+# program/probe.rb
+Flow.create(environment: :probe) do
+
+  log "Vreg test module"
+
+  func :vreg_functional, softbin: 101
+
+  para :vreg_meas, softbin: 105, lo: 1.12, hi: 1.34
+
+  # Don't build this test if the target DUT has the bug
+  unless $dut.has_bug?(:vreg_pad)
+    para :vreg_meas, vdd: :min, softbin: 105, load: 5.mA, lo: 1.10, hi: 1.34
+  end
+
+  # Continue on fail if the target DUT has the bug
+  para :vreg_meas, vdd: :max, softbin: 105, load: 5.mA, lo: 1.12, hi: 1.34, continue: $dut.has_bug?(:vreg_pad)
+
+end
+~~~
+
+#### Re-usable Flow Snippets
+
+It is ofter useful to extract sections of a flow into a sub-module, so that it can be re-used
+and parameterized.
+In our case let's say that we have a new DUT on the horizon which has two vreg instances, so
+let's extract this suite of vreg tests to a module so that we can instantiate two of them in
+our flow.
+
+All sub flow file names must begin with "_", this is what tells Origen that it is a sub-flow and
+not a top-level flow.
+The sub-flow syntax is virtually identical to the regular flow syntax except that a hash of
+options are passed in which will contain any arguments passed in by the caller when they
+instantiate the sub-flow.
+
+Let's convert our flow to a sub-flow in file "_vreg.rb":
+
+~~~ruby
+# program/_vreg.rb
+Flow.create do |options|
+
+  log "Vreg test module"
+
+  func :vreg_functional, softbin: 101
+
+  para :vreg_meas, softbin: 105, lo: 1.12, hi: 1.34
+
+  # Don't build this test if the target DUT has the bug
+  unless $dut.has_bug?(:vreg_pad)
+    para :vreg_meas, vdd: :min, softbin: 105, load: 5.mA, lo: 1.10, hi: 1.34
+  end
+
+  # Continue on fail if the target DUT has the bug
+  para :vreg_meas, vdd: :max, softbin: 105, load: 5.mA, lo: 1.12, hi: 1.34, continue: $dut.has_bug?(:vreg_pad)
+
+end
+~~~
+
+Not much has changed so far - the environment option has been removed from the <code>Flow.create</code>
+definition since that is more of a top-level concern, and the options have been added.
+
+There are a couple of opportunities for improvement here:
+
+* The flow allows the loaded tests to be skipped, however it would be better if the sub-flow
+  did not define the conditions under which they should be skipped - that decision should be
+  made by to the top-level.
+* If this test is going to be instantiated multiple times it will need some kind of index
+  to target the test at vreg 0 or vreg 1.
+
+Here is the flow with these modifications:
+
+~~~ruby
+# program/_vreg.rb
+Flow.create do |options|
+
+  # These are the option defaults that will be used unless specified by the caller
+  options = {
+    include_loaded_output_tests: true,
+    index: 0,
+  }.merge(options)
+
+  log "Vreg test module"
+
+  func :vreg_functional, softbin: 101, index: options[:index]
+
+  para :vreg_meas, softbin: 105, lo: 1.12, hi: 1.34, index: options[:index]
+
+  if options[:include_loaded_output_tests]
+
+    para :vreg_meas, vdd: :min, softbin: 105, load: 5.mA, lo: 1.10, hi: 1.34, index: options[:index]
+
+    para :vreg_meas, vdd: :max, softbin: 105, load: 5.mA, lo: 1.12, hi: 1.34, index: options[:index]
+
+  end
+
+end
+~~~
+  
+For now we have not really committed to how the indexed tests will be generated, but we have
+passed the information along to the interface. Most likely when it comes to generating the
+pattern name within the interface we will just append the index to the name.
+
+So the original top-level flow is now really simple:
+
+~~~ruby
+# program/probe.rb
+Flow.create(environment: :probe) do
+
+  import "vreg", include_loaded_output_tests: !$dut.has_bug?(:vreg_pad)
+
+end
+~~~
+
+The path argument supplied to the import method can be either a relative path from the
+current file (as it is above), for example <code>"../components/vreg"</code>, or an
+absolute path such as <code>"#{Origen.root}/program/components/vreg"</code>. In both cases
+the underscore prefix is not required.
+
+The original reason for doing this was to add support for testing multiple
+vreg instances. To support such a case let's say that our DUT model will implement a
+method called <code>vregs</code> which will return one or more vreg models wrapped
+in an array.
+
+Our final flow is:
+
+~~~ruby
+# program/probe.rb
+Flow.create(environment: :probe) do
+
+  $dut.vregs.each_with_index do |vreg, i|
+
+    import "vreg", include_loaded_output_tests: !$dut.has_bug?(:vreg_pad), index: i
+
+  end
+
+end
+~~~
+
+#### Documenting Tests
+
+All of the test attributes will be available later when it comes to generating documentation
+of the test program, so there is no need to document them manually.
+However in some cases it will also be useful to include some
+text describing perhaps how the test works, or why it is being done.
+Such information can be added via regular Ruby comments immediately before the given
+test. 
+
+Origen will extract these later when it comes to generating documentation.
+
+The comments will be parsed as [Markdown](http://kramdown.rubyforge.org/quickref.html)
+so this can be used to make things like bulleted lists or tables.
+
+Here is our vreg test suite with some example documentation added:
+
+~~~ruby
+# program/_vreg.rb
+Flow.create do |options|
+
+  # These are the option defaults that will be used unless specified by the caller
+  options = {
+    include_loaded_output_tests: true,
+    index: 0,
+  }.merge(options)
+
+  log "Vreg test module"
+
+  # This test verifies that the following things work:
+  #
+  # * The vreg can be disabled
+  # * The trim register can be written to and read from
+  func :vreg_functional, softbin: 101, index: options[:index]
+
+  # Measure the output of the vreg under no load, this is a simple
+  # test to catch any gross defects that prevent the vreg from working
+  para :vreg_meas, softbin: 105, lo: 1.12, hi: 1.34, index: options[:index]
+
+  if options[:include_loaded_output_tests]
+
+    # Measure the output of the vreg under the given load, this is approximately
+    # equivalent to 1.5x the maximum load anticipated in a customer application.
+    para :vreg_meas, vdd: :min, softbin: 105, load: 5.mA, lo: 1.10, hi: 1.34, index: options[:index]
+
+    # As above
+    para :vreg_meas, vdd: :max, softbin: 105, load: 5.mA, lo: 1.12, hi: 1.34, index: options[:index]
+
+  end
+
+end
+~~~
+
+% end

@@ -1,3 +1,180 @@
+<a class="anchor release_tag" name="v0_5_10"></a>
+<h1><a href="#v0_5_10">Tag: v0.5.10</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 28-Jan-2016 08:01AM
+
+
+Origen.app.revision\_control\_root now returns Origen.root instead of crashing in the case
+where the app has not been committed to revision control yet
+
+<a class="anchor release_tag" name="v0_5_9"></a>
+<h1><a href="#v0_5_9">Tag: v0.5.9</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 26-Jan-2016 11:24AM
+
+
+* Fixed compatibility issue with Net/LDAP gem version 0.13.0
+* Made string compare in filter\_hash more dynamic by checking that the length of
+  strings match. Fix for ISC-906 (David Welguisz)
+* Updated git remote branch check to be more robust (Daniel Hadad)
+* Fix and issue with power\_supplies method where only the first value of the first key
+  was showing. ISC-867 work started. (David Welguisz)
+* Changed the initialize block to request three hashes that have block information, mode
+  information, and power information, instead of five different variables. (David Welguisz)
+* Caused specs.rb to be updated in the mode\_select method. (David Welguisz)
+* Updated regression manager to provide exit 1 status if regression results fail, to
+  support CI usage. (Daniel Hadad)
+* Added input\_display\_name and output\_display\_name for power\_supply.rb in 
+  lib/origen/specs (David Welguisz)
+* Fix regression manager bug causing failure when reference directory does not
+  exist (Priyavadan Kumar)
+* Expand power\_supply for specs by adding voltage levels for power supply (David Welguisz)
+* Added attr\_accessor called ip\_block\_name to creation\_info in spec model. (David Welguisz)
+  This will allow for instantiated versions of the ip to know where the base information is.
+* Added description attribute to Origen::Specs (David Welguisz)
+
+<a class="anchor release_tag" name="v0_5_8"></a>
+<h1><a href="#v0_5_8">Tag: v0.5.8</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 08-Dec-2015 11:19AM
+
+
+Re-enabled support for a legacy register definition API to make existing application
+upgrade to Origen easier.
+
+Updated the DesignSync API to expose an import method, this allows files to be fetched
+from a vault to the local workspace without setting up a formal association between the
+local folder and the remote vault.
+
+<a class="anchor release_tag" name="v0_5_7"></a>
+<h1><a href="#v0_5_7">Tag: v0.5.7</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 02-Oct-2015 08:50AM
+
+
+Fixed bug with Origen.app.rc (app revision controller) which did not work if the workspace
+was based on a fork of the main app repo.
+
+<a class="anchor release_tag" name="v0_5_6"></a>
+<h1><a href="#v0_5_6">Tag: v0.5.6</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 25-Sep-2015 05:52AM
+
+
+Added a new API to get a path to an application's imports directory. This is a directory that
+should be used to import 3rd party dependency data which is revision controlled outside of
+the current application.
+
+Origen will ensure that this directory is outside of the scope of the current application's revision
+control system to prevent any conflicts that could arise from having nested revision controlled
+workspaces.
+
+~~~ruby
+Origen.root              # => "/home/thao/my\_app"
+
+Origen.app.imports\_dir   # => "/home/thao/.my\_app\_imports\_DO\_NOT\_HAND\_MODIFY"
+~~~
+
+<a class="anchor release_tag" name="v0_5_5"></a>
+<h1><a href="#v0_5_5">Tag: v0.5.5</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 23-Sep-2015 09:57AM
+
+
+Disabled 'origen fetch' command, this will be re-introduced in future once an Origen
+server is available
+
+<a class="anchor release_tag" name="v0_5_4"></a>
+<h1><a href="#v0_5_4">Tag: v0.5.4</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 22-Sep-2015 09:47AM
+
+
+Tweaked console inspect output of models/controllers
+
+<a class="anchor release_tag" name="v0_5_3"></a>
+<h1><a href="#v0_5_3">Tag: v0.5.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 21-Sep-2015 17:31PM
+
+
+Added concise inspect method to all controllers and models, this makes for much better
+browsing of a model's hierarchy in the console
+
+<a class="anchor release_tag" name="v0_5_2"></a>
+<h1><a href="#v0_5_2">Tag: v0.5.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 21-Sep-2015 08:11AM
+
+
+Removed branch restrictions from 'origen rc tag' when using Git by default. Restrictions
+will only be in place if app.config.rc\_workflow == :gitflow.
+
+<a class="anchor release_tag" name="v0_5_1"></a>
+<h1><a href="#v0_5_1">Tag: v0.5.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 21-Sep-2015 08:01AM
+
+
+Targets/environments can now just instantiate top-level models and testers and they will be
+automatically assigned to $dut and $tester respectively.
+
+~~~ruby
+# target/eagle.rb
+Eagle.new
+OrigenTesters::J750.new
+
+# Somewhere else
+$dut      # => <eagle instance>
+$tester   # => <j750 instance>
+~~~
+
+Update to Origen::Model to proxy unrecognized methods to the model's controller.
+
+Made bits.assert an alias of bits.read.
+
+<a class="anchor release_tag" name="v0_5_0"></a>
+<h1><a href="#v0_5_0">Tag: v0.5.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 21-Sep-2015 04:07AM
+
+
+Made 'dut' and 'tester' global methods e.g. allows tester.j750? from anywhere in addition
+to $tester.j750?
+
+<a class="anchor release_tag" name="v0_4_3"></a>
+<h1><a href="#v0_4_3">Tag: v0.4.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 18-Sep-2015 08:52AM
+
+
+Origen.add.rc will now return nil instead of a non-functional revision controller instance
+in the case where config.rc\_url is undefined
+
 <a class="anchor release_tag" name="v0_4_2"></a>
 <h1><a href="#v0_4_2">Tag: v0.4.2</a></h1>
 

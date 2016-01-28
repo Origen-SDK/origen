@@ -759,7 +759,6 @@ module RegTest
       nvm.add_reg_with_block_format
       nvm.reg(:dreg3).description(include_name: false).size.should == 1
       nvm.reg(:dreg3).description(include_name: false).first.should == "This is dreg3"
-      $yo = true 
       nvm.reg(:dreg3).bit(:bit15).description.size.should == 1
       nvm.reg(:dreg3).bit(:bit15).description.first.should == "This is dreg3 bit 15"
       nvm.reg(:dreg3).bit(:lower).description.size.should == 2
@@ -1277,5 +1276,65 @@ module RegTest
         reg(:reg).bits(:field4).data.should == 0xa
     end
 
+    it 'regs with all bits writable can be created via a shorthand' do
+      class RegBlock
+        include Origen::Model
+        def initialize
+          reg :reg1, 0
+          reg :reg2, 4, size: 8
+          reg :reg3, 5, size: 8, reset: 0xFF
+        end
+      end
+
+      b = RegBlock.new
+      b.reg1.size.should == 32
+      b.reg2.size.should == 8
+      b.reg1.write(0xFFFF_FFFF)
+      b.reg1.data.should == 0xFFFF_FFFF
+      b.reg2.write(0xFF)
+      b.reg2.data.should == 0xFF
+      b.reg3.data.should == 0xFF
+    end
+
+    it 'regs can shift left' do
+      reg :sr1, 0, size: 4
+      sr1.write(0xF)
+      sr1.data.should == 0b1111
+      sr1.shift_left
+      sr1.data.should == 0b1110
+      sr1.shift_left
+      sr1.data.should == 0b1100
+      sr1.shift_left(1)
+      sr1.data.should == 0b1001
+      sr1.shift_left(1)
+      sr1.data.should == 0b0011
+    end
+
+    it 'regs can shift right' do
+      reg :sr2, 0, size: 4
+      sr2.write(0xF)
+      sr2.data.should == 0b1111
+      sr2.shift_right
+      sr2.data.should == 0b0111
+      sr2.shift_right
+      sr2.data.should == 0b0011
+      sr2.shift_right(1)
+      sr2.data.should == 0b1001
+      sr2.shift_right(1)
+      sr2.data.should == 0b1100
+    end
+
+    it 'the original reg definition API still works' do
+      add_reg :mclkdiv2,   0x03,  16,  :osch       => { :pos => 15 },
+                                       :asel       => { :pos => 14 },
+                                       :failctl    => { :pos => 13 },
+                                       :parsel     => { :pos => 12 },
+                                       :eccen      => { :pos => 11 },
+                                       :cmdloc     => { :pos => 8, :bits => 3, :res => 0b001 },
+                                       :clkdiv     => { :pos => 0, :bits => 8, :res => 0x18 }
+      mclkdiv2.clkdiv.size.should == 8
+      mclkdiv2.clkdiv.data.should == 0x18
+      mclkdiv2.data.should == 0x0118
+    end
   end
 end

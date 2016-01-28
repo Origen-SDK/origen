@@ -1,0 +1,203 @@
+% render "layouts/guides.html" do
+
+Origen plugins are essentially Origen applications themselves.
+Follow the standard instructions to [Create a New Application](<%= path "guides/starting/app" %>)
+and choose one of the available plugin templates rather than an application template.
+
+#### Understanding How Plugins are Loaded
+
+For the purposes of this guide let's say we are creating a plugin called <code>ATDTest</code>
+and this would have a top-level lib file called <code>lib/atd_test.rb</code>.
+
+When a plugin is run from its own workspace, we would call this running in standalone or development
+mode, then it is loaded like any other Origen application.
+The first thing Origen does in this case is to load the plugin's gem bundle, defined in its <code>Gemfile</code>,
+and then boot the plugin by loading <code>config/boot.rb</code>. Normally such a file will look like this:
+
+~~~ruby
+# config/boot.rb
+require 'atd_test'
+~~~
+
+So by default this simply loads the plugin's top-level file which in this example is
+<code>lib/atd_test.rb</code>.
+
+However when the plugin is loaded as part of a parent application, neither the plugin's <code>Gemfile</code> or
+its <code>config/boot.rb</code> file will be loaded.
+Instead the parent application's <code>Gemfile</code> will be loaded, and this will contain
+a reference to our plugin. The tool that evaluates the Gemfile, called [Bundler](http://bundler.io), will
+inspect our plugin's <code>gemspec</code> file (in this example <code>atd_test.gemspec</code>) and
+it will ensure that any dependencies listed there are met. Once the gem bundle has been created
+it will then load our plugin's top-level file, <code>lib/atd_test.rb</code>.
+
+The take away from this is that the following rules should be observed when creating plugins:
+
+* Load all of your plugin's code from it's top-level file (<code>lib/atd_test.rb</code>), if that requires
+  all of the lib code you wish to share with your users then they will not need to do anything except
+  add your plugin to their <code>Gemfile</code>.
+* The plugin's <code>config/boot.rb</code> file should only be used for loading any code which is for testing
+  only or for otherwise running your plugin within its own workspace environment.
+* The plugin's <code>Gemfile</code> should not be used. This should contain a line that calls <code>gemspec</code>
+  which tells Bundler to refer to the plugin's gemspec file instead, e.g. <code>atd_test.gemspec</code>. This
+  prevents you from having to maintain the plugin's gem dependencies in two separate locations.
+* The plugin's gemspec should be used to declare all of its gem dependencies as shown below. **Note that plugins
+  must never specify an absolute version of gems in its runtime dependencies.**
+
+~~~ruby
+# atd_test.gemspec
+
+# Declare any dependencies that the plugin will need when it is running within a parent application.
+# Never specify an absolute version since that can easily conflict with other plugins if they did the
+# same. Instead specify a range, normally just a minimum version that you need.
+spec.add_runtime_dependency "origen_jtag", ">= 1.1.0"
+
+# Declare any dependencies that the plugin need when running in standalone/development mode only, a
+# very common example is the documentation helpers plugin. This is only required to build the plugins
+# web pages, but it is not required at runtime.
+# Note that absolute version numbers are allowed here since this does not apply outside of this plugin.
+spec.add_development_dependency "origen_doc_helpers"
+~~~
+
+#### Sharing Models and Other Lib Code
+
+The plugin's <code>lib</code> directory will be automatically added to the Ruby load path
+no special consideration is required to expose lib code to the parent application.
+In our example the parent application will be able to load
+any of our code like this:
+
+~~~ruby
+require 'atd_test/atd_16b'
+~~~
+
+However as noted above the plugin's top-level file, <code>lib/atd_test.rb</code> will be automatically
+loaded, therefore it is the usual convention to have this file require everything else so that the parent
+application does not need to manually require anything.
+
+#### Sharing Other IP
+
+To share source files, templates and commands the plugin must define <code>config.shared</code> in
+its <code>config/application.rb</code> file, here is an example that will share everything:
+
+~~~ruby
+config.shared = {
+  :patterns => "pattern",
+  :templates => "templates",
+  :programs => "program",
+  :command_launcher => "config/shared_commands.rb"
+}
+~~~
+
+Access can be restricted by specifying a sub-directory, or by simply
+removing the given resource:
+
+~~~ruby
+# Only share a subset of patterns (those that live within the pattern/shared directory, those
+# in pattern/development for example would not be available to the host application)
+config.shared = {
+  :patterns => "pattern/shared",
+#  :templates => "templates",
+#  :programs => "program",
+#  :command_launcher => "config/shared_commands.rb"
+}
+~~~
+
+#### Sharing Templates
+
+The host application can reference a template from an added
+plugin by using the plugin's name as a pointer to the
+shared template directory (the directory specified in the plugin's
+<code>config.shared[:templates]</code> attribute),
+and then a relative path from there to the required template.
+
+For example the [doc_helpers](http://origen-sdk.org/doc_helpers)
+plugin contains a test flow layout template at
+<code>templates/shared/test/_flow.md.erb</code>, and an importing
+application would reference this template via the path
+<code>doc_helpers/test/_flow.md.erb</code>.
+
+#### Sharing Pattern and Program Sources
+
+When test pattern and program directories are shared Origen will look within these for
+the requests patterns/flows whenever the given plugin is designated as the
+current plugin.
+
+See the [Current Plugin](<%= path "guides/plugins/current" %>) for more detail on this.
+
+For example say our plugin is called <code>atd_test</code> and it provides a pattern
+called <code>atd_ramp.rb</code>, then
+it could be generated like this from the parent application workspace:
+
+~~~text
+origen pl atd_test
+origen g atd_ramp
+~~~
+
+Alternatively you can override the current plugin at runtime like this, this is
+equivalent to the above:
+
+~~~text
+origen g atd_ramp --plugin atd_test
+~~~
+
+Program generation source files work from exactly the same principles.
+
+Note that since there is currently no easy way to view a list of all patterns provided
+by a plugin, it is conventional for the plugin to provide custom commands to generate
+a complete set of patterns, e.g. something like this:
+
+~~~text
+origen atd_test:prod_pats   # Generate all production patterns from the ATD plugin
+origen atd_test:prod_prog   # Generate the production test program from the ATD plugin
+~~~
+
+#### Sharing Commands
+
+To share custom commands supply a path to a command definition/launcher file within the plugin
+as shown in the example above.
+
+This file works very similar to the way that [custom commands](<%= path "guides/misc/commands" %>)
+are added to an application.
+
+Here is an example command launcher file from a real plugin, this adds a custom
+command, <code>origen atd_test:j750</code>, to the host application and also extends the
+<code>origen g</code> command by adding an additional option to it.
+
+Note the use of [Origen.root!](<%= path "guides/plugins/paths" %>) and
+[Origen.app!](<%= path "guides/plugins/app" %>) to refer to the plugin's own root
+and application instance rather than that of the host application.
+
+Also note that the command has been called <code>atd_test:j750</code> instead of just
+<code>j750</code>, this is to ensure that there is no naming collision with commands
+that could be added by other plugins.
+In future Origen will automatically apply a plugin specific prefix to the commands like this,
+but until then all plugin developers are expected to be good citizens and add this manually.
+
+~~~ruby
+# config/shared_commands.rb
+
+# The requested command is passed in here as @command
+case @command
+
+when "atd_test:j750"
+  require "#{Origen.root!}/lib/commands/j750"
+  # Important to exit when a command has been fulfilled or else Origen core will try and execute it
+  exit 0
+
+# Add an additional option to the standard generate command, important to have no exit here
+when "generate"
+  @application_options << ["--md5", "Apply an MD5 checksum to pattern names"]
+  Origen.app!.md5 = true if ARGV.include?("--md5")
+
+# Always leave an else clause to allow control to fall back through to the Origen command handler.
+# You probably want to also add the command details to the help shown via 'origen -h',
+# you can do this bb adding the required text to @plugin_commands before handing control back to
+# Origen.
+else
+  @plugin_commands << <<-EOT
+ atd_test:j750 Generate the ATD test program for J750
+  EOT
+
+end
+~~~
+
+% end

@@ -1,0 +1,402 @@
+% render "layouts/guides.html" do
+
+Origen allows test descriptions to be entered quickly and easily within the
+test flow source file, enabling a test program document to be produced that is extremely
+accurate due to it being derived from the same source as the program itself.
+
+The application must also define a documentation interface in order to do the translation
+between the application-specific flow API and the Origen test program documentation back end -
+this is the exact same principle as generating an interface for a specific ATE platform.
+
+Typically creating a documentation interface is much easier than creating an ATE platform
+interface and is discussed
+[later in this guide](<%= path "guides/program/doc/#Creating_A_Documentation_Interface" %>).
+Note that if you don't initially have time to set up the documentation interface you should still
+try and document the program as described here since the code it produces will still be
+compatible with any tester interface. Then when time allows you can setup the documentation
+interface with the hard part of actually describing the tests already done.
+
+The [Documentation Helpers](http://origen-sdk.org/doc_helpers) plugin provides off
+the shelf [test flow helpers](http://origen-sdk.org/doc_helpers/examples/test/flow)
+to render such documentation metadata as a well formatted web document.
+
+#### Flow Markup
+
+Flow sections and individual tests should be documented like this:
+
+~~~ruby
+# A Test Sub Module
+# Test flow modules like this will collapse and nest when they are included in a parent
+# flow via the import command. The first line will be the name assigned to the collapsible
+# area, the rest of these comments will be shown when it expands. **It will be parsed for
+# markdown.**
+Flow.create do
+  # Any comments in here will attach as a description to the next test
+  func :measure_vreg, bin: 45, vdd: min
+
+  # This is a description of what this test does
+  #- Prefixing the line with a '-' will cause it to be private, so this is how you would
+  #- record some implementation detail that is of interest to engineers working on this
+  #- flow, but which is not relevant to its overall operation
+  func :vreg_func1, bin: 50
+
+  # All comments can contain markdown, for example
+  #
+  # * A bulleted
+  # * list
+  func :vreg_func2, bin: 55, iload: 50.uA
+end
+~~~
+
+When generated against an appropriate documentation interface and passed to the
+[Documentation Helpers](http://origen-sdk.org/doc_helpers) plugin, this would generate a
+flow section like this (click to expand):
+
+<div class="panel-group" id="test_flow1">
+
+  <div class="panel panel-default">
+    <a href="#_" class="expandcollapse btn btn-mini pull-right" state="0"><i class="icon-plus-sign"></i></a>
+    <div class="panel-heading clickable" style="background:whitesmoke" data-toggle="collapse" data-parent="#blah2" href="#collapseAccordion3">
+      <a class="no-underline">
+        A Test Sub Module
+      </a>
+    </div>
+    <div id="collapseAccordion3" class="panel-collapse collapse">
+      <div class="panel-body">
+        <p>
+          Test flow modules like this will collapse and nest when they are included in a parent
+          flow via the import command. The first line will be the name assigned to the collapsible
+          area, the rest of these comments will be shown when it expands. <strong>It will be parsed for
+          markdown.</strong>
+        </p>
+
+        <table class="table table-condensed table-bordered flow-table">
+          <thead><tr>
+          <th class="col1">Test</th>
+          <th class="col2">Number</th>
+          <th class="col3">HBin</th>
+          <th class="col3">SBin</th>
+          <th class="col5">Attributes</th>
+          <th class="col6">Description</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td class="col1">
+                <div>measure_vreg</div>  
+              </td>
+              <td class="col2">#45000</td>
+              <td class="col3">B45</td>
+              <td class="col4"></td>
+              <td class="col5 attributes">
+                <ul>
+                  <li><strong>Vdd</strong>: min</li>
+                </ul>
+              </td>
+              <td class="col6">
+                <p>Any comments in here will attach as a description to the next test</p>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="col1">
+                <div>vreg_func1</div>  
+              </td>
+              <td class="col2">#50000</td>
+              <td class="col3">B50</td>
+              <td class="col4"></td>
+              <td class="col5 attributes">
+                <ul>
+                </ul>
+              </td>
+              <td class="col6">
+                <p>This is a description of what this test does</p>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="col1">
+                <div>vreg_func2</div>  
+              </td>
+              <td class="col2">#55000</td>
+              <td class="col3">B55</td>
+              <td class="col4"></td>
+              <td class="col5 attributes">
+                <ul>
+                  <li><strong>iload</strong>: 50E-06</li>
+                </ul>
+              </td>
+              <td class="col6">
+                <p>All comments can contain markdown, for example</p>
+                <ul>
+                  <li>A bulleted</li>
+                  <li>list</li>
+                </ul>
+              </td>
+            </tr>
+          </tbody>  
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+#### Documenting Structure
+
+Tests can be grouped together by wrapping them with the <code>pp</code> helper, here are
+the two functional tests grouped together with some description added about what the
+group contains:
+
+~~~ruby
+# A Test Sub Module
+# Test flow modules like this will collapse and nest when they are included in a parent
+# flow via the import command. The first line will be the name assigned to the collapsible
+# area, the rest of these comments will be shown when it expands. **It will be parsed for
+# markdown.**
+Flow.create do
+  # Any comments in here will attach as a description to the next test
+  func :measure_vreg, bin: 45, vdd: min
+
+  # Within flow sections should be marked like this (this is the same API to indicate
+  # structure in pattern logic to). This text will appear when the collapsible area is
+  # shown and will be parsed for markdown.
+  pp "Functional Tests" do
+    # This is a description of what this test does
+    #- Prefixing the line with a '-' will cause it to be private, so this is how you would
+    #- record some implementation detail that is of interest to engineers working on this
+    #- flow, but which is not relevant to its overall operation
+    func :vreg_func1, bin: 50
+
+    # All comments can contain markdown, for example
+    #
+    # * A bulleted
+    # * list
+    func :vreg_func2, bin: 55, iload: 50.uA
+  end
+end
+~~~
+
+The functional tests will now be nested in a collapsible group:
+
+<div class="panel-group" id="test_flow2">
+
+  <div class="panel panel-default">
+    <a href="#_" class="expandcollapse btn btn-mini pull-right" state="0"><i class="icon-plus-sign"></i></a>
+    <div class="panel-heading clickable" style="background:whitesmoke" data-toggle="collapse" data-parent="#blah2" href="#collapseAccordion4">
+      <a class="no-underline">
+        A Test Sub Module
+      </a>
+    </div>
+    <div id="collapseAccordion4" class="panel-collapse collapse">
+      <div class="panel-body">
+        <p>
+          Test flow modules like this will collapse and nest when they are included in a parent
+          flow via the import command. The first line will be the name assigned to the collapsible
+          area, the rest of these comments will be shown when it expands. <strong>It will be parsed for
+          markdown.</strong>
+        </p>
+
+        <table class="table table-condensed table-bordered flow-table">
+          <thead><tr>
+          <th class="col1">Test</th>
+          <th class="col2">Number</th>
+          <th class="col3">HBin</th>
+          <th class="col3">SBin</th>
+          <th class="col5">Attributes</th>
+          <th class="col6">Description</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td class="col1">
+                <div>measure_vreg</div>  
+              </td>
+              <td class="col2">#45000</td>
+              <td class="col3">B45</td>
+              <td class="col4"></td>
+              <td class="col5 attributes">
+                <ul>
+                  <li><strong>Vdd</strong>: min</li>
+                </ul>
+              </td>
+              <td class="col6">
+                <p>Any comments in here will attach as a description to the next test</p>
+              </td>
+            </tr>
+          </tbody>  
+        </table>
+
+        <div class="panel panel-default">
+          <a href="#_" class="expandcollapse btn btn-mini pull-right" state="0"><i class="icon-plus-sign"></i></a>
+          <div class="panel-heading clickable" style="background:whitesmoke" data-toggle="collapse" data-parent="#blah2" href="#collapseAccordion5">
+            <a class="no-underscore">
+              Functional Tests
+            </a>
+          </div>
+          
+          <div id="collapseAccordion5" class="panel-collapse collapse">
+            <div class="panel-body">
+              <p>
+                Within flow sections should be marked like this (this is the same API to indicate
+                structure in pattern logic to). This text will appear when the collapsible area is
+                shown and will be parsed for markdown.
+              </p>  
+
+              <table class="table table-condensed table-bordered flow-table">
+                <thead><tr>
+                <th class="col1">Test</th>
+                <th class="col2">Number</th>
+                <th class="col3">HBin</th>
+                <th class="col3">SBin</th>
+                <th class="col5">Attributes</th>
+                <th class="col6">Description</th>
+                </tr></thead>
+                <tbody>
+                  <tr>
+                    <td class="col1">
+                      <div>vreg_func1</div>  
+                    </td>
+                    <td class="col2">#50000</td>
+                    <td class="col3">B50</td>
+                    <td class="col4"></td>
+                    <td class="col5 attributes">
+                      <ul>
+                      </ul>
+                    </td>
+                    <td class="col6">
+                      <p>This is a description of what this test does</p>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td class="col1">
+                      <div>vreg_func2</div>  
+                    </td>
+                    <td class="col2">#55000</td>
+                    <td class="col3">B55</td>
+                    <td class="col4"></td>
+                    <td class="col5 attributes">
+                      <ul>
+                        <li><strong>iload</strong>: 50E-06</li>
+                      </ul>
+                    </td>
+                    <td class="col6">
+                      <p>All comments can contain markdown, for example</p>
+                      <ul>
+                        <li>A bulleted</li>
+                        <li>list</li>
+                      </ul>
+                    </td>
+                  </tr>
+                </tbody>  
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+#### Dynamic Documentation From Helpers
+
+Helper methods can be added to your interface to generate multiple tests or to otherwise dynamically generate a
+section of the flow.
+
+Within these methods the <code>cc</code> method can be used to stage comments that will be attached to
+the next test to be generated:
+
+~~~ruby
+def program_sequence
+  cc "Issue a pulse"
+  func :program_20us
+  cc "Do a verify"
+  func :read_margin0
+end
+~~~
+
+#### Creating A Documentation Interface
+
+A documentation interface can be thought of as an interface for a really simple tester which only has the
+concept of a flow and a collection of tests.
+
+Here is the basic starting point for any documentation interface:
+
+~~~ruby
+class DocInterface
+  include OrigenTesters::Doc::Generator
+
+  # Add a test to the collection
+  def add_test(name, options)
+    tests.add(name, options)
+  end
+
+  # Add a flow entry
+  def add_flow_entry(test, options)
+    flow.test(test, options)
+  end
+end
+~~~
+
+As with any interface it is then required to create methods to translate your domain specific
+flow API into calls to these two key methods to add a test and a flow entry.
+
+Our example flow here has a <code>func</code> method, we might implement the handler for that like this:
+
+~~~ruby
+def func(name, options={})
+  add_test(name, options)
+  add_flow_entry(name, options)
+end
+~~~
+
+Over and above that what happens next is very domain specific and depends if any processing
+or sanitizing of the options or names are required to produce an accurate document.
+Some domain specific examples from the simple flow in this guide would be:
+
+By default any options passed to the <code>add_test</code> method will be rendered into the
+attributes column. In our case we are supplying the bin as a flow line option and that will
+already be displayed in the dedicated column when it is passed to the flow entry. To inhibit
+the bin appearing in the test attributes we can screen the options like this:
+
+~~~ruby
+# Add a test to the collection
+def add_test(name, options)
+  # Delete any keys that we don't want to assign to the instance, this keeps
+  # the attributes column clean, flow control keys will be screened by Origen automatically
+  [:bin, :some, :other, :keys,
+  ].each { |k| options.delete(k) }
+  tests.add(name, options)
+end
+~~~
+
+As noted in the above comment any keys related to [flow control](<%= path "guides/program/flowapi" %>)
+will be automatically screened and handled by Origen (doc helpers knows how to display this
+information to).
+
+Another convention from the above example was that we did not supply a test number and it was
+automatically set to a multiple of the bin number,
+we can handle that like this:
+
+~~~ruby
+# Add a flow entry
+def add_flow_entry(test, options)
+  options = sanitize_flow_options(options)
+  flow.test(test, options)
+end
+
+def sanitize_flow_options(options)
+  # If the number has not been set in the flow then set it to a multiple of the bin, if present
+  options[:number] ||= options[:bin] ? options[:bin] * 1000 : nil
+  options
+end
+~~~
+
+Note that many of the methods involved in processing the test options such as the
+<code>sanitize_flow_options</code> method here would be common to all
+interfaces and therefore should not need special handling specifically for documentation.
+Rather you
+should create a common module that gets included into all interfaces to handle the non-tester-platform
+specific concerns like these.
+
+% end

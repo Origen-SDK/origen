@@ -1,0 +1,93 @@
+% render "layouts/guides.html" do
+
+<div class="alert alert-danger">
+  Unfortunately this API currently only supports remote DesignSync repositories, however it
+  will soon be updated to use the
+  <a href="<%= path "guides/misc/revisioncontrol" %>">abstract revision control API</a>
+  under the hood. At that point it will work with remote data stored in any revision control
+  system supported by Origen.
+</div>
+
+### What is a 'Remote'?
+
+In some cases, your application may require access to external data that is 
+kept under revision control but not necessarily as part of the Origen environment.
+For example, you may need access to a design file that is stored with the IP and rather than store
+a static copy in the application vault, you want to easy populate a local version based on a 
+specified tag.  Then what you need is an Origen Remote.
+
+### How to Populate a Remote
+
+Populating a remote is extremely easy, all that has to be done is to define
+the required remote within the <code>config/application.rb</code> file.
+
+Three details are required:
+
+* The sub-directory within the Origen remotes workspace where you want the population to occur
+* The path to the vault containing the plugin application
+* The version of it that you want to use
+
+Once in possession of these details add them to the <code>config.remotes</code>
+attribute. 
+This accepts an array and any number of remotes can be added, here is an example
+that populates two remotes:
+
+~~~ruby
+config.remotes = [
+  {
+    dir: "source/include/v_ip_ate",
+    vault: "sync://sync-15000:15000/v_ip_ate_c90lp/compiler/include",
+    version: "v0.0.0.dev1",
+  },
+  {
+    dir: "source/include/v_ip_capi",
+    vault: "sync://sync-15100:15100/v_ip_capi/compiler/include",
+    version: "v1.0.0",
+  }
+]
+~~~
+
+#### Location
+
+Population of the remotes will occur within the remotes workspace located at the top-level 
+of the receiving application.  For instance, in the above example, the v_ip_ate remote would be
+located at:
+
+~~~code
+.<top>_remotes_DO_NOT_HAND_MODIFY/source/include/v_ip_ate
+~~~
+
+Please note that the value of :dir must be unique within the application.
+
+#### Origen Does the Rest
+
+With those details added Origen will then take care of ensuring that the dependencies
+are fulfilled every time that the application is invoked.
+
+
+#### Setting up a Remote Development Environment
+
+If you are still developing some parts of your remote, your environment setup may need to be slightly
+different vs. working on a known good remote.  You can configure the receiving application to use
+a development workspace like this:
+
+~~~ruby
+config.remotes = [
+  {
+    dir: "source/include/v_ip_ate",
+    vault: "sync://sync-15000:15000/v_ip_ate_c90lp/compiler/include",
+    version: "v0.0.0.dev2",
+    path: "/proj/thao/build.22/common_vip/v_ip_ate",
+  }
+]
+~~~
+
+When a path reference is present Origen will override the vault/version reference and
+will setup up a symbolic link from the regular
+remote location to your development workspace - this means that the receiving application
+is now always looking at your latest development code.
+
+Origen will not allow the receiving application to be tagged when a path reference is active,
+so you don't need to worry too much about forgetting to remove it!
+
+% end

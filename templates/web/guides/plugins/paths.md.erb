@@ -1,0 +1,99 @@
+% render "layouts/guides.html" do
+
+As you may know <code>Origen.root</code> can be used to make references
+to files and paths within Origen application code. In this simple example
+the variable <code>my_pattern_dir</code> will be assigned to an absolute
+path to the application's pattern directory regardless of where the workspace
+owner has installed the application:
+
+~~~ruby
+my_pattern_dir = "#{Origen.root}/pattern"
+~~~
+
+However things get a bit more complicated when writing a plugin, for example
+if the above code resides in a plugin do you mean the plugin's pattern directory
+or the pattern directory of the importing application?
+
+By established conventions <code>Origen.root</code> always means the root of the
+current application, so in the above example the variable will always be set
+to the top-level application's pattern directory even if the code resides in
+a plugin.
+
+#### Origen.root!
+
+What if you are writing a plugin and you do mean to reference somewhere
+within the plugin's source files?
+
+In that case the method <code>Origen.root!</code> can be used instead. If the plugin
+is being run in a standalone manner then the path returned will be the same as that
+from the conventional <code>Origen.root</code>. However if the plugin is invoked through
+a 3rd party application then it will return the path to the plugin's source files instead of
+those of the importing/top-level application.
+
+Here is a simple example to illustrate this:
+
+~~~ruby
+# Lives in a plugin called 'atd_test'
+module ATDTest
+  class ATD16
+    def root
+      Origen.root
+    end
+
+    def root!
+      Origen.root!
+    end
+  end
+end
+
+# Lives in the top-level application
+class SoC
+  def atd
+    @atd ||= ATDTest::ATD16.new
+  end
+
+  def root
+    Origen.root
+  end
+
+  def root!
+    Origen.root!
+  end
+end
+   
+# Say the top-level application has been installed to /proj/c28/workspace1
+$dut = SoC.new
+
+$dut.root       # => "/prog/c28/workspace1"
+$dut.root!      # => "/prog/c28/workspace1"
+$dut.atd.root   # => "/prog/c28/workspace1"
+$dut.atd.root!  # => "/home/thao/.origen/gems/atd_test"
+~~~
+
+#### Origen.root(:plugin_name)
+
+Additionally within an application it is sometimes useful to be able to refer
+to a 3rd party plugin's root directory. This can be done by supplying the name of the
+plugin to <code>Origen.root</code>.
+
+An example use case of where this is useful is if you want to re-open and extend
+a class that is provided by a plugin:
+
+~~~ruby
+# Ensure the original is loaded
+require "#{Origen.root(:atd_test)}/lib/atd_test/atd16"
+module ATDTest
+  class ATD16
+    def my_additional_method
+      puts "hello"
+    end
+  end
+end
+~~~
+
+#### Origen.top
+
+<code>Origen.top</code> always returns the absolute path to the Origen core
+installation regardless of whether it is called by top-level application or plugin code.
+
+% end

@@ -1,0 +1,111 @@
+% render "layouts/guides.html" do
+
+This guide gives an overview of some of the most common timing related
+methods, but to get a complete overview of what is available consult
+the [OrigenTesters::Timing API](<%= path "http://origen-sdk.org/testers/api/OrigenTesters/Timing.html" %>).
+
+A timeset declaration is used to provide information to Origen about what
+timeset to use for future test cycles and what period of time each
+cycle represents.
+
+Normally this would be initialized within the startup method before generating any
+vectors as shown below:
+
+~~~ruby
+class MySoCController
+  include Origen::Controller
+
+  def startup(options)
+    $tester.set_timeset("mode_entry", 40)
+  end
+end
+~~~
+
+The first argument is the name of the timeset, this should correspond to
+how the timeset will be named within the test program, and the second argument
+is the cycle period in nano-seconds.
+
+This method also accepts a block in which case the contained vectors will generate
+with the supplied timeset and subsequent vectors will return to the previous timeset
+automatically. 
+
+~~~ruby
+$tester.set_timeset("bist_50mhz", 20) do
+  # Any cycles generated in here will use 20ns for the period
+end
+~~~
+
+The arguments can also be supplied as a single array, or not at all. In the latter case
+the existing timeset will simply be preserved. This is useful if you have timesets that
+can be conditionally set based on the target.
+
+~~~ruby
+# Target 1
+$dut.readout_timeset = ["readout", 120]
+# Target 2
+$dut.readout_timeset = false
+
+# This code is compatible with both targets, in the first case the timeset will switch
+# over, in the second case the existing timeset will be preserved.
+$tester.set_timeset($dut.readout_timeset) do
+  # Generate readout vectors...
+end
+~~~
+
+#### Creating a Timing Set
+
+Currently the creation of the timing set for a given test platform must be
+done independently of Origen, however adding an Origen API for this is on the roadmap.
+
+#### Waiting
+
+All $tester models will support the following API to generate wait states
+in the test patterns.
+
+Wait for specific number of cycles:
+
+~~~ruby
+$tester.wait(cycles: 1000)
+~~~
+
+Wait for a period of time:
+
+~~~ruby
+$tester.wait(time_in_us: 500)
+$tester.wait(time_in_ms: 10)
+~~~
+
+Multiple times specified in different units will be added together, this can be useful
+if the delay is based on a complex calculation:
+
+~~~ruby
+# Wait for 500us + 100 cycles
+$tester.wait(time_in_us: 500, cycles: 100)
+~~~
+
+#### Waiting for an Event
+
+All testers provide an API for generating match loops, these can be used to
+make the pattern wait dynamically for a pin-based or even a register-based
+event.
+
+To do this enable the <code>:match</code> option and supply a block, within the block
+generate the vectors that will test if the condition has been met.
+Any time options passed in will be applied as a timeout, i.e. the maximum time to
+wait for the required condition to resolve.
+
+Here are some examples:
+
+~~~ruby
+# Wait for up to 1 second for the done bit to be set
+$tester.wait(match: true, time_in_s: 1) do
+  reg(:status_reg).bit(:done).read!(1)
+end
+
+# Wait for up to 1 second for the done pin to be set
+$tester.wait(match: true, time_in_s: 1) do
+  pin(:done).assert!(1)
+end
+~~~
+
+% end

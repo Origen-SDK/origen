@@ -111,11 +111,13 @@ module Origen
           elsif config.rc_url =~ /git/
             @revision_controller ||= RevisionControl::Git.new(
               local:  root,
-              remote: config.rc_url
+              # If a workspace is based on a fork of the master repo, config.rc_url may not
+              # be correct
+              remote: RevisionControl::Git.origin || config.rc_url
             )
 
           end
-        else
+        elsif config.vault
           @revision_controller ||= RevisionControl::DesignSync.new(
             local:  root,
             remote: config.vault
@@ -156,6 +158,18 @@ module Origen
     def root
       @root
     end
+
+    # Returns a path to the imports directory (e.g. used by the remotes and similar features) for the
+    # application. e.g. if the app live at /home/thao/my_app, then the imports directory will typically
+    # be /home/thao/.my_app_imports_DO_NOT_HAND_MODIFY
+    #
+    # Origen will ensure that this directory is outside of the scope of the current application's revision
+    # control system. This prevents conflicts with the revision control system for the application and those
+    # used to import 3rd party dependencies
+    def imports_directory
+      workspace_manager.imports_directory
+    end
+    alias_method :imports_dir, :imports_directory
 
     # Returns the namespace used by the application as a string
     def namespace
@@ -468,8 +482,17 @@ module Origen
     end
 
     def session(reload = false)
-      @session = nil if reload
-      @session ||= Database::KeyValueStores.new(self, persist: false)
+      if current?
+        @session = nil if reload
+        @session ||= Database::KeyValueStores.new(self, persist: false)
+      else
+        puts "All plugins should use the top-level application's session store, i.e. use:"
+        puts "  Origen.app.session.#{name}"
+        puts 'instead of:'
+        puts '  Origen.app!.session'
+        puts
+        exit 1
+      end
     end
 
     def versions
@@ -552,6 +575,7 @@ module Origen
       # if tester && obj
       #  raise "You can only instantiate 1 tester, you have already created an instance of #{tester.class}}"
       # end
+      $tester = obj
       set_dynamic_resource(:tester, [obj])
     end
 

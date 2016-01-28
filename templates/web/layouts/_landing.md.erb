@@ -1,4 +1,4 @@
-% render "layouts/cyborg.html", footer: false, home: true, tab: options[:tab] do
+% render "layouts/cyborg.html", footer: false, home: true, tab: options[:tab], description: options[:description] do
   <div class="container-fluid" style="background-image: url(<%= path "img/wafer_blur.jpg" %>); background-repeat: no-repeat; background-position: bottom; background-size: cover; box-shadow: inset 0 0 100px rgba(0,0,0,0.5); height: 100%; padding: 0;">
     <div class="container-fluid transparency" style="height: 100%; background-color: rgba(34, 34, 34, 0.26); padding: 0;">
       <div markdown="1" class="container">
@@ -9,7 +9,7 @@
 </div>
 </div>
 
-<div style="position: absolute; bottom: 0; right: 0; font-size: 0.5em; color: rgb(113, 113, 113);">
+<div style="position: absolute; bottom: 0; left: 0; font-size: 0.5em; color: rgb(113, 113, 113);">
 Background image modified from an original by
 <a href="https://www.flickr.com/photos/intelfreepress/8273834438/sizes/o/in/photostream/">Intel Free Press</a>
 and licensed under <a href="http://creativecommons.org/licenses/by-sa/2.0">CC BY-SA 2.0</a>

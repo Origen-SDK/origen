@@ -21,6 +21,7 @@ unless defined? RGen::ORIGENTRANSITION
   require 'origen/logger_methods'
   require 'option_parser/optparse'
   require 'bundler'
+  require 'origen/undefined'
 
   module Origen
     autoload :Features,  'origen/features'
@@ -28,6 +29,7 @@ unless defined? RGen::ORIGENTRANSITION
     autoload :Generator, 'origen/generator'
     autoload :Pins,      'origen/pins'
     autoload :Registers, 'origen/registers'
+    autoload :Ports,     'origen/ports'
     autoload :Users,     'origen/users'
     autoload :FileHandler, 'origen/file_handler'
     autoload :RegressionManager, 'origen/regression_manager'
@@ -49,6 +51,8 @@ unless defined? RGen::ORIGENTRANSITION
     autoload :Encodings, 'origen/encodings'
     autoload :Log,       'origen/log'
     autoload :Chips,     'origen/chips'
+    autoload :Netlist,   'origen/netlist'
+    autoload :Models,    'origen/models'
 
     APP_CONFIG = File.join('config', 'application.rb')
 
@@ -231,8 +235,9 @@ unless defined? RGen::ORIGENTRANSITION
         application.target
       end
 
-      def load_target(t, options = {})
-        target.temporary = t
+      def load_target(t = nil, options = {})
+        t, options = nil, t if t.is_a?(Hash)
+        target.temporary = t if t
         application.load_target!(options)
         application.runner.prepare_and_validate_workspace
       end

@@ -2,7 +2,7 @@ module Origen
   module Specs
     # Ruby Data Class that contains Creation Information for the IP Block
     class Creation_Info
-      attr_accessor :author, :date, :revision, :source, :tool, :tool_version, :ip_version
+      attr_accessor :author, :date, :revision, :source, :tool, :tool_version, :ip_version, :ip_block_name
 
       # Initialize the Creation Info block to store data for latest version of the file.
       #
@@ -12,8 +12,9 @@ module Origen
       # * date      # Date that the File was released to Downstream Audiences
       # ==== Source Information
       #
-      # * :revision # Revision Information
-      # * :source   # Where the Information came from
+      # * :revision      # Revision Information
+      # * :source        # Where the Information came from
+      # * :ip_block_name # Block Name for the IP. e.g. DDR for DDRC1, DDRC2; I2C for I2C1, I2C2
       #
       # ==== Tool Info
       #
@@ -29,6 +30,7 @@ module Origen
         @ip_version = ip_version
         @revision = src_info[:revision]
         @source = src_info[:source]
+        @ip_block_name = src_info[:ip_block_name]
         @tool = tool_info[:tool]
         @tool_version = tool_info[:version]
       end

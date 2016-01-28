@@ -1,0 +1,105 @@
+% render "layouts/guides.html" do
+
+The pattern generator is launched via the Origen generate command, see the command line
+help to get details of the most up to date options:
+
+~~~text
+origen generate -h
+~~~
+
+As this is such a commonly used command it has a short cut alias:
+
+~~~text
+origen g -h
+~~~
+
+The generator can be run on a single file:
+
+~~~text
+origen g pattern/ram/march.rb
+~~~
+
+It can also be run without a path and by just supplying a name, Origen is also pretty flexible
+with regards to file extensions and pre and post fixes and in most cases it should do a good
+job of finding the pattern that you want:
+
+~~~text
+origen g march
+~~~
+
+It can also run on a whole directory:
+
+~~~text
+origen g pattern/ram
+~~~
+
+Pattern list files can also be used, by convention these should be kept in the list directory
+and should have the extension <code>.list</code>:
+
+~~~text
+origen g list/production.list
+~~~
+
+Here is an example of a list file:
+
+~~~text
+# List files can be commented like this
+# Simply list the name of the patterns that you would use on the command line
+march.rb
+data_retention.rb
+# List files can also call other lists
+probe.list
+~~~
+
+By default the generated patterns will be put in <code>output</code> or whatever directory
+is returned by the <code>config.output_directory</code> attribute in <code>application.rb</code>.
+
+Submit to the LSF by appending <code>-l</code> and optionally interactively
+wait for completion:
+
+~~~text
+origen g list/production.list -l -w
+~~~
+
+#### Regression Testing
+
+Every time Origen generates a pattern it will check to see if it has generated it before, and
+if so it will compare the current version to the previous version and alert if there is a
+difference. This can be used to check for regressions when making changes that you don't want
+to affect the output, or to verify that the change is what you intended in cases where you
+are intentionally modifying the output.
+
+The diff is a smart diff and will not care about any changes to comments, only about changes
+that will affect the pattern's operation.
+
+In the case of a difference being found Origen will automatically present you with the diff command
+to run if you want to view the change.
+
+To accept changes or to start tracking the differences in a pattern (or patterns) run the following command
+after generating:
+
+~~~text
+origen save all
+~~~
+
+#### Programmatically Launching the Generator
+
+If you start writing your own [commands](<%= path "guides/misc/commands" %>) you may want
+to launch the generator from Ruby, do that as follows:
+
+~~~ruby
+Origen.app.runner.launch action: :generate,
+                       files: "list/production.list"
+~~~
+
+This can be combined with [Target Loops](<%= path "guides/runtime/programming" %>) to run the
+generator for multiple targets.
+
+A generate job can also be posted to the LSF by supplying the same options that you would use
+on the command line like this:
+
+~~~ruby
+Origen.lsf.submit_origen_job("g march")
+~~~
+
+% end

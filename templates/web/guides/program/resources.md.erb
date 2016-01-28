@@ -1,0 +1,141 @@
+% render "layouts/guides.html" do
+
+When generating a complete test program it may be necessary to build some components
+that don't naturally fall out of the regular flow generation.
+Some examples of this might be:
+
+* Creating a test which does not have a flow entry, but perhaps you want to keep it
+  available in your program for engineering use.
+* Creating a test program sheet or file that is not supported by an Origen generator,
+  e.g. the IG-XL DC Specs sheet does not currently have a generator.
+* Creating custom VB, C++ or similar code to support your tests. 
+
+All of these goals can be fulfilled by using a Resources file. Resources files are
+very similar to the Flow files that we have already seen, the main difference is that
+any flow entries generated within a Resources file will automatically be inhibited.
+
+This makes generating tests and their resources (e.g. pattern sets, etc.) without a flow
+entry extremely easy - just use the same code that you would normally use in the Flow
+file and you will automatically get everything needed for the test without the flow
+entry.
+
+Resource files are syntactically equivalent to Flow files except that all references to
+<code>Flow</code> are replaced by <code>Resources</code>:
+
+~~~ruby
+# program/probe_resources.rb
+Resources.create do
+
+end
+~~~
+
+So for example without changing our interface at all we can drop some of our previous
+Flow code into the resources file (flow specific attributes such as bin numbers can
+be removed):
+
+~~~ruby
+# program/probe_resources.rb
+Resources.create do
+
+  func :vreg_functional
+
+  para :vreg_meas, lo: 1.12, hi: 1.34
+
+end
+~~~
+
+This would generate the same program as before but with no flow entries for the generated
+tests.
+
+Parameterizable sub-resource files can be created in exactly the same way as sub-flow files.
+
+#### Compiling Templates
+
+Another common use case for a Resources file is to co-ordinate the compilation of template
+files.
+
+See the [Compiler section](<%= path "guides/compiler/introduction" %>) for details on
+how to create templates.
+
+A <code>compile</code> method is available with a Resources file to invoke and customize
+the compilation of a specific file. Any arguments passed in will be accessible within the
+template via its <code>options</code> method.
+
+~~~ruby
+# program/common_resources.rb
+Resources.create do
+
+  compile "templates/j750/DCSpecs.txt", max_vdd: 5.V
+
+  compile "templates/j750/GlobalSpecs.txt", vreg_period: 40.ns
+
+end
+~~~
+
+#### Separating Test Generation from Flow Generation
+
+As discussed previously a conventional Origen program generation flow would be to generate
+both the flow and the tests from a single flow file. However it is also possible to
+generate the program in a more traditional way where the test and flow generation are
+separated.
+
+To do this use Resources files to generate the tests and all of their dependencies. This
+would look very much like the flow file examples we have seen so far, the main difference
+would be that each test would only ever appear once (although if you did generate duplicates
+by accident Origen would still take care of it).
+
+Then to define the flow you would have Flow files that called interface methods to insert
+flow entries only.
+This flow file would be a simplified version of what we have seen so far since the
+attributes of the test are no longer required.
+For example you might make a new interface method called 'test' which calls a test
+in the flow - at flow level there is no longer any conceptual difference between
+a parametric test and a functional test and so they can all use the same method.
+Here is a previous example that only contains the flow concerns (includes 'cz' and
+'bin_out' methods since these are also flow level concerns): 
+
+~~~ruby
+Flow.create do
+
+  test :vreg_meas, softbin: 105, id: :vreg_meas_1
+
+  if_failed :vreg_meas_1 do
+    # Automatically characterize the vreg if the measurement fails
+    cz :vreg_meas, softbin: 107
+    # Then bin out
+    bin_out softbin: 105
+  end
+
+  # Check if the HVST has already been run on this device
+  test :rd_vreg_hvst_passcode, softbin: 50, id: :vreg_hvst_done
+
+  unless_passed :vreg_hvst_done do
+    # If not run it
+    test :vreg_hvst, softbin: 101
+    # And program the flag for next time
+    test :pgm_vreg_hvst_passcode, softbin: 51
+  end
+
+end
+~~~
+
+If you want to use the same methods in the Resources and Flow files you can use the
+<code>resources_mode?</code> method within your interface to control when the flow
+or the tests should be generated. This method will return true if the interface method
+has been called from a Resources file:
+
+~~~ruby
+# lib/vreg/interface.rb
+
+# Create a functional test and call it from the flow
+def func(name, options={})
+  name = namer(name, options)
+  if resources_mode?
+    # generate the test
+  else
+    # generate the flow entry
+  end
+end
+~~~
+
+% end

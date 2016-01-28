@@ -1,0 +1,173 @@
+% render "layouts/guides.html" do
+
+The runtime flow control of a test program is an area that can be particularly messy:
+
+* Need to deal with different and often obscure vendor APIs
+* It can be very hard to decipher both the intention and the actual behavior
+  during code reviews
+* It is easy to make mistakes
+* Mistakes can be costly - there have been many customer quality
+  incidents in the past from missed test caused by errors in flow control
+
+To deal with these problems Origen provides a simple and intuitive API
+to describe runtime flow logic:
+
+* Generates legal and battle-tested code
+* Takes care of cross-platform implementation
+* Makes flow control easy to review
+* Covers over gaps or weaknesses in the vendor APIs
+
+Conditional tests fall into two categories:
+
+* Those that will run based on the flow execution environment. For example based on
+  the job selected at runtime or on some enable flag that can be set by the user at
+  runtime.
+* Those that will only run based on the outcome of another test - i.e. execute a given
+  test based on whether a previous test passed, failed or ran at all.
+
+#### Execution Based on the Runtime Environment   
+
+The following methods are available to describe these cases:
+
+* **if_enable / unless_enable** - Run the test if a flow runtime option is/is not enabled at runtime
+* **if_job / unless_job** - Run based on the current job (P1, FR, QC, etc)
+
+Here are some examples of how to apply these methods to single tests:
+
+~~~ruby
+# Run this test to characterize the vreg, only if the 'vreg_cz' flag has been enabled
+para :vreg_meas, softbin: 107, cz: true, if_enable: "vreg_cz"
+# Apply HVST to the vreg module, unless the 'skip_hvst' flag has been enabled
+func :vreg_hvst, softbin: 101, hv: 10.V, vdd: :max, unless_enable: "skip_hvst"
+# Run this test only at cold
+para :vreg_meas, softbin: 105, lo: 1.12, hi: 1.34V, if_job: "FC"
+~~~
+
+For an IG-XL based tester this would generate code like this:
+
+~~~text
+# Label           Job        Enable         Test
+                             vreg_cz        Characterize    vreg_meas char    107
+                             skip_hvst      goto            VREG_LABEL_1
+                                            Test            vreg_hvst_max     101
+VREG_LABEL_1                                nop                      
+                  FC                        Test            vreg_meas         105
+~~~
+
+The unless "skip_hvst" is enabled is a good example of where Origen patches around
+weaknesses in the underlying vendor API - IG-XL doesn't provide a native !enabled
+control, however you can write your flow as if it does and Origen will generate
+the equivalent logic.
+
+#### Execution Based on a Previous Test
+
+The following methods are available to describe these cases:
+
+* **if_ran / unless_ran** - Run only if a previous test did or did not run
+* **if_failed (unless_passed)** - Run only if a previous test failed (site specific)
+* **if_passed (unless_failed)** - Run only if a previous test passed (site specific)
+
+All of these methods require you to provide the ID of the previous test on which
+the conditional execution will depend.
+This ID must be assigned by you in the flow line of the previous test by adding
+and <code>id</code> key like this:
+
+~~~ruby
+para :vreg_meas, softbin: 105, lo: 1.12, hi: 1.34, id: :vreg_meas_1
+~~~
+
+The ID can be any value you like as long as it is unique, Origen will raise an error
+if any duplicate IDs are encountered.
+
+On the dependent tests the API is similar to the previous examples except the ID
+of the previous test is given in place of the enable flag or job name.
+Here are some examples:
+
+~~~ruby
+para :vreg_meas, softbin: 105, lo: 1.12, hi: 1.34, id: :vreg_meas_1
+# Automatically characterize the vreg if the measurement fails
+para :vreg_meas, softbin: 107, cz: true, if_failed: :vreg_meas_1
+# Then bin out
+bin_out softbin: 105, if_failed: :vreg_meas_1
+# Check if the HVST has already been run on this device
+func :rd_vreg_hvst_passcode, softbin: 50, vdd: :nom, id: :vreg_hvst_done
+# If not run it
+func :vreg_hvst, softbin: 101, hv: 10.V, vdd: :max, unless_passed: :vreg_hvst_done
+# And program the flag for next time
+func :pgm_vreg_hvst_passcode, softbin: 51, vdd: :nom, unless_passed: :vreg_hvst_done
+~~~
+
+For an IG-XL based tester this would generate code like this:
+
+~~~text
+# Test                                   Result                          Condition
+Test            vreg_meas                None    vreg_meas_1_FAILED      
+Characterize    vreg_meas char           Fail                            flag-true vreg_meas_1_FAILED
+Set-Device      105                                                      flag-true vreg_meas_1_FAILED 
+Test            rd_vreg_hvst_passcode    None    vreg_hvst_done_PASSED  
+Test            vreg_hvst                Fail                            flag-true vreg_hvst_done_PASSED
+Test            pgm_vreg_hvst_passcode   Fail                            flag-true vreg_hvst_done_PASSED
+~~~
+
+Origen automatically takes care of setting up all of the tests in the relationship:
+
+* The parent tests in the relationship are automatically set to continue on fail
+* Flag(s) will be set to indicate whether the parent test passed or failed
+* Conditional execution flags are set on all dependent tests
+
+#### Controlling the Execution of a Group of Tests
+
+All of the flow control methods have a block form which will apply the
+condition to all tests within the block.
+
+The previous example could be more clearly written using the block form:
+
+~~~ruby
+para :vreg_meas, softbin: 105, lo: 1.12, hi: 1.34, id: :vreg_meas_1
+if_failed :vreg_meas_1 do
+  # Automatically characterize the vreg if the measurement fails
+  para :vreg_meas, softbin: 107, cz: true
+  # Then bin out
+  bin_out softbin: 105
+end
+# Check if the HVST has already been run on this device
+func :rd_vreg_hvst_passcode, softbin: 50, vdd: :nom, id: :vreg_hvst_done
+unless_passed :vreg_hvst_done do
+  # If not run it
+  func :vreg_hvst, softbin: 101, hv: 10.V, vdd: :max
+  # And program the flag for next time
+  func :pgm_vreg_hvst_passcode, softbin: 51, vdd: :nom
+end
+~~~
+
+This will generate the exact same code as before.
+
+A very useful pattern is to split your code into small re-usable snippets
+and then wrap the import with these flow control methods to apply conditional
+execution.
+For example here the 'FH' job requirement will be applied to all tests
+imported from the vreg component:
+
+~~~ruby
+# Only run the vreg tests at hot
+if_job "FH" do
+  import "components/vreg"
+end
+~~~
+
+#### Skipping a Section
+
+An additional method <code>skip</code> is available to skip over a section, this
+would normally be qualified by one of the other flow control methods:
+
+~~~ruby
+# Don't bother running the hot vreg flow if the device already received it at probe
+func :rd_hot_sort2_passcode, softbin: 50, vdd: :nom, id: :hot_sort2_done
+skip if_passed: :hot_sort2_done do
+  if_job "FH" do
+    import "components/vreg"
+  end
+end
+~~~
+
+% end

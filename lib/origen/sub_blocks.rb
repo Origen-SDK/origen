@@ -180,11 +180,20 @@ module Origen
             root = "#{p.path(options)}."
           end
         else
-          root = ''
+          # If a path variable has been set on a top-level object, then we will
+          # include that in path, otherwise by default the top-level object is not
+          # included in the path
+          if p || path_var
+            root = ''
+          else
+            return ''
+          end
         end
         local = (path_var || name || self.class.to_s.split('::').last).to_s
         if local == 'hidden'
           root.chop
+        elsif is_a?(Origen::Registers::BitCollection) && parent.path_var == :hidden
+          "#{root.chop}#{local}"
         else
           "#{root}#{local}"
         end
@@ -274,8 +283,7 @@ module Origen
           puts ''
           fail 'Sub block does not include Origen::Model!'
         end
-        block = klass.new(options.merge(parent: self))
-        block.name = name
+        block = klass.new(options.merge(parent: self, name: name))
         if sub_blocks[name]
           fail "You have already defined a sub-block named #{name} within class #{self.class}"
         else
@@ -312,6 +320,7 @@ module Origen
     # next time, this should be faster for repeated lookups of the same method, e.g. reg
     def method_missing(method, *args, &block)
       return regs(method) if self.has_reg?(method)
+      return ports(method) if self.has_port?(method)
       if method.to_s =~ /=$/
         define_singleton_method(method) do |val|
           instance_variable_set("@#{method.to_s.sub('=', '')}", val)

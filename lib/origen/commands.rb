@@ -169,10 +169,12 @@ end
 # overloading of Origen commands by the application.
 @application_options = []
 @plugin_commands = []
-@application_commands = []
+# Prevent plugins from being able to accidentally override app commands
+# @application_commands = []
 app_id = @application_options.object_id
 plugin_id = @plugin_commands.object_id
-app_cmd_id = @application_commands.object_id
+# Prevent plugins from being able to accidentally override app commands
+# app_cmd_id = @application_commands.object_id
 app_opt_err = false
 plugin_opt_err = false
 app_cmd_err = false
@@ -191,6 +193,8 @@ if File.exist? "#{Origen.root}/config/commands.rb"
     plugin_opt_err = true
   end
 end
+# Only the app can set this, so cache it locally prevent any plugins overriding it
+application_commands = @application_commands || ''
 
 shared_commands = Origen.app.plugins.shared_commands
 if shared_commands && shared_commands.size != 0
@@ -218,6 +222,10 @@ when 'generate', 'program', 'compile', 'merge', 'interactive', 'target', 'enviro
   require "origen/commands/#{@command}"
   exit 0 unless @command == 'interactive'
 
+when 'exec'
+  load ARGV.first
+  exit 0
+
 when 'version'
   Origen.app # Load app
   require 'origen/commands/version'
@@ -242,6 +250,7 @@ The core origen commands are:
  program      Generate a test program (short-cut alias: "p")
  interactive  Start an interactive Origen console (short-cut alias: "i")
  compile      Compile a template file or directory (short-cut alias: "c")
+ exec         Execute any Ruby file with access to your app environment
 
  rc           Revision control commands, see -h for details
  save         Save the new or changed files from the last run or a given log file
