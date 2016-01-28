@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_5_10"></a>
+<h1><a href="#v0_5_10">Tag: v0.5.10</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 28-Jan-2016 08:01AM
+
+
+Origen.app.revision\_control\_root now returns Origen.root instead of crashing in the case
+where the app has not been committed to revision control yet
+
 <a class="anchor release_tag" name="v0_5_9"></a>
 <h1><a href="#v0_5_9">Tag: v0.5.9</a></h1>
 
