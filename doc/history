@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_5_11"></a>
+<h1><a href="#v0_5_11">Tag: v0.5.11</a></h1>
+
+##### Branch: 'master'
+
+##### by Ronnie Lajaunie on 02-Feb-2016 12:26PM
+
+
+Bug fix to remote manager that was mismatching version strings of requested and existing
+remote when version: "vX.X.X" was used instead of "X.X.X".
+
 <a class="anchor release_tag" name="v0_5_10"></a>
 <h1><a href="#v0_5_10">Tag: v0.5.10</a></h1>
 
