@@ -184,7 +184,7 @@ module Origen
       else
         (!remote[:path] && path_enabled?(remote)) ||
           (remote[:path] && !path_enabled?(remote)) ||
-          current_version_of(remote) != remote[:version]
+          current_version_of(remote) != Origen::VersionString.new(remote[:version])
       end
     end
 
