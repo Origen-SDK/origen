@@ -22,7 +22,7 @@ module Origen
     SPEC_TYPES = [:dc, :ac, :temperature, :supply, :impedance, :power]
 
     NOTE_TYPES = [:spec, :doc, :mode, :feature, :sighting]
-      
+
     FEATURE_TYPES = [:intro, :feature, :subfeature]
 
     SpecTableAttr = Struct.new(:table_text, :show, :padding)
@@ -128,7 +128,7 @@ module Origen
       _features
       @_features[id][device] = Features.new(id, attrs, device, text, internal_comment)
     end
-    
+
     # Define and instantiate a Note object
     def note(id, type, options = {})
       _notes
@@ -203,16 +203,17 @@ module Origen
         return notes_found
       end
     end
-    
+
     def features(options = {})
       options = {
-        id:   nil,
-        type: nil
+        id:     nil,
+        device: nil
       }.update(options)
+      return @_features if options[:id].nil? && options[:device].nil?
       features_found = Hash.new do |h, k|
         h[k] = {}
       end
-      _features.filter(options[:id]).each do |id, hash|
+      @_features.filter(options[:id]).each do |id, hash|
         hash.filter(options[:device]).each do |device, feat|
           features_found[id][device] = feat
         end
@@ -339,10 +340,6 @@ module Origen
       @_creation_info
     end
 
-    def features
-      @_features
-    end
-    
     # Delete all specs
     def delete_all_specs
       @_specs = nil
@@ -381,7 +378,7 @@ module Origen
     def delete_creation_info
       @_creation_info = nil
     end
-    
+
     def delete_features
       @_features = nil
     end
@@ -412,7 +409,6 @@ module Origen
       end
     end
 
-    
     def _exhibits
       @_exhibits ||= Hash.new do |h, k|
         h[k] = Hash.new do |hh, kk|
