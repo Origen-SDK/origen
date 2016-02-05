@@ -9,10 +9,11 @@ module Origen
     autoload :Mode_Select, 'origen/specs/mode_select.rb'
     autoload :Version_History, 'origen/specs/version_history.rb'
     autoload :Creation_Info, 'origen/specs/creation_info.rb'
+    autoload :Features, 'origen/specs/features.rb'
     require 'origen/specs/checkers'
     include Checkers
 
-    attr_accessor :_specs, :_notes, :_exhibits, :_doc_resources, :_overrides, :_power_supplies, :_mode_selects, :_version_history, :_creation_info
+    attr_accessor :_specs, :_notes, :_exhibits, :_doc_resources, :_overrides, :_power_supplies, :_mode_selects, :_version_history, :_creation_info, :_features
 
     # Detailed description for the ip block
     attr_accessor :description
@@ -21,6 +22,8 @@ module Origen
     SPEC_TYPES = [:dc, :ac, :temperature, :supply, :impedance, :power]
 
     NOTE_TYPES = [:spec, :doc, :mode, :feature, :sighting]
+      
+    FEATURE_TYPES = [:intro, :feature, :subfeature]
 
     SpecTableAttr = Struct.new(:table_text, :show, :padding)
 
@@ -121,6 +124,11 @@ module Origen
       !!show_specs(options)
     end
 
+    def feature(id, attrs, device, text, internal_comment)
+      _features
+      @_features[id][device] = Features.new(id, attrs, device, text, internal_comment)
+    end
+    
     # Define and instantiate a Note object
     def note(id, type, options = {})
       _notes
@@ -193,6 +201,28 @@ module Origen
         notes_found.values.first.values.first
       else
         return notes_found
+      end
+    end
+    
+    def features(options = {})
+      options = {
+        id:   nil,
+        type: nil
+      }.update(options)
+      features_found = Hash.new do |h, k|
+        h[k] = {}
+      end
+      _features.filter(options[:id]).each do |id, hash|
+        hash.filter(options[:device]).each do |device, feat|
+          features_found[id][device] = feat
+        end
+      end
+      if features_found.empty?
+        return nil
+      elsif features_found.size == 1
+        features_found.values.first.values.first
+      else
+        return features_found
       end
     end
 
@@ -309,6 +339,10 @@ module Origen
       @_creation_info
     end
 
+    def features
+      @_features
+    end
+    
     # Delete all specs
     def delete_all_specs
       @_specs = nil
@@ -347,6 +381,10 @@ module Origen
     def delete_creation_info
       @_creation_info = nil
     end
+    
+    def delete_features
+      @_features = nil
+    end
 
     private
 
@@ -368,6 +406,13 @@ module Origen
       end
     end
 
+    def _features
+      @_features ||= Hash.new do |h, k|
+        h[k] = {}
+      end
+    end
+
+    
     def _exhibits
       @_exhibits ||= Hash.new do |h, k|
         h[k] = Hash.new do |hh, kk|
