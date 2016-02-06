@@ -1,7 +1,7 @@
 module Origen
   module Specs
     # Ruby Data Class that contains Creation Information for the IP Block
-    class Features
+    class Spec_Features
       # This is the Id of the Feature that will be referenced
       # Future goal is to be able to tie this ID to a specification in a Product Requirements Document
       attr_accessor :id
