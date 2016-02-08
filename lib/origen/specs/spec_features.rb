@@ -28,11 +28,15 @@ module Origen
       # Product Requirements Document
       attr_accessor :internal_comments
 
+      # Intended Audience for this feature. Internal or External?
+      attr_accessor :audience
+
       # Initialize the Feature to be used
       def initialize(id, attrs, applicable_devices, text, internal_comments)
         @id = id
         @type = attrs[:type]
         @feature_ref = attrs[:feature_ref]
+        @audience = attrs[:audience]
         @applicable_devices = applicable_devices
         @text = text
         @internal_comments = internal_comments
