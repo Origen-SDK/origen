@@ -52,10 +52,12 @@ module Origen
       _specs
       if s.nil?
         return show_specs(options)
-      elsif s.is_a? Hash # no spec was passed but some option was passed
+      elsif s.is_a? Hash
+        # no spec was passed but some option was passed
         options.update(s)
         return show_specs(options)
-      else # a spec was passed
+      else
+        # a spec was passed
         options[:spec] = s
         return show_specs(options)
       end
@@ -83,6 +85,8 @@ module Origen
                          .new(name, type, mode, owner_name, &block)
       # Check if the spec already exists
       if has_spec?(name, type: type, mode: mode, sub_type: spec_placeholder.sub_type, creating_spec: true)
+        # Spec already exists.  Go ahead flag error and drop processing.
+        # This is a fatal error.
         fail "Spec already exists for name: #{name}, type: #{type}, mode: #{mode} for object #{self}"
       end
       @_specs[name][mode][type][spec_placeholder.sub_type] = spec_placeholder
@@ -209,6 +213,8 @@ module Origen
       }.update(options)
       # Empty 2-D Hash to be used for notes found based on id and type
       notes_found = Hash.new do |h, k|
+        # h is the id portion of the hash
+        # k is the type portion of the hash
         h[k] = {}
       end
       # Filter @notes based off of the id
