@@ -21,7 +21,7 @@ module Origen
     end
 
     def url
-      "http://origen-hub.am.freescale.net:#{port}/api"
+      'http://hub.origen-sdk.org/api'
     end
 
     def port
