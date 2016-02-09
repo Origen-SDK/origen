@@ -32,6 +32,10 @@
 /.pdm/pi_attributes.txt
 /.irb_history
 
+# Eclipse Local Items
+.buildpath
+.project
+
 # Cruft from other revision control systems
 .SYNC
 .svn

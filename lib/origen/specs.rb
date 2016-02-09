@@ -9,10 +9,11 @@ module Origen
     autoload :Mode_Select, 'origen/specs/mode_select.rb'
     autoload :Version_History, 'origen/specs/version_history.rb'
     autoload :Creation_Info, 'origen/specs/creation_info.rb'
+    autoload :Spec_Features, 'origen/specs/spec_features.rb'
     require 'origen/specs/checkers'
     include Checkers
 
-    attr_accessor :_specs, :_notes, :_exhibits, :_doc_resources, :_overrides, :_power_supplies, :_mode_selects, :_version_history, :_creation_info
+    attr_accessor :_specs, :_notes, :_exhibits, :_doc_resources, :_overrides, :_power_supplies, :_mode_selects, :_version_history, :_creation_info, :_spec_features
 
     # Detailed description for the ip block
     attr_accessor :description
@@ -21,6 +22,8 @@ module Origen
     SPEC_TYPES = [:dc, :ac, :temperature, :supply, :impedance, :power]
 
     NOTE_TYPES = [:spec, :doc, :mode, :feature, :sighting]
+
+    FEATURE_TYPES = [:intro, :feature, :subfeature]
 
     SpecTableAttr = Struct.new(:table_text, :show, :padding)
 
@@ -49,10 +52,12 @@ module Origen
       _specs
       if s.nil?
         return show_specs(options)
-      elsif s.is_a? Hash # no spec was passed but some option was passed
+      elsif s.is_a? Hash
+        # no spec was passed but some option was passed
         options.update(s)
         return show_specs(options)
-      else # a spec was passed
+      else
+        # a spec was passed
         options[:spec] = s
         return show_specs(options)
       end
@@ -80,6 +85,8 @@ module Origen
                          .new(name, type, mode, owner_name, &block)
       # Check if the spec already exists
       if has_spec?(name, type: type, mode: mode, sub_type: spec_placeholder.sub_type, creating_spec: true)
+        # Spec already exists.  Go ahead flag error and drop processing.
+        # This is a fatal error.
         fail "Spec already exists for name: #{name}, type: #{type}, mode: #{mode} for object #{self}"
       end
       @_specs[name][mode][type][spec_placeholder.sub_type] = spec_placeholder
@@ -103,6 +110,7 @@ module Origen
       end
     end
 
+    # Returns the modes for this block
     def get_modes
       @_modes
     end
@@ -121,69 +129,99 @@ module Origen
       !!show_specs(options)
     end
 
+    # Adds a new feature to the block
+    def spec_feature(id, attrs, device, text, internal_comment)
+      # Welguisz:  No idea why this is here, but keeping it here because it follows other blocks
+      _spec_features
+      # Create a new feature and place it in the features 2-D Hash
+      @_spec_features[id][device] = Spec_Features.new(id, attrs, device, text, internal_comment)
+    end
+
     # Define and instantiate a Note object
     def note(id, type, options = {})
+      # Welguisz:  No idea why this is here, but keeping it here because it follows other blocks
       _notes
+      # Create a new note and place it in the notes 2-D Hash
       @_notes[id][type] = Note.new(id, type, options)
     end
 
     def exhibit(id, type, options = {})
+      # Welguisz:  No idea why this is here, but keeping it here because it follows other blocks
       _exhibits
+      # Create a new Exhibit and place it in the exhibits 3-D Hash
       @_exhibits[options[:block_id]][id][type] = Exhibit.new(id, type, options)
     end
 
     def doc_resource(selector = {}, table_title = {}, text = {}, options = {})
+      # Welguisz:  No idea why this is here, but keeping it here because it follows other blocks
       _doc_resources
       mode = selector[:mode]
       type = selector[:type]
       sub_type = selector[:sub_type]
       audience = selector[:audience]
+      # Create a new Document Resource and place it in the Doc Resources 4-D Hash
       @_doc_resources[mode][type][sub_type][audience] = Doc_Resource.new(selector, table_title, text, options)
     end
 
     def version_history(date, author, changes)
+      # Welguisz:  No idea why this is here, but keeping it here because it follows other blocks
       _version_history
+      # Create a new Version History and place it in the version history 2-D Hash
       tmp_ver_history = Version_History.new(date, author, changes)
       @_version_history[date][author] = tmp_ver_history
     end
 
     def override(block_options = {}, find_spec = {}, values = {}, options = {})
+      # Welguisz:  No idea why this is here, but keeping it here because it follows other blocks
       _overrides
       block = block_options[:block]
       spec_ref = find_spec[:spec_id]
       mode_ref = find_spec[:mode_ref]
       sub_type = find_spec[:sub_type]
       audience = find_spec[:audience]
+      # Create a new Override and place it in the overrides 5-D Hash
       @_overrides[block][spec_ref][mode_ref][sub_type][audience] = Override.new(block_options, find_spec, values, options)
     end
 
     def power_supply(gen, act)
+      # Welguisz:  No idea why this is here, but keeping it here because it follows other blocks
       _power_supplies
+      # Create a new Power Supply and place it in the power supplies 2-D Hash
       @_power_supplies[gen][act] = Power_Supply.new(gen, act)
     end
 
     def mode_select(block_information, mode_usage, power_information)
+      # Welguisz:  No idea why this is here, but keeping it here because it follows other blocks
       _mode_selects
+      # See if the mode will be used.  If so, create a new Mode Select and place it in mode_selects 2-D Hash
       if block_information[:usage]
         @_mode_selects[block_information[:name]][mode_usage[:mode]] = Mode_Select.new(block_information, mode_usage, power_information)
       end
     end
 
     def creation_info(author, date, version, src_info = {}, tool_info = {})
+      # Create a new Information Information.  Should only be one.
       @_creation_info = Creation_Info.new(author, date, version, src_info, tool_info)
     end
 
     # Returns a Note object from the notes hash
     def notes(options = {})
+      # Create a default 2 item hash and update if options is supplied
       options = {
         id:   nil,
         type: nil
       }.update(options)
+      # Empty 2-D Hash to be used for notes found based on id and type
       notes_found = Hash.new do |h, k|
+        # h is the id portion of the hash
+        # k is the type portion of the hash
         h[k] = {}
       end
-      _notes.filter(options[:id]).each do |id, hash|
+      # Filter @notes based off of the id
+      @_notes.filter(options[:id]).each do |id, hash|
+        # Filter hash based off of the type
         hash.filter(options[:type]).each do |type, note|
+          # Store the note into note_found
           notes_found[id][type] = note
         end
       end
@@ -193,6 +231,29 @@ module Origen
         notes_found.values.first.values.first
       else
         return notes_found
+      end
+    end
+
+    def spec_features(options = {})
+      options = {
+        id:     nil,
+        device: nil
+      }.update(options)
+      return @_spec_features if options[:id].nil? && options[:device].nil?
+      features_found = Hash.new do |h, k|
+        h[k] = {}
+      end
+      @_spec_features.filter(options[:id]).each do |id, hash|
+        hash.filter(options[:device]).each do |device, feat|
+          features_found[id][device] = feat
+        end
+      end
+      if features_found.empty?
+        return nil
+      elsif features_found.size == 1
+        features_found.values.first.values.first
+      else
+        return features_found
       end
     end
 
@@ -348,6 +409,10 @@ module Origen
       @_creation_info = nil
     end
 
+    def delete_spec_features
+      @_spec_features = nil
+    end
+
     private
 
     def _specs
@@ -364,6 +429,12 @@ module Origen
     # Two-dimensional hash with note id and type as the keys
     def _notes
       @_notes ||= Hash.new do |h, k|
+        h[k] = {}
+      end
+    end
+
+    def _spec_features
+      @_spec_features ||= Hash.new do |h, k|
         h[k] = {}
       end
     end
