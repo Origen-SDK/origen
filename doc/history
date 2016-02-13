@@ -1,3 +1,17 @@
+<a class="anchor release_tag" name="v0_6_0"></a>
+<h1><a href="#v0_6_0">Tag: v0.6.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 09-Feb-2016 06:31AM
+
+
+* Added a Features module to the Specs model. (David Welguisz)
+  This allows for a one page document to be created that lists the features and sub
+  features for a piece of Silicon. Allows granularity based off of the feature and the
+  list of products within that device.
+* Disabled invocation tracking, no plans to re-enable at present.
+
 <a class="anchor release_tag" name="v0_5_11"></a>
 <h1><a href="#v0_5_11">Tag: v0.5.11</a></h1>
 
