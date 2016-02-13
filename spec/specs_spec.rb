@@ -73,6 +73,100 @@ class IP_With_Specs
       min 240.ps
       audience :internal
     end
+    note(:note1, :spec, {mode: :default, audience: :external, text: 'Note 1', markup: 'Not<sub>e</sub> 1', internal_comment: 'Reason for note'})
+    note(:note2, :spec, {mode: :default, audience: :external, text: 'Note 2', markup: 'Not<sub>e</sub> 2', internal_comment: 'Reason for note'})
+    note(:note3, :spec, {mode: :low_power, audience: :external, text: 'Note 3', markup: 'Not<sub>e</sub> 3', internal_comment: 'Reason for note'})
+    note(:note4, :spec, {mode: :low_power, audience: :internal, text: 'Note 4', markup: 'Not<sub>e</sub> 4', internal_comment: 'Reason for note'})
+    note(:note5, :spec, {mode: :high_performance, audience: :internal, text: 'Note 5', markup: 'Not<sub>e</sub> 5', internal_comment: 'Reason for note'})
+    note(:note6, :spec, {mode: :high_performance, audience: :external, text: 'Note 6', markup: 'Not<sub>e</sub> 6', internal_comment: 'Reason for note'})
+    note(:note6, :doc, {mode: :high_performance, audience: :external, text: 'Note 6', markup: 'Not<sub>e</sub> 6', internal_comment: 'Reason for note'})
+    note(:note6, :mode, {mode: :high_performance, audience: :external, text: 'Note 6', markup: 'Not<sub>e</sub> 6', internal_comment: 'Reason for note'})
+    note(:note6, :feature, {mode: :high_performance, audience: :external, text: 'Note 6', markup: 'Not<sub>e</sub> 6', internal_comment: 'Reason for note'})
+    note(:note6, :sighting, {mode: :high_performance, audience: :external, text: 'Note 6', markup: 'Not<sub>e</sub> 6', internal_comment: 'Reason for note'})
+    note(:note7, :spec, {mode: :high_performance, audience: :external, text: 'Note 7', markup: 'Not<sub>e</sub> 7', internal_comment: 'Reason for note'})
+    note(:note7, :doc, {mode: :high_performance, audience: :external, text: 'Note 7', markup: 'Not<sub>e</sub> 7', internal_comment: 'Reason for note'})
+    note(:note7, :mode, {mode: :high_performance, audience: :external, text: 'Note 7', markup: 'Not<sub>e</sub> 7', internal_comment: 'Reason for note'})
+    note(:note7, :feature, {mode: :high_performance, audience: :external, text: 'Note 7', markup: 'Not<sub>e</sub> 7', internal_comment: 'Reason for note'})
+    note(:note7, :sighting, {mode: :high_performance, audience: :external, text: 'Note 7', markup: 'Not<sub>e</sub> 7', internal_comment: 'Reason for note'})
+    spec_feature(:feature1, {type: :intro, audience: :external}, :ls1088, 'Feature 1', 'Internal Comment 1')
+    spec_feature(:feature2, {type: :intro, audience: :internal}, :ls1084, 'Feature 2', 'Internal Comment 2')
+    spec_feature(:feature3, {type: :feature, audience: :internal}, :ls1088, 'Feature 3', nil)
+    spec_feature(:feature3, {type: :feature, audience: :external}, :ls1084, 'Feature 3', nil)
+    spec_feature(:feature4, {type: :subfeature, audience: :external, feature_ref: :feature3}, :ls1088, 'Feature 3, subfeature 4', nil)
+    spec_feature(:feature4, {type: :subfeature, audience: :external, feature_ref: :feature3}, :ls1084, 'Feature 3, subfeature 4', nil)
+    spec_feature(:feature5, {type: :subfeature, audience: :external, feature_ref: :feature3}, :ls1088, 'Feature 3, subfeature 5', nil)
+    spec_feature(:feature5, {type: :subfeature, audience: :external, feature_ref: :feature3}, :ls1084, 'Feature 3, subfeature 5', nil)
+    spec_feature(:feature6, {type: :subfeature, audience: :external, feature_ref: :feature3}, :ls1088, 'Feature 3, subfeature 6', nil)
+    spec_feature(:feature6, {type: :subfeature, audience: :external, feature_ref: :feature3}, :ls1084, 'Feature 3, subfeature 6', nil)
+    exhibit(:exhibit1, :fig, {}, {title: 'Exhibit 1', description: 'Exhibit 1 Description', reference: 'link1', markup: 'markup', block_id: :esdhc})
+    exhibit(:exhibit2, :fig, {}, {title: 'Exhibit 2', description: 'Exhibit 2 Description', reference: 'link2', markup: 'markup', block_id: :esdhc})
+    exhibit(:exhibit3, :fig, {}, {title: 'Exhibit 3', description: 'Exhibit 3 Description', reference: 'link3', markup: 'markup', block_id: :ddr})
+    exhibit(:exhibit4, :table, {}, {title: 'Exhibit 4', description: 'Exhibit 4 Description', reference: 'link4', markup: 'markup', block_id: :esdhc})
+    exhibit(:exhibit5, :table, {}, {title: 'Exhibit 5', description: 'Exhibit 5 Description', reference: 'link5', markup: 'markup', block_id: :ddr})
+    exhibit(:exhibit1_ovr, :fig, {}, {title: 'Exhibit 1 Override', description: 'Exhibit 1 Override Description', reference: 'link1_ovr', markup: 'markup', block_id: :esdhc})
+    exhibit(:exhibit4_ovr, :table, {}, {title: 'Exhibit 4 Override', description: 'Exhibit 4 Override Description', reference: 'link4_ovr', markup: 'markup', block_id: :ddr})
+    version_history('March 1, 2015', 'John Doe', 'Initial checkin.  Something here about what was added')
+    version_history('April 15, 2015', 'Jane Doe', 'Made this better by doing one, two, three things.')
+    version_history('May 30, 2015', 'Jim Bob', 'Review with Subject Matter Experts.')
+    doc_resource({mode: :default, type: :ac, sub_type: 'input', audience: :external}, {title: 'Title for Table 1', note_refs: :note1, exhibit_refs: nil}, {before: nil, after: nil}, {})
+    doc_resource({mode: :low_power, type: :ac, sub_type: 'input', audience: :external}, {title: 'Title for Table 1', note_refs: [:note5, :note6], exhibit_refs: nil}, {before: nil, after: nil}, {})
+    doc_resource({mode: :high_performance, type: :ac, sub_type: 'input', audience: :external}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
+    doc_resource({mode: :default, type: :ac, sub_type: 'input', audience: :internal}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: [:exhibit1, :exhibit5]}, {before: nil, after: nil}, {})
+    doc_resource({mode: :low_power, type: :ac, sub_type: 'input', audience: :internal}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
+    doc_resource({mode: :high_performance, type: :ac, sub_type: 'input', audience: :internal}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
+    doc_resource({mode: :default, type: :ac, sub_type: 'output', audience: :external}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
+    doc_resource({mode: :low_power, type: :ac, sub_type: 'output', audience: :external}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
+    doc_resource({mode: :high_performance, type: :ac, sub_type: 'output', audience: :external}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
+    doc_resource({mode: :default, type: :ac, sub_type: 'output', audience: :internal}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
+    doc_resource({mode: :low_power, type: :ac, sub_type: 'output', audience: :internal}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
+    doc_resource({mode: :high_performance, type: :ac, sub_type: 'output', audience: :internal}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
+    doc_resource({mode: :default, type: :ac, sub_type: 'output', audience: :external}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
+    doc_resource({mode: :default, type: :dc, sub_type: 'input', audience: :external}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
+    doc_resource({mode: :low_power, type: :dc, sub_type: 'input', audience: :external}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
+    doc_resource({mode: :high_performance, type: :dc, sub_type: 'input', audience: :external}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
+    doc_resource({mode: :default, type: :dc, sub_type: 'input', audience: :internal}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
+    doc_resource({mode: :low_power, type: :dc, sub_type: 'input', audience: :internal}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
+    doc_resource({mode: :high_performance, type: :dc, sub_type: 'input', audience: :internal}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
+    doc_resource({mode: :default, type: :dc, sub_type: 'output', audience: :external}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
+    doc_resource({mode: :low_power, type: :dc, sub_type: 'output', audience: :external}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
+    doc_resource({mode: :high_performance, type: :dc, sub_type: 'output', audience: :external}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
+    doc_resource({mode: :default, type: :dc, sub_type: 'output', audience: :internal}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
+    doc_resource({mode: :low_power, type: :dc, sub_type: 'output', audience: :internal}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
+    doc_resource({mode: :high_performance, type: :dc, sub_type: 'output', audience: :internal}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
+    doc_resource({mode: :default, type: :dc, sub_type: 'output', audience: :external}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
+    override({block: :esdhc, usage: true}, {spec_id: :vdd, mode_ref: :nominal, sub_type: 'input', audience: :external}, {min: 0.97}, {disable: false})
+    override({block: :esdhc, usage: true}, {spec_id: :vdd_io, mode_ref: :nominal, sub_type: 'output', audience: :external}, {min: 0.97}, {disable: false})
+    override({block: :esdhc, usage: true}, {spec_id: :vdd_lp, mode_ref: :low_power, sub_type: 'input', audience: :external}, {min: 0.97}, {disable: false})
+    override({block: :i2c, usage: true}, {spec_id: :clk_rise, mode_ref: :high_performance, sub_type: 'input', audience: :external}, {min: 0.97}, {disable: true})
+    override({block: :ddr, usage: true}, {spec_id: :vdd, mode_ref: :high_performance, sub_type: 'output', audience: :external}, {min: 0.97}, {disable: true})
+    override({block: :ddr, usage: true}, {spec_id: :clk_fall, mode_ref: :nominal, sub_type: 'input', audience: :external}, {min: 0.97}, {disable: false})
+    power_supply('GVDD', 'G1VDD')
+    power_supply('GVDD', 'G2VDD')
+    power_supply('DVDD', 'D1VDD')
+    power_supply('DVDD', 'D2VDD')
+    power_supply('DVDD', 'D3VDD')
+    power_supply('XVDD', 'X1VDD')
+    power_supply('XVDD', 'X2VDD')
+    power_supply('XVDD', 'X3VDD')
+    power_supply('XVDD', 'X4VDD')
+    power_supply('XVDD', 'X5VDD')
+    power_supply('XVDD', 'X6VDD')
+    power_supply('SVDD', 'S1VDD')
+    power_supply('SVDD', 'S2VDD')
+    power_supply('SVDD', 'S3VDD')
+    power_supply('SVDD', 'S4VDD')
+    power_supply('SVDD', 'S5VDD')
+    power_supply('SVDD', 'S6VDD')
+    mode_select({name: :ddr, ds_header: 'DDR Controller', usage: true, location: 'path'}, {mode: :ddr_ddr4, supported: true}, {supply: 'G1VDD', voltage_level: '1.35V', use_diff: true})
+    mode_select({name: :ddr, ds_header: 'DDR Controller', usage: true, location: 'path'}, {mode: :ddr_ddr3, supported: true}, {supply: 'G1VDD', voltage_level: '1.35V', use_diff: true})
+    mode_select({name: :ifc1, ds_header: 'IFC', usage: true, location: 'path'}, {mode: :ifc1_nand, supported: true}, {supply: 'OVDD', voltage_level: '3.0V', use_diff: true})
+    mode_select({name: :i2c1, ds_header: 'InterIntergrated Circuit', usage: true, location: 'path'}, {mode: :i2c_i2c, supported: true}, {supply: 'D1VDD', voltage_level: '5.0V', use_diff: true})
+    creation_info('Jim Smith', '15 Feb 2015', '1.0', {source: 'block-ref-ddr', ip_block_name: :ddr, revision: 'a'}, {tool: 'ISC App', version: '0.7.5'})
+    creation_info('Jim Smith', '22 Mar 2015', '1.0', {source: 'block-ref-i2c', ip_block_name: :i2c, revision: 'c'}, {tool: 'ISC App', version: '0.7.5'})
+    creation_info('Jim Smith', '29 Apr 2015', '1.0', {source: 'block-ref-ifc', ip_block_name: :ifc, revision: 'g'}, {tool: 'ISC App', version: '0.7.5'})
+    creation_info('Jim Smith', '4 Jun 2015', '1.0', {source: 'block-ref-esdhc', ip_block_name: :esdhc, revision: 'b'}, {tool: 'ISC App', version: '0.7.5'})
+
+    
   end
 end
 
@@ -81,6 +175,24 @@ class IP_WithOut_Specs
   def initialize
   end
 end
+
+def get_true_hash_size(hash, obj_class)
+  size = 0
+  return size if hash.nil?
+  hash.each do |k, v|
+    if v.is_a? Hash
+      size += get_true_hash_size(v, obj_class)
+    elsif v.is_a? Array
+      v.each  do  |w|
+        size += 1 if w.is_a? obj_class
+      end
+    elsif v.is_a? obj_class
+      size += 1
+    end
+  end
+  size
+end
+
 describe "Origen Specs Module" do
 
   before :all do
@@ -165,4 +277,77 @@ describe "Origen Specs Module" do
     $dut.has_spec?(:tnikhov2).should == true
     $dut.has_spec?(/tnikhov/).should == true
   end
+  
+  it "can see sub_block features" do
+    @ip.spec_features(id: :feature1).class.should == Origen::Specs::Spec_Features
+    #@ip.spec_features(id: :feature3).size.class.should == 2
+    @ip.spec_features(device: :ls1088).size.should == 5
+  end
+  
+  it "can see sub_block notes" do
+   @ip.notes(id: :note1).class.should == Origen::Specs::Note 
+   @ip.notes(type: :spec).size.should == 7
+  end
+  
+  it "can see sub_block exhibits" do
+    get_true_hash_size(@ip.exhibits, Origen::Specs::Exhibit).should == 7
+    get_true_hash_size(@ip.exhibits(type: :fig), Origen::Specs::Exhibit).should == 4
+    get_true_hash_size(@ip.exhibits(type: :table), Origen::Specs::Exhibit).should == 3
+    get_true_hash_size(@ip.exhibits(id: :exhibit5), Origen::Specs::Exhibit).should == 1
+  end
+  
+  it "can see sub_block doc resource" do
+    get_true_hash_size(@ip.doc_resources, Origen::Specs::Doc_Resource).should == 24
+    get_true_hash_size(@ip.doc_resources(mode: :default), Origen::Specs::Doc_Resource).should == 8
+    get_true_hash_size(@ip.doc_resources(mode: :low_power), Origen::Specs::Doc_Resource).should == 8
+    get_true_hash_size(@ip.doc_resources(mode: :high_performance), Origen::Specs::Doc_Resource).should == 8
+    get_true_hash_size(@ip.doc_resources(type: :ac), Origen::Specs::Doc_Resource).should == 12
+    get_true_hash_size(@ip.doc_resources(type: :dc), Origen::Specs::Doc_Resource).should == 12
+    get_true_hash_size(@ip.doc_resources(sub_type: 'input'), Origen::Specs::Doc_Resource).should == 12
+    get_true_hash_size(@ip.doc_resources(sub_type: 'output'), Origen::Specs::Doc_Resource).should == 12
+    get_true_hash_size(@ip.doc_resources(audience: :external), Origen::Specs::Doc_Resource).should == 12
+    get_true_hash_size(@ip.doc_resources(audience: :internal), Origen::Specs::Doc_Resource).should == 12
+    get_true_hash_size(@ip.doc_resources(mode: :default, type: :ac, sub_type: 'input'), Origen::Specs::Doc_Resource).should == 2
+    get_true_hash_size(@ip.doc_resources(mode: :default, type: :dc, audience: :external), Origen::Specs::Doc_Resource).should == 2
+  end
+
+  it "can see sub_block power supplies" do
+    get_true_hash_size(@ip.power_supplies, Origen::Specs::Power_Supply).should == 17
+    get_true_hash_size(@ip.power_supplies(gen: 'GVDD'), Origen::Specs::Power_Supply).should ==  2
+    get_true_hash_size(@ip.power_supplies(gen: 'DVDD'), Origen::Specs::Power_Supply).should ==  3
+    get_true_hash_size(@ip.power_supplies(gen: 'XVDD'), Origen::Specs::Power_Supply).should ==  6
+    get_true_hash_size(@ip.power_supplies(gen: 'SVDD'), Origen::Specs::Power_Supply).should ==  6
+    get_true_hash_size(@ip.power_supplies(act: 'X4VDD'), Origen::Specs::Power_Supply).should == 1    
+  end
+
+  it "can see sub_block overrides" do
+    get_true_hash_size(@ip.overrides, Origen::Specs::Override).should == 6
+    get_true_hash_size(@ip.overrides(block: :esdhc), Origen::Specs::Override).should == 3
+    get_true_hash_size(@ip.overrides(block: :ddr), Origen::Specs::Override).should == 2
+    get_true_hash_size(@ip.overrides(block: :i2c), Origen::Specs::Override).should == 1
+    get_true_hash_size(@ip.overrides(spec_ref: :vdd), Origen::Specs::Override).should == 2
+    get_true_hash_size(@ip.overrides(mode_ref: :nominal), Origen::Specs::Override).should == 3
+    get_true_hash_size(@ip.overrides(mode_ref: :high_performance), Origen::Specs::Override).should == 2
+    get_true_hash_size(@ip.overrides(mode_ref: :low_power), Origen::Specs::Override).should == 1
+    get_true_hash_size(@ip.overrides(sub_type: 'input'), Origen::Specs::Override).should == 4
+    get_true_hash_size(@ip.overrides(sub_type: 'output'), Origen::Specs::Override).should == 2
+    get_true_hash_size(@ip.overrides(audience: :external), Origen::Specs::Override).should == 6
+    get_true_hash_size(@ip.overrides(audience: :internal), Origen::Specs::Override).should == 0
+  end
+  
+  it "can see sub_block creation info" do
+    @ip.get_creation_info.author.should == 'Jim Smith'
+    @ip.get_creation_info.date.should == '4 Jun 2015'
+    @ip.get_creation_info.ip_block_name.should == :esdhc
+    @ip.get_creation_info.revision.should =='b'
+  end
+
+  it "can see sub_block mode_selects" do
+    get_true_hash_size(@ip.mode_selects, Origen::Specs::Mode_Select).should == 4
+    get_true_hash_size(@ip.mode_selects(block: :ddr), Origen::Specs::Mode_Select).should == 2
+    get_true_hash_size(@ip.mode_selects(block: :ifc1), Origen::Specs::Mode_Select).should == 1
+    get_true_hash_size(@ip.mode_selects(block: :i2c1), Origen::Specs::Mode_Select).should == 1
+    get_true_hash_size(@ip.mode_selects(mode: :ddr_ddr4), Origen::Specs::Mode_Select).should == 1
+  end
+    
 end
