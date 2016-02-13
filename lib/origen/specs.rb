@@ -145,11 +145,11 @@ module Origen
       @_notes[id][type] = Note.new(id, type, options)
     end
 
-    def exhibit(id, type, options = {})
+    def exhibit(id, type, overrides = {}, options = {})
       # Welguisz:  No idea why this is here, but keeping it here because it follows other blocks
       _exhibits
       # Create a new Exhibit and place it in the exhibits 3-D Hash
-      @_exhibits[options[:block_id]][id][type] = Exhibit.new(id, type, options)
+      @_exhibits[options[:block_id]][id][type] = Exhibit.new(id, type, overrides, options)
     end
 
     def doc_resource(selector = {}, table_title = {}, text = {}, options = {})
@@ -202,6 +202,10 @@ module Origen
     def creation_info(author, date, version, src_info = {}, tool_info = {})
       # Create a new Information Information.  Should only be one.
       @_creation_info = Creation_Info.new(author, date, version, src_info, tool_info)
+    end
+
+    def get_creation_info
+      @_creation_info
     end
 
     # Returns a Note object from the notes hash
@@ -259,62 +263,91 @@ module Origen
 
     def exhibits(options = {})
       options = {
-        block:                nil,
-        id:                   nil,
-        type:                 nil,
-        exhibits_to_be_shown: []
+        block: nil,
+        id:    nil,
+        type:  nil
       }.update(options)
-      exhibits_to_be_shown = options[:exhibits_to_be_shown]
-      filter_hash(_exhibits, options[:block]).each do |_exhibit, hash|
-        filter_hash(hash, options[:id]).each do |id, hash_|
-          filter_hash(hash_, options[:type]).each do |type, hash__|
-            exhibits_to_be_shown << hash__
+      ex_found = Hash.new do |h, k|
+        h[k] = Hash.new do |hh, kk|
+          hh[kk] = {}
+        end
+      end
+      filter_hash(_exhibits, options[:block]).each do |_block, hash|
+        filter_hash(hash, options[:id]).each do |_id, hash_|
+          filter_hash(hash_, options[:type]).each do |_type, exh|
+            ex_found[_block][_id][_type] = exh
           end
         end
       end
-      exhibits_to_be_shown
+      if ex_found.empty?
+        return nil
+      else
+        return ex_found
+      end
     end
 
     def doc_resources(options = {})
       options = {
-        mode:                      nil,
-        type:                      nil,
-        sub_type:                  nil,
-        audience:                  nil,
-        doc_resources_to_be_shown: []
+        mode:     nil,
+        type:     nil,
+        sub_type: nil,
+        audience: nil
       }.update(options)
-      doc_resources_to_be_shown = options[:doc_resources_to_be_shown]
-      filter_hash(_doc_resources, options[:mode]).each do |_doc_resource, hash|
+      dr_found = Hash.new do |h, k|
+        h[k] = Hash.new do |hh, kk|
+          hh[kk] = Hash.new do |hhh, kkk|
+            hhh[kkk] = {}
+          end
+        end
+      end
+      filter_hash(_doc_resources, options[:mode]).each do |_mode, hash|
         filter_hash(hash, options[:type]).each do |_type, hash_|
           filter_hash(hash_, options[:sub_type]).each do |_sub_type, hash__|
             filter_hash(hash__, options[:audience]).each do |_audience, spec|
-              doc_resources_to_be_shown << spec
+              dr_found[_mode][_type][_sub_type][_audience] = spec
             end
           end
         end
+      end
+      if dr_found.empty?
+        return nil
+      else
+        return dr_found
       end
     end
 
     def overrides(options = {})
       options = {
-        block:     nil,
-        spec_ref:  nil,
-        mode_ref:  nil,
-        sub_type:  nil,
-        audience:  nil,
-        overrides: []
+        block:    nil,
+        spec_ref: nil,
+        mode_ref: nil,
+        sub_type: nil,
+        audience: nil
       }.update(options)
-      overrides = options[:overrides]
-      filter_hash(_overrides, options[:block]).each do |_override, hash|
+      overrides_found = Hash.new do |h, k|
+        h[k] = Hash.new do |hh, kk|
+          hh[kk] = Hash.new do |hhh, kkk|
+            hhh[kkk] = Hash.new do |hhhh, kkkk|
+              hhhh[kkkk] = {}
+            end
+          end
+        end
+      end
+      filter_hash(_overrides, options[:block]).each do |_block, hash|
         filter_hash(hash, options[:spec_ref]).each do |_spec_ref, hash_|
           filter_hash(hash_, options[:mode_ref]).each do |_mode_ref, hash__|
             filter_hash(hash__, options[:sub_type]).each do |_sub_type, hash___|
               filter_hash(hash___, options[:audience]).each do |_audience, override|
-                overrides << override
+                overrides_found[_block][_spec_ref][_mode_ref][_sub_type][_audience] = override
               end
             end
           end
         end
+      end
+      if overrides_found.empty?
+        return nil
+      else
+        return overrides_found
       end
     end
 
@@ -333,8 +366,6 @@ module Origen
       end
       if modes_found.empty?
         return nil
-      elsif modes_found.size == 1
-        return modes_found.values.first.values.first
       else
         return modes_found
       end
@@ -355,8 +386,6 @@ module Origen
       end
       if ps_found.empty?
         return nil
-      elsif ps_found.size == 1
-        return ps_found.values.first.values.first
       else
         return ps_found
       end
