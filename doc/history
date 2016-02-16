@@ -1,3 +1,31 @@
+<a class="anchor release_tag" name="v0_6_2"></a>
+<h1><a href="#v0_6_2">Tag: v0.6.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Ronnie Lajaunie on 15-Feb-2016 13:14PM
+
+
+Update front-page sponsors to NXP.
+
+<a class="anchor release_tag" name="v0_6_1"></a>
+<h1><a href="#v0_6_1">Tag: v0.6.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 15-Feb-2016 04:18AM
+
+
+* Find some instances where knowing the override information is needed for exhibits.
+  Added that to this code. (David Welguisz)
+* Improved Continuous Integration Environment for specs.rb. This find several issues in specs.rb.
+  Coverage for specs.rb should be 90%+ now. (David Welguisz)
+* Patch to preserve internal file handler state when an Origen job is launched programmatically
+  e.g. Origen.app.runner.launch action: :program, files: "program/production.list"
+
+  This fixes bugs with some file references not working when the program generator is launched
+  like this.
+
 <a class="anchor release_tag" name="v0_6_0"></a>
 <h1><a href="#v0_6_0">Tag: v0.6.0</a></h1>
 
