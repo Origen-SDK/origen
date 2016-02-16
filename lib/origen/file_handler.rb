@@ -388,11 +388,13 @@ module Origen
       dir = base_directory
       output = output_directory
       ref = reference_directory
+      ext = default_extension
       yield
       self.base_directory = dir if dir
       self.current_file = file if file
       set_output_directory(output: output) if output
       set_reference_directory(reference: ref) if ref
+      self.default_extension = ext
     end
 
     def preserve_and_clear_state
@@ -400,6 +402,7 @@ module Origen
       dir = base_directory
       output = output_directory
       ref = reference_directory
+      ext = default_extension
       current_file = nil
       base_directory = nil
       output_directory = nil
@@ -409,6 +412,7 @@ module Origen
       self.current_file = file if file
       set_output_directory(output: output) if output
       set_reference_directory(reference: ref) if ref
+      self.default_extension = ext
     end
 
     # Returns the sub directory of the current base directory that the

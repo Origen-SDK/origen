@@ -15,83 +15,85 @@ module Origen
       # Originally this method was called generate but that is now deprecated in favour
       # of the more generic 'launch' as the Origen feature set has expanded.
       def launch(options = {})
-        # Clean up the input from legacy code
-        options[:action] = extract_action(options)
-        options[:files] = extract_files(options)
-        @options = options
-        prepare_and_validate_workspace(options)
-        if options[:lsf]
-          record_invocation(options) do
-            prepare_for_lsf
-            Origen.app.listeners_for(:before_lsf_submission).each(&:before_lsf_submission)
-            expand_lists_and_directories(options[:files], options).each do |file|
-              Origen.app.lsf_manager.submit_origen_job(file, options)
-            end
-          end
-          Origen.log.info ''
-          Origen.log.info 'Monitor status of remote jobs via:'
-          Origen.log.info '  origen l'
-        else
-          Origen.log.info '*' * 70 unless options[:quiet]
-          Origen.app.listeners_for(:before_generate).each do |listener|
-            if listener.class.instance_method(:before_generate).arity == 0
-              listener.before_generate
-            else
-              listener.before_generate(options)
-            end
-          end
-          if Origen.running_remotely?
-            Origen.app.listeners_for(:before_generate_remote).each do |listener|
-              if listener.class.instance_method(:before_generate_remote).arity == 0
-                listener.before_generate_remote
-              else
-                listener.before_generate_remote(options)
+        Origen.file_handler.preserve_state do
+          # Clean up the input from legacy code
+          options[:action] = extract_action(options)
+          options[:files] = extract_files(options)
+          @options = options
+          prepare_and_validate_workspace(options)
+          if options[:lsf]
+            record_invocation(options) do
+              prepare_for_lsf
+              Origen.app.listeners_for(:before_lsf_submission).each(&:before_lsf_submission)
+              expand_lists_and_directories(options[:files], options).each do |file|
+                Origen.app.lsf_manager.submit_origen_job(file, options)
               end
             end
+            Origen.log.info ''
+            Origen.log.info 'Monitor status of remote jobs via:'
+            Origen.log.info '  origen l'
           else
-            Origen.app.listeners_for(:before_generate_local).each do |listener|
-              if listener.class.instance_method(:before_generate_local).arity == 0
-                listener.before_generate_local
+            Origen.log.info '*' * 70 unless options[:quiet]
+            Origen.app.listeners_for(:before_generate).each do |listener|
+              if listener.class.instance_method(:before_generate).arity == 0
+                listener.before_generate
               else
-                listener.before_generate_local(options)
+                listener.before_generate(options)
               end
             end
-          end
-
-          record_invocation(options) do
-            case options[:action]
-            when :forecast_test_time
-              Origen.time.forecast_test_time(options)
+            if Origen.running_remotely?
+              Origen.app.listeners_for(:before_generate_remote).each do |listener|
+                if listener.class.instance_method(:before_generate_remote).arity == 0
+                  listener.before_generate_remote
+                else
+                  listener.before_generate_remote(options)
+                end
+              end
             else
-              if options[:action] == :program
-                Origen.generator.generate_program(expand_lists_and_directories(options[:files], options), options)
-              else
-                temporary_plugin_from_options = options[:current_plugin]
-                expand_lists_and_directories(options[:files], options).each do |file|
-                  if temporary_plugin_from_options
-                    Origen.app.plugins.temporary = temporary_plugin_from_options
-                  end
-                  case options[:action]
-                  when :compile
-                    Origen.generator.compile_file_or_directory(file, options)
-                  when :merge
-                    Origen.generator.merge_file_or_directory(file, options)
-                  when :import_test_time
-                    Origen.time.import_test_time(file, options)
-                  when :import_test_flow
-                    Origen.time.import_test_flow(file, options)
-                  else
-                    Origen.generator.generate_pattern(file, options)
-                  end
-                  Origen.app.plugins.temporary = nil if temporary_plugin_from_options
+              Origen.app.listeners_for(:before_generate_local).each do |listener|
+                if listener.class.instance_method(:before_generate_local).arity == 0
+                  listener.before_generate_local
+                else
+                  listener.before_generate_local(options)
                 end
               end
             end
-          end
 
-          unless options[:quiet]
-            Origen.log.info '*' * 70
-            stats.print_summary unless options[:action] == :merge
+            record_invocation(options) do
+              case options[:action]
+              when :forecast_test_time
+                Origen.time.forecast_test_time(options)
+              else
+                if options[:action] == :program
+                  Origen.generator.generate_program(expand_lists_and_directories(options[:files], options), options)
+                else
+                  temporary_plugin_from_options = options[:current_plugin]
+                  expand_lists_and_directories(options[:files], options).each do |file|
+                    if temporary_plugin_from_options
+                      Origen.app.plugins.temporary = temporary_plugin_from_options
+                    end
+                    case options[:action]
+                    when :compile
+                      Origen.generator.compile_file_or_directory(file, options)
+                    when :merge
+                      Origen.generator.merge_file_or_directory(file, options)
+                    when :import_test_time
+                      Origen.time.import_test_time(file, options)
+                    when :import_test_flow
+                      Origen.time.import_test_flow(file, options)
+                    else
+                      Origen.generator.generate_pattern(file, options)
+                    end
+                    Origen.app.plugins.temporary = nil if temporary_plugin_from_options
+                  end
+                end
+              end
+            end
+
+            unless options[:quiet]
+              Origen.log.info '*' * 70
+              stats.print_summary unless options[:action] == :merge
+            end
           end
         end
       end
