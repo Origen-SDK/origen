@@ -222,9 +222,9 @@ module Origen
         h[k] = {}
       end
       # Filter @notes based off of the id
-      @_notes.filter(options[:id]).each do |id, hash|
+      filter_hash(@_notes, options[:id]).each do |id, hash|
         # Filter hash based off of the type
-        hash.filter(options[:type]).each do |type, note|
+        filter_hash(hash, options[:type]).each do |type, note|
           # Store the note into note_found
           notes_found[id][type] = note
         end
@@ -247,8 +247,8 @@ module Origen
       features_found = Hash.new do |h, k|
         h[k] = {}
       end
-      @_spec_features.filter(options[:id]).each do |id, hash|
-        hash.filter(options[:device]).each do |device, feat|
+      filter_hash(@_spec_features, options[:id]).each do |id, hash|
+        filter_hash(hash, options[:device]).each do |device, feat|
           features_found[id][device] = feat
         end
       end
@@ -359,8 +359,8 @@ module Origen
       modes_found = Hash.new do|h, k|
         h[k] = {}
       end
-      _mode_selects.filter(options[:block]).each do |block, hash|
-        hash.filter(options[:mode]).each do |mode, sel|
+      filter_hash(_mode_selects, options[:block]).each do |block, hash|
+        filter_hash(hash, options[:mode]).each do |mode, sel|
           modes_found[block][mode] = sel
         end
       end
@@ -379,8 +379,8 @@ module Origen
       ps_found = Hash.new do|h, k|
         h[k] = {}
       end
-      _power_supplies.filter(options[:gen]).each do |gen, hash|
-        hash.filter(options[:act]).each do |act, sel|
+      filter_hash(_power_supplies, options[:gen]).each do |gen, hash|
+        filter_hash(hash, options[:act]).each do |act, sel|
           ps_found[gen][act] = sel
         end
       end
