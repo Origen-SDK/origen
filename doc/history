@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_6_3"></a>
+<h1><a href="#v0_6_3">Tag: v0.6.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 16-Feb-2016 07:18AM
+
+
+There is a bug with Hash.filter where if the Hash is NilClass, then the filter will fail.
+Changing to filter\_hash allows for this corner case to be corrected. (David Welguisz)
+
 <a class="anchor release_tag" name="v0_6_2"></a>
 <h1><a href="#v0_6_2">Tag: v0.6.2</a></h1>
 
