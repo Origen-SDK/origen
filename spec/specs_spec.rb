@@ -88,16 +88,16 @@ class IP_With_Specs
     note(:note7, :mode, {mode: :high_performance, audience: :external, text: 'Note 7', markup: 'Not<sub>e</sub> 7', internal_comment: 'Reason for note'})
     note(:note7, :feature, {mode: :high_performance, audience: :external, text: 'Note 7', markup: 'Not<sub>e</sub> 7', internal_comment: 'Reason for note'})
     note(:note7, :sighting, {mode: :high_performance, audience: :external, text: 'Note 7', markup: 'Not<sub>e</sub> 7', internal_comment: 'Reason for note'})
-    spec_feature(:feature1, {type: :intro, audience: :external}, :ls1088, 'Feature 1', 'Internal Comment 1')
-    spec_feature(:feature2, {type: :intro, audience: :internal}, :ls1084, 'Feature 2', 'Internal Comment 2')
-    spec_feature(:feature3, {type: :feature, audience: :internal}, :ls1088, 'Feature 3', nil)
-    spec_feature(:feature3, {type: :feature, audience: :external}, :ls1084, 'Feature 3', nil)
-    spec_feature(:feature4, {type: :subfeature, audience: :external, feature_ref: :feature3}, :ls1088, 'Feature 3, subfeature 4', nil)
-    spec_feature(:feature4, {type: :subfeature, audience: :external, feature_ref: :feature3}, :ls1084, 'Feature 3, subfeature 4', nil)
-    spec_feature(:feature5, {type: :subfeature, audience: :external, feature_ref: :feature3}, :ls1088, 'Feature 3, subfeature 5', nil)
-    spec_feature(:feature5, {type: :subfeature, audience: :external, feature_ref: :feature3}, :ls1084, 'Feature 3, subfeature 5', nil)
-    spec_feature(:feature6, {type: :subfeature, audience: :external, feature_ref: :feature3}, :ls1088, 'Feature 3, subfeature 6', nil)
-    spec_feature(:feature6, {type: :subfeature, audience: :external, feature_ref: :feature3}, :ls1084, 'Feature 3, subfeature 6', nil)
+    spec_feature(:feature1, {type: :intro, audience: :external}, :devicea, 'Feature 1', 'Internal Comment 1')
+    spec_feature(:feature2, {type: :intro, audience: :internal}, :deviceb, 'Feature 2', 'Internal Comment 2')
+    spec_feature(:feature3, {type: :feature, audience: :internal}, :devicea, 'Feature 3', nil)
+    spec_feature(:feature3, {type: :feature, audience: :external}, :deviceb, 'Feature 3', nil)
+    spec_feature(:feature4, {type: :subfeature, audience: :external, feature_ref: :feature3}, :devicea, 'Feature 3, subfeature 4', nil)
+    spec_feature(:feature4, {type: :subfeature, audience: :external, feature_ref: :feature3}, :deviceb, 'Feature 3, subfeature 4', nil)
+    spec_feature(:feature5, {type: :subfeature, audience: :external, feature_ref: :feature3}, :devicea, 'Feature 3, subfeature 5', nil)
+    spec_feature(:feature5, {type: :subfeature, audience: :external, feature_ref: :feature3}, :deviceb, 'Feature 3, subfeature 5', nil)
+    spec_feature(:feature6, {type: :subfeature, audience: :external, feature_ref: :feature3}, :devicea, 'Feature 3, subfeature 6', nil)
+    spec_feature(:feature6, {type: :subfeature, audience: :external, feature_ref: :feature3}, :deviceb, 'Feature 3, subfeature 6', nil)
     exhibit(:exhibit1, :fig, {}, {title: 'Exhibit 1', description: 'Exhibit 1 Description', reference: 'link1', markup: 'markup', block_id: :esdhc})
     exhibit(:exhibit2, :fig, {}, {title: 'Exhibit 2', description: 'Exhibit 2 Description', reference: 'link2', markup: 'markup', block_id: :esdhc})
     exhibit(:exhibit3, :fig, {}, {title: 'Exhibit 3', description: 'Exhibit 3 Description', reference: 'link3', markup: 'markup', block_id: :ddr})
@@ -289,7 +289,7 @@ describe "Origen Specs Module" do
   it "can see sub_block features" do
     @ip.spec_features(id: :feature1).class.should == Origen::Specs::Spec_Features
     #@ip.spec_features(id: :feature3).size.class.should == 2
-    @ip.spec_features(device: :ls1088).size.should == 5
+    @ip.spec_features(device: :devicea).size.should == 5
   end
   
   it "can see sub_block notes" do
