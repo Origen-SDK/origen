@@ -176,6 +176,50 @@ module Origen
       @namespace ||= self.class.to_s.split('::').first.gsub('_', '').sub('Application', '')
     end
 
+    # Returns array of email addresses in the DEV maillist file
+    def maillist_dev
+      maillist_parse(maillist_dev_file)
+    end
+
+    # Returns array of email addresses in the PROD maillist file
+    def maillist_prod
+      maillist_parse(maillist_prod_file)
+    end
+
+    # Returns default location of DEV maillist file (customize locally if needed)
+    def maillist_dev_file
+      Origen.app.root.to_s + '/config/maillist_dev.txt'
+    end
+
+    # Returns default location of PROD maillist file (customize locally if needed)
+    def maillist_prod_file
+      Origen.app.root.to_s + '/config/maillist_prod.txt'
+    end
+
+    # Parses maillist file and returns an array of email address
+    def maillist_parse(file)
+      maillist = []
+      
+      # if file doesn't exist, just return empty array, otherwise, parse for emails
+      if File.exists?(file)
+        File.readlines(file).each do |line|
+          if index = (line =~ /\#/)
+            # line contains some kind of comment
+            # check if there is any useful info, ignore it not
+            unless line[0,index].strip.empty?
+              maillist << Origen::Users::User.new(line[0,index].strip).email
+            end
+          else
+            # if line is not empty, generate an email
+            unless line.strip.empty?
+              maillist << Origen::Users::User.new(line.strip).email
+            end
+          end
+        end
+      end
+      maillist
+    end
+  
     # Returns an array of users who have subscribed for production release
     # notifications for the given application on the website
     def subscribers_prod

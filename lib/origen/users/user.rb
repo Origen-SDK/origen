@@ -74,9 +74,17 @@ module Origen
       end
 
       def email
-        @email ||= ENV['ORIGEN_EMAIL'] || email_from_rc || begin
-          if Origen.site_config.email_domain
-            "#{id}@#{Origen.site_config.email_domain}"
+        if current?
+          @email ||= ENV['ORIGEN_EMAIL'] || email_from_rc || begin
+            if Origen.site_config.email_domain
+              "#{id}@#{Origen.site_config.email_domain}"
+            end
+          end
+        else
+          @email ||= begin
+            if Origen.site_config.email_domain
+              "#{id}@#{Origen.site_config.email_domain}"
+            end
           end
         end
       end
