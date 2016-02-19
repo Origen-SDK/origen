@@ -199,15 +199,15 @@ module Origen
     # Parses maillist file and returns an array of email address
     def maillist_parse(file)
       maillist = []
-      
+
       # if file doesn't exist, just return empty array, otherwise, parse for emails
-      if File.exists?(file)
+      if File.exist?(file)
         File.readlines(file).each do |line|
           if index = (line =~ /\#/)
             # line contains some kind of comment
             # check if there is any useful info, ignore it not
-            unless line[0,index].strip.empty?
-              maillist << Origen::Users::User.new(line[0,index].strip).email
+            unless line[0, index].strip.empty?
+              maillist << Origen::Users::User.new(line[0, index].strip).email
             end
           else
             # if line is not empty, generate an email
@@ -219,7 +219,7 @@ module Origen
       end
       maillist
     end
-  
+
     # Returns an array of users who have subscribed for production release
     # notifications for the given application on the website
     def subscribers_prod
