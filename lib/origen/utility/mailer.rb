@@ -82,14 +82,14 @@ or a member of the development team.
 END3
 
         if external?(type)
-          to = app_users + Origen.app.subscribers_prod + Origen.app.subscribers_dev
+          to = Origen.app.maillist_prod + Origen.app.maillist_dev
           if config.release_email_subject
             subject = "[#{Origen.app.namespace}] New Official Release: #{config.release_email_subject}"
           else
             subject = "[#{Origen.app.namespace}] New Official Release"
           end
         else
-          to = admins + Origen.app.subscribers_dev
+          to = Origen.app.maillist_dev
           if config.release_email_subject
             subject = "[#{Origen.app.namespace}] New Development Tag: #{config.release_email_subject}"
           else

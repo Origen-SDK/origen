@@ -675,6 +675,11 @@ describe "Origen Pin API v3" do
       $dut.pins.size.should == 2
       $dut.power_pins.size.should == 1
       $dut.power_pins(:vdd0).should == vdd0
+      $dut.power_pins(:vdd0).voltage = 3
+      $dut.power_pins(:vdd0).voltage.should == 3
+      $dut.power_pins(:vdd0).voltage = [1.2,2.5]
+      $dut.power_pins(:vdd0).voltage.should == [1.2,2.5]
+      $dut.power_pins(:vdd0).voltages.should == [1.2,2.5]
     end
 
     it "power pin groups can be added" do
