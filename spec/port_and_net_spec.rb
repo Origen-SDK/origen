@@ -21,6 +21,9 @@ describe 'Ports and Nets' do
     b.pb.size.should == 16
     b.pa.path.should == "pa"
     b.pb.path.should == "pb"
+    b.pa.inspect.gsub(/[0-9]/, '').should == "<Origen::Ports::Port: id:pa path:pa>"
+    b.pa.describe.should == nil
+    b.pa.describe(return: true).should == ["********************", "Port id:   pa", "Port path: pa", "", "Connections", "-----------", "", "7 - none", "6 - none", "5 - none", "4 - none", "3 - none", "2 - none", "1 - none", "0 - none", ""]
   end
 
   it 'ports can be drilled down to subsets of bits' do
