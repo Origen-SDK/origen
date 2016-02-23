@@ -1,3 +1,55 @@
+<a class="anchor release_tag" name="v0_6_4"></a>
+<h1><a href="#v0_6_4">Tag: v0.6.4</a></h1>
+
+##### Branch: 'master'
+
+##### by Ronnie Lajaunie on 22-Feb-2016 22:49PM
+
+
+Introduce maillists for release notifications.
+
+Origen uses maillists to send notifications of development and production releases.  The
+maillist files
+should be located at <code>config/maillist\_dev.txt</code> and
+<code>config/maillist\_prod.txt</code>
+
+Sample lists:
+
+~~~text
+# config/maillist\_dev.txt
+#
+# Product team X  (handles commenting like this)
+first.last@company.com
+john.smith@company.com
+~~~
+
+~~~text
+# config/maillist\_prod.txt
+#
+# Some other product team
+memory.expert@company.com       # Memory Test Lead (commenting like this is ok too)
+# Example of an ID only
+last.first
+x49509
+~~~
+
+
+To get a list of your application's mailists:
+
+~~~ruby
+Origen.app.maillist\_dev    # => [<first.last@company.com>, <john.smith@company.com>]
+Origen.app.maillist\_prod   # => [<memory.expert@company.com>, <last.first@MYcompany.com>,
+<x49509@MYcompany.com>]
+~~~
+
+You can pass the returned array directly to the send\_email method:
+
+~~~ruby
+Origen.mailer.send\_email(subject: "Hello", to: Origen.app.maillist\_dev, body: "Hello to
+all developers!")
+~~~
+
+
 <a class="anchor release_tag" name="v0_6_3"></a>
 <h1><a href="#v0_6_3">Tag: v0.6.3</a></h1>
 
