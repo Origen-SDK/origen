@@ -1,3 +1,16 @@
+<a class="anchor release_tag" name="v0_6_5"></a>
+<h1><a href="#v0_6_5">Tag: v0.6.5</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 25-Feb-2016 08:56AM
+
+
+Minor update to make the program generator instantiate an empty interface, rather than
+raise an error, in the case where no interface is defined by the application. This allows
+an application to be able to generate a test flow only (i.e. no instances, etc.) without
+having to create an interface.
+
 <a class="anchor release_tag" name="v0_6_4"></a>
 <h1><a href="#v0_6_4">Tag: v0.6.4</a></h1>
 
