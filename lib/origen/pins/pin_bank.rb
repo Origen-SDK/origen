@@ -23,6 +23,8 @@ module Origen
           bank = all_power_pins
         elsif pin.is_a?(GroundPin)
           bank = all_ground_pins
+        elsif pin.is_a?(UtilityPin)
+          bank = all_utility_pins
         else
           bank = all_pins
         end
@@ -73,6 +75,12 @@ module Origen
         end
       end
 
+      def utility_pins(options = {})
+        all_utility_pins.select do |_id, pin|
+          pin.enabled?(options)
+        end
+      end
+
       # Returns a hash containing all pin_groups available in the current context stored by their primary ID
       def pin_groups(options = {})
         current_pin_group_store(all_pin_groups, options).select do |_id, group|
@@ -90,6 +98,13 @@ module Origen
       # Returns a hash containing all ground_pin_groups available in the current context stored by their primary ID
       def ground_pin_groups(options = {})
         current_pin_group_store(all_ground_pin_groups, options).select do |_id, group|
+          group.enabled?(options)
+        end
+      end
+
+      # Returns a hash containing all utility_pin_groups available in the current context stored by their primary ID
+      def utility_pin_groups(options = {})
+        current_pin_group_store(all_utility_pin_groups, options).select do |_id, group|
           group.enabled?(options)
         end
       end
@@ -114,6 +129,11 @@ module Origen
         @all_ground_pins ||= {}
       end
 
+      # Returns a hash containing all utility pins stored by their primary ID
+      def all_utility_pins
+        @all_utility_pins ||= {}
+      end
+
       # Returns a hash containing all power pin groups stored by context
       def all_power_pin_groups
         @all_power_pin_groups ||= {}
@@ -124,12 +144,19 @@ module Origen
         @all_ground_pin_groups ||= {}
       end
 
+      # Returns a hash containing all utility pin groups stored by context
+      def all_utility_pin_groups
+        @all_utility_pin_groups ||= {}
+      end
+
       def find(id, options = {})
         id = id.to_sym
         if options[:power_pin]
           pin = all_power_pins[id] || find_pin_group(id, options)
         elsif options[:ground_pin]
           pin = all_ground_pins[id] || find_pin_group(id, options)
+        elsif options[:utility_pin]
+          pin = all_utility_pins[id] || find_pin_group(id, options)
         else
           pin = all_pins[id] || find_by_alias(id, options) || find_pin_group(id, options)
         end
@@ -148,6 +175,8 @@ module Origen
           base = all_power_pin_groups
         elsif options[:ground_pin]
           base = all_ground_pin_groups
+        elsif options[:utility_pin]
+          base = all_utility_pin_groups
         else
           base = all_pin_groups
         end
@@ -180,6 +209,8 @@ module Origen
           bank = all_power_pins
         elsif pin.is_a?(GroundPin)
           bank = all_ground_pins
+        elsif pin.is_a?(UtilityPin)
+          bank = all_utility_pins
         else
           bank = all_pins
         end
@@ -209,6 +240,8 @@ module Origen
           base = all_power_pin_groups
         elsif group.ground_pins?
           base = all_ground_pin_groups
+        elsif group.utility_pins?
+          base = all_utility_pin_groups
         else
           base = all_pin_groups
         end
@@ -252,6 +285,8 @@ module Origen
           base = all_power_pin_groups
         elsif group.ground_pins?
           base = all_ground_pin_groups
+        elsif group.utility_pins?
+          base = all_utility_pin_groups
         else
           base = all_pin_groups
         end
@@ -332,9 +367,11 @@ module Origen
         @all_pins = nil
         @all_power_pins = nil
         @all_ground_pins = nil
+        @all_utility_pins = nil
         @all_pin_groups = nil
         @all_power_pin_groups = nil
         @all_ground_pin_groups = nil
+        @all_utility_pin_groups = nil
       end
 
       def known_aliases
