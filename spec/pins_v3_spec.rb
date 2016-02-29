@@ -728,6 +728,40 @@ describe "Origen Pin API v3" do
 
   end
 
+  describe "utility pins" do
+
+    it "utility pins can be added" do
+      $dut.add_pin :pinx
+      $dut.add_pin :piny
+      utility0 = $dut.add_utility_pin(:utility0, type: :utility_bit)
+      $dut.add_utility_pin(:utility1, type: :utility_bit)
+      $dut.add_utility_pin(:utility2, type: :ate_ch)
+      $dut.pins.size.should == 2
+      $dut.utility_pins.size.should == 3
+      $dut.utility_pins(:utility0).should == utility0
+      $dut.utility_pins(:utility0).type = :utility_bit
+      $dut.utility_pins(:utility2).type = :ate_ch
+    end
+
+    it "utility pin groups can be added" do
+      $dut.add_utility_pin(:utility1, type: :utility_bit)
+      $dut.add_utility_pin(:utility2, type: :utility_bit)
+      $dut.add_utility_pin(:utility3, type: :ate_ch)
+      $dut.add_utility_pin_group :utility, :utility1, :utility2, package: :p1
+      $dut.add_utility_pin_group :utility, :utility1, :utility2, :utility3, package: :p2
+      $dut.utility_pins.size.should == 3
+      $dut.utility_pin_groups.size.should == 0
+      $dut.utility_pin_groups(package: :p1).size.should == 1
+      $dut.package = :p1
+      $dut.utility_pins(:utility).size.should == 2
+      $dut.utility_pin_groups.size.should == 1
+      $dut.package = :p2
+      $dut.utility_pins(:utility).size.should == 3
+      $dut.utility_pin_groups.size.should == 1
+    end
+
+  end
+
   it "driving or asserting nil is the same as 0" do
     pin = $dut.add_pin :pinx
     pin.drive(1)
