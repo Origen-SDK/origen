@@ -215,6 +215,7 @@ module Origen
         id:   nil,
         type: nil
       }.update(options)
+      return nil if @_notes.empty?
       # Empty 2-D Hash to be used for notes found based on id and type
       notes_found = Hash.new do |h, k|
         # h is the id portion of the hash
@@ -244,6 +245,7 @@ module Origen
         device: nil
       }.update(options)
       return @_spec_features if options[:id].nil? && options[:device].nil?
+      return nil if @_spec_features.empty?
       features_found = Hash.new do |h, k|
         h[k] = {}
       end
@@ -267,12 +269,13 @@ module Origen
         id:    nil,
         type:  nil
       }.update(options)
+      return nil if @_exhibits.empty?
       ex_found = Hash.new do |h, k|
         h[k] = Hash.new do |hh, kk|
           hh[kk] = {}
         end
       end
-      filter_hash(_exhibits, options[:block]).each do |_block, hash|
+      filter_hash(@_exhibits, options[:block]).each do |_block, hash|
         filter_hash(hash, options[:id]).each do |_id, hash_|
           filter_hash(hash_, options[:type]).each do |_type, exh|
             ex_found[_block][_id][_type] = exh
@@ -293,6 +296,7 @@ module Origen
         sub_type: nil,
         audience: nil
       }.update(options)
+      return nil if @_doc_resources.empty?
       dr_found = Hash.new do |h, k|
         h[k] = Hash.new do |hh, kk|
           hh[kk] = Hash.new do |hhh, kkk|
@@ -300,7 +304,7 @@ module Origen
           end
         end
       end
-      filter_hash(_doc_resources, options[:mode]).each do |_mode, hash|
+      filter_hash(@_doc_resources, options[:mode]).each do |_mode, hash|
         filter_hash(hash, options[:type]).each do |_type, hash_|
           filter_hash(hash_, options[:sub_type]).each do |_sub_type, hash__|
             filter_hash(hash__, options[:audience]).each do |_audience, spec|
@@ -324,6 +328,7 @@ module Origen
         sub_type: nil,
         audience: nil
       }.update(options)
+      return nil if @_overrides.empty?
       overrides_found = Hash.new do |h, k|
         h[k] = Hash.new do |hh, kk|
           hh[kk] = Hash.new do |hhh, kkk|
@@ -333,7 +338,7 @@ module Origen
           end
         end
       end
-      filter_hash(_overrides, options[:block]).each do |_block, hash|
+      filter_hash(@_overrides, options[:block]).each do |_block, hash|
         filter_hash(hash, options[:spec_ref]).each do |_spec_ref, hash_|
           filter_hash(hash_, options[:mode_ref]).each do |_mode_ref, hash__|
             filter_hash(hash__, options[:sub_type]).each do |_sub_type, hash___|
@@ -356,10 +361,11 @@ module Origen
         block: nil,
         mode:  nil
       }.update(options)
+      return nil if @_mode_selects.empty?
       modes_found = Hash.new do|h, k|
         h[k] = {}
       end
-      filter_hash(_mode_selects, options[:block]).each do |block, hash|
+      filter_hash(@_mode_selects, options[:block]).each do |block, hash|
         filter_hash(hash, options[:mode]).each do |mode, sel|
           modes_found[block][mode] = sel
         end
@@ -379,7 +385,8 @@ module Origen
       ps_found = Hash.new do|h, k|
         h[k] = {}
       end
-      filter_hash(_power_supplies, options[:gen]).each do |gen, hash|
+      return nil if @_power_supplies.empty?
+      filter_hash(@_power_supplies, options[:gen]).each do |gen, hash|
         filter_hash(hash, options[:act]).each do |act, sel|
           ps_found[gen][act] = sel
         end
