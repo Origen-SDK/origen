@@ -296,6 +296,7 @@ describe "Origen Specs Module" do
    @ip.notes(id: :note1).class.should == Origen::Specs::Note 
    @ip.notes(type: :spec).size.should == 7
    @ip.delete_all_notes
+   @ip.notes(type: :spec).should == nil
    @ip.note(:note1, :spec, {mode: :default, audience: :external, text: 'Note 1', markup: 'Not<sub>e</sub> 1', internal_comment: 'Reason for note'})
    @ip.notes(type: :spec).class.should == Origen::Specs::Note 
   end
@@ -306,6 +307,7 @@ describe "Origen Specs Module" do
     get_true_hash_size(@ip.exhibits(type: :table), Origen::Specs::Exhibit).should == 3
     get_true_hash_size(@ip.exhibits(id: :exhibit5), Origen::Specs::Exhibit).should == 1
     @ip.delete_all_exhibits
+    @ip.exhibits(id: :exhibit4).should == nil
     @ip.exhibit(:exhibit4, :table, {}, {title: 'Exhibit 4', description: 'Exhibit 4 Description', reference: 'link4', markup: 'markup', block_id: :esdhc})
     get_true_hash_size(@ip.exhibits, Origen::Specs::Exhibit).should == 1
   end
@@ -324,6 +326,7 @@ describe "Origen Specs Module" do
     get_true_hash_size(@ip.doc_resources(mode: :default, type: :ac, sub_type: 'input'), Origen::Specs::Doc_Resource).should == 2
     get_true_hash_size(@ip.doc_resources(mode: :default, type: :dc, audience: :external), Origen::Specs::Doc_Resource).should == 2
     @ip.delete_all_doc_resources
+    @ip.doc_resources(type: :dc).should == nil
     @ip.doc_resource({mode: :high_performance, type: :dc, sub_type: 'input', audience: :external}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
     @ip.doc_resource({mode: :default, type: :dc, sub_type: 'input', audience: :internal}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
     @ip.doc_resource({mode: :low_power, type: :dc, sub_type: 'input', audience: :internal}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
@@ -338,6 +341,7 @@ describe "Origen Specs Module" do
     get_true_hash_size(@ip.power_supplies(gen: 'SVDD'), Origen::Specs::Power_Supply).should ==  6
     get_true_hash_size(@ip.power_supplies(act: 'X4VDD'), Origen::Specs::Power_Supply).should == 1
     @ip.delete_all_power_supplies    
+    @ip.power_supplies(gen: 'SVDD').should == nil
     @ip.power_supply('GVDD', 'G1VDD')
     @ip.power_supply('GVDD', 'G2VDD')
     @ip.power_supply('DVDD', 'D1VDD')
@@ -358,6 +362,7 @@ describe "Origen Specs Module" do
     get_true_hash_size(@ip.overrides(audience: :external), Origen::Specs::Override).should == 6
     get_true_hash_size(@ip.overrides(audience: :internal), Origen::Specs::Override).should == 0
     @ip.delete_all_overrides
+    @ip.overrides(block: :esdhc).should == nil
     @ip.override({block: :esdhc, usage: true}, {spec_id: :vdd_lp, mode_ref: :low_power, sub_type: 'input', audience: :external}, {min: 0.97}, {disable: false})
     @ip.override({block: :i2c, usage: true}, {spec_id: :clk_rise, mode_ref: :high_performance, sub_type: 'input', audience: :external}, {min: 0.97}, {disable: true})
     @ip.override({block: :ddr, usage: true}, {spec_id: :vdd, mode_ref: :high_performance, sub_type: 'output', audience: :external}, {min: 0.97}, {disable: true})
@@ -384,6 +389,7 @@ describe "Origen Specs Module" do
     get_true_hash_size(@ip.mode_selects(block: :i2c1), Origen::Specs::Mode_Select).should == 1
     get_true_hash_size(@ip.mode_selects(mode: :ddr_ddr4), Origen::Specs::Mode_Select).should == 1
     @ip.delete_all_mode_selects
+    @ip.mode_selects(block: :ddr).should == nil
     @ip.mode_select({name: :ddr, ds_header: 'DDR Controller', usage: true, location: 'path'}, {mode: :ddr_ddr3, supported: true}, {supply: 'G1VDD', voltage_level: '1.35V', use_diff: true})
     @ip.mode_select({name: :ifc1, ds_header: 'IFC', usage: true, location: 'path'}, {mode: :ifc1_nand, supported: true}, {supply: 'OVDD', voltage_level: '3.0V', use_diff: true})
     get_true_hash_size(@ip.mode_selects, Origen::Specs::Mode_Select).should == 2

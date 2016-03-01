@@ -215,6 +215,7 @@ module Origen
         id:   nil,
         type: nil
       }.update(options)
+      return nil if @_notes.nil?
       return nil if @_notes.empty?
       # Empty 2-D Hash to be used for notes found based on id and type
       notes_found = Hash.new do |h, k|
@@ -245,6 +246,7 @@ module Origen
         device: nil
       }.update(options)
       return @_spec_features if options[:id].nil? && options[:device].nil?
+      return nil if @_spec_features.nil?
       return nil if @_spec_features.empty?
       features_found = Hash.new do |h, k|
         h[k] = {}
@@ -269,6 +271,7 @@ module Origen
         id:    nil,
         type:  nil
       }.update(options)
+      return nil if @_exhibits.nil?
       return nil if @_exhibits.empty?
       ex_found = Hash.new do |h, k|
         h[k] = Hash.new do |hh, kk|
@@ -296,6 +299,7 @@ module Origen
         sub_type: nil,
         audience: nil
       }.update(options)
+      return nil if @_doc_resources.nil?
       return nil if @_doc_resources.empty?
       dr_found = Hash.new do |h, k|
         h[k] = Hash.new do |hh, kk|
@@ -328,6 +332,7 @@ module Origen
         sub_type: nil,
         audience: nil
       }.update(options)
+      return nil if @_overrides.nil?
       return nil if @_overrides.empty?
       overrides_found = Hash.new do |h, k|
         h[k] = Hash.new do |hh, kk|
@@ -361,6 +366,7 @@ module Origen
         block: nil,
         mode:  nil
       }.update(options)
+      return nil if @_mode_selects.nil?
       return nil if @_mode_selects.empty?
       modes_found = Hash.new do|h, k|
         h[k] = {}
@@ -385,6 +391,7 @@ module Origen
       ps_found = Hash.new do|h, k|
         h[k] = {}
       end
+      return nil if @_power_supplies.nil?
       return nil if @_power_supplies.empty?
       filter_hash(@_power_supplies, options[:gen]).each do |gen, hash|
         filter_hash(hash, options[:act]).each do |act, sel|
