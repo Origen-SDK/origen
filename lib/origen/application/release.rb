@@ -76,7 +76,7 @@ Your workspace has local modifications that are preventing the requested action
           Origen.app.listeners_for(:after_release_tag).each do |listener|
             listener.after_release_tag(tag, note, type, selector, options)
           end
-          # @mailer.send_release_notice(tag, note, type, selector) unless options[:silent]
+          @mailer.send_release_notice(tag, note, type, selector) unless options[:silent]
           Origen.app.listeners_for(:after_release_email).each do |listener|
             listener.after_release_email(tag, note, type, selector, options)
           end

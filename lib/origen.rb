@@ -479,8 +479,12 @@ unless defined? RGen::ORIGENTRANSITION
           if int
             @interface = int.new(options)
           else
-            unless options.delete(:silence_no_interface_error)
-              fail "No interface has been defined for tester: #{Origen.tester.class}"
+            if defined? OrigenTesters::NoInterface
+              @interface = OrigenTesters::NoInterface.new
+            else
+              unless options.delete(:silence_no_interface_error)
+                fail "No interface has been defined for tester: #{Origen.tester.class}"
+              end
             end
           end
         end

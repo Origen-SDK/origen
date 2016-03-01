@@ -97,4 +97,44 @@ distribution_list = [User.new("r49409"), User.new("r6aanf")]
 Origen.mailer.send_email(subject: "Hello", to: distribution_list, body: message)
 ~~~
 
+#### Maillists
+
+Origen uses maillists to send notifications of development and production releases.  The maillist files
+should be located at <code>config/maillist_dev.txt</code> and <code>config/maillist_prod.txt</code>
+
+Sample lists:
+
+~~~text
+# config/maillist_dev.txt
+#
+# Product team X  (handles commenting like this)
+first.last@company.com
+john.smith@company.com
+~~~
+
+~~~text
+# config/maillist_prod.txt
+#
+# Some other product team
+memory.expert@company.com       # Memory Test Lead (commenting like this is ok too)
+# Example of an ID only
+last.first
+x49509
+~~~
+
+
+To get a list of your application's mailists:
+
+~~~ruby
+Origen.app.maillist_dev    # => [<first.last@company.com>, <john.smith@company.com>]
+Origen.app.maillist_prod   # => [<memory.expert@company.com>, <last.first@MYcompany.com>, <x49509@MYcompany.com>]
+~~~
+
+You can pass the returned array directly to the send_email method:
+
+~~~ruby
+Origen.mailer.send_email(subject: "Hello", to: Origen.app.maillist_dev, body: "Hello to all developers!")
+~~~
+
+
 % end
