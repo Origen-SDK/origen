@@ -16,7 +16,7 @@ module Origen
         }.merge(options)
         @power_pins = options.delete(:power_pin) || options.delete(:power_pins)
         @ground_pins = options.delete(:ground_pin) || options.delete(:ground_pins)
-        @utility_pins = options.delete(:utility_pin) || options.delete(:utility_pins)
+        @virtual_pins = options.delete(:virtual_pin) || options.delete(:virtual_pins)
         @endian = options[:endian]
         @description = options[:description] || options[:desc]
         @options = options
@@ -82,9 +82,9 @@ module Origen
         @ground_pins
       end
 
-      # Returns true if the pin collection contains utility pins rather than regular pins
-      def utility_pins?
-        @utility_pins
+      # Returns true if the pin collection contains virtual pins rather than regular pins
+      def virtual_pins?
+        @virtual_pins
       end
 
       def id
@@ -182,8 +182,8 @@ module Origen
             pin = owner.power_pins(pin)
           elsif ground_pins?
             pin = owner.ground_pins(pin)
-          elsif utility_pins?
-            pin = owner.utility_pins(pin)
+          elsif virtual_pins?
+            pin = owner.virtual_pins(pin)
           else
             pin = owner.pins(pin)
           end

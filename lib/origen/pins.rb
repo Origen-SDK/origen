@@ -176,7 +176,7 @@ module Origen
     autoload :PinClock,      'origen/pins/pin_clock'
     autoload :PowerPin,      'origen/pins/power_pin'
     autoload :GroundPin,     'origen/pins/ground_pin'
-    autoload :UtilityPin,    'origen/pins/utility_pin'
+    autoload :VirtualPin,    'origen/pins/virtual_pin'
     autoload :FunctionProxy, 'origen/pins/function_proxy'
 
     # @api private
@@ -214,7 +214,7 @@ module Origen
       id, options = nil, id if id.is_a?(Hash)
       power_pin = options.delete(:power_pin)
       ground_pin = options.delete(:ground_pin)
-      utility_pin = options.delete(:utility_pin)
+      virtual_pin = options.delete(:virtual_pin)
       if options[:size] && options[:size] > 1
         group = PinCollection.new(self, options.merge(placeholder: true))
         group.id = id if id
@@ -229,8 +229,8 @@ module Origen
             group[i] = PowerPin.new(i, self, options)
           elsif ground_pin
             group[i] = GroundPin.new(i, self, options)
-          elsif utility_pin
-            group[i] = UtilityPin.new(i, self, options)
+          elsif virtual_pin
+            group[i] = VirtualPin.new(i, self, options)
           else
             group[i] = Pin.new(i, self, options)
           end
@@ -251,8 +251,8 @@ module Origen
           pin = PowerPin.new(id || :temp, self, options)
         elsif ground_pin
           pin = GroundPin.new(id || :temp, self, options)
-        elsif utility_pin
-          pin = UtilityPin.new(id || :temp, self, options)
+        elsif virtual_pin
+          pin = VirtualPin.new(id || :temp, self, options)
         else
           pin = Pin.new(id || :temp, self, options)
         end
@@ -281,14 +281,14 @@ module Origen
     end
     alias_method :add_ground_pins, :add_ground_pin
 
-    def add_utility_pin(id = nil, options = {}, &block)
+    def add_virtual_pin(id = nil, options = {}, &block)
       id, options = nil, id if id.is_a?(Hash)
       options = {
-        utility_pin: true
+        virtual_pin: true
       }.merge(options)
       add_pin(id, options, &block)
     end
-    alias_method :add_utility_pins, :add_utility_pin
+    alias_method :add_virtual_pins, :add_virtual_pin
 
     # Specify the order that pins will appear in the output pattern, unspecified
     # pins will appear in an arbitrary order at the end
@@ -399,11 +399,11 @@ module Origen
     end
     alias_method :has_ground_pins?, :has_ground_pin?
 
-    # Equivalent to the has_pin? method but considers utility pins rather than regular pins
-    def has_utility_pin?(id)
-      !!Origen.pin_bank.find(id, utility_pin: true)
+    # Equivalent to the has_pin? method but considers virtual pins rather than regular pins
+    def has_virtual_pin?(id)
+      !!Origen.pin_bank.find(id, virtual_pin: true)
     end
-    alias_method :has_utility_pins?, :has_utility_pin?
+    alias_method :has_virtual_pins?, :has_virtual_pin?
 
     def add_pin_group(id, *pins, &_block)
       if pins.last.is_a?(Hash)
@@ -478,14 +478,14 @@ module Origen
       add_pin_group(id, *pins, options, &block)
     end
 
-    def add_utility_pin_group(id, *pins, &block)
+    def add_virtual_pin_group(id, *pins, &block)
       if pins.last.is_a?(Hash)
         options = pins.pop
       else
         options = {}
       end
       options = {
-        utility_pin: true
+        virtual_pin: true
       }.merge(options)
       add_pin_group(id, *pins, options, &block)
     end
@@ -522,11 +522,11 @@ module Origen
     end
 
     # Equivalent to the all_pins method but considers ground pins rather than regular pins
-    def all_utility_pins(id = nil, _options = {}, &_block)
+    def all_virtual_pins(id = nil, _options = {}, &_block)
       if id
-        pin = Origen.pin_bank.find(id, ignore_context: true, utility_pin: true)
+        pin = Origen.pin_bank.find(id, ignore_context: true, virtual_pin: true)
       else
-        Origen.pin_bank.all_utility_pins
+        Origen.pin_bank.all_virtual_pins
       end
     end
 
@@ -595,27 +595,27 @@ If you meant to define the ground_pin_group then use the add_ground_pin_group me
     end
     alias_method :ground_pin_group, :ground_pin_groups
 
-    # Equivalent to the pin_groups method but considers utility pins rather than regular pins
-    def utility_pin_groups(id = nil, options = {}, &_block)
+    # Equivalent to the pin_groups method but considers virtual pins rather than regular pins
+    def virtual_pin_groups(id = nil, options = {}, &_block)
       id, options = nil, id if id.is_a?(Hash)
       if id
-        pin = Origen.pin_bank.find(id, options.merge(utility_pin: true))
+        pin = Origen.pin_bank.find(id, options.merge(virtual_pin: true))
         unless pin
           puts <<-END
-You have tried to reference utility_pin_group :#{id} within #{self.class} but it does not exist, this could be
+You have tried to reference virtual_pin_group :#{id} within #{self.class} but it does not exist, this could be
 because the pin group has not been defined yet or it is an alias that is not available in the current context.
 
-If you meant to define the utility_pin_group then use the add_utility_pin_group method instead.
+If you meant to define the virtual_pin_group then use the add_virtual_pin_group method instead.
 
           END
           fail 'Utility pin group not found'
         end
         pin
       else
-        Origen.pin_bank.utility_pin_groups(options)
+        Origen.pin_bank.virtual_pin_groups(options)
       end
     end
-    alias_method :utility_pin_group, :utility_pin_groups
+    alias_method :virtual_pin_group, :virtual_pin_groups
 
     # Permits access via object.pin(x), returns a hash of all pins if no id
     # is specified.
@@ -643,8 +643,8 @@ If you meant to define the pin then use the add_pin method instead.
           Origen.pin_bank.power_pins
         elsif options[:ground_pin]
           Origen.pin_bank.ground_pins
-        elsif options[:utility_pin]
-          Origen.pin_bank.utility_pins
+        elsif options[:virtual_pin]
+          Origen.pin_bank.virtual_pins
         else
           Origen.pin_bank.pins
         end
@@ -670,11 +670,11 @@ If you meant to define the pin then use the add_pin method instead.
       pins(id, options, &block)
     end
 
-    # Equivalent to the pins method but considers utility pins rather than regular pins
-    def utility_pins(id = nil, options = {}, &block)
+    # Equivalent to the pins method but considers virtual pins rather than regular pins
+    def virtual_pins(id = nil, options = {}, &block)
       id, options = nil, id if id.is_a?(Hash)
       options = {
-        utility_pin: true
+        virtual_pin: true
       }.merge(options)
       pins(id, options, &block)
     end
