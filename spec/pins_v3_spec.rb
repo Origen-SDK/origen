@@ -728,36 +728,36 @@ describe "Origen Pin API v3" do
 
   end
 
-  describe "utility pins" do
+  describe "virtual pins" do
 
-    it "utility pins can be added" do
+    it "virtual pins can be added" do
       $dut.add_pin :pinx
       $dut.add_pin :piny
-      utility0 = $dut.add_utility_pin(:utility0, type: :utility_bit)
-      $dut.add_utility_pin(:utility1, type: :utility_bit)
-      $dut.add_utility_pin(:utility2, type: :ate_ch)
+      virtual0 = $dut.add_virtual_pin(:virtual0, type: :virtual_bit)
+      $dut.add_virtual_pin(:virtual1, type: :virtual_bit)
+      $dut.add_virtual_pin(:virtual2, type: :ate_ch)
       $dut.pins.size.should == 2
-      $dut.utility_pins.size.should == 3
-      $dut.utility_pins(:utility0).should == utility0
-      $dut.utility_pins(:utility0).type = :utility_bit
-      $dut.utility_pins(:utility2).type = :ate_ch
+      $dut.virtual_pins.size.should == 3
+      $dut.virtual_pins(:virtual0).should == virtual0
+      $dut.virtual_pins(:virtual0).type = :virtual_bit
+      $dut.virtual_pins(:virtual2).type = :ate_ch
     end
 
-    it "utility pin groups can be added" do
-      $dut.add_utility_pin(:utility1, type: :utility_bit)
-      $dut.add_utility_pin(:utility2, type: :utility_bit)
-      $dut.add_utility_pin(:utility3, type: :ate_ch)
-      $dut.add_utility_pin_group :utility, :utility1, :utility2, package: :p1
-      $dut.add_utility_pin_group :utility, :utility1, :utility2, :utility3, package: :p2
-      $dut.utility_pins.size.should == 3
-      $dut.utility_pin_groups.size.should == 0
-      $dut.utility_pin_groups(package: :p1).size.should == 1
+    it "virtual pin groups can be added" do
+      $dut.add_virtual_pin(:virtual1, type: :virtual_bit)
+      $dut.add_virtual_pin(:virtual2, type: :virtual_bit)
+      $dut.add_virtual_pin(:virtual3, type: :ate_ch)
+      $dut.add_virtual_pin_group :virtual, :virtual1, :virtual2, package: :p1
+      $dut.add_virtual_pin_group :virtual, :virtual1, :virtual2, :virtual3, package: :p2
+      $dut.virtual_pins.size.should == 3
+      $dut.virtual_pin_groups.size.should == 0
+      $dut.virtual_pin_groups(package: :p1).size.should == 1
       $dut.package = :p1
-      $dut.utility_pins(:utility).size.should == 2
-      $dut.utility_pin_groups.size.should == 1
+      $dut.virtual_pins(:virtual).size.should == 2
+      $dut.virtual_pin_groups.size.should == 1
       $dut.package = :p2
-      $dut.utility_pins(:utility).size.should == 3
-      $dut.utility_pin_groups.size.should == 1
+      $dut.virtual_pins(:virtual).size.should == 3
+      $dut.virtual_pin_groups.size.should == 1
     end
 
   end
