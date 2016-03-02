@@ -728,6 +728,40 @@ describe "Origen Pin API v3" do
 
   end
 
+  describe "virtual pins" do
+
+    it "virtual pins can be added" do
+      $dut.add_pin :pinx
+      $dut.add_pin :piny
+      virtual0 = $dut.add_virtual_pin(:virtual0, type: :virtual_bit)
+      $dut.add_virtual_pin(:virtual1, type: :virtual_bit)
+      $dut.add_virtual_pin(:virtual2, type: :ate_ch)
+      $dut.pins.size.should == 2
+      $dut.virtual_pins.size.should == 3
+      $dut.virtual_pins(:virtual0).should == virtual0
+      $dut.virtual_pins(:virtual0).type = :virtual_bit
+      $dut.virtual_pins(:virtual2).type = :ate_ch
+    end
+
+    it "virtual pin groups can be added" do
+      $dut.add_virtual_pin(:virtual1, type: :virtual_bit)
+      $dut.add_virtual_pin(:virtual2, type: :virtual_bit)
+      $dut.add_virtual_pin(:virtual3, type: :ate_ch)
+      $dut.add_virtual_pin_group :virtual, :virtual1, :virtual2, package: :p1
+      $dut.add_virtual_pin_group :virtual, :virtual1, :virtual2, :virtual3, package: :p2
+      $dut.virtual_pins.size.should == 3
+      $dut.virtual_pin_groups.size.should == 0
+      $dut.virtual_pin_groups(package: :p1).size.should == 1
+      $dut.package = :p1
+      $dut.virtual_pins(:virtual).size.should == 2
+      $dut.virtual_pin_groups.size.should == 1
+      $dut.package = :p2
+      $dut.virtual_pins(:virtual).size.should == 3
+      $dut.virtual_pin_groups.size.should == 1
+    end
+
+  end
+
   it "driving or asserting nil is the same as 0" do
     pin = $dut.add_pin :pinx
     pin.drive(1)
