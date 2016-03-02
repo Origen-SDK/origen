@@ -6,7 +6,7 @@
 ##### by Stephen McGinty on 02-Mar-2016 03:53AM
 
 
-* #32 - Added API to add virtual pins to a model (Aaron Burgmeier)
+* \#32 - Added API to add virtual pins to a model (Aaron Burgmeier)
 
 ~~~ruby
  $dut.add\_pin :pinx
@@ -28,7 +28,7 @@
  $dut.virtual\_pins(:virtual).size   # => 3
 ~~~
 
-* #33 - Fix issue if a global variable is nil in spec model (David Welguisz)
+* \#33 - Fix issue if a global variable is nil in spec model (David Welguisz)
 
 <a class="anchor release_tag" name="v0_6_5"></a>
 <h1><a href="#v0_6_5">Tag: v0.6.5</a></h1>
