@@ -1,3 +1,35 @@
+<a class="anchor release_tag" name="v0_6_6"></a>
+<h1><a href="#v0_6_6">Tag: v0.6.6</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 02-Mar-2016 03:53AM
+
+
+* #32 - Added API to add virtual pins to a model (Aaron Burgmeier)
+
+~~~ruby
+ $dut.add\_pin :pinx
+ $dut.add\_pin :piny
+ $dut.add\_virtual\_pin(:virtual1, type: :virtual\_bit)
+ $dut.add\_virtual\_pin(:virtual2, type: :virtual\_bit)
+ $dut.add\_virtual\_pin(:virtual3, type: :ate\_ch)
+ $dut.pins.size          # => 2
+ $dut.virtual\_pins.size  # => 3
+ $dut.virtual\_pins(:virtual1).type # => :virtual\_bit
+ 
+ $dut.add\_virtual\_pin\_group :virtual, :virtual1, :virtual2, package: :p1
+ $dut.add\_virtual\_pin\_group :virtual, :virtual1, :virtual2, :virtual3, package: :p2
+ $dut.virtual\_pin\_groups.size                # => 0
+ $dut.virtual\_pin\_groups(package: :p1).size  # => 1
+ $dut.package = :p1
+ $dut.virtual\_pins(:virtual).size   # => 2
+ $dut.package = :p2
+ $dut.virtual\_pins(:virtual).size   # => 3
+~~~
+
+* #33 - Fix issue if a global variable is nil in spec model (David Welguisz)
+
 <a class="anchor release_tag" name="v0_6_5"></a>
 <h1><a href="#v0_6_5">Tag: v0.6.5</a></h1>
 
