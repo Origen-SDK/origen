@@ -610,11 +610,11 @@ module Origen
     end
 
     # Return a hash based on the filter provided
-    def filter_hash(hash, filter)
+    def filter_hash(hash, filter, debug = false)
       fail 'Hash argument is not a Hash!' unless hash.is_a? Hash
       filtered_hash = {}
       select_logic = case filter
-        when String then 'k[Regexp.new(filter)] && k.length == filter.length unless k.nil?'
+        when String then 'k.nil? ? false : k[Regexp.new(filter)] && k.length == filter.length'
         when (Fixnum || Integer || Float || Numeric) then "k[Regexp.new('#{filter}')]"
         when Regexp then 'k[filter]'
         when Symbol then

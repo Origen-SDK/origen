@@ -410,23 +410,22 @@ describe "Origen Specs Module" do
     get_true_hash_size(@ip.documentations(section: 'Section 3'), Origen::Specs::Documentation).should == 3
     @ip.documentations(section: 'Section 4').should == nil
     get_true_hash_size(@ip.documentations(subsection: 'SubSection A'), Origen::Specs::Documentation).should == 3
-    #get_true_hash_size(@ip.documentations(subsection: 'SubSection B'), Origen::Specs::Documentation).should == 3
-    #get_true_hash_size(@ip.documentations(subsection: 'SubSection C'), Origen::Specs::Documentation).should == 2
-    #get_true_hash_size(@ip.documentations(subsection: 'SubSection D'), Origen::Specs::Documentation).should == 1
-    #@ip.documentations(subsection: 'SubSection E').should == nil
-    #get_true_hash_size(@ip.documentations(interface: 'SoC'), Origen::Specs::Documentation).should == 3
-    #get_true_hash_size(@ip.documentations(interface: 'Block A'), Origen::Specs::Documentation).should == 4
-    #get_true_hash_size(@ip.documentations(interface: 'Block B'), Origen::Specs::Documentation).should == 3
-    #@ip.documentations(interface: 'Block C').should == nil
-    #@ip.documentations(interface: 'Block B', type: :supply, audience: :external).link.should == 'http://link_to_section3c.xml'
-    #@ip.delete_all_documentation
-    #@ip.documentations.should == nil
-    #documentation({section: 'Section 1', subsection: 'SubSection B'}, {interface: 'SoC', type: :supply, subtype: :abs_max_ratings, mode: nil, audience: :external}, nil)
-    #documentation({section: 'Section 2', subsection: 'SubSection A'}, {interface: 'Block A', type: :dc, subtype: :V3p3V, mode: nil, audience: :internal}, nil)
-    #documentation({section: 'Section 2', subsection: 'SubSection B'}, {interface: 'Block A', type: :supply, subtype: nil, mode: nil, audience: :external}, 'http://link_to_section2b.xml')
-    #get_true_hash_size(@ip.documentations, Origen::Specs::Documentation).should == 3
-    #get_true_hash_size(@ip.documentations(section: 'Section 1'), Origen::Specs::Documentation).should == 1
-    #get_true_hash_size(@ip.documentations(section: 'Section 2'), Origen::Specs::Documentation).should == 2
+    get_true_hash_size(@ip.documentations(subsection: 'SubSection B'), Origen::Specs::Documentation).should == 3
+    get_true_hash_size(@ip.documentations(subsection: 'SubSection C'), Origen::Specs::Documentation).should == 2
+    get_true_hash_size(@ip.documentations(subsection: 'SubSection D'), Origen::Specs::Documentation).should == 1
+    @ip.documentations(subsection: 'SubSection E').should == nil
+    get_true_hash_size(@ip.documentations(interface: 'SoC'), Origen::Specs::Documentation).should == 3
+    get_true_hash_size(@ip.documentations(interface: 'Block A'), Origen::Specs::Documentation).should == 4
+    get_true_hash_size(@ip.documentations(interface: 'Block B'), Origen::Specs::Documentation).should == 3
+    @ip.documentations(interface: 'Block C').should == nil
+    @ip.delete_all_documentation
+    @ip.documentations.should == nil
+    @ip.documentation({section: 'Section 1', subsection: 'SubSection B'}, {interface: 'SoC', type: :supply, subtype: :abs_max_ratings, mode: nil, audience: :external}, nil)
+    @ip.documentation({section: 'Section 2', subsection: 'SubSection A'}, {interface: 'Block A', type: :dc, subtype: :V3p3V, mode: nil, audience: :internal}, nil)
+    @ip.documentation({section: 'Section 2', subsection: 'SubSection B'}, {interface: 'Block A', type: :supply, subtype: nil, mode: nil, audience: :external}, 'http://link_to_section2b.xml')
+    get_true_hash_size(@ip.documentations, Origen::Specs::Documentation).should == 3
+    get_true_hash_size(@ip.documentations(section: 'Section 1'), Origen::Specs::Documentation).should == 1
+    get_true_hash_size(@ip.documentations(section: 'Section 2'), Origen::Specs::Documentation).should == 2
   end
     
 end
