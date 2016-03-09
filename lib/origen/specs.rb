@@ -10,10 +10,11 @@ module Origen
     autoload :Version_History, 'origen/specs/version_history.rb'
     autoload :Creation_Info, 'origen/specs/creation_info.rb'
     autoload :Spec_Features, 'origen/specs/spec_features.rb'
+    autoload :Documentation, 'origen/specs/documentation.rb'
     require 'origen/specs/checkers'
     include Checkers
 
-    attr_accessor :_specs, :_notes, :_exhibits, :_doc_resources, :_overrides, :_power_supplies, :_mode_selects, :_version_history, :_creation_info, :_spec_features
+    attr_accessor :_specs, :_notes, :_exhibits, :_doc_resources, :_overrides, :_power_supplies, :_mode_selects, :_version_history, :_creation_info, :_spec_features, :_documentation
 
     # Detailed description for the ip block
     attr_accessor :description
@@ -129,6 +130,13 @@ module Origen
       !!show_specs(options)
     end
 
+    # Adds a new documentation notion to the block 
+    def documentation(header_info, selection,  link)
+      _documentation
+      # Create a new documenation and place it in the 5-D hash
+      @_documentation[header_info[:section]][header_info[:subsection]][selection[:interface]][selection[:type]][selection[:subtype]][selection[:mode]][selection[:audience]] = Documentation.new(header_info, selection, link)
+    end
+    
     # Adds a new feature to the block
     def spec_feature(id, attrs, device, text, internal_comment)
       # Welguisz:  No idea why this is here, but keeping it here because it follows other blocks
@@ -324,6 +332,53 @@ module Origen
       end
     end
 
+    def documentations(options = {})
+      options = {
+        section:    nil,
+        subsection: nil,
+        interface:  nil,
+        mode:       nil,
+        type:       nil,
+        sub_type:   nil,
+        audience:   nil
+      }.update(options)
+      return nil if @_documentation.nil?
+      return nil if @_documentation.empty?
+      doc_found = Hash.new do |h, k|
+        h[k] = Hash.new do |hh, kk|
+          hh[kk] = Hash.new do |hhh, kkk|
+            hhh[kkk] = Hash.new do |hhhh, kkkk|
+              hhhh[kkkk] = Hash.new do |hhhhh, kkkkk|
+                hhhhh[kkkkk] = Hash.new do |hhhhhh, kkkkkk|
+                  hhhhhh[kkkkkk] = {}
+                end
+              end
+            end
+          end
+        end
+      end
+      filter_hash(@_documentation, options[:section]).each do |_section, hash|
+        filter_hash(hash, options[:subsection]).each do |_subsection, hash_|
+          filter_hash(hash_, options[:interface]).each do |_interface, hash__|
+            filter_hash(hash__, options[:mode]).each do |_mode, hash___|
+              filter_hash(hash___, options[:type]).each do |_type, hash____|
+                filter_hash(hash____, options[:sub_type]).each do |_sub_type, hash_____|
+                  filter_hash(hash_____, options[:audience]).each do |_audience, doc|
+                    doc_found[_section][_subsection][_interface][_mode][_type][_sub_type][_audience] = doc
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+      if doc_found.empty?
+        return nil
+      else
+        return doc_found
+      end
+    end
+    
     def overrides(options = {})
       options = {
         block:    nil,
@@ -455,6 +510,10 @@ module Origen
     def delete_spec_features
       @_spec_features = nil
     end
+    
+    def delete_all_documentation
+      @_documentation = nil
+    end
 
     private
 
@@ -500,6 +559,22 @@ module Origen
       end
     end
 
+    def _documentation
+      @_documentation ||= Hash.new do |h, k|
+        h[k] = Hash.new do |hh, kk|
+          hh[kk] = Hash.new do |hhh, kkk|
+            hhh[kkk] = Hash.new do |hhhh, kkkk|
+              hhhh[kkkk] = Hash.new do |hhhhh, kkkkk|
+                hhhhh[kkkkk] = Hash.new do |hhhhhh, kkkkkk|
+                  hhhhhh[kkkkkk] = {}
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+
     def _overrides
       @_overrides ||= Hash.new do |h, k|
         h[k] = Hash.new do |hh, kk|
@@ -539,7 +614,7 @@ module Origen
       fail 'Hash argument is not a Hash!' unless hash.is_a? Hash
       filtered_hash = {}
       select_logic = case filter
-        when String then 'k[Regexp.new(filter)] && k.length == filter.length'
+        when String then 'k[Regexp.new(filter)] && k.length == filter.length unless k.nil?'
         when (Fixnum || Integer || Float || Numeric) then "k[Regexp.new('#{filter}')]"
         when Regexp then 'k[filter]'
         when Symbol then
@@ -549,6 +624,7 @@ module Origen
       end
       # rubocop:disable UnusedBlockArgument
       filtered_hash = hash.select do |k, v|
+        #binding.pry if filter == 'SubSection A'
         [TrueClass, FalseClass].include?(select_logic.class) ? select_logic : eval(select_logic)
       end
       filtered_hash
