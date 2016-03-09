@@ -222,6 +222,39 @@ ground_pin_groups.each do |id, group|
 end
 ~~~
   
+#### Virtual Pin Modelling
+
+The API supports modelling virtual pins.  Virtual pins are essentially user-defined pins that may not necessarily be
+associated with the SoC, such as:
+  *  Tester utility pins that control relay states on the device interface board (DIB)
+  *  Tester channels to control components on the DIB
+
+~~~ruby
+add_virtual_pin(:virtual1, type: :utility_pin)
+add_virtual_pin(:virtual2, type: :utility_pin)
+add_virtual_pin(:virtual3, type: :relay_pin)
+
+add_virtual_pin_group :utility, :virtual1, :virtual2
+add_virtual_pin_group :relay, :relay_pin
+~~~
+
+This will cause these pins to be stored in separate collections to make content generation easier:
+
+~~~ruby
+# Based on the above example
+virtual_pins.size           # => 3
+~~~
+
+Virtual pin lookup should be done via a dedicated method:
+
+~~~ruby
+virtual_pin(:virtual1)
+
+virtual_pin_groups.each do |id, group|
+  # Do this for each virtual pin group
+end
+~~~
+  
 #### Changing Data State
 
 See the [Pin API](<%= path "/api/Origen/Pins/Pin.html" %>)
