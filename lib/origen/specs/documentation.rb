@@ -2,12 +2,11 @@ module Origen
   module Specs
     # This class is used to store documentation map that the user can change
     class Documentation
-      
       # This is the Section Header for the Documentation Map.  Usually these are main headers
       # Examples:
       #  I. Overall DC Electricals
       #  II. General AC Charactertistics
-      #  III. Power Sequencing 
+      #  III. Power Sequencing
       attr_accessor :section
 
       # This is the subsection header for the Documentation Map.  These are found under main headers
@@ -20,7 +19,7 @@ module Origen
 
       # Exhibit References that should be referenced within the table title
       attr_accessor :interface
-      
+
       # Mode is part of the 4-D Hash for the Tables.  Corresponds to Spec 4-D Hash
       attr_accessor :mode
 
@@ -53,7 +52,6 @@ module Origen
         @audience = selection[:audience]
         @link = link
       end
-
     end
   end
 end

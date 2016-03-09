@@ -130,13 +130,13 @@ module Origen
       !!show_specs(options)
     end
 
-    # Adds a new documentation notion to the block 
+    # Adds a new documentation notion to the block
     def documentation(header_info, selection,  link)
       _documentation
       # Create a new documenation and place it in the 5-D hash
       @_documentation[header_info[:section]][header_info[:subsection]][selection[:interface]][selection[:type]][selection[:subtype]][selection[:mode]][selection[:audience]] = Documentation.new(header_info, selection, link)
     end
-    
+
     # Adds a new feature to the block
     def spec_feature(id, attrs, device, text, internal_comment)
       # Welguisz:  No idea why this is here, but keeping it here because it follows other blocks
@@ -378,7 +378,7 @@ module Origen
         return doc_found
       end
     end
-    
+
     def overrides(options = {})
       options = {
         block:    nil,
@@ -510,7 +510,7 @@ module Origen
     def delete_spec_features
       @_spec_features = nil
     end
-    
+
     def delete_all_documentation
       @_documentation = nil
     end
@@ -624,7 +624,7 @@ module Origen
       end
       # rubocop:disable UnusedBlockArgument
       filtered_hash = hash.select do |k, v|
-        #binding.pry if filter == 'SubSection A'
+        # binding.pry if filter == 'SubSection A'
         [TrueClass, FalseClass].include?(select_logic.class) ? select_logic : eval(select_logic)
       end
       filtered_hash
