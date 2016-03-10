@@ -326,11 +326,11 @@ module Origen
 
       def assert(value, options = {})
         each_with_index do |pin, i|
-          if !value.respond_to?('is_to_be_read?') or value[i].is_to_be_read?
-              value = value.data if value.respond_to?('data')
-              pin.assert(value[size - i - 1], options)
+          if !value.respond_to?('is_to_be_read?') || value[i].is_to_be_read?
+            value = value.data if value.respond_to?('data')
+            pin.assert(value[size - i - 1], options)
           else
-              pin.dont_care
+            pin.dont_care
           end
         end
         self
