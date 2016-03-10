@@ -1,3 +1,15 @@
+<a class="anchor release_tag" name="v0_6_7"></a>
+<h1><a href="#v0_6_7">Tag: v0.6.7</a></h1>
+
+##### Branch: 'master'
+
+##### by Kumar Priyavadan-B21094 on 10-Mar-2016 16:57PM
+
+
+New Class for Specs Documentation - David Welguisz
+Respect masking in pin collections - Chris Nappi
+Added spec tests for masking in pin collections - Chris Nappi
+
 <a class="anchor release_tag" name="v0_6_6"></a>
 <h1><a href="#v0_6_6">Tag: v0.6.6</a></h1>
 
