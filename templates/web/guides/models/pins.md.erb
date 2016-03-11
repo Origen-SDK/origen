@@ -226,8 +226,9 @@ end
 
 The API supports modelling virtual pins.  Virtual pins are essentially user-defined pins that may not necessarily be
 associated with the SoC, such as:
-  *  Tester utility pins that control relay states on the device interface board (DIB)
-  *  Tester channels to control components on the DIB
+
+*  Tester utility pins that control relay states on the device interface board (DIB)
+*  Tester channels to control components on the DIB
 
 ~~~ruby
 add_virtual_pin(:virtual1, type: :utility_pin)
