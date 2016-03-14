@@ -88,7 +88,7 @@ module Origen
           git("checkout #{local_rev} -- #{paths.join(' ')}", check_errors: false)
           # Then proceed with checking them in as latest
         else
-          checkout unless options[:initial]
+          checkout options unless options[:initial]
         end
         cmd = 'add'
         if options[:unmanaged]
