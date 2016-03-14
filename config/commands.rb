@@ -41,13 +41,12 @@ when "examples", "test"
 when "regression"
   # You must tell the regression manager up front what target will be run within
   # the block
-  options[:targets] = %w(debug v93k jlink bdm)
+  options[:targets] = %w(debug v93k jlink)
   Origen.regression_manager.run(options) do |options|
     Origen.lsf.submit_origen_job "generate j750.list -t debug --plugin origen_core_support"
     Origen.lsf.submit_origen_job "generate v93k_workout -t v93k --plugin none"
     Origen.lsf.submit_origen_job "generate dummy_name port -t debug --plugin none"
     Origen.lsf.submit_origen_job "generate jlink.list -t jlink --plugin none"
-    Origen.lsf.submit_origen_job "generate bdm.list -t bdm --plugin none"
     Origen.lsf.submit_origen_job "compile templates/test/set3 -t debug --plugin none"
     Origen.lsf.submit_origen_job "compile templates/test/inspections.txt.erb -t debug --plugin none"
     Origen.lsf.submit_origen_job "program program -t debug --plugin none"

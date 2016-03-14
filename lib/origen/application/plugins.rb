@@ -35,6 +35,7 @@ module Origen
 
       # Returns the current plugin's application instance
       def current
+        return nil if @temporary == :none
         return nil if @disabled
         name = @temporary || @current ||= Origen.app.session.origen_core[:default_plugin]
         find { |p| p.name.to_sym == name } if name
@@ -52,11 +53,7 @@ module Origen
 
       def temporary=(name)
         name = name.to_sym if name
-        if name == :none
-          @temporary = nil
-        else
-          @temporary = name
-        end
+        @temporary = name
       end
 
       # Temporarily set the current plugin to nil

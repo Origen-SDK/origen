@@ -168,6 +168,13 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
           end
         end
         if result
+          # This is a shim to help NXP run regression tests between an old version of an app running
+          # RGen and a new version running Origen
+          origen = File.join(ENV['BUNDLE_BIN'], "origen")
+          rgen = File.join(ENV['BUNDLE_BIN'], "rgen")
+          if File.exist?(rgen) && !File.exist?(origen) && Origen.os.linux?
+            exec "ln -s #{rgen} #{origen}"
+          end
           exec "origen #{ARGV.join(' ')}"
           exit 0
         else
