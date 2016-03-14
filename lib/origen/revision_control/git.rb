@@ -314,6 +314,7 @@ module Origen
         unless initialized?
           Origen.log.debug "Initializing Git workspace at #{local}"
           git 'init'
+          git 'remote remove origin', verbose: false, check_errors: false
           git "remote add origin #{remote}"
         end
       end

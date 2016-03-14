@@ -1,3 +1,35 @@
+<a class="anchor release_tag" name="v0_6_9"></a>
+<h1><a href="#v0_6_9">Tag: v0.6.9</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 14-Mar-2016 13:05PM
+
+
+Patches to regression command
+
+<a class="anchor release_tag" name="v0_6_8"></a>
+<h1><a href="#v0_6_8">Tag: v0.6.8</a></h1>
+
+##### Branch: 'master'
+
+##### by Kumar Priyavadan-B21094 on 10-Mar-2016 17:08PM
+
+
+Updates to Virtual pin model - Aaron Burgmeier
+
+<a class="anchor release_tag" name="v0_6_7"></a>
+<h1><a href="#v0_6_7">Tag: v0.6.7</a></h1>
+
+##### Branch: 'master'
+
+##### by Kumar Priyavadan-B21094 on 10-Mar-2016 16:57PM
+
+
+* New Class for Specs Documentation - David Welguisz
+* Respect masking in pin collections - Chris Nappi
+* Added spec tests for masking in pin collections - Chris Nappi
+
 <a class="anchor release_tag" name="v0_6_6"></a>
 <h1><a href="#v0_6_6">Tag: v0.6.6</a></h1>
 
@@ -6,7 +38,7 @@
 ##### by Stephen McGinty on 02-Mar-2016 03:53AM
 
 
-* #32 - Added API to add virtual pins to a model (Aaron Burgmeier)
+* \#32 - Added API to add virtual pins to a model (Aaron Burgmeier)
 
 ~~~ruby
  $dut.add\_pin :pinx
@@ -28,7 +60,7 @@
  $dut.virtual\_pins(:virtual).size   # => 3
 ~~~
 
-* #33 - Fix issue if a global variable is nil in spec model (David Welguisz)
+* \#33 - Fix issue if a global variable is nil in spec model (David Welguisz)
 
 <a class="anchor release_tag" name="v0_6_5"></a>
 <h1><a href="#v0_6_5">Tag: v0.6.5</a></h1>

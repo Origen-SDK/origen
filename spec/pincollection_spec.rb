@@ -127,6 +127,17 @@ describe 'Origen PinCollection API v3' do
       $dut.pin_group(:pdata).expect_lo
       $dut.pin(:pdata).data.should            == 0
       $dut.pin(:pdata)[-1].comparing?.should  == true
+      $dut.add_reg :test, 0x0, 8, data: {pos:0, bits: 8}
+      $dut.test.read(0xFF, mask:0x0F)
+      $dut.pin(:pdata).assert!($dut.reg(:test))
+      $dut.pin(:pdata)[0].state.should == :compare
+      $dut.pin(:pdata)[1].state.should == :compare
+      $dut.pin(:pdata)[2].state.should == :compare
+      $dut.pin(:pdata)[3].state.should == :compare
+      $dut.pin(:pdata)[4].state.should == :dont_care
+      $dut.pin(:pdata)[5].state.should == :dont_care
+      $dut.pin(:pdata)[6].state.should == :dont_care
+      $dut.pin(:pdata)[7].state.should == :dont_care
     end
 
     it 'dont_care method works' do

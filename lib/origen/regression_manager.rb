@@ -54,9 +54,10 @@ module Origen
           # Generate the reference files
           save_options(options)
           Origen.with_origen_root(reference_origen_root) do
-            Origen.with_disable_origen_version_check(all_processes: true) do
+            disable_origen_version_check do
               Dir.chdir reference_origen_root do
                 Bundler.with_clean_env do
+                  system 'rm -rf lbin'
                   system 'origen -v'  # Used to make sure gems install
                   Origen.log.info '######################################################'
                   Origen.log.info 'running regression command in reference workspace...'
@@ -82,6 +83,16 @@ module Origen
         unless Origen.app.stats.clean_run?
           exit 1
         end
+      end
+    end
+
+    def disable_origen_version_check
+      if Origen.respond_to?(:with_disable_origen_version_check)
+        Origen.with_disable_origen_version_check(all_processes: true) do
+          yield
+        end
+      else
+        yield
       end
     end
 
@@ -243,7 +254,15 @@ module Origen
       if version.downcase == 'last'
         Origen.app.version_tracker.versions.last
       elsif version.downcase == 'latest'
-        version
+        if Origen.app.rc.git?
+          if Origen.app.config.rc_workflow == :gitflow
+            'develop'
+          else
+            'master'
+          end
+        else
+          version
+        end
       else
         version
       end
