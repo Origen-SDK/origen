@@ -165,8 +165,16 @@ class IP_With_Specs
     creation_info('Jim Smith', '22 Mar 2015', '1.0', {source: 'block-ref-i2c', ip_block_name: :i2c, revision: 'c'}, {tool: 'ISC App', version: '0.7.5'})
     creation_info('Jim Smith', '29 Apr 2015', '1.0', {source: 'block-ref-ifc', ip_block_name: :ifc, revision: 'g'}, {tool: 'ISC App', version: '0.7.5'})
     creation_info('Jim Smith', '4 Jun 2015', '1.0', {source: 'block-ref-esdhc', ip_block_name: :esdhc, revision: 'b'}, {tool: 'ISC App', version: '0.7.5'})
-
-    
+    documentation({section: 'Section 1', subsection: nil}, {interface: 'SoC', type: nil, subtype: nil, mode: nil, audience: :external}, nil)
+    documentation({section: 'Section 1', subsection: 'SubSection A'}, {interface: 'SoC', type: :dc, subtype: nil, mode: nil, audience: :external}, 'http://link_to_section1a.xml')
+    documentation({section: 'Section 1', subsection: 'SubSection B'}, {interface: 'SoC', type: :supply, subtype: :abs_max_ratings, mode: nil, audience: :external}, nil)
+    documentation({section: 'Section 2', subsection: 'SubSection A'}, {interface: 'Block A', type: :dc, subtype: :V3p3V, mode: nil, audience: :internal}, nil)
+    documentation({section: 'Section 2', subsection: 'SubSection B'}, {interface: 'Block A', type: :supply, subtype: nil, mode: nil, audience: :external}, 'http://link_to_section2b.xml')
+    documentation({section: 'Section 2', subsection: 'SubSection C'}, {interface: 'Block A', type: :power, subtype: nil, mode: nil, audience: :external}, 'http://link_to_section2c.xml')
+    documentation({section: 'Section 2', subsection: 'SubSection D'}, {interface: 'Block A', type: :impedance, subtype: nil, mode: nil, audience: :external}, 'http://link_to_section2d.xml')
+    documentation({section: 'Section 3', subsection: 'SubSection A'}, {interface: 'Block B', type: :ac, subtype: nil, mode: nil, audience: :external}, nil)
+    documentation({section: 'Section 3', subsection: 'SubSection B'}, {interface: 'Block B', type: :dc, subtype: :V3p3V, mode: nil, audience: :internal}, 'http://link_to_section3b.xml')
+    documentation({section: 'Section 3', subsection: 'SubSection C'}, {interface: 'Block B', type: :supply, subtype: nil, mode: nil, audience: :external}, 'http://link_to_section3c.xml')    
   end
 end
 
@@ -393,6 +401,31 @@ describe "Origen Specs Module" do
     @ip.mode_select({name: :ddr, ds_header: 'DDR Controller', usage: true, location: 'path'}, {mode: :ddr_ddr3, supported: true}, {supply: 'G1VDD', voltage_level: '1.35V', use_diff: true})
     @ip.mode_select({name: :ifc1, ds_header: 'IFC', usage: true, location: 'path'}, {mode: :ifc1_nand, supported: true}, {supply: 'OVDD', voltage_level: '3.0V', use_diff: true})
     get_true_hash_size(@ip.mode_selects, Origen::Specs::Mode_Select).should == 2
+  end
+  
+  it "can see sub_block documentation" do
+    get_true_hash_size(@ip.documentations, Origen::Specs::Documentation).should == 10
+    get_true_hash_size(@ip.documentations(section: 'Section 1'), Origen::Specs::Documentation).should == 3
+    get_true_hash_size(@ip.documentations(section: 'Section 2'), Origen::Specs::Documentation).should == 4
+    get_true_hash_size(@ip.documentations(section: 'Section 3'), Origen::Specs::Documentation).should == 3
+    @ip.documentations(section: 'Section 4').should == nil
+    get_true_hash_size(@ip.documentations(subsection: 'SubSection A'), Origen::Specs::Documentation).should == 3
+    get_true_hash_size(@ip.documentations(subsection: 'SubSection B'), Origen::Specs::Documentation).should == 3
+    get_true_hash_size(@ip.documentations(subsection: 'SubSection C'), Origen::Specs::Documentation).should == 2
+    get_true_hash_size(@ip.documentations(subsection: 'SubSection D'), Origen::Specs::Documentation).should == 1
+    @ip.documentations(subsection: 'SubSection E').should == nil
+    get_true_hash_size(@ip.documentations(interface: 'SoC'), Origen::Specs::Documentation).should == 3
+    get_true_hash_size(@ip.documentations(interface: 'Block A'), Origen::Specs::Documentation).should == 4
+    get_true_hash_size(@ip.documentations(interface: 'Block B'), Origen::Specs::Documentation).should == 3
+    @ip.documentations(interface: 'Block C').should == nil
+    @ip.delete_all_documentation
+    @ip.documentations.should == nil
+    @ip.documentation({section: 'Section 1', subsection: 'SubSection B'}, {interface: 'SoC', type: :supply, subtype: :abs_max_ratings, mode: nil, audience: :external}, nil)
+    @ip.documentation({section: 'Section 2', subsection: 'SubSection A'}, {interface: 'Block A', type: :dc, subtype: :V3p3V, mode: nil, audience: :internal}, nil)
+    @ip.documentation({section: 'Section 2', subsection: 'SubSection B'}, {interface: 'Block A', type: :supply, subtype: nil, mode: nil, audience: :external}, 'http://link_to_section2b.xml')
+    get_true_hash_size(@ip.documentations, Origen::Specs::Documentation).should == 3
+    get_true_hash_size(@ip.documentations(section: 'Section 1'), Origen::Specs::Documentation).should == 1
+    get_true_hash_size(@ip.documentations(section: 'Section 2'), Origen::Specs::Documentation).should == 2
   end
     
 end

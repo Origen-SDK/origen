@@ -243,7 +243,15 @@ module Origen
       if version.downcase == 'last'
         Origen.app.version_tracker.versions.last
       elsif version.downcase == 'latest'
-        version
+        if Origen.app.rc.git?
+          if Origen.app.config.rc_workflow == :gitflow
+            'develop'
+          else
+            'master'
+          end
+        else
+          version
+        end
       else
         version
       end
