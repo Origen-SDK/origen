@@ -4,6 +4,7 @@ describe "The plugins API" do
 
   before :all do
     Origen.load_target("debug")
+    Origen.app.plugins.temporary = nil
   end
 
   it "returns an enhanced array containing all plugin app instances" do

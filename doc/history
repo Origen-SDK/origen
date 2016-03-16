@@ -1,3 +1,23 @@
+<a class="anchor release_tag" name="v0_6_11"></a>
+<h1><a href="#v0_6_11">Tag: v0.6.11</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 16-Mar-2016 05:38AM
+
+
+Patch to the regression command to enable regressions vs. NXP RGen v2
+
+<a class="anchor release_tag" name="v0_6_10"></a>
+<h1><a href="#v0_6_10">Tag: v0.6.10</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 15-Mar-2016 04:29AM
+
+
+No changes vs. 0.6.9, but releasing a new version of the gem to fix a Rubygems build error
+
 <a class="anchor release_tag" name="v0_6_9"></a>
 <h1><a href="#v0_6_9">Tag: v0.6.9</a></h1>
 
