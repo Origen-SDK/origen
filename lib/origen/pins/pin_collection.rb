@@ -329,7 +329,7 @@ module Origen
           if !value.respond_to?('data')
             pin.assert(value[size - i - 1], options)
           elsif value[size - i - 1].is_to_be_read?
-            pin.assert(value.data[size - i - 1], options)
+            pin.assert(value[size - i - 1].data, options)
           else
             pin.dont_care
           end
