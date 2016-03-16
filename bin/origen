@@ -195,6 +195,19 @@ else
   require "origen"
 end
 
+# This is a shim to help NXP run regression tests between an old version of an app running
+# RGen and a new version running Origen
+# If RGen < 3 is present then abort the process here and execute the rgen bin file instead
+begin
+  require "rgen"
+  if RGen.version.major == 2
+    exec Gem.ruby, "#{RGen.top}/bin/rgen", *ARGV
+    exit 0
+  end
+rescue LoadError
+  # No problem, RGen not present
+end
+
 begin
   # If this script has been invoked from within an Origen application then open
   # up all commands, if not then only allow the command to create a new Origen

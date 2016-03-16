@@ -58,12 +58,12 @@ module Origen
               Dir.chdir reference_origen_root do
                 Bundler.with_clean_env do
                   system 'rm -rf lbin'
-                  system 'origen -v'  # Used to make sure gems install
+                  system 'bundle exec origen -v'  # Used to make sure gems install
                   Origen.log.info '######################################################'
                   Origen.log.info 'running regression command in reference workspace...'
                   Origen.log.info '######################################################'
                   Origen.log.info
-                  system 'origen regression'
+                  system 'bundle exec origen regression'
                 end
               end
             end
@@ -121,7 +121,7 @@ module Origen
       Origen.log.flush
       Dir.chdir reference_origen_root do
         Bundler.with_clean_env do
-          system 'origen save all'
+          system 'bundle exec origen save all'
         end
       end
       FileUtils.rm_rf "#{reference_origen_root}/output"
