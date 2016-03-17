@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_6_12"></a>
+<h1><a href="#v0_6_12">Tag: v0.6.12</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 17-Mar-2016 11:54AM
+
+
+* Add the ability to have a spec hidden based off of the License Plate (David Welguisz)
+* Tweak to avoid reg->data conversion in pin group assert method (Chris Nappi)
+
 <a class="anchor release_tag" name="v0_6_11"></a>
 <h1><a href="#v0_6_11">Tag: v0.6.11</a></h1>
 
