@@ -35,6 +35,7 @@ module Origen
         constraints:                SpecAttribute.new(:constraints, String, false, :design, "Single logical expression or a CSV list of logical expressions required for the spec to be valid (e.g. 'GVDD == 1.2V'"),
         limit_type:                 SpecAttribute.new(:limit_type, Symbol, false, :design, 'Auto-generated attribute based on analysis of the spec limits. Acceptable values are :single_sided and :double_sided'),
         notes:                      SpecAttribute.new(:notes, Hash, false, :design, 'Specification notes'),
+        hidespec:                   SpecAttribute.new(:hidespec, [String, Array], false, :design, 'Add the ability to hide specs based off license plate'),
         disposition_required:       SpecAttribute.new(:disposition_required, TrueClass, false, :pde, 'Boolean representation of whether a specification needs a disposition based on silicon results or customer input'),
         priority:                   SpecAttribute.new(:priority, TrueClass, false, :pde, 'Integer value (1-4) to indicate which priority the cz for this spec will be:  1. Highest priority, for critical or historically risky specs   2. Medium priority, relatively low risk. Not required until all priority 1 specs have been handled  3. Lowest priority, very low risk, low performance specs  4. No plans to characterize'),
         target:                     SpecAttribute.new(:target, String, false, :pde, 'Specification target limit.  Not used for pass/fail results but for data analysis'),

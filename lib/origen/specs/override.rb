@@ -2,7 +2,7 @@ module Origen
   module Specs
     # This class is used to store override information for specified specs on instantiated IP
     class Override
-      attr_accessor :block, :usage, :spec_ref, :mode_ref, :sub_type, :audience, :minimum, :maximum, :typical, :disable
+      attr_accessor :block, :usage, :spec_ref, :mode_ref, :sub_type, :audience, :minimum, :maximum, :typical, :disable, :hidespec
 
       def initialize(block_options = {}, find_spec = {}, values = {}, options = {})
         @block = block_options[:block]
@@ -15,6 +15,7 @@ module Origen
         @maximum = values[:max]
         @typical = values[:typ]
         @disable = options[:disable]
+        @hidespec = options[:hidespec]
       end
     end
   end
