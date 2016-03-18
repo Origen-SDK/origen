@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_7_0"></a>
+<h1><a href="#v0_7_0">Tag: v0.7.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 18-Mar-2016 05:44AM
+
+
+Updated hard dependency on nokogiri to the latest version, this is to support latest
+Ruby on Windows, but also the latest nokogiri seems easier to build.
+
 <a class="anchor release_tag" name="v0_6_12"></a>
 <h1><a href="#v0_6_12">Tag: v0.6.12</a></h1>
 
