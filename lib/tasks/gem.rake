@@ -24,7 +24,7 @@ namespace 'gem' do
       if Origen.app.config.release_externally
         cmd = "gem push #{built_gem_path}"
       else
-        cmd = "gem push --host #{Origen.site_config.gem_server!} #{built_gem_path}"
+        cmd = "gem inabox --host #{Origen.site_config.gem_server!} #{built_gem_path}"
       end
       sh(cmd) do |ok, _res|
         if ok
