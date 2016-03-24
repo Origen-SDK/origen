@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_7_1"></a>
+<h1><a href="#v0_7_1">Tag: v0.7.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 24-Mar-2016 10:36AM
+
+
+Reinstated use of geminabox to push internal gems, turned out to be required for some
+users
+
 <a class="anchor release_tag" name="v0_7_0"></a>
 <h1><a href="#v0_7_0">Tag: v0.7.0</a></h1>
 
