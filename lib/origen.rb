@@ -3,6 +3,7 @@
 unless defined? RGen::ORIGENTRANSITION
   require 'English'
   require 'pathname'
+  require 'pry'
   # Keep a note of the pwd at the time when Origen was first loaded, this is initially used
   # by the site_config lookup.
   $_origen_invocation_pwd ||= Pathname.pwd
@@ -53,6 +54,8 @@ unless defined? RGen::ORIGENTRANSITION
     autoload :Chips,     'origen/chips'
     autoload :Netlist,   'origen/netlist'
     autoload :Models,    'origen/models'
+    autoload :Errata,    'origen/errata'
+    binding.pry
 
     APP_CONFIG = File.join('config', 'application.rb')
 
