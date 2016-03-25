@@ -1,9 +1,11 @@
 module Origen
   module Errata
-    class SwErratumWorkaround > BaseErratum
-
-      def initialize(disposition, comment, patches)
-        @disposition = disposition
+    class SwErratumWorkaround < BaseErratum
+  
+      attr_accessor :disposition, :comment, :patches
+      def initialize(id, title, description, sw_disposition, comment, patches)
+        super(id, title, description)
+        @sw_disposition = sw_disposition
         @comment = comment
         @patches = patches
       end
