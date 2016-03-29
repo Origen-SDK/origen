@@ -170,7 +170,7 @@ module Origen
                   bit_name = "#{name}"
                   txt = "#{bit_name[0..bit_width - 2]}"
                 else
-                  txt = ""
+                  txt = ''
                 end
                 line << '|' + txt.center(bit_width)
               end
@@ -270,7 +270,7 @@ module Origen
                   value = "#{val}" + _state_desc(bit)
                   line << '|' + value.center(bit_width)
                 else
-                  line << '|' + "".center(bit_width)
+                  line << '|' + ''.center(bit_width)
                 end
               end
             end
