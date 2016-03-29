@@ -155,7 +155,7 @@ module Origen
                     bit_span = upper - lower + 1
                   end
                   width = bit_width * bit_span
-                  line << '|' + ":#{bit_name[0..width - 2]}".center(width + bit_span - 1)
+                  line << '|' + "#{bit_name[0..width - 2]}".center(width + bit_span - 1)
 
                 else
                   bit.shift_out_left do |bit|
@@ -166,8 +166,13 @@ module Origen
                 end
 
               else
-                bit_name = "#{name}"
-                line << '|' + ":#{bit_name[0..bit_width - 2]}".center(bit_width)
+                if name
+                  bit_name = "#{name}"
+                  txt = "#{bit_name[0..bit_width - 2]}"
+                else
+                  txt = ""
+                end
+                line << '|' + txt.center(bit_width)
               end
             end
           end
@@ -252,17 +257,21 @@ module Origen
                   end
                 end
               else
-                if bit.has_known_value?
-                  val = bit.val
-                else
-                  if bit.reset_val == :undefined
-                    val = 'X'
+                if name
+                  if bit.has_known_value?
+                    val = bit.val
                   else
-                    val = 'M'
+                    if bit.reset_val == :undefined
+                      val = 'X'
+                    else
+                      val = 'M'
+                    end
                   end
+                  value = "#{val}" + _state_desc(bit)
+                  line << '|' + value.center(bit_width)
+                else
+                  line << '|' + "".center(bit_width)
                 end
-                value = "#{val}" + _state_desc(bit)
-                line << '|' + value.center(bit_width)
               end
             end
           end
