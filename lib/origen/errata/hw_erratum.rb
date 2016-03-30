@@ -4,7 +4,7 @@ module Origen
 
       attr_accessor :hw_workaround_description, :disposition, :impact, :fix_plan, :affected_items
       def initialize(id, title, description, hw_workaround_description, disposition, impact, fix_plan, affected_items, options = {})
-        super(id, title, description)
+        super(id, type = "hw", title, description)
         @hw_workaround_description = hw_workaround_description
         @disposition = disposition
         @impact = impact
