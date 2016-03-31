@@ -1,3 +1,39 @@
+<a class="anchor release_tag" name="v0_7_2"></a>
+<h1><a href="#v0_7_2">Tag: v0.7.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 31-Mar-2016 09:12AM
+
+
+* Added BitCollection#sync method, in combination with OrigenLink, this updates the
+  value held by the register model with that currently on silicon...
+
+~~~ruby
+(byebug) dut.atd.result
+
+0x4000\_4502 - :atd\_result
+  ---------------------------------------------------------------------------------
+  |    7    |    6    |    5    |    4    |    3    |    2    |    1    |    0    |
+  |                                     r[7:0]                                    |
+  |                                      0x0                                      |
+  ---------------------------------------------------------------------------------
+
+(byebug) dut.atd.result.sync
+
+0x4000\_4502 - :atd\_result
+  ---------------------------------------------------------------------------------
+  |    7    |    6    |    5    |    4    |    3    |    2    |    1    |    0    |
+  |                                     r[7:0]                                    |
+  |                                      0xE2                                     |
+  ---------------------------------------------------------------------------------
+~~~
+
+* Added Pin#hello and Pin#goodbye methods. Calling something like dut.pin(:tdi).hello
+  from the console will cause it to continuously drive low and high with a period of
+  2 seconds. This is intended to be used as a debug aid for OrigenLink when checking
+  connections. Calling dut.pin(:tdi).goodbye will turn it off.
+
 <a class="anchor release_tag" name="v0_7_1"></a>
 <h1><a href="#v0_7_1">Tag: v0.7.1</a></h1>
 
