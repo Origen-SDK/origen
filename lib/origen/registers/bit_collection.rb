@@ -84,6 +84,30 @@ module Origen
         end
       end
 
+      # Update the register contents with the live value from the device under test.
+      #
+      # The current tester needs to be an OrigenLink driver. Upon calling this method a request will
+      # be made to read the given register, the read data will be captured and the register model
+      # will be updated.
+      #
+      # The register parent register object is returned, this means that calling .sync on a register
+      # or bitcollection object will automatically update it and the display the register in the
+      # console.
+      #
+      # Normally this method should be called from a breakpoint during pattern debug, and it is
+      # not intended to be inserted into production pattern logic.
+      def sync
+        if tester.try(:link?)
+          v = tester.capture do
+            store!
+          end
+          write(v.first)
+          parent
+        else
+          Origen.log.warning "Sync is not supported on the current tester driver, register not updated"
+        end
+      end
+
       # Copies all data and flags from one bit collection (or reg) object to another
       #
       # This method will accept a dumb value as the argument, in which case it is essentially a write,
