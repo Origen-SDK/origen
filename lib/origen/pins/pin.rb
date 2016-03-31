@@ -90,18 +90,18 @@ module Origen
         drive_hi
         @@hello_pins ||= []
         @@hello_pins << self unless @@hello_pins.include?(self)
-        @@hello_loop ||= Thread.new {
-          while true do
-            @@hello_pins.each { |pin| pin.toggle }
+        @@hello_loop ||= Thread.new do
+          loop do
+            @@hello_pins.each(&:toggle)
             if $tester
               # Add a dummy timeset if one is not set yet, doesn't really matter what it is in this case
               # and better not to force the user to setup a debug workaround due to running outside of a pattern
-              $tester.set_timeset("hello_world", 40) unless $tester.timeset
+              $tester.set_timeset('hello_world', 40) unless $tester.timeset
               $tester.cycle
             end
             sleep 2
           end
-        }
+        end
         puts "Pin #{name} is toggling with a period of 2 seconds"
       end
 

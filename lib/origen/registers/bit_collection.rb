@@ -104,7 +104,7 @@ module Origen
           write(v.first)
           parent
         else
-          Origen.log.warning "Sync is not supported on the current tester driver, register not updated"
+          Origen.log.warning 'Sync is not supported on the current tester driver, register not updated'
         end
       end
 
