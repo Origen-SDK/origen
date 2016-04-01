@@ -1,3 +1,77 @@
+<a class="anchor release_tag" name="v0_7_4"></a>
+<h1><a href="#v0_7_4">Tag: v0.7.4</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 01-Apr-2016 16:50PM
+
+
+Added a shorthand for syncing a register in an Origen Link debug session:
+
+~~~ruby
+dut.my\_reg        # Display register with current local content
+dut.my\_reg.sync   # Sync register and display with updated content
+dut.my\_reg!       # Sync register and display with updated content
+~~~
+
+Added a memory API to all DUTs and sub-blocks which enables read/write of any memory
+location using the conventional register API and without having to pre-define the
+register.
+
+Note that at present the register object generated via the memory API will be
+different to that returned by a defined register with the same address.
+
+~~~ruby
+dut.mem(0x2000\_0000).write!(0x1111\_2222)
+
+dut.mem(0x2000\_0000).data    # => 0x1111\_2222
+
+dut.mem(0x2000\_0000).read!(0x1111\_2222)
+
+dut.mem(0x2000\_0000)[15..0].read!(0x2222)
+
+dut.mem(0x2000\_0000)[31..16].store!
+
+dut.mem(0x2000\_0000).sync
+~~~
+
+Memory can be accessed via a sub-block with a local address, however there is only
+one memory and this will return the same register object as for the corresponding
+global address.
+Say here the NVM has a base\_address of 0x4000\_0000:
+
+~~~ruby
+dut.nvm.mem(0x10).write!(0x5555\_5555)
+
+dut.mem(0x4000\_0010).data  # => 0x5555\_5555
+~~~
+
+By default this returns 32-bit register objects and the address must be aligned.
+The width can be changed on a per-DUT basis:
+
+~~~ruby
+dut.memory\_width = 16
+
+dut.mem(0x2000\_0000).size   # => 16
+~~~
+
+Finally, updated the sync method to take a size argument which corresponds to the
+number of memory locations to read out:
+
+~~~text
+(byebug) dut.mem(0x40020000).sync(10)
+40020000: FFFE0080
+40020004: 00005555
+40020008: 00000000
+4002000C: 00000000
+40020010: FFFFFFFF
+40020014: 00000000
+40020018: FFFFFFFF
+4002001C: FFFFFFFF
+40020020: FFFFFFFF
+40020024: FFFFFFFF
+~~~
+
 <a class="anchor release_tag" name="v0_7_3"></a>
 <h1><a href="#v0_7_3">Tag: v0.7.3</a></h1>
 
