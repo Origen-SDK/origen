@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_7_3"></a>
+<h1><a href="#v0_7_3">Tag: v0.7.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 01-Apr-2016 11:47AM
+
+
+Update to the BitCollection#sync method to fix the data ordering. Also now preserves any
+flags that are set on the bitcollection prior to syncing.
+
 <a class="anchor release_tag" name="v0_7_2"></a>
 <h1><a href="#v0_7_2">Tag: v0.7.2</a></h1>
 
