@@ -96,7 +96,8 @@ module Origen
       #
       # Normally this method should be called from a breakpoint during pattern debug, and it is
       # not intended to be inserted into production pattern logic.
-      def sync
+      def sync(size = nil, options = {})
+        size, options = nil, size if size.is_a?(Hash)
         if tester.try(:link?)
           preserve_flags do
             v = tester.capture do
@@ -106,11 +107,21 @@ module Origen
               bit.write(v.first[i])
             end
           end
-          parent
+          if size
+            puts "#{parent.address.to_s(16).upcase}: " + data.to_s(16).upcase.rjust(Origen.top_level.memory_width / 4, '0')
+            if size > 1
+              step = Origen.top_level.memory_width / 8
+              Origen.top_level.mem(parent.address + step).sync(size - 1)
+            end
+            nil
+          else
+            parent
+          end
         else
           Origen.log.warning 'Sync is not supported on the current tester driver, register not updated'
         end
       end
+      alias_method :sync!, :sync
 
       # At the end of the given block, the status flags of all bits will be restored to the state that
       # they were upon entry to the block

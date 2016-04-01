@@ -24,7 +24,7 @@ module Origen
           if has_port?(args.first)
             _ports[args.first.to_s.symbolize]
           else
-            if initialized?
+            if _initialized?
               puts "Model #{self.class} does not have a port named #{args.first}, the available ports are:"
               puts _ports.keys
               puts

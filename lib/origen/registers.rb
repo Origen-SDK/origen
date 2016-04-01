@@ -27,8 +27,14 @@ module Origen
     end
 
     def method_missing(method, *args, &block) # :nodoc:
+      if method[-1] == '!'
+        bang = true
+        method = method.to_s.chop.to_sym
+      end
       if _registers.key?(method)
-        reg(method)
+        r = reg(method)
+        r.sync if bang
+        r
       else
         super
       end
@@ -478,7 +484,7 @@ module Origen
     # Can also be used to define a new register if a block is supplied in which case
     # it is equivalent to calling add_reg with a block.
     def reg(*args, &block)
-      if block_given? || (args[1].is_a?(Fixnum) && !try(:initialized?))
+      if block_given? || (args[1].is_a?(Fixnum) && !try(:_initialized?))
         @reg_define_file = define_file(caller[0])
         add_reg(*args, &block)
       else
