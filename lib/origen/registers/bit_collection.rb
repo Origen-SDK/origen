@@ -98,14 +98,36 @@ module Origen
       # not intended to be inserted into production pattern logic.
       def sync
         if tester.try(:link?)
-          v = tester.capture do
-            store!
+          preserve_flags do
+            v = tester.capture do
+              store!
+            end
+            reverse_each.with_index do |bit, i|
+              bit.write(v.first[i])
+            end
           end
-          write(v.first)
           parent
         else
           Origen.log.warning 'Sync is not supported on the current tester driver, register not updated'
         end
+      end
+
+      # At the end of the given block, the status flags of all bits will be restored to the state that
+      # they were upon entry to the block
+      def preserve_flags
+        orig = []
+        each do |bit|
+          orig << [bit.overlay_str, bit.is_to_be_read?, bit.is_to_be_stored?]
+        end
+        yield
+        each do |bit|
+          bit.clear_flags
+          flags = orig.shift
+          bit.overlay(flags[0])
+          bit.read if flags[1]
+          bit.store if flags[2]
+        end
+        self
       end
 
       # Copies all data and flags from one bit collection (or reg) object to another
