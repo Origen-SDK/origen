@@ -53,7 +53,7 @@ module Origen
       end
     end
 
-    def respond_to?(sym, include_all=false)
+    def respond_to?(sym, include_all = false)
       has_port?(sym) || super(sym)
     end
 
