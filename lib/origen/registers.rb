@@ -41,7 +41,12 @@ module Origen
     end
 
     def respond_to?(sym) # :nodoc:
-      _registers.key?(sym) || super(sym)
+      if sym[-1] == '!'
+        r = sym.to_s.chop.to_sym
+        _registers.key?(r) || super(sym)
+      else
+        _registers.key?(sym) || super(sym)
+      end
     end
 
     def delete_registers

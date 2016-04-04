@@ -675,10 +675,6 @@ module Origen
       end
     end
 
-    def load_console
-      load_target!
-    end
-
     def load_target!(options = {})
       options = {
         force_debug: false
