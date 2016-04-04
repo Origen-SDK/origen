@@ -1,13 +1,15 @@
 module Origen
   module Errata
-    class SwErratumWorkaround < BaseErratum
+    class SwErratumWorkaround
   
-      attr_accessor :disposition, :comment, :patches
-      def initialize(id, title, description, sw_disposition, comment, patches)
-        super(id, type = "sw", title, description)
-        @sw_disposition = sw_disposition
-        @comment = comment
-        @patches = patches
+      attr_accessor :id, :title, :description, :sw_disposition, :comment, :patches
+      def initialize(id, options = {})
+	@id = id
+	@title = options[:title]
+	@description = options[:description]
+        @sw_disposition = options[:sw_disposition]
+        @comment = options[:comment]
+        @patches = options[:patches]
       end
     end
   end
