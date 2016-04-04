@@ -141,6 +141,17 @@ There now follows a listing of all available callbacks, these have been split up
 
 ### Environment Setup
 
+#### before_load_target
+
+This callback is triggered immediately before the target is loaded.
+
+The intended use case is to allow any domain specific clean up that needs to be done when reloading
+or changing the target during an Origen thread of execution.
+Origen will take care of ensuring that the top-level model, the tester and all callback listeners are
+safely removed and/or re-instantiated between target loads, and in the vast majority of cases the
+application should never need to use this.
+
+
 #### on_create
 
 This callback is triggered immediately after the target is loaded.
@@ -192,6 +203,38 @@ include Origen::Callbacks
 # be determined by the ram_size attribute of the DUT
 def on_top_level_instantiated(dut)
   $ram = MyPlugin::RAM.new size: dut.ram_size
+end
+~~~
+
+#### interactive_startup
+
+This will be called immediately before giving control to the user when opening an interactive
+console session (by running <code>origen i</code>).
+The target will already be loaded prior to calling.
+
+The intended use case is to give the application a chance to perform a device setup sequence in the
+case where the environment is connected to an Origen Link compatible tester driver.
+
+~~~ruby
+# This is called automatically at the start of an interactive session (origen i)
+def interactive_startup
+  # Run the regular pattern startup method upon opening the console to put the device in test mode
+  startup if tester.link?
+end
+~~~
+
+#### interactive_shutdown
+
+This will be called immediately before shutting down an interactive console session.
+
+The intended use case is to shutdown the device in the case where the environment is connected
+to an Origen Link compatible tester driver.
+
+~~~ruby
+# This is called automatically at the end of an interactive session (origen i)
+def interactive_shutdown
+  # Run the regular pattern shutdown method to put the device in reset
+  shutdown if tester.link?
 end
 ~~~
 
