@@ -475,7 +475,11 @@ module Origen
     end
 
     def plugins
-      @plugins ||= Plugins.new
+      if Origen.app_loaded?
+        @plugins ||= Plugins.new
+      else
+        Plugins.new
+      end
     end
 
     def plugins_manager

@@ -55,9 +55,9 @@ Usage: origen i [options]
   listeners_for(:interactive_startup).each(&:interactive_startup)
 
   begin
-  if defined?(Pry) && options[:pry]
-    include ConsoleMethods
-    # rubocop:disable Debugger, EmptyLines
+    if defined?(Pry) && options[:pry]
+      include ConsoleMethods
+      # rubocop:disable Debugger, EmptyLines
 
 
 
@@ -65,7 +65,7 @@ Usage: origen i [options]
 
 
 
-    binding.pry
+      binding.pry
 
 
 
@@ -73,13 +73,13 @@ Usage: origen i [options]
 
 
 
-    # rubocop:enable Debugger, EmptyLines
-  else
-    IRB::ExtendCommandBundle.send :include, Origen::ConsoleMethods
-    IRB.start
-  end
-  ensure
-  listeners_for(:interactive_shutdown).each(&:interactive_shutdown)
+      # rubocop:enable Debugger, EmptyLines
+    else
+      IRB::ExtendCommandBundle.send :include, Origen::ConsoleMethods
+      IRB.start
+    end
+    ensure
+      listeners_for(:interactive_shutdown).each(&:interactive_shutdown)
 
   end
 end

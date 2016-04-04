@@ -104,8 +104,8 @@ module Origen
               store!
             end
             reverse_each.with_index do |bit, i|
-              bit.instance_variable_set("@updated_post_reset", true)
-              bit.instance_variable_set("@data", v.first[i])
+              bit.instance_variable_set('@updated_post_reset', true)
+              bit.instance_variable_set('@data', v.first[i])
             end
           end
           if size
