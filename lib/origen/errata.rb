@@ -5,13 +5,16 @@ module Origen
     #autoload :BaseErratum, 		'origen/errata/base_erratum'
    
     attr_accessor :_errata
-    
+
+    # Define and instantiate an erratum object    
     def erratum(id, options = {} )
        _errata
        #@_errata[id][type] = HwErratum.new(id,type, options)
        @_errata[id] = HwErratum.new(id, options)
     end
   
+
+    # Returns an erratum object with a specific id, will be modified to add other options
     def errata(options = {})
        options = {
          id:   nil
@@ -39,11 +42,13 @@ module Origen
        end
     end
 
+    # Define and instantiate a sw_workaround object
     def sw_workaround(id, options={})
       _sw_workarounds
       @_sw_workarounds[id] = SwErratumWorkaround.new(id, options)
     end 
 
+    # Returns a sw_workaround object with a specific id
     def sw_workarounds(options = {})
       options = {
         id: nil
