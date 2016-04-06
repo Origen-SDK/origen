@@ -48,6 +48,7 @@ module Origen
         sub_type:      nil,
         mode:          current_mode.nil? ? nil : current_mode.name,
         spec:          nil,
+        symbol:        nil,
         creating_spec: false
       }.update(options || {})
       _specs
@@ -102,6 +103,7 @@ module Origen
         sub_type:      nil,
         mode:          current_mode.nil? ? nil : current_mode.name,
         spec:          nil,
+        symbol:        nil,
         creating_spec: false
       }.update(options)
       if @_specs.nil? || @_specs == {}
@@ -124,6 +126,7 @@ module Origen
         sub_type:      nil,
         mode:          current_mode.nil? ? nil : current_mode.name,
         spec:          nil,
+        symbol:        nil,
         creating_spec: false
       }.update(options)
       options[:spec] = s
@@ -635,6 +638,7 @@ module Origen
       options = {
         mode:              nil,
         spec:              nil,
+        symbol:            nil,
         type:              nil,
         sub_type:          nil,
         specs_to_be_shown: SpecArray.new,
@@ -646,7 +650,13 @@ module Origen
         filter_hash(hash, options[:mode]).each do |_mode, hash_|
           filter_hash(hash_, options[:type]).each do |_type, hash__|
             filter_hash(hash__, options[:sub_type]).each do |_sub_type, spec|
-              specs_to_be_shown << spec
+              if options[:symbol]
+                if spec.symbol && (spec.symbol.gsub(/<.*?>/, '').downcase.to_sym == options[:symbol])
+                  specs_to_be_shown << spec
+                end
+              else
+                specs_to_be_shown << spec
+              end
             end
           end
         end
