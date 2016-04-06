@@ -295,8 +295,8 @@ describe "Origen Specs Module" do
   end
 
   it "finding specs via :symbol option works" do
-    $dut.has_spec?(nil, symbol: :gvdd).should == true  
-    $dut.has_spec?(nil, symbol: :dvdd).should == false  
+    $dut.has_spec?(:gvdd, symbol: true).should == true  
+    $dut.has_spec?(:dvdd, symbol: true).should == false  
   end
   
   it "can see sub_block features" do

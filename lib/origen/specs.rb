@@ -48,7 +48,7 @@ module Origen
         sub_type:      nil,
         mode:          current_mode.nil? ? nil : current_mode.name,
         spec:          nil,
-        symbol:        nil,
+        symbol:        false,
         creating_spec: false
       }.update(options || {})
       _specs
@@ -103,7 +103,7 @@ module Origen
         sub_type:      nil,
         mode:          current_mode.nil? ? nil : current_mode.name,
         spec:          nil,
-        symbol:        nil,
+        symbol:        false,
         creating_spec: false
       }.update(options)
       if @_specs.nil? || @_specs == {}
@@ -126,7 +126,7 @@ module Origen
         sub_type:      nil,
         mode:          current_mode.nil? ? nil : current_mode.name,
         spec:          nil,
-        symbol:        nil,
+        symbol:        false,
         creating_spec: false
       }.update(options)
       options[:spec] = s
@@ -638,20 +638,21 @@ module Origen
       options = {
         mode:              nil,
         spec:              nil,
-        symbol:            nil,
         type:              nil,
         sub_type:          nil,
         specs_to_be_shown: SpecArray.new,
         owner:             nil,
+        symbol:            false,
         creating_spec:     false
       }.update(options)
+      options[:symbol] ? symbol = options.delete(:spec) : symbol = nil
       specs_to_be_shown = options[:specs_to_be_shown]
       filter_hash(_specs, options[:spec]).each do |_spec, hash|
         filter_hash(hash, options[:mode]).each do |_mode, hash_|
           filter_hash(hash_, options[:type]).each do |_type, hash__|
             filter_hash(hash__, options[:sub_type]).each do |_sub_type, spec|
-              if options[:symbol]
-                if spec.symbol && (spec.symbol.gsub(/<.*?>/, '').downcase.to_sym == options[:symbol])
+              if symbol
+                if spec.symbol && (spec.symbol.gsub(/<.*?>/, '').downcase.to_sym == symbol)
                   specs_to_be_shown << spec
                 end
               else
