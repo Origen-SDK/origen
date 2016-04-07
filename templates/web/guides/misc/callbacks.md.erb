@@ -482,19 +482,35 @@ end
 
 #### before_web_compile(options)
 
-This is called immediately prior to running the requested 'origen web compile' operation
+This is called immediately prior to running the requested <code>origen web compile</code> operation
 and it provides the application with an opportunity to dynamically generate some templates
 for the compiler to execute.
+
+The command line arguments are decoded and available in the given options hash.
 
 No return value is expected.
 
 #### after_web_compile(options)
 
-This is called immediately after running the requested 'origen web compile' operation
+This is called immediately after running the requested <code>origen web compile</code> operation
 and provides the application with an opportunity to add anything else to the web/output
 directory.
 
+The command line arguments are decoded and available in the given options hash.
+
 No return value is expected.
+
+
+#### after_web_site_compile(options)
+
+Similar to <code>after_web_compile</code>, except that this one will only be called when
+a request has been made to compile the entire web site, i.e. when  <code>origen web compile</code>
+has been called without a file argument(s).
+
+The command line arguments are decoded and available in the given options hash.
+
+No return value is expected.
+
 
 
 <a class="anchor" name="release_process"></a>
