@@ -296,6 +296,9 @@ module Origen
     #
     # Can be called on any object to add a register to it
     def add_reg(id, address, size = nil, bit_info = {}, &_block)
+      if address.is_a?(Hash)
+        fail 'add_reg requires the address to be supplied as the 2nd argument, e.g. add_reg :my_reg, 0x1000'
+      end
       size, bit_info = nil, size if size.is_a?(Hash)
       size ||= bit_info.delete(:size) || 32
       description = bit_info.delete(:description)

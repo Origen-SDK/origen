@@ -1,4 +1,12 @@
-$.getJSON("<%= path 'search.json' %>", function(json) {
+var search_json;
+
+if (window.origen_search_id) {
+  search_json = "search_" + window.origen_search_id + ".json";
+} else {
+  search_json = "search.json";
+}
+
+$.getJSON("<%= path '' %>" + "/" + search_json, function(json) {
   window.index = lunr(function() {
     this.field("title", {boost: 10});
     this.field("subtitle", {boost: 5});
@@ -87,6 +95,12 @@ $(document).ready(function() {
 
   if (params.highlight) {
     var term = unescape(params.highlight);
-    $('article').highlight(term);
+    var articles = $('article');
+    articles.highlight(term);
+    if (articles[0]) {
+      var top = $($("span.highlight:contains(" + params.highlight + ")")[0]).offset().top;
+
+      $('html,body').animate({scrollTop: top - 350}, 500);
+    }
   }
 });

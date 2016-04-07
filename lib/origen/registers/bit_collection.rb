@@ -311,7 +311,7 @@ module Origen
         end
         if value
           value = Reg.clean_value(value)
-          write(value)
+          write(value, force: true)
         end
         if options[:mask]
           each_with_index { |bit, i| bit.read if options[:mask][i] == 1 }

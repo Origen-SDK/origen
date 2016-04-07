@@ -33,8 +33,11 @@ class SearchFilter < Nanoc::Filter
   end
 
   def search_file
-    @search_file ||= File.join(@site.config[:output_dir],
-      @site.config[:search_file] || 'search.json')
+    if item[:search_id]
+      File.join(@site.config[:output_dir], "search_#{item[:search_id]}.json")
+    else
+      File.join(@site.config[:output_dir], 'search.json')
+    end
   end
 
   def extract_first(doc, path)

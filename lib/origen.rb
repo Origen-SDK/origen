@@ -456,7 +456,16 @@ unless defined? RGen::ORIGENTRANSITION
 
       # Compile the given file and return the result as a string
       def compile(file, options = {})
-        Origen::Generator::Compiler.new.compile_inline(file, options)
+        # This has to operate on a new instance so that helper methods can use the inline
+        # compiler within an isolated context
+        c = Origen::Generator::Compiler.new
+        # It needs to be placed on the stack so that the global render method references
+        # the correct compiler instance
+        $_compiler_stack ||= []
+        $_compiler_stack << c
+        r = c.compile_inline(file, options)
+        $_compiler_stack.pop
+        r
       end
 
       def interfaces
