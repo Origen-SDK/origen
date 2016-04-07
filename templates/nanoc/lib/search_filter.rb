@@ -10,8 +10,8 @@ class SearchFilter < Nanoc::Filter
     url = assigns[:item_rep].path
     #first_image = doc.xpath('//img/@src').to_a[0]
     document = {
-      title: extract_first(doc, '//article//*[self::h1 or self::h2]/text()'),
-      subtitle: extract_first(doc, '//article//*[self::h3]/text()'),
+      title: extract_first(doc, '//article/*/h1 | //article/*/h2 | //article/h1 | //article/h2'),
+      subtitle: extract_first(doc, '//article/*/h3 | //article/h3'),
       body: extract_all(doc, '//article//*/text()'),
       #img: (first_image.nil?) ? '' : first_image.value(),
       #alt: extract_values(doc, '//article//img/@alt')
