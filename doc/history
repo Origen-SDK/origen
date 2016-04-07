@@ -1,3 +1,57 @@
+<a class="anchor release_tag" name="v0_7_6"></a>
+<h1><a href="#v0_7_6">Tag: v0.7.6</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 07-Apr-2016 07:54AM
+
+
+* Added after\_web\_site\_compile callback
+* Added ability for the inline compiler to take a template in the form of a string rather
+  than a pointer to a file:
+
+~~~ruby
+template =<<-END
+X is: <%= options[:x] %>
+END
+
+Origen.compile(template, string: true, x: 10)
+~~~
+
+* reg.named\_bits now returns an array when a block is not given, these now both work:
+
+~~~ruby
+myreg.named\_bits do |name, bits|
+  # ...
+end
+
+myreg.named\_bits.each do |name, bits|
+  # ...
+end
+~~~
+
+* Updated website builder to support multiple search domains on a single application website
+  by suppling a search ID in the page frontmatter:
+
+~~~text
+---
+search\_id: my\_subsection
+---
+~~~
+
+* Specs can now be looked up via their symbol (Aaron Burgmeier):
+
+~~~ruby
+dut.has\_spec?(:gvdd, symbol: true)
+~~~
+
+* Various bug fixes:
+  * Fixed console display of registers whose size is not a multiple of 8
+  * Fixed inline compiler block render bug when a scope is supplied
+  * Fixed register description parsing when a reg has been defined with add\_reg without a
+    block
+  * Register read requests will now update the expect value of non-writable bits
+
 <a class="anchor release_tag" name="v0_7_5"></a>
 <h1><a href="#v0_7_5">Tag: v0.7.5</a></h1>
 
