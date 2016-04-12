@@ -2,15 +2,14 @@ module Origen
   module Errata
     autoload :HwErratum,		'origen/errata/hw_erratum'
     autoload :SwErratumWorkaround,	'origen/errata/sw_erratum_workaround'
-    #autoload :BaseErratum, 		'origen/errata/base_erratum'
    
     attr_accessor :_errata
 
     # Define and instantiate an erratum object    
-    def erratum(id, options = {} )
+    def erratum(id, overview = {}, status = {}, sw_workaround = {} )
        _errata
        #@_errata[id][type] = HwErratum.new(id,type, options)
-       @_errata[id] = HwErratum.new(id, options)
+       @_errata[id] = HwErratum.new(id, overview, status, sw_workaround)
     end
   
 
@@ -43,9 +42,9 @@ module Origen
     end
 
     # Define and instantiate a sw_workaround object
-    def sw_workaround(id, options={})
+    def sw_workaround(id, overview = {}, resolution = {})
       _sw_workarounds
-      @_sw_workarounds[id] = SwErratumWorkaround.new(id, options)
+      @_sw_workarounds[id] = SwErratumWorkaround.new(id, overview, resolution)
     end 
 
     # Returns a sw_workaround object with a specific id
