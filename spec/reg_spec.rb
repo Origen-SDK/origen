@@ -1336,5 +1336,16 @@ module RegTest
       mclkdiv2.clkdiv.data.should == 0x18
       mclkdiv2.data.should == 0x0118
     end
+
+    it "read only bits can be forced to write" do
+      add_reg :ro_test, 0, access: :ro
+      ro_test.write(0xFFFF_FFFF)
+      ro_test.data.should == 0
+      ro_test.write(0xFFFF_FFFF, force: true)
+      ro_test.data.should == 0xFFFF_FFFF
+      # Read requests apply force by default
+      ro_test.read(0x5555_5555)
+      ro_test.data.should == 0x5555_5555
+    end
   end
 end

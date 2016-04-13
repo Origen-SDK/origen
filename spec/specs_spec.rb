@@ -293,6 +293,11 @@ describe "Origen Specs Module" do
     $dut.has_spec?(:tnikhov2).should == true
     $dut.has_spec?(/tnikhov/).should == true
   end
+
+  it "finding specs via :symbol option works" do
+    $dut.has_spec?(:gvdd, symbol: true).should == true  
+    $dut.has_spec?(:dvdd, symbol: true).should == false  
+  end
   
   it "can see sub_block features" do
     @ip.spec_features(id: :feature1).class.should == Origen::Specs::Spec_Features

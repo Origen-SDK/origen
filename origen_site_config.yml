@@ -13,7 +13,8 @@ gem_install_dir: ~/.origen/gems
 # it fresh for each user.
 # Note that this option will only be applied if gem_manage_bundler is set to true.
 gem_use_from_system:
-  - [nokogiri, 1.6.4.1]
+  - [nokogiri, 1.6.4.1] # Only required for early versions of Origen
+  - [nokogiri, 1.6.7.2]
 # Additionally any build switches/options that are required to build specific gems
 # in your user environment can be defined here.
 #gem_build_switches:

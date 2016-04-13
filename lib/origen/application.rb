@@ -475,7 +475,11 @@ module Origen
     end
 
     def plugins
-      @plugins ||= Plugins.new
+      if Origen.app_loaded?
+        @plugins ||= Plugins.new
+      else
+        Plugins.new
+      end
     end
 
     def plugins_manager
@@ -673,10 +677,6 @@ module Origen
       else
         @transient_resources[:pin_names] ||= {}
       end
-    end
-
-    def load_console
-      load_target!
     end
 
     def load_target!(options = {})

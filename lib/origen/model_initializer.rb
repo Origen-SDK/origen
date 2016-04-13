@@ -29,7 +29,7 @@ module Origen
         else
           x.send(:initialize, *args, &block)
         end
-        x.send(:initialized) if x.respond_to?(:is_an_origen_model?)
+        x.send(:_initialized) if x.respond_to?(:is_an_origen_model?)
         x.register_callback_listener if x.respond_to?(:register_callback_listener)
         # Do this before wrapping, otherwise the respond to method in the controller will
         # be looking for the model to be instantiated when it is not fully done yet
