@@ -1,3 +1,237 @@
+<a class="anchor release_tag" name="v0_7_7"></a>
+<h1><a href="#v0_7_7">Tag: v0.7.7</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 07-Apr-2016 12:30PM
+
+
+Fixed issue with search boxes hanging the browser
+
+<a class="anchor release_tag" name="v0_7_6"></a>
+<h1><a href="#v0_7_6">Tag: v0.7.6</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 07-Apr-2016 07:54AM
+
+
+* Added after\_web\_site\_compile callback
+* Added ability for the inline compiler to take a template in the form of a string rather
+  than a pointer to a file:
+
+~~~ruby
+template =<<-END
+X is: <%= options[:x] %>
+END
+
+Origen.compile(template, string: true, x: 10)
+~~~
+
+* reg.named\_bits now returns an array when a block is not given, these now both work:
+
+~~~ruby
+myreg.named\_bits do |name, bits|
+  # ...
+end
+
+myreg.named\_bits.each do |name, bits|
+  # ...
+end
+~~~
+
+* Updated website builder to support multiple search domains on a single application website
+  by suppling a search ID in the page frontmatter:
+
+~~~text
+---
+search\_id: my\_subsection
+---
+~~~
+
+* Specs can now be looked up via their symbol (Aaron Burgmeier):
+
+~~~ruby
+dut.has\_spec?(:gvdd, symbol: true)
+~~~
+
+* Various bug fixes:
+  * Fixed console display of registers whose size is not a multiple of 8
+  * Fixed inline compiler block render bug when a scope is supplied
+  * Fixed register description parsing when a reg has been defined with add\_reg without a
+    block
+  * Register read requests will now update the expect value of non-writable bits
+
+<a class="anchor release_tag" name="v0_7_5"></a>
+<h1><a href="#v0_7_5">Tag: v0.7.5</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 04-Apr-2016 15:34PM
+
+
+* Added interactive\_startup and shutdown callbacks, this allows a device to be put into
+  the correct mode when starting up a console session with an Origen Link compatible
+tester
+  driver connected.
+* Fixed a bug where plugins that were development dependencies did not register with the
+  application properly.
+* A few other minor bug fixes.
+
+<a class="anchor release_tag" name="v0_7_4"></a>
+<h1><a href="#v0_7_4">Tag: v0.7.4</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 01-Apr-2016 16:50PM
+
+
+Added a shorthand for syncing a register in an Origen Link debug session:
+
+~~~ruby
+dut.my\_reg        # Display register with current local content
+dut.my\_reg.sync   # Sync register and display with updated content
+dut.my\_reg!       # Sync register and display with updated content
+~~~
+
+Added a memory API to all DUTs and sub-blocks which enables read/write of any memory
+location using the conventional register API and without having to pre-define the
+register.
+
+Note that at present the register object generated via the memory API will be
+different to that returned by a defined register with the same address.
+
+~~~ruby
+dut.mem(0x2000\_0000).write!(0x1111\_2222)
+
+dut.mem(0x2000\_0000).data    # => 0x1111\_2222
+
+dut.mem(0x2000\_0000).read!(0x1111\_2222)
+
+dut.mem(0x2000\_0000)[15..0].read!(0x2222)
+
+dut.mem(0x2000\_0000)[31..16].store!
+
+dut.mem(0x2000\_0000).sync
+~~~
+
+Memory can be accessed via a sub-block with a local address, however there is only
+one memory and this will return the same register object as for the corresponding
+global address.
+Say here the NVM has a base\_address of 0x4000\_0000:
+
+~~~ruby
+dut.nvm.mem(0x10).write!(0x5555\_5555)
+
+dut.mem(0x4000\_0010).data  # => 0x5555\_5555
+~~~
+
+By default this returns 32-bit register objects and the address must be aligned.
+The width can be changed on a per-DUT basis:
+
+~~~ruby
+dut.memory\_width = 16
+
+dut.mem(0x2000\_0000).size   # => 16
+~~~
+
+Finally, updated the sync method to take a size argument which corresponds to the
+number of memory locations to read out:
+
+~~~text
+(byebug) dut.mem(0x40020000).sync(10)
+40020000: FFFE0080
+40020004: 00005555
+40020008: 00000000
+4002000C: 00000000
+40020010: FFFFFFFF
+40020014: 00000000
+40020018: FFFFFFFF
+4002001C: FFFFFFFF
+40020020: FFFFFFFF
+40020024: FFFFFFFF
+~~~
+
+<a class="anchor release_tag" name="v0_7_3"></a>
+<h1><a href="#v0_7_3">Tag: v0.7.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 01-Apr-2016 11:47AM
+
+
+Update to the BitCollection#sync method to fix the data ordering. Also now preserves any
+flags that are set on the bitcollection prior to syncing.
+
+<a class="anchor release_tag" name="v0_7_2"></a>
+<h1><a href="#v0_7_2">Tag: v0.7.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 31-Mar-2016 09:12AM
+
+
+* Added BitCollection#sync method, in combination with OrigenLink, this updates the
+  value held by the register model with that currently on silicon...
+
+~~~ruby
+(byebug) dut.atd.result
+
+0x4000\_4502 - :atd\_result
+  ---------------------------------------------------------------------------------
+  |    7    |    6    |    5    |    4    |    3    |    2    |    1    |    0    |
+  |                                     r[7:0]                                    |
+  |                                      0x0                                      |
+  ---------------------------------------------------------------------------------
+
+(byebug) dut.atd.result.sync
+
+0x4000\_4502 - :atd\_result
+  ---------------------------------------------------------------------------------
+  |    7    |    6    |    5    |    4    |    3    |    2    |    1    |    0    |
+  |                                     r[7:0]                                    |
+  |                                      0xE2                                     |
+  ---------------------------------------------------------------------------------
+~~~
+
+* Added Pin#hello and Pin#goodbye methods. Calling something like dut.pin(:tdi).hello
+  from the console will cause it to continuously drive low and high with a period of
+  2 seconds. This is intended to be used as a debug aid for OrigenLink when checking
+  connections. Calling dut.pin(:tdi).goodbye will turn it off.
+
+<a class="anchor release_tag" name="v0_7_1"></a>
+<h1><a href="#v0_7_1">Tag: v0.7.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 24-Mar-2016 10:36AM
+
+
+Reinstated use of geminabox to push internal gems, turned out to be required for some
+users
+
+<a class="anchor release_tag" name="v0_7_0"></a>
+<h1><a href="#v0_7_0">Tag: v0.7.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 18-Mar-2016 05:44AM
+
+
+Updated hard dependency on nokogiri to the latest version, this is to support latest
+Ruby on Windows, but also the latest nokogiri seems easier to build.
+
+<a class="anchor release_tag" name="v0_6_12"></a>
+<h1><a href="#v0_6_12">Tag: v0.6.12</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 17-Mar-2016 11:54AM
+
+
+* Add the ability to have a spec hidden based off of the License Plate (David Welguisz)
+* Tweak to avoid reg->data conversion in pin group assert method (Chris Nappi)
+
 <a class="anchor release_tag" name="v0_6_11"></a>
 <h1><a href="#v0_6_11">Tag: v0.6.11</a></h1>
 

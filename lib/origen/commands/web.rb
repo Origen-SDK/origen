@@ -140,6 +140,7 @@ The following options are available:
       else
         Origen.set_development_mode
       end
+      options[:files] = ARGV.dup
       if ARGV.empty?
         _build_web_dir
         Dir.chdir Origen.root do
@@ -151,6 +152,9 @@ The following options are available:
                                    output: 'web/content'
           Origen.app.listeners_for(:after_web_compile).each do |listener|
             listener.after_web_compile(options)
+          end
+          Origen.app.listeners_for(:after_web_site_compile).each do |listener|
+            listener.after_web_site_compile(options)
           end
         end
 

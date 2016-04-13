@@ -236,7 +236,7 @@ module Origen
       def confirm_production_ready(_options = {})
         # The caller would have already verified the status before submission
         if Origen.running_locally?
-          if Origen.mode.production?
+          if Origen.mode.production? && Origen.app.rc
             unless Origen.app.rc.local_modifications.empty?
               puts <<-EOT
     Your workspace has local modifications that are preventing the requested action

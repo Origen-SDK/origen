@@ -5,11 +5,9 @@ module Origen
     # An instance of this class is instantiated as Origen.app.plugins
     class Plugins < ::Array
       def initialize
-        @plugins ||= begin
-          top = Origen.app
-          Origen._applications_lookup[:name].each do |_name, app|
-            self << app unless app == top
-          end
+        top = Origen.app
+        Origen._applications_lookup[:name].each do |_name, app|
+          self << app unless app == top
         end
       end
 

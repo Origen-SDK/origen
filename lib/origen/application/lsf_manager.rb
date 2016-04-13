@@ -12,6 +12,9 @@ module Origen
       attr_accessor :current_command
 
       def initialize
+        unless File.exist?(log_file_directory)
+          FileUtils.mkdir_p(log_file_directory)
+        end
       end
 
       def remote_jobs_file

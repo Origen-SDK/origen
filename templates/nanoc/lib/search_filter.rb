@@ -10,8 +10,9 @@ class SearchFilter < Nanoc::Filter
     url = assigns[:item_rep].path
     #first_image = doc.xpath('//img/@src').to_a[0]
     document = {
-      title: extract_first(doc, '//article//*[self::h1 or self::h2]/text()'),
-      subtitle: extract_first(doc, '//article//*[self::h3]/text()'),
+      # See this next time you need to fix this: https://gist.github.com/LeCoupa/8c305ec8c713aad07b14
+      title: extract_first(doc, '//article/*/h1 | //article/*/h2 | //article/h1 | //article/h2'),
+      subtitle: extract_first(doc, '//article/*/h3 | //article/h3'),
       body: extract_all(doc, '//article//*/text()'),
       #img: (first_image.nil?) ? '' : first_image.value(),
       #alt: extract_values(doc, '//article//img/@alt')
@@ -33,8 +34,11 @@ class SearchFilter < Nanoc::Filter
   end
 
   def search_file
-    @search_file ||= File.join(@site.config[:output_dir],
-      @site.config[:search_file] || 'search.json')
+    if item[:search_id]
+      File.join(@site.config[:output_dir], "search_#{item[:search_id]}.json")
+    else
+      File.join(@site.config[:output_dir], 'search.json')
+    end
   end
 
   def extract_first(doc, path)

@@ -74,6 +74,43 @@ module Origen
         send(@reset)
       end
 
+      # Causes the pin to continuously drive 1 for 2 seconds and then drive 0 for 2 seconds.
+      #
+      # This is not an API that is intended to be used within a pattern. Rather it is a debug aid when
+      # setting up something like a bench test environment that uses Origen Link. For example you would
+      # call this method on a pin from a console session, then confirm with a multimeter that the pin
+      # is toggling on the relevant hardware.
+      #
+      # Call Pin#goodbye to stop it.
+      #
+      # @example Call from an origen console like this
+      #
+      #   dut.pin(:tdi).hello
+      def hello
+        drive_hi
+        @@hello_pins ||= []
+        @@hello_pins << self unless @@hello_pins.include?(self)
+        @@hello_loop ||= Thread.new do
+          loop do
+            @@hello_pins.each(&:toggle)
+            if $tester
+              # Add a dummy timeset if one is not set yet, doesn't really matter what it is in this case
+              # and better not to force the user to setup a debug workaround due to running outside of a pattern
+              $tester.set_timeset('hello_world', 40) unless $tester.timeset
+              $tester.cycle
+            end
+            sleep 2
+          end
+        end
+        puts "Pin #{name} is toggling with a period of 2 seconds"
+      end
+
+      # See Pin#hello
+      def goodbye
+        @@hello_pins.delete(self)
+        puts "Pin #{name} has stopped toggling"
+      end
+
       # When sorting pins do it by ID
       def <=>(other_pin)
         @id <=> other_pin.id
