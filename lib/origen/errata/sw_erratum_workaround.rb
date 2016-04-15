@@ -31,10 +31,10 @@ module Origen
 	@title = overview[:title]
 	@description = overview[:description]
         @sw_disposition = overview[:sw_disposition]
-        @distribution = overivew[:distribution]
+        @distribution = overview[:distribution]
         @note = resolution[:note]
         @patches = resolution[:patches]
       end
     end
   end
-
+end
