@@ -32,7 +32,7 @@ module Origen
       # Software workaround object associated with erratum
       attr_accessor :sw_workaround
 
-      def initialize(id, overview  = {}, status = {}, affected_items = {}, sw_workaround = {})
+      def initialize(id, overview  = {}, status = {}, affected_items = [], sw_workaround = {})
 	@id = id
 	@title = overview[:title]
 	@description = overview[:description]
