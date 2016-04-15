@@ -5,11 +5,13 @@ module Origen
    
     attr_accessor :_errata
 
+    attr_accessor :_sw_workarounds
+
     # Define and instantiate an erratum object    
-    def erratum(id, overview = {}, status = {}, sw_workaround = {} )
+    def erratum(id, overview = {}, status = {}, affected_items = [],  sw_workaround = {} )
        _errata
        #@_errata[id][type] = HwErratum.new(id,type, options)
-       @_errata[id] = HwErratum.new(id, overview, status, sw_workaround)
+       @_errata[id] = HwErratum.new(id, overview, status, affected_items,  sw_workaround)
     end
   
 
@@ -65,7 +67,7 @@ module Origen
       if sw_workarounds_found.empty?
         return nil
       elsif sw_workarounds_found.size == 1
-        sw_workarounds_found.values.first.values.first
+        sw_workarounds_found.values.first #.values.first
       else
         return sw_workarounds_found
       end
