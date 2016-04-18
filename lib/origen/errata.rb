@@ -8,36 +8,43 @@ module Origen
     attr_accessor :_sw_workarounds
 
     # Define and instantiate an erratum object    
-    def erratum(id, overview = {}, status = {}, affected_items = [],  sw_workaround = {} )
+    def erratum(id, ip_block, overview = {}, status = {}, sw_workaround = {} )
        _errata
-       #@_errata[id][type] = HwErratum.new(id,type, options)
-       @_errata[id] = HwErratum.new(id, overview, status, affected_items,  sw_workaround)
+       @_errata[id][ip_block][status[:disposition]] = HwErratum.new(id, ip_block, overview, status, sw_workaround)
     end
   
 
-    # Returns an erratum object with a specific id, will be modified to add other options
+    # Returns an erratum or list of erratum that meet a specific criteria
     def errata(options = {})
        options = {
-         id:   nil
-         #type: nil
+         id:   nil,
+         ip_block: nil,
+         disposition: nil
        }.update(options)
        return nil if @_errata.nil?
        return nil if @_errata.empty?
        
        errata_found = Hash.new do |h, k|
-         h[k] = {}
+         h[k] = Hash.new do |hh, kk|
+           hh[kk] = {}
+         end 
        end
-       
+      
+       # First filter on id, then ip_block, then disposition
        filter_hash(@_errata, options[:id]).each do |id, hash|
-         #filter_hash(hash, options[:type]).each do |type, errata|
-          # errata_found[id][type] = errata
-        # end
-         errata_found[id] = hash
+         filter_hash(hash, options[:ip_block]).each do |ip_block, hash1|
+           filter_hash(hash1, options[:disposition]).each do |disposition, errata|
+             errata_found[id][ip_block][disposition] = errata
+           end
+         end
        end
+
+       # Return nil if there are no errata that meet criteria
        if errata_found.empty?
          return nil
+       # If only one errata meets criteria, return that HwErratum object
        elsif errata_found.size ==1
-         errata_found.values.first #.values.first
+         errata_found.values.first.values.first.values.first
        else
          return errata_found
        end
@@ -61,6 +68,7 @@ module Origen
         h[k] = {}
       end
    
+      # filter on id
       filter_hash(@_sw_workarounds, options[:id]).each do |id, workarounds|
         sw_workarounds_found[id] = workarounds
       end
@@ -77,7 +85,9 @@ module Origen
 
     def _errata
       @_errata ||= Hash.new do |h,k|
-        h[k] = {}
+        h[k] = Hash.new do |hh, kk|
+          hh[kk] = {}
+         end
       end
     end
  

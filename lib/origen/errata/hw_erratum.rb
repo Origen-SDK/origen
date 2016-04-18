@@ -26,21 +26,21 @@ module Origen
       # When/if the erratum will be fixed
       attr_accessor :fix_plan
 
-      # Lists which SoCs or hw blocks are affected by erratum
-      attr_accessor :affected_items
+      # IP block that is associate with this errata
+      attr_accessor :ip_block
 
       # Software workaround object associated with erratum
       attr_accessor :sw_workaround
 
-      def initialize(id, overview  = {}, status = {}, affected_items = [], sw_workaround = {})
+      def initialize(id, ip_block, overview  = {}, status = {}, sw_workaround = {})
 	@id = id
+        @ip_block = ip_block
 	@title = overview[:title]
 	@description = overview[:description]
         @hw_workaround_description = overview[:hw_workaround_description]
         @disposition = status[:disposition]
         @impact = status[:impact]
         @fix_plan = status[:fix_plan]
-        @affected_items = affected_items
 	@sw_workaround = sw_workaround
       end
 
