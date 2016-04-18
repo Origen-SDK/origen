@@ -1,0 +1,63 @@
+% render "layouts/videos.html", id: "OW4HAlx8-ww", title: "The Compiler",
+%   summary: "Introduction to some basic features of the Origen compiler." do
+
+#### References
+
+* [Full source code on Github](https://github.com/Origen-Demos/3-the-compiler)
+* [Compiler Guide](<%= path "guides/compiler/introduction" %>)
+
+#### Code
+
+##### Templates
+
+~~~eruby
+# templates/demo/_layout.txt.erb
+This is the header
+
+<%= "<" + "%= yield %" + ">" %>
+
+This is the footer
+~~~
+
+~~~eruby
+# templates/demo/_sub_example.txt.erb
+Hello from the sub template!
+
+The value of argx is: <%= "<" + "%= options[:argx] %" + ">" %>
+~~~
+
+~~~eruby
+# templates/demo/example1.txt.erb
+<%= "%" %> render "layout.txt" do
+
+Hello from template example 1
+
+10 + 10 = 20
+
+<%= "%" %> # This is a Ruby comment, it will not appear in the output
+
+<%= "%" %> 10.times do |i|
+This is loop <%= "<" + "%= i %" + ">" %>
+<%= "%" %> end
+
+<%= "%" %> if 10 == 20
+This is the true case
+<%= "%" %> else 
+This is the false case
+<%= "%" %> end 
+
+<%= "<" + "%= render \"templates/demo/sub_example.txt\", argx: 100 %" + ">" %>
+
+<%= "%" %> dut.atd0.regs.each do |name, reg|
+<%= "<" + "%= name %" + ">" %>
+<%= "%" %> end
+
+<%= "%" %> end
+~~~
+
+~~~eruby
+# templates/demo/example2.txt.erb
+<%= "<" + "%= render \"templates/demo/sub_example.txt\", argx: 200 %" + ">" %>
+~~~
+
+% end
