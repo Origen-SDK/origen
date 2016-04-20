@@ -55,7 +55,6 @@ unless defined? RGen::ORIGENTRANSITION
     autoload :Netlist,   'origen/netlist'
     autoload :Models,    'origen/models'
     autoload :Errata,    'origen/errata'
-    binding.pry
 
     APP_CONFIG = File.join('config', 'application.rb')
 
