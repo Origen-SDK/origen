@@ -98,23 +98,23 @@ module Origen
     end
 
     # Return a hash based on the filter provided
-    def filter_hash(hash, filter)
-      fail 'Hash argument is not a Hash!' unless hash.is_a? Hash
-      filtered_hash = {}
-      select_logic = case filter
-        when String then 'k[Regexp.new(filter)] && k.length == filter.length'
-        when (Fixnum || Integer || Float || Numeric) then "k[Regexp.new('#{filter}')]"
-        when Regexp then 'k[filter]'
-        when Symbol then
-          'k == filter'
-        when NilClass then true # Return all specs if a filter is set to nil (i.e. user doesn't care about this filter)
-        else true
-      end
+    #def filter_hash(hash, filter)
+    #  fail 'Hash argument is not a Hash!' unless hash.is_a? Hash
+    #  filtered_hash = {}
+    #  select_logic = case filter
+    #    when String then 'k[Regexp.new(filter)] && k.length == filter.length'
+    #    when (Fixnum || Integer || Float || Numeric) then "k[Regexp.new('#{filter}')]"
+    #    when Regexp then 'k[filter]'
+    #    when Symbol then
+    #      'k == filter'
+    #    when NilClass then true # Return all specs if a filter is set to nil (i.e. user doesn't care about this filter)
+    #    else true
+    #  end
       # rubocop:disable UnusedBlockArgument
-      filtered_hash = hash.select do |k, v|
-        [TrueClass, FalseClass].include?(select_logic.class) ? select_logic : eval(select_logic)
-      end
-      filtered_hash
-    end
+    #  filtered_hash = hash.select do |k, v|
+    #    [TrueClass, FalseClass].include?(select_logic.class) ? select_logic : eval(select_logic)
+    #  end
+    #  filtered_hash
+    #end
   end
 end
