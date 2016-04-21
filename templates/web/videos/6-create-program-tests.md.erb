@@ -1,0 +1,174 @@
+% render "layouts/videos.html", id: "OsLYVTekbCk", title: "Creating the Tests for a Test Program",
+%   summary: "How to use the Origen Testers APIs to create tests for Teradyne and Advantest platforms" do
+
+#### References
+
+* [Full source code on Github](https://github.com/Origen-Demos/6-creating-tests)
+* [Test Program Generator Guide](<%= path "guides/program/introduction" %>)
+* [Origen Testers Release Notes](http://origen-sdk.org/testers/release_notes/)
+* [Test Suite API](http://origen-sdk.org/testers/api/OrigenTesters/SmartestBasedTester/Base/TestSuite.html)
+* [ACTml API](http://origen-sdk.org/testers/api/OrigenTesters/SmartestBasedTester/Base/TestMethods/AcTml.html)
+* [DCTml API](http://origen-sdk.org/testers/api/OrigenTesters/SmartestBasedTester/Base/TestMethods/DcTml.html)
+
+#### Code
+
+~~~ruby
+# lib/atd_test/test_program/interface.rb
+module ATDTest
+  module TestProgram
+    class Interface
+      include OrigenTesters::ProgramGenerators
+
+      def func(name, options={})
+        name = test_name(name, options)
+        # Create the test
+        if tester.j750?
+          ins = test_instances.functional(name)
+        else
+          ins = test_suites.add(name, options)
+          ins.test_method = test_methods.ac_tml.functional_test(options)
+        end
+        apply_conditions(ins, options)
+        # Create the pattern set entry
+        pname = pattern_name(name, options)
+        if tester.j750?
+          patset_name = "#{name}_pset"
+          pat = patsets.add(patset_name, pattern: "patterns/ATD/#{pname}.PAT")
+          ins.pattern = patset_name
+        else
+          ins.pattern = pname
+        end
+
+        # Insert the test into the flow
+        test(ins, options)
+      end
+
+      def para(name, options={})
+        name = test_name(name, options)
+        # Create the test
+        if tester.j750?
+          ins = test_instances.ppmu(name, options)
+        else
+          ins = test_suites.add(name, options)
+          ins.test_method = test_methods.dc_tml.general_pmu(options)
+        end
+        apply_conditions(ins, options)
+        # Create the pattern set entry
+        if tester.j750?
+          patset_name = "#{name}_pset"
+          pat = patsets.add(patset_name, pattern: "patterns/ATD/#{pattern_name(name, options)}.PAT")
+          ins.pattern = patset_name
+        else
+        end
+
+        # Insert the test into the flow
+        test(ins, options)
+      end
+
+      def apply_conditions(ins, options={})
+        if tester.j750?
+          ins.ac_category = "Spec"
+          ins.ac_selector = "Default"
+          ins.dc_category = "Spec"
+          if options[:vdd]
+            if options[:vdd] == :max
+              ins.dc_selector = "Max"
+            elsif options[:vdd] == :min
+              ins.dc_selector = "Min"
+            elsif options[:vdd] == :nom
+              ins.dc_selector = "Default"
+            else
+              fail "Unknown vdd selector: #{options[:vdd]}"
+            end
+          else
+            ins.dc_selector = "Default"
+          end
+          ins.time_sets = "Tim"
+          ins.pin_levels = "Lvl"
+        else
+          ins.level_equation = 14
+          ins.level_spec = 1
+          ins.level_set = 1
+        end
+      end
+
+      def test_name(name, options={})
+        "atd_#{name}"
+      end
+
+      def pattern_name(name, options={})
+        "#{name}_pattern"
+      end
+    end
+  end
+end
+~~~
+
+
+~~~ruby
+# program/sort1.rb
+Flow.create interface: "ATDTest::TestProgram::Interface" do
+
+  # This func will do something
+  #
+  # * Some bullets
+  # * About this test
+  func :test_a, bin: 3, softbin: 100, number: 1000, vdd: :max
+
+  func :test_b, bin: 3, softbin: 101, number: 1010, id: :test1
+
+  func :test_c, if_failed: :test1
+
+  func :test_d
+
+  if_job :p1 do
+    para :p1_test1, id: :p11, lo_limit: 10.mV, hi_limit: 20.mV
+    func :p1_test2, id: :p12
+    func :p1_test3, if_all_failed: [:p11, :p12]
+    if_enable :bitmap do
+      func :bitmap_test
+    end
+  end
+
+  if_job :p2 do
+    func :p2_test1, id: :p21, vdd: :min
+    func :p2_test2, id: :p22
+    func :p2_test3, if_any_passed: [:p21, :p22]
+  end
+
+  group "200Mhz Tests", id: :g200 do
+    func :test200_1
+    func :test200_2
+    func :test200_3
+  end
+
+  group "100Mhz Tests", if_failed: :g200, id: :g100 do
+    func :test100_1, bin: 5
+    func :test100_2, bin: 5
+    func :test100_3, bin: 5
+  end
+
+  if_job :p2 do
+    import "atd_tests", instances: 4
+  end
+
+  pass 2, if_ran: :g100
+
+  pass 1
+
+
+end
+~~~
+
+~~~ruby
+# program/_atd_tests.rb
+Flow.create do |options|
+
+  options[:instances].times do |i|
+    func "atd_ramp_#{i}" 
+  end
+
+end
+~~~
+
+% end
