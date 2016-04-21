@@ -49,7 +49,7 @@ describe "Origen Errata Module" do
 
   it "Errata function returns object with specific ID" do
     @dut.errata(id: "ERR1").is_a?(Origen::Errata::HwErratum).should == true
-    @dut.errata(id:"ERR1").id.should == "ERR1"
+    @dut.errata(id: "ERR1").id.should == "ERR1"
   end
   
   it "Software workaround can be created" do
