@@ -2,6 +2,9 @@ module Origen
   module Specs
     # This class is used to store documentation map that the user can change
     class Documentation
+      # Level that Section is at.  Allows for a key to be found.
+      attr_accessor :level
+
       # This is the Section Header for the Documentation Map.  Usually these are main headers
       # Examples:
       #  I. Overall DC Electricals
@@ -43,6 +46,7 @@ module Origen
 
       # Initialize the Class
       def initialize(header_info = {}, selection = {}, link = nil)
+        @level = header_info[:level]
         @section = header_info[:section]
         @subsection = header_info[:subsection]
         @interface = selection[:interface]
