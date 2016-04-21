@@ -92,7 +92,7 @@ module Origen
     end
  
     def _sw_workarounds
-      @_sw_workarounds = {}
+      @_sw_workarounds ||= {}
     end
 
     # Return a hash based on the filter provided
