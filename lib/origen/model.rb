@@ -23,6 +23,7 @@ module Origen
       include Origen::Ports
       include Origen::Netlist
       include Origen::Memory
+      include Origen::Errata
     end
 
     module ClassMethods
