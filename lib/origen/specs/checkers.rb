@@ -70,7 +70,7 @@ module Origen
       end
 
       def evaluate_limit(limit)
-        return limit if limit.is_a?(Numeric) || limit.is_a?(Symbol)
+        return limit if [Numeric, Symbol, Nokogiri::XML::NodeSet].include? limit.class
         return nil if limit.nil?
         limit.gsub!("\n", ' ')
         limit.scrub!
