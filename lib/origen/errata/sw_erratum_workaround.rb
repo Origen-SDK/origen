@@ -1,7 +1,6 @@
 module Origen
   module Errata
     class SwErratumWorkaround
-  
       # ID number used to identify software workaround
       attr_reader :id
 
@@ -27,9 +26,9 @@ module Origen
       attr_accessor :patches
 
       def initialize(id, overview = {}, resolution = {})
-	@id = id
-	@title = overview[:title]
-	@description = overview[:description]
+        @id = id
+        @title = overview[:title]
+        @description = overview[:description]
         @sw_disposition = overview[:sw_disposition]
         @distribution = overview[:distribution]
         @note = resolution[:note]
