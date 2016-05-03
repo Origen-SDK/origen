@@ -1,15 +1,14 @@
 module Origen
   module Errata
-    class HwErratum 
-
-      # ID number used to identify erratum 
+    class HwErratum
+      # ID number used to identify erratum
       attr_reader :id
-   
+
       # Erratum Title
       attr_accessor :title
-  
-      # Description of erratum 
-      attr_accessor  :description
+
+      # Description of erratum
+      attr_accessor :description
 
       # Description of the hardware workaround for the erratum
       attr_accessor :hw_workaround_description
@@ -33,17 +32,16 @@ module Origen
       attr_accessor :sw_workaround
 
       def initialize(id, ip_block, overview  = {}, status = {}, sw_workaround = {})
-	@id = id
+        @id = id
         @ip_block = ip_block
-	@title = overview[:title]
-	@description = overview[:description]
+        @title = overview[:title]
+        @description = overview[:description]
         @hw_workaround_description = overview[:hw_workaround_description]
         @disposition = status[:disposition]
         @impact = status[:impact]
         @fix_plan = status[:fix_plan]
-	@sw_workaround = sw_workaround
+        @sw_workaround = sw_workaround
       end
-
     end
   end
 end
