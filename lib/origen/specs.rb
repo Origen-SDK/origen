@@ -134,10 +134,10 @@ module Origen
     end
 
     # Adds a new documentation notion to the block
-    def documentation(header_info, selection,  link)
+    def documentation(header_info, selection, applicable_devices, link)
       _documentation
       # Create a new documenation and place it in the 5-D hash
-      @_documentation[header_info[:section]][header_info[:subsection]][selection[:interface]][selection[:type]][selection[:sub_type]][selection[:mode]][selection[:audience]] = Documentation.new(header_info, selection, link)
+      @_documentation[header_info[:section]][header_info[:subsection]][selection[:interface]][selection[:type]][selection[:sub_type]][selection[:mode]][selection[:audience]] = Documentation.new(header_info, selection, applicable_devices, link)
     end
 
     # Adds a new feature to the block

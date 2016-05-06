@@ -165,16 +165,16 @@ class IP_With_Specs
     creation_info('Jim Smith', '22 Mar 2015', '1.0', {source: 'block-ref-i2c', ip_block_name: :i2c, revision: 'c'}, {tool: 'ISC App', version: '0.7.5'})
     creation_info('Jim Smith', '29 Apr 2015', '1.0', {source: 'block-ref-ifc', ip_block_name: :ifc, revision: 'g'}, {tool: 'ISC App', version: '0.7.5'})
     creation_info('Jim Smith', '4 Jun 2015', '1.0', {source: 'block-ref-esdhc', ip_block_name: :esdhc, revision: 'b'}, {tool: 'ISC App', version: '0.7.5'})
-    documentation({level: 1, section: 'Section 1', subsection: nil}, {interface: 'SoC', type: nil, subtype: nil, mode: nil, audience: :external}, nil)
-    documentation({level: 3, section: 'Section 1', subsection: 'SubSection A'}, {interface: 'SoC', type: :dc, subtype: nil, mode: nil, audience: :external}, 'http://link_to_section1a.xml')
-    documentation({level: 4, section: 'Section 1', subsection: 'SubSection B'}, {interface: 'SoC', type: :supply, subtype: :abs_max_ratings, mode: nil, audience: :external}, nil)
-    documentation({level: 5, section: 'Section 2', subsection: 'SubSection A'}, {interface: 'Block A', type: :dc, subtype: :V3p3V, mode: nil, audience: :internal}, nil)
-    documentation({level: 8, section: 'Section 2', subsection: 'SubSection B'}, {interface: 'Block A', type: :supply, subtype: nil, mode: nil, audience: :external}, 'http://link_to_section2b.xml')
-    documentation({level: 6, section: 'Section 2', subsection: 'SubSection C'}, {interface: 'Block A', type: :power, subtype: nil, mode: nil, audience: :external}, 'http://link_to_section2c.xml')
-    documentation({level: 0, section: 'Section 2', subsection: 'SubSection D'}, {interface: 'Block A', type: :impedance, subtype: nil, mode: nil, audience: :external}, 'http://link_to_section2d.xml')
-    documentation({level: 1, section: 'Section 3', subsection: 'SubSection A'}, {interface: 'Block B', type: :ac, subtype: nil, mode: nil, audience: :external}, nil)
-    documentation({level: 2, section: 'Section 3', subsection: 'SubSection B'}, {interface: 'Block B', type: :dc, subtype: :V3p3V, mode: nil, audience: :internal}, 'http://link_to_section3b.xml')
-    documentation({level: 4, section: 'Section 3', subsection: 'SubSection C'}, {interface: 'Block B', type: :supply, subtype: nil, mode: nil, audience: :external}, 'http://link_to_section3c.xml')    
+    documentation({level: 1, section: 'Section 1', subsection: nil}, {interface: 'SoC', type: nil, subtype: nil, mode: nil, audience: :external}, [:device1], nil)
+    documentation({level: 3, section: 'Section 1', subsection: 'SubSection A'}, {interface: 'SoC', type: :dc, subtype: nil, mode: nil, audience: :external}, [:device1], 'http://link_to_section1a.xml')
+    documentation({level: 4, section: 'Section 1', subsection: 'SubSection B'}, {interface: 'SoC', type: :supply, subtype: :abs_max_ratings, mode: nil, audience: :external}, [:device2], nil)
+    documentation({level: 5, section: 'Section 2', subsection: 'SubSection A'}, {interface: 'Block A', type: :dc, subtype: :V3p3V, mode: nil, audience: :internal}, [:device1], nil)
+    documentation({level: 8, section: 'Section 2', subsection: 'SubSection B'}, {interface: 'Block A', type: :supply, subtype: nil, mode: nil, audience: :external}, [:device1, :device2], 'http://link_to_section2b.xml')
+    documentation({level: 6, section: 'Section 2', subsection: 'SubSection C'}, {interface: 'Block A', type: :power, subtype: nil, mode: nil, audience: :external}, [:device1, :device2], 'http://link_to_section2c.xml')
+    documentation({level: 0, section: 'Section 2', subsection: 'SubSection D'}, {interface: 'Block A', type: :impedance, subtype: nil, mode: nil, audience: :external}, [:device1, :device2], 'http://link_to_section2d.xml')
+    documentation({level: 1, section: 'Section 3', subsection: 'SubSection A'}, {interface: 'Block B', type: :ac, subtype: nil, mode: nil, audience: :external}, [:device1, :device2], nil)
+    documentation({level: 2, section: 'Section 3', subsection: 'SubSection B'}, {interface: 'Block B', type: :dc, subtype: :V3p3V, mode: nil, audience: :internal}, [:device1, :device2], 'http://link_to_section3b.xml')
+    documentation({level: 4, section: 'Section 3', subsection: 'SubSection C'}, {interface: 'Block B', type: :supply, subtype: nil, mode: nil, audience: :external}, [:device1, :device2], 'http://link_to_section3c.xml')    
   end
 end
 
@@ -425,9 +425,9 @@ describe "Origen Specs Module" do
     @ip.documentations(interface: 'Block C').should == nil
     @ip.delete_all_documentation
     @ip.documentations.should == nil
-    @ip.documentation({section: 'Section 1', subsection: 'SubSection B'}, {interface: 'SoC', type: :supply, subtype: :abs_max_ratings, mode: nil, audience: :external}, nil)
-    @ip.documentation({section: 'Section 2', subsection: 'SubSection A'}, {interface: 'Block A', type: :dc, subtype: :V3p3V, mode: nil, audience: :internal}, nil)
-    @ip.documentation({section: 'Section 2', subsection: 'SubSection B'}, {interface: 'Block A', type: :supply, subtype: nil, mode: nil, audience: :external}, 'http://link_to_section2b.xml')
+    @ip.documentation({section: 'Section 1', subsection: 'SubSection B'}, {interface: 'SoC', type: :supply, subtype: :abs_max_ratings, mode: nil, audience: :external}, [:device1, :device2], nil)
+    @ip.documentation({section: 'Section 2', subsection: 'SubSection A'}, {interface: 'Block A', type: :dc, subtype: :V3p3V, mode: nil, audience: :internal}, [:device1, :device2], nil)
+    @ip.documentation({section: 'Section 2', subsection: 'SubSection B'}, {interface: 'Block A', type: :supply, subtype: nil, mode: nil, audience: :external}, [:device1, :device2], 'http://link_to_section2b.xml')
     get_true_hash_size(@ip.documentations, Origen::Specs::Documentation).should == 3
     get_true_hash_size(@ip.documentations(section: 'Section 1'), Origen::Specs::Documentation).should == 1
     get_true_hash_size(@ip.documentations(section: 'Section 2'), Origen::Specs::Documentation).should == 2
