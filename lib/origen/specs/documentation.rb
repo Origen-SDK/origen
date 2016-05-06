@@ -44,8 +44,11 @@ module Origen
       # DITA Formatted Text that appears before the table
       attr_accessor :link
 
+      # Applicable Devices for the map
+      attr_accessor :applicable_devices
+
       # Initialize the Class
-      def initialize(header_info = {}, selection = {}, link = nil)
+      def initialize(header_info = {}, selection = {}, applicable_devs = [], link = nil)
         @level = header_info[:level]
         @section = header_info[:section]
         @subsection = header_info[:subsection]
@@ -54,6 +57,7 @@ module Origen
         @type = selection[:type]
         @sub_type = selection[:sub_type]
         @audience = selection[:audience]
+        @applicable_devices = applicable_devs
         @link = link
       end
     end
