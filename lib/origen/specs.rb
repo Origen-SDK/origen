@@ -363,11 +363,11 @@ module Origen
       filter_hash(@_documentation, options[:section]).each do |_section, hash|
         filter_hash(hash, options[:subsection]).each do |_subsection, hash_|
           filter_hash(hash_, options[:interface]).each do |_interface, hash__|
-            filter_hash(hash__, options[:mode]).each do |_mode, hash___|
-              filter_hash(hash___, options[:type]).each do |_type, hash____|
-                filter_hash(hash____, options[:sub_type]).each do |_sub_type, hash_____|
+            filter_hash(hash__, options[:type]).each do |_type, hash___|
+              filter_hash(hash___, options[:sub_type]).each do |_sub_type, hash____|
+                filter_hash(hash____, options[:mode]).each do |_mode, hash_____|
                   filter_hash(hash_____, options[:audience]).each do |_audience, doc|
-                    doc_found[_section][_subsection][_interface][_mode][_type][_sub_type][_audience] = doc
+                    doc_found[_section][_subsection][_interface][_type][_sub_type][_mode][_audience] = doc
                   end
                 end
               end
