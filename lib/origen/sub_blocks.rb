@@ -258,17 +258,17 @@ module Origen
       else
         class_name = options.delete(:class_name)
         if class_name
-          begin
+          if eval("defined? ::#{namespace}::#{class_name}")
             klass = eval("::#{namespace}::#{class_name}")
-          rescue
-            begin
+          else
+            if eval("defined? #{class_name}")
               klass = eval(class_name)
-            rescue
-              begin
+            else
+              if eval("defined? #{self.class}::#{class_name}")
                 klass = eval("#{self.class}::#{class_name}")
-              rescue
+              else
                 puts "Could not find class: #{class_name}"
-                raise 'Unknown sub block class!'
+                fail 'Unknown sub block class!'
               end
             end
           end

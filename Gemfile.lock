@@ -187,3 +187,6 @@ DEPENDENCIES
   origen_doc_helpers (>= 0.2.0)
   origen_testers (~> 0)
   stackprof (~> 0)
+
+BUNDLED WITH
+   1.11.2

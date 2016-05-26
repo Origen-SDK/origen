@@ -20,17 +20,17 @@ module Origen
       def _resolve_model_class(options)
         class_name = options[:class_name]
         if class_name
-          begin
+          if eval("defined? #{_namespace}::#{class_name}")
             klass = eval("#{_namespace}::#{class_name}")
-          rescue
-            begin
+          else
+            if eval("defined? #{class_name}")
               klass = eval(class_name)
-            rescue
-              begin
+            else
+              if eval("defined? #{self}::#{class_name}")
                 klass = eval("#{self}::#{class_name}")
-              rescue
+              else
                 puts "Could not find class: #{class_name}"
-                raise 'Unknown model class!'
+                fail 'Unknown model class!'
               end
             end
           end
@@ -67,11 +67,11 @@ module Origen
         if self.class.path_to_model
           m = eval(self.class.path_to_model)
           if m
-            begin
-              m.send('_controller=', self)
-            rescue
-              # Model is not an Origen::Model
+            if m.respond_to?(:_controller=)
+              m.send(:_controller=, self)
             end
+          else
+            fail "No model object found at path: #{self.class.path_to_model}"
           end
           m
         end
