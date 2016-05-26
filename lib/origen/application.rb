@@ -100,7 +100,7 @@ module Origen
     # as defined by Origen.app.config.rc_url. If the revision control URL has not been
     # defined, or it does not resolve to a recognized revision control system, then this
     # method will return nil.
-    def revision_controller
+    def revision_controller(options = {})
       if current?
         if config.rc_url
           if config.rc_url =~ /^sync:/
@@ -113,7 +113,7 @@ module Origen
               local:  root,
               # If a workspace is based on a fork of the master repo, config.rc_url may not
               # be correct
-              remote: RevisionControl::Git.origin || config.rc_url
+              remote: (options[:uninitialized] ? config.rc_url : (RevisionControl::Git.origin || config.rc_url))
             )
 
           end
