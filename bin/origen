@@ -121,6 +121,8 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
             else
               puts "Unable to determine gcc version, proceeding with fingers crossed..."
             end
+            # Need to compact the system gem specs array to remove reference to any nil elements which will cause an error below.
+            system_gem_specs.compact!
             # Some gems (particularly those with C extensions that need to be built), can be hard to install reliably
             # across a large user base. Initially seed the user's local gem area with the system-installed gems,
             # this means that the system Ruby owner can provide an installation for these hard-to-install gems.
@@ -134,16 +136,29 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
                   (spec.executables || []).each do |bin|
                     FileUtils.cp("#{spec.bin_dir}/#{bin}", "#{local_gem_dir}/bin")
                   end
-                  FileUtils.cp(spec.cache_file, "#{local_gem_dir}/cache")
+                  if !File.exist(spec.cache_file)
+                   FileUtils.cp(spec.cache_file, "#{local_gem_dir}/cache")
+                  end 
                   if spec.extension_dir && File.exist?(spec.extension_dir)
                     spec.extension_dir =~ /.*extensions(.*)/
                     sub_dir = Pathname.new($1).dirname.to_s
                     local_ext_dir = "#{local_gem_dir}/extensions/#{sub_dir}"
                     FileUtils.mkdir_p(local_ext_dir) unless File.exist?(local_ext_dir)
+
+                   # If the file exists in the extensions directory, skip copying it over.                   
+                   if !File.exist?(spec.extension_dir)
                     FileUtils.cp_r(spec.extension_dir, local_ext_dir)
+                   end
                   end
-                  FileUtils.cp_r(spec.gem_dir, "#{local_gem_dir}/gems")
-                  FileUtils.cp(spec.spec_file, "#{local_gem_dir}/specifications")
+ 
+                   # If the file exists in the gem directory, skip copying it over.
+                   if !File.exist?(spec.gem_dir)
+                    FileUtils.cp_r(spec.gem_dir, "#{local_gem_dir}/gems")
+                   end
+                   # If the file exists in the specifications directory, skip copying it over.
+                   if !File.exist?(spec.spec_file)
+                    FileUtils.cp(spec.spec_file, "#{local_gem_dir}/specifications")
+                   end
                 rescue
                   puts "Had problems installing #{spec.name} from your system Ruby, proceeding with fingers crossed..."
                 end
