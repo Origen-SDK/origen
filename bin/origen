@@ -146,17 +146,22 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
                     sub_dir = Pathname.new($1).dirname.to_s
                     local_ext_dir = "#{local_gem_dir}/extensions/#{sub_dir}"
                     FileUtils.mkdir_p(local_ext_dir) unless File.exist?(local_ext_dir)
+
+                   # If the file exists in the extensions directory, skip copying it over.                   
                    if File.exist?(spec.extension_dir)
                     puts "Skipping copy of #{spec.extension_dir}"
                    else 
                     FileUtils.cp_r(spec.extension_dir, local_ext_dir)
                    end
                   end
+ 
+                   # If the file exists in the gem directory, skip copying it over.
                    if File.exist?(spec.gem_dir)
                     puts "Skipping copy of #{spec.gem_dir}"
                    else
                     FileUtils.cp_r(spec.gem_dir, "#{local_gem_dir}/gems")
                    end
+                   # If the file exists in the specifications directory, skip copying it over.
                    if File.exist?(spec.spec_file)
                     puts "Skipping copy of #{spec.spec_file}"
                    else 
