@@ -69,7 +69,7 @@ md5 = "#{tmp}/md5#{version}"
 if File.exist?(tmp_dir) && File.exist?(md5)
   old_sig = File.read(md5)
   hash = Digest::MD5.new
-  Dir["#{tmp_dir}/**/*"].each do |f|
+  Dir["#{tmp_dir}/**/{*,.*}"].each do |f|
     hash << File.read(f) unless File.directory?(f)
   end
   new_sig = hash.hexdigest
@@ -99,7 +99,7 @@ unless all_present
   end
 
   hash = Digest::MD5.new
-  Dir["#{tmp_dir}/**/*"].each do |f|
+  Dir["#{tmp_dir}/**/{*,.*}"].each do |f|
     hash << File.read(f) unless File.directory?(f)
   end
   File.open(md5, 'w') { |f| f.write(hash.hexdigest) }
