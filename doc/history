@@ -1,3 +1,30 @@
+<a class="anchor release_tag" name="v0_7_14"></a>
+<h1><a href="#v0_7_14">Tag: v0.7.14</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 09-Jun-2016 09:21AM
+
+
+Various minor improvements:
+
+* Fixes issue with hard links being generated in web pages whenever the application is at
+  a production release version. Now hard links are only created if the --archive switch is
+  supplied to 'origen web compile'
+* Error dumps now show the full stack trace without requiring to run with -verbose, but it
+  now separates out the application call stack from the full framework call stack
+* config.pattern\_output\_directory now works, by default is set to config.output\_directory
+* The reference directory now automatically tracks the structure of the output directory for
+  pattern generation as long as the output directory is some sub-directory of Origen.root/output.
+  Previously the app config was responsible for keeping these aligned.
+* If a test program interface defines startup and shutdown methods, these will automatically
+  be called at the start and end of every Flow.create block. Any arguments passed to
+  Flow.create will be passed in when called from a top-level flow options[:top\_level] will
+  be present and set to true.
+* Added the target environment to pattern headers.
+* Fix for new application build crashing if dotfiles have been deleted from the new app
+  template cache in /tmp.
+
 <a class="anchor release_tag" name="v0_7_13"></a>
 <h1><a href="#v0_7_13">Tag: v0.7.13</a></h1>
 
