@@ -363,8 +363,8 @@ module Origen
             desc[0] = desc.first.sub(/\s*\*\*\s*#{escape_special_char(full_name(bitname))}\s*\*\*\s*-?\s*/, '')
           end
         end
-        desc.shift if desc.first && desc.first.strip.empty?
-        desc.pop if desc.last && desc.last.strip.empty?
+        desc.shift while desc.first && desc.first.strip.empty?
+        desc.pop while desc.last && desc.last.strip.empty?
         desc
       end
       alias_method :descriptions, :description
@@ -1366,6 +1366,36 @@ module Origen
         else
           bits.any? { |bit| bit.enabled_by_feature?(name) }
         end
+      end
+
+      def to_json(*args)
+        JSON.pretty_generate({
+                               name:        name,
+                               full_name:   full_name,
+                               address:     address,
+                               offset:      offset,
+                               size:        size,
+                               path:        path,
+                               reset_value: reset_value,
+                               description: description(include_name: false, include_bit_values: false),
+                               bits:        named_bits.map do |name, bit|
+                                 {
+                                   name:        name,
+                                   full_name:   bit.full_name,
+                                   position:    bit.position,
+                                   size:        bit.size,
+                                   reset_value: bit.reset_value,
+                                   access:      bit.access,
+                                   description: bit.description(include_name: false, include_bit_values: false),
+                                   bit_values:  bit.bit_value_descriptions.map do |val, desc|
+                                     {
+                                       value:       val,
+                                       description: desc
+                                     }
+                                   end
+                                 }
+                               end
+                             }, *args)
       end
 
       private

@@ -327,6 +327,23 @@ module Origen
       end
     end
 
+    def to_json(*args)
+      JSON.pretty_generate({
+                             name:      name,
+                             address:   base_address,
+                             path:      path,
+                             blocks:    sub_blocks.map do |name, block|
+                               {
+                                 name:    name,
+                                 address: block.base_address
+                               }
+                             end,
+                             registers: regs.map do |name, reg|
+                               reg
+                             end
+                           }, *args)
+    end
+
     private
 
     def _initialized

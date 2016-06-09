@@ -254,6 +254,10 @@ module Origen
       def contains_bits?
         true
       end
+
+      def to_json(*args)
+        materialize.to_json(*args)
+      end
     end
 
     class Collector
