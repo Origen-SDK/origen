@@ -59,11 +59,25 @@ module Origen
       end
 
       def output_pattern_directory
-        Origen.file_handler.output_directory
+        @output_pattern_directory ||= begin
+          dir = Origen.app.config.pattern_output_directory
+          if tester.respond_to?(:subdirectory)
+            dir = File.join(dir, tester.subdirectory)
+          end
+          FileUtils.mkdir_p(dir) unless File.exist?(dir)
+          dir
+        end
       end
 
       def reference_pattern_directory
-        Origen.file_handler.reference_directory
+        @reference_pattern_directory ||= begin
+          dir = Origen.file_handler.reference_directory
+          if tester.respond_to?(:subdirectory)
+            dir = File.join(dir, tester.subdirectory)
+          end
+          FileUtils.mkdir_p(dir) unless File.exist?(dir)
+          dir
+        end
       end
 
       def output_prefix

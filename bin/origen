@@ -238,25 +238,32 @@ begin
 rescue Exception => e
   unless e.is_a?(SystemExit) && e.status == 0
     puts
-    puts e.message unless e.is_a?(SystemExit)
     if Origen.app_loaded?
+      puts "COMPLETE CALL STACK"
+      puts "-------------------"
+      puts e.message unless e.is_a?(SystemExit)
+      puts e.backtrace
+
+      puts
+      puts "APPLICATION CALL STACK"
+      puts "----------------------"
+      puts e.message unless e.is_a?(SystemExit)
       # Only print out the application stack trace by default, if verbose logging is
       # enabled then output the full thing
       e.backtrace.each do |line|
         path = Pathname.new(line)
         if path.absolute?
-          if Origen.log.level == :verbose || (line =~ /^#{Origen.root}/ && line !~ /^#{Origen.root}\/lbin/)
+          if line =~ /^#{Origen.root}/ && line !~ /^#{Origen.root}\/lbin/
             puts line 
           end
         else
-          if Origen.log.level == :verbose
-            puts line
-          else
-            puts line unless line =~ /^.\/lbin/
-          end
+          puts line unless line =~ /^.\/lbin/
         end
       end
     else
+      puts "COMPLETE CALL STACK"
+      puts "-------------------"
+      puts e.message unless e.is_a?(SystemExit)
       puts e.backtrace
     end
     exit 1

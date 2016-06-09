@@ -220,7 +220,11 @@ module Origen
         c2 'GENERATED:'
         c2 "  Time:    #{Origen.launch_time}"
         c2 "  By:      #{Origen.current_user.name}"
-        c2 "  Command: origen g #{job.requested_pattern} -t #{Origen.target.file.basename}"
+        l = "  Command: origen g #{job.requested_pattern} -t #{Origen.target.file.basename}"
+        if Origen.environment && Origen.environment.file
+          l += " -e #{Origen.environment.file.basename}"
+        end
+        c2(l)
         c2 '*' * 75
         c2 'ENVIRONMENT:'
         c2 '  Application'

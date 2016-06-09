@@ -22,7 +22,9 @@ module Origen
         if sub_flow
           interface = Origen.interface
           opts = Origen.generator.option_pipeline.pop || {}
+          Origen.interface.startup(options) if Origen.interface.respond_to?(:startup)
           interface.instance_exec(opts, &block)
+          Origen.interface.shutdown(options) if Origen.interface.respond_to?(:shutdown)
           if Origen.tester.doc?
             Origen.interface.flow.stop_section
           end
@@ -32,7 +34,10 @@ module Origen
           interface = Origen.reset_interface(options)
           Origen.interface.set_top_level_flow
           Origen.interface.flow_generator.set_flow_description(Origen.interface.consume_comments)
+          options[:top_level] = true
+          Origen.interface.startup(options) if Origen.interface.respond_to?(:startup)
           interface.instance_eval(&block)
+          Origen.interface.shutdown(options) if Origen.interface.respond_to?(:shutdown)
           interface.close(flow: true)
         end
       end

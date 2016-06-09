@@ -65,13 +65,19 @@ module Origen
         @compile_only_dot_erb_files = true
         # Functions used here since Origen.root is not available when this is first instantiated
         @output_directory = -> { "#{Origen.root}/output" }
-        @reference_directory = -> { "#{Origen.root}/.ref" }
+        @reference_directory = lambda do
+          if Origen.config.output_directory.to_s =~ /(\\|\/)output(\\|\/)/
+            Origen.config.output_directory.to_s.sub(/(\\|\/)output(\\|\/)/, '\1.ref\2')
+          else
+            "#{Origen.root}/.ref"
+          end
+        end
         @release_directory = -> { Origen.root }
         @release_email_subject = false
         @log_directory = -> { "#{Origen.root}/log" }
         @pattern_name_translator = ->(name) { name }
         @pattern_directory = -> { "#{Origen.root}/pattern" }
-        @pattern_output_directory = -> { "#{Origen.root}/output/patterns" }
+        @pattern_output_directory = -> { Origen.app.config.output_directory }
         @history_file = -> { "#{Origen.root}/doc/history" }
         @default_lsf_action = :clear
         @proceed_with_pattern = ->(_name) { true }
