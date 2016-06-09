@@ -1,3 +1,4 @@
+require 'json'
 module Origen
   module Registers
     # The register class can be used to represent not only h/ware resgisters,

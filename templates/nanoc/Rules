@@ -36,7 +36,7 @@ compile '*' do
              coderay: {css: :style}
       filter :codeblocks
     end
-    unless ["xml", "js", "css"].include?(item[:extension]) || item[:layout] == "none" || item[:layout] == "None"
+    unless ["xml", "js", "css", "json"].include?(item[:extension]) || item[:layout] == "none" || item[:layout] == "None"
       item[:layout] = "bootstrap" if item[:layout] == "bootstrap3"
       filter :bootstrap
       layout item[:layout] || 'bootstrap'
@@ -53,7 +53,7 @@ end
 #end
 
 route '*' do
-  if item.binary? || ["xml", "js", "css"].include?(item[:extension])
+  if item.binary? || ["xml", "js", "css", "json"].include?(item[:extension])
     # Write item with identifier /foo/ to /foo.ext
     item.identifier.chop + '.' + item[:extension]
   else

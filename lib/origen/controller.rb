@@ -96,6 +96,10 @@ module Origen
       result
     end
 
+    def to_json(*args)
+      model.to_json(*args)
+    end
+
     # Used to proxy all method and attribute requests not implemented on the controller
     # to the model.
     #

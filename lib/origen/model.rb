@@ -1,5 +1,6 @@
 require 'active_support/concern'
 require 'origen/memory'
+require 'json'
 module Origen
   # Include this module to identify it as an SoC IP Block, this will automatically
   # include common modules such as Pin and Register support
