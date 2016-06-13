@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_7_16"></a>
+<h1><a href="#v0_7_16">Tag: v0.7.16</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 13-Jun-2016 10:39AM
+
+
+Minor updates to the regression manager.
+Added options to pass version and reference workspace path to the regression manager
+
 <a class="anchor release_tag" name="v0_7_15"></a>
 <h1><a href="#v0_7_15">Tag: v0.7.15</a></h1>
 
