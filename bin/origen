@@ -134,10 +134,13 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
               system_gem_specs.each do |spec|
                 begin
                   (spec.executables || []).each do |bin|
-                    FileUtils.cp("#{spec.bin_dir}/#{bin}", "#{local_gem_dir}/bin")
+                    unless File.exist?("#{local_gem_dir}/bin/#{bin}")
+                      FileUtils.cp("#{spec.bin_dir}/#{bin}", "#{local_gem_dir}/bin")
+                    end
                   end
-                  if !File.exist(spec.cache_file)
-                   FileUtils.cp(spec.cache_file, "#{local_gem_dir}/cache")
+                  p = Pathname.new(spec.cache_file)
+                  unless File.exist?("#{local_gem_dir}/cache/#{p.basename}")
+                    FileUtils.cp(spec.cache_file, "#{local_gem_dir}/cache")
                   end 
                   if spec.extension_dir && File.exist?(spec.extension_dir)
                     spec.extension_dir =~ /.*extensions(.*)/
@@ -145,20 +148,23 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
                     local_ext_dir = "#{local_gem_dir}/extensions/#{sub_dir}"
                     FileUtils.mkdir_p(local_ext_dir) unless File.exist?(local_ext_dir)
 
-                   # If the file exists in the extensions directory, skip copying it over.                   
-                   if !File.exist?(spec.extension_dir)
-                    FileUtils.cp_r(spec.extension_dir, local_ext_dir)
-                   end
+                    # If the file exists in the extensions directory, skip copying it over.                   
+                    p = Pathname.new(spec.extension_dir)
+                    unless File.exist?("#{local_ext_dir}/#{p.basename}")
+                      FileUtils.cp_r(spec.extension_dir, local_ext_dir)
+                    end
                   end
  
-                   # If the file exists in the gem directory, skip copying it over.
-                   if !File.exist?(spec.gem_dir)
-                    FileUtils.cp_r(spec.gem_dir, "#{local_gem_dir}/gems")
-                   end
-                   # If the file exists in the specifications directory, skip copying it over.
-                   if !File.exist?(spec.spec_file)
-                    FileUtils.cp(spec.spec_file, "#{local_gem_dir}/specifications")
-                   end
+                  # If the file exists in the gem directory, skip copying it over.
+                  p = Pathname.new(spec.gem_dir)
+                  unless File.exist?("#{local_gem_dir}/gems/#{p.basename}")
+                   FileUtils.cp_r(spec.gem_dir, "#{local_gem_dir}/gems")
+                  end
+                  # If the file exists in the specifications directory, skip copying it over.
+                  p = Pathname.new(spec.spec_file)
+                  unless File.exist?("#{local_gem_dir}/specifications/#{p.basename}")
+                   FileUtils.cp(spec.spec_file, "#{local_gem_dir}/specifications")
+                  end
                 rescue
                   puts "Had problems installing #{spec.name} from your system Ruby, proceeding with fingers crossed..."
                 end

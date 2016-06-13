@@ -38,13 +38,9 @@ GEM
     astrolabe (1.3.1)
       parser (~> 2.2)
     builder (3.2.2)
-    byebug (3.5.1)
-      columnize (~> 0.8)
-      debugger-linecache (~> 1.2)
-      slop (~> 3.6)
+    byebug (9.0.5)
     coderay (1.1.1)
     colored (1.2)
-    columnize (0.9.0)
     coveralls (0.8.2)
       json (~> 1.8)
       rest-client (>= 1.6.8, < 2)
@@ -53,7 +49,6 @@ GEM
       thor (~> 0.19.1)
     cri (2.7.0)
       colored (~> 1.2)
-    debugger-linecache (1.2.0)
     diff-lcs (1.2.5)
     docile (1.1.5)
     domain_name (0.5.24)
@@ -178,7 +173,7 @@ PLATFORMS
   x86-mingw32
 
 DEPENDENCIES
-  byebug (~> 3.5)
+  byebug
   coveralls
   loco
   origen!
@@ -187,3 +182,6 @@ DEPENDENCIES
   origen_doc_helpers (>= 0.2.0)
   origen_testers (~> 0)
   stackprof (~> 0)
+
+BUNDLED WITH
+   1.12.5

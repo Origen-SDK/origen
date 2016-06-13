@@ -1,5 +1,6 @@
 # Misc
 .irb_history
+.byebug_history
 
 # Editor cruft
 *.swp
@@ -30,7 +31,6 @@
 /.bin
 /.session
 /.pdm/pi_attributes.txt
-/.irb_history
 
 # Eclipse Local Items
 .buildpath
