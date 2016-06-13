@@ -50,7 +50,8 @@ module Origen
       else
         if options[:build_reference]
           @reference_tag = version_to_tag(options[:version] || get_version(options))
-          setup_reference_workspace
+          # passing the options for regression to the setup reference workspace method.
+          setup_reference_workspace(options)
           # Generate the reference files
           save_options(options)
           Origen.with_origen_root(reference_origen_root) do
@@ -58,7 +59,8 @@ module Origen
               Dir.chdir reference_origen_root do
                 Bundler.with_clean_env do
                   system 'rm -rf lbin'
-                  system 'bundle exec origen -v'  # Used to make sure gems install
+                  system 'origen -v'  # Used to make sure gems install
+                  system 'bundle install' # Make sure bundle updates the necessary config/gems required for Origen.
                   Origen.log.info '######################################################'
                   Origen.log.info 'running regression command in reference workspace...'
                   Origen.log.info '######################################################'
@@ -178,11 +180,27 @@ module Origen
       end
     end
 
-    def setup_reference_workspace
+    def setup_reference_workspace(options)
       if ws.reference_workspace_set?
-        @reference_workspace = ws.reference_workspace
+        # If the reference workspace option is true, overwrite the @reference_workspace accessor
+        if options[:reference_workspace]
+          @reference_workspace = options[:reference_workspace]
+          # Build the new reference workspace now.
+          unless File.exist?(@reference_workspace)
+            highlight { Origen.log.info 'Building reference workspace...' }
+            ws.build(@reference_workspace)
+          end
+          ws.set_reference_workspace(@reference_workspace)
+        else
+          @reference_workspace = ws.reference_workspace
+        end
       else
-        @reference_workspace = get_reference_workspace
+        if options[:reference_workspace]
+          # If the reference workspace option is true, overwrite the @reference_workspace accessor
+          @reference_workspace = options[:reference_workspace]
+        else
+          @reference_workspace = get_reference_workspace
+        end
         unless File.exist?(@reference_workspace)
           highlight { Origen.log.info 'Building reference workspace...' }
           ws.build(@reference_workspace)
