@@ -49,16 +49,4 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "gems", "~>0.8"
   spec.add_runtime_dependency "highline", "~>1.7"
   spec.add_runtime_dependency "geminabox", "0.12.4"
-
-  # Conditional logic in development dependencies is allowed as this is only evaluated when
-  # the app is run from its own workspace
-  # Added support for Ruby running on Windows x64
-  unless RUBY_PLATFORM == 'i386-mingw32' || RUBY_PLATFORM == 'x64-mingw32'
-    spec.add_development_dependency "stackprof", "~>0"
-  end
-  spec.add_development_dependency "origen_core_support", "0.2.3"
-  spec.add_development_dependency "origen_doc_helpers", ">= 0.2.0"
-  spec.add_development_dependency "loco"
-  spec.add_development_dependency "origen_testers", "~> 0"
-  spec.add_development_dependency 'origen_debuggers', '~> 0'
 end
