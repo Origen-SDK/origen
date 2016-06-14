@@ -88,6 +88,8 @@ GEM
     netrc (0.10.3)
     nokogiri (1.6.7.2)
       mini_portile2 (~> 2.0.0.rc2)
+    nokogiri (1.6.7.2-x86-mingw32)
+      mini_portile2 (~> 2.0.0.rc2)
     origen_core_support (0.2.3)
       origen (>= 0.2.6)
     origen_debuggers (0.5.1)
