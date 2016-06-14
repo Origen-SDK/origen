@@ -1,3 +1,13 @@
+<a class="anchor release_tag" name="v0_7_18"></a>
+<h1><a href="#v0_7_18">Tag: v0.7.18</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 14-Jun-2016 05:42AM
+
+
+Bug fix to allow parameters to be called 'min' and 'max'
+
 <a class="anchor release_tag" name="v0_7_17"></a>
 <h1><a href="#v0_7_17">Tag: v0.7.17</a></h1>
 
