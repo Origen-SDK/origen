@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_7_19"></a>
+<h1><a href="#v0_7_19">Tag: v0.7.19</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 17-Jun-2016 10:51AM
+
+
+Added 'bundle exec' back to regression manager. Without it problems occur when regressions
+are run with a service account.
+
 <a class="anchor release_tag" name="v0_7_18"></a>
 <h1><a href="#v0_7_18">Tag: v0.7.18</a></h1>
 
