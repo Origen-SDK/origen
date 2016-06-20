@@ -75,6 +75,14 @@ module ParametersSpec
       $dut = DUT.new
     end
 
+    it 'Parameters can be accessed via an explicit context' do
+      $dut.params.tprog.should == 20
+      $dut.params(:ate).tprog.should == 30
+      $dut.params(:probe).tprog.should == 40
+      $dut.params.test.ac.period.should == 10.ns
+      $dut.params(:ft).test.ac.period.should == 15.ns
+    end
+
     it "Min and max parameter names don't act funny" do
       $dut.params.vdd.nom.should == 1
       $dut.params.vdd.min.should == 0.8
