@@ -1,3 +1,18 @@
+<a class="anchor release_tag" name="v0_7_20"></a>
+<h1><a href="#v0_7_20">Tag: v0.7.20</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 20-Jun-2016 10:12AM
+
+
+Added the ability to lookup a parameter value via an explicitly supplied context:
+
+~~~ruby
+dut.params.tprog        # => 20
+dut.params(:ft).tprog   # => 15
+~~~
+
 <a class="anchor release_tag" name="v0_7_19"></a>
 <h1><a href="#v0_7_19">Tag: v0.7.19</a></h1>
 
