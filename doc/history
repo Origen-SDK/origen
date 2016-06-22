@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_7_21"></a>
+<h1><a href="#v0_7_21">Tag: v0.7.21</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 22-Jun-2016 11:31AM
+
+
+Updates to regression manager with respect to running regressions with a service account.
+This is still a work in progress and will be updated often.
+
 <a class="anchor release_tag" name="v0_7_20"></a>
 <h1><a href="#v0_7_20">Tag: v0.7.20</a></h1>
 
