@@ -59,10 +59,23 @@ module Origen
               Dir.chdir reference_origen_root do
                 Bundler.with_clean_env do
                   system 'rm -rf lbin'
-                  # Bundle exec is not optional in the command below. It is an absolute requirement.
-                  # Don't understand the reason why but without it problems occur when regression is run with a service account.
-                  system 'bundle exec origen -v'  # Used to make sure gems install
-                  system 'bundle install' # Make sure bundle updates the necessary config/gems required for Origen.
+                  # If regression is run using a service account, we need to setup the path/bundler manually
+                  # The regression manager needs to be passed a --service_account option when initiated.
+                  if options[:service_account]
+                    puts "Running with a service account, setting up the workspace manually now, assuming it runs BASH!! <-- can't assume bash always"
+                    puts 'This is not an ideal way, need to discuss. Though, a normal user will never set service_account to true'
+                    # Future enhancement, probably add the sourcing of files in a service_origen_setup file.
+                    # Check if service_origen_setup exists, if it does, load/execute the file. If not, ask user to provide it.
+                    # If running as a service account, service_origen_setup file is NOT optional.
+                    # More enhancements to come on this bit of code, but if someone finds a better cleaner way, I am happy to discuss the issues I have seen and come up with a solution.
+                    system 'source ~/.bash_profile'
+                    system 'source ~/.bashrc.user'
+                    system 'bundle install --gemfile Gemfile --binstubs lbin --path ~/.origen/gems/' # this needs to be executed as 'origen -v' does not seem to handle it on its own.
+                    system 'origen -v' # Let origen handle the gems installation and bundler setup.
+                  else
+                    system 'bundle exec origen -v'
+                    system 'bundle install' # Make sure bundle updates the necessary config/gems required for Origen.
+                  end
                   Origen.log.info '######################################################'
                   Origen.log.info 'running regression command in reference workspace...'
                   Origen.log.info '######################################################'
