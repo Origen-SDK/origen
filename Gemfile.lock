@@ -153,7 +153,6 @@ GEM
       rack-protection (~> 1.4)
       tilt (>= 1.3, < 3)
     slop (3.6.0)
-    stackprof (0.2.7)
     term-ansicolor (1.3.2)
       tins (~> 1.0)
     thor (0.19.1)
@@ -181,4 +180,3 @@ DEPENDENCIES
   origen_debuggers (~> 0)
   origen_doc_helpers (>= 0.2.0)
   origen_testers (~> 0)
-  stackprof (~> 0)
