@@ -163,4 +163,4 @@ DEPENDENCIES
   origen_core_support (= 0.2.3)
   origen_debuggers (~> 0)
   origen_doc_helpers (>= 0.2.0)
-  origen_testers (~> 0)
+  origen_testers (~> 0.7)

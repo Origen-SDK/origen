@@ -9,7 +9,7 @@ gem "byebug"
 gem "origen_core_support", "0.2.3"
 gem "origen_doc_helpers", ">= 0.2.0"
 gem "loco"
-gem "origen_testers", "~> 0"
+gem "origen_testers", "~> 0.7"
 gem 'origen_debuggers', '~> 0'
 
 # Specify all runtime dependencies in origen.gemspec
