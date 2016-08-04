@@ -1,3 +1,22 @@
+<a class="anchor release_tag" name="v0_7_22"></a>
+<h1><a href="#v0_7_22">Tag: v0.7.22</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 04-Aug-2016 11:43AM
+
+
+* Bug fixes to register console display
+* Added reg.data\_reverse method, this reverses the order of the data bits in
+  the returned value:
+
+~~~ruby
+my\_reg.write(0x00FF\_AA55)
+my\_reg.data               # => 0x00FF\_AA55
+my\_reg.data\_b             # => 0xFF00\_55AA
+my\_reg.data\_reverse       # => 0xAA55\_FF00
+~~~
+
 <a class="anchor release_tag" name="v0_7_21"></a>
 <h1><a href="#v0_7_21">Tag: v0.7.21</a></h1>
 
