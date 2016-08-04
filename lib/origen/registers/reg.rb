@@ -151,9 +151,10 @@ module Origen
 
           # BIT NAME ROW
           line = '  '
+          first_done = false
           named_bits include_spacers: true do |name, bit, bitcounter|
             if _bit_in_range?(bit, max_bit, min_bit)
-              if max_bit > (size - 1)
+              if max_bit > (size - 1) && !first_done
                 (max_bit - (size - 1)).times do
                   line << ' ' * (bit_width + 1)
                 end
@@ -172,8 +173,12 @@ module Origen
                     bit_name = "#{name}[#{upper}:#{lower}]"
                     bit_span = upper - lower + 1
                   end
-                  width = bit_width * bit_span
-                  line << '|' + "#{bit_name[0..width - 2]}".center(width + bit_span - 1)
+                  width = (bit_width * bit_span) + bit_span - 1
+                  if bit_name.length > width
+                    line << '|' + "#{bit_name[0..width - 2]}*"
+                  else
+                    line << '|' + bit_name.center(width)
+                  end
 
                 else
                   bit.shift_out_left do |bit|
@@ -186,22 +191,28 @@ module Origen
               else
                 if name
                   bit_name = "#{name}"
-                  txt = "#{bit_name[0..bit_width - 2]}"
+                  if bit_name.length > bit_width
+                    txt = "#{bit_name[0..bit_width - 2]}*"
+                  else
+                    txt = bit_name
+                  end
                 else
                   txt = ''
                 end
                 line << '|' + txt.center(bit_width)
               end
             end
+            first_done = true
           end
           line += '|'
           desc << line
 
           # BIT STATE ROW
           line = '  '
+          first_done = false
           named_bits include_spacers: true do |name, bit, _bitcounter|
             if _bit_in_range?(bit, max_bit, min_bit)
-              if max_bit > (size - 1)
+              if max_bit > (size - 1) && !first_done
                 (max_bit - (size - 1)).times do
                   line << ' ' * (bit_width + 1)
                 end
@@ -247,6 +258,7 @@ module Origen
                 end
               end
             end
+            first_done = true
           end
           line += '|'
           desc << line

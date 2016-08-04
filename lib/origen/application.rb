@@ -595,7 +595,7 @@ module Origen
       dynamic_resource(:toplevel_listeners, [], adding: true) << obj
     end
 
-    # Any attempts to instantiate a test within the give block will be forced to instantiate
+    # Any attempts to instantiate a tester within the give block will be forced to instantiate
     # an Origen::Tester::Doc instance
     def with_doc_tester(options = {})
       @with_doc_tester = true
