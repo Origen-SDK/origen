@@ -332,6 +332,7 @@ module Origen
               listener.shutdown(options)
             end
           end
+          ss 'Pattern complete'
 
           # Now the pattern has run call the render method if the tester uses a template
           Origen.tester.render_template

@@ -279,6 +279,17 @@ module Origen
         ~data & ((1 << size) - 1)
       end
 
+      # Returns the reverse of the data value held by the collection
+      def data_reverse
+        data = 0
+        reverse.each_with_index do |bit, i|
+          return undefined if bit.is_a?(Origen::UndefinedClass)
+          data |= bit.data << i
+        end
+        data
+      end
+      alias_method :reverse_data, :data_reverse
+
       # Supports reg.bit[0] and bitcollection.bit[0]
       def bit
         self

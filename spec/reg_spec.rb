@@ -1347,5 +1347,13 @@ module RegTest
       ro_test.read(0x5555_5555)
       ro_test.data.should == 0x5555_5555
     end
+
+    it "inverse and reverse data methods work" do
+      add_reg :revtest, 0
+      revtest.write(0x00FF_AA55)
+      revtest.data.should == 0x00FF_AA55
+      revtest.data_b.should == 0xFF00_55AA
+      revtest.data_reverse.should == 0xAA55_FF00
+    end
   end
 end
