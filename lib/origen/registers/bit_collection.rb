@@ -17,7 +17,7 @@ module Origen
       STORE_CHAR = 'S'
 
       attr_accessor :name
-      alias :id :name
+      alias_method :id, :name
 
       def initialize(reg, name, data = []) # :nodoc:
         if reg.respond_to?(:has_bits_enabled_by_feature?) && reg.has_parameter_bound_bits?
@@ -28,51 +28,9 @@ module Origen
         [data].flatten.each { |item| self << item }
       end
 
-      # Returns the bit order attribute of the bits (either :msb0 or :lsb0). If
-      # not explicitly defined for these bits it will be inherited from the parent
-      # register and will default to :lsb0 at the top-level.
-      #
-      # This method will fail if called on a bit collection that does not contain
-      # named bits only.
-      # To inhibit this fail an accept a nil response pass in true as the argument.
-      def bit_order(allow_nil=false)
-        @bit_order ||= begin
-          if id != :unknown
-            if whole_reg?
-              parent.bit_order
-            else
-              lookup = (parent.lookup[id] || {})
-              if lookup.is_a?(Array)
-                (lookup.find{ |v| v[:bit_order] } || {})[:bit_order] || parent.bit_order
-              else
-                lookup[:bit_order] || parent.bit_order
-              end
-            end
-          else
-            fail 'Bit order can only be referenced on a named bit collection' unless allow_nil
-          end
-        end
-      end
-
-      # Overrides the standard Array#each method to make it bit order aware
-      # @api private
-      def each
-        super
-        ##if whole_reg?
-
-        ##else
-        #  if id != :unknown
-        #    if bit_order == :lsb0
-        #      super
-        #    else
-        #      size.times do |i|
-        #        yield self[size - i - 1]
-        #      end
-        #    end
-        #  else
-        #    super
-        #  end
-        ##end
+      # Returns the bit order of the parent register
+      def bit_order
+        parent.bit_order
       end
 
       def terminal?
@@ -312,7 +270,7 @@ module Origen
       #   reg(:control).data         #  => 0x55, assuming the reg has the required bits to store that
       def data
         data = 0
-        shift_out_right_with_index do |bit, i|
+        shift_out_with_index do |bit, i|
           return undefined if bit.is_a?(Origen::UndefinedClass)
           data |= bit.data << i
         end
@@ -330,7 +288,7 @@ module Origen
       # Returns the reverse of the data value held by the collection
       def data_reverse
         data = 0
-        reverse.each_with_index do |bit, i|
+        reverse_shift_out_with_index do |bit, i|
           return undefined if bit.is_a?(Origen::UndefinedClass)
           data |= bit.data << i
         end
@@ -359,13 +317,8 @@ module Origen
         end
         value = value.data if value.respond_to?('data')
 
-        msb0 = bit_order(true) && bit_order == :msb0
         size.times do |i|
-          if msb0
-            self[i].write(value[size - 1 - i], options)
-          else
-            self[i].write(value[i], options)
-          end
+          self[i].write(value[i], options)
         end
         self
       end
@@ -435,7 +388,7 @@ module Origen
       #       bist_shift(bit)
       #   end
       def shift_out_left
-        if bit_order(true) == :msb0
+        if bit_order == :msb0
           each { |bit| yield bit }
         else
           reverse_each { |bit| yield bit }
@@ -444,8 +397,8 @@ module Origen
 
       # Same as Reg#shift_out_left but includes the index counter
       def shift_out_left_with_index
-        if bit_order(true) == :msb0
-          each_with_index { |bit, i| yield bit, i }
+        if bit_order == :msb0
+          each.with_index { |bit, i| yield bit, i }
         else
           reverse_each.with_index { |bit, i| yield bit, i }
         end
@@ -453,7 +406,7 @@ module Origen
 
       # Same as Reg#shift_out_left but starts from the MSB
       def shift_out_right
-        if bit_order(true) == :msb0
+        if bit_order == :msb0
           reverse_each { |bit| yield bit }
         else
           each { |bit| yield bit }
@@ -462,11 +415,31 @@ module Origen
 
       # Same as Reg#shift_out_right but includes the index counter
       def shift_out_right_with_index
-        if bit_order(true) == :msb0
+        if bit_order == :msb0
           reverse_each.with_index { |bit, i| yield bit, i }
         else
           each_with_index { |bit, i| yield bit, i }
         end
+      end
+
+      # Yields each bit in the register, LSB first.
+      def shift_out(&block)
+        each(&block)
+      end
+
+      # Yields each bit in the register and its index, LSB first.
+      def shift_out_with_index(&block)
+        each_with_index(&block)
+      end
+
+      # Yields each bit in the register, MSB first.
+      def reverse_shift_out(&block)
+        reverse_each(&block)
+      end
+
+      # Yields each bit in the register and its index, MSB first.
+      def reverse_shift_out_with_index(&block)
+        reverse_each.with_index(&block)
       end
 
       # Returns true if any bits have the read flag set - see Bit#is_to_be_read?

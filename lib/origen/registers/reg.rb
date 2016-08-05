@@ -133,7 +133,11 @@ module Origen
         if r == 0
           desc << ('   ' + ('=' * (bit_width + 1) * 8)).chop
         else
-          desc << ('   ' + (' ' * (bit_width + 1) * (8 - r)) + ('=' * (bit_width + 1) * r)).chop
+          if bit_order == :lsb0
+            desc << ('   ' + (' ' * (bit_width + 1) * (8 - r)) + ('=' * (bit_width + 1) * r)).chop
+          else
+            desc << ('   ' + ('=' * (bit_width + 1) * r)).chop
+          end
         end
 
         # "<#{self.class}: #{self.name}>"
@@ -141,11 +145,17 @@ module Origen
         num_bytes.times do |byte_index|
           # Need to add support for little endian regs here?
           byte_number = num_bytes - byte_index
-          max_bit = (byte_number * 8) - 1
-          min_bit = max_bit - 8 + 1
+          if bit_order == :lsb0
+            max_bit = (byte_number * 8) - 1
+            min_bit = max_bit - 8 + 1
+          else
+            min_bit = (byte_index * 8)
+            max_bit = min_bit + 7
+          end
 
           # BIT INDEX ROW
           line = '  '
+          line_complete = false
           8.times do |i|
             if bit_order == :lsb0
               bit_num = (byte_number * 8) - i - 1
@@ -153,22 +163,30 @@ module Origen
               bit_num = (byte_index * 8) + i
             end
             if bit_num > size - 1
-              line << ' ' + ''.center(bit_width)
+              if bit_order == :msb0 && bit_num == size
+                line += '|'
+                line_complete = true
+              else
+                line << ' ' + ''.center(bit_width)
+              end
             else
               line << '|' + "#{bit_num}".center(bit_width)
             end
           end
-          line += '|'
+          line += '|' unless line_complete
           desc << line
 
           # BIT NAME ROW
           line = '  '
           first_done = false
+          line_complete = false
           named_bits include_spacers: true do |name, bit, bitcounter|
             if _bit_in_range?(bit, max_bit, min_bit)
-              if max_bit > (size - 1) && !first_done
-                (max_bit - (size - 1)).times do
-                  line << ' ' * (bit_width + 1)
+              if bit_order == :lsb0
+                if max_bit > (size - 1) && !first_done
+                  (max_bit - (size - 1)).times do
+                    line << ' ' * (bit_width + 1)
+                  end
                 end
               end
 
@@ -176,13 +194,21 @@ module Origen
 
                 if name
                   if bitcounter.nil?
-                    bit_name = "#{name}[#{_max_bit_in_range(bit, max_bit, min_bit)}:#{_min_bit_in_range(bit, max_bit, min_bit)}]"
+                    if bit_order == :lsb0
+                      bit_name = "#{name}[#{_max_bit_in_range(bit, max_bit, min_bit)}:#{_min_bit_in_range(bit, max_bit, min_bit)}]"
+                    else
+                      bit_name = "#{name}[#{_min_bit_in_range(bit, max_bit, min_bit)}:#{_max_bit_in_range(bit, max_bit, min_bit)}]"
+                    end
                     bit_span = _num_bits_in_range(bit, max_bit, min_bit)
 
                   else
                     upper = _max_bit_in_range(bit, max_bit, min_bit) + bitcounter - bit.size
                     lower = _min_bit_in_range(bit, max_bit, min_bit) + bitcounter - bit.size
-                    bit_name = "#{name}[#{upper}:#{lower}]"
+                    if bit_order == :lsb0
+                      bit_name = "#{name}[#{upper}:#{lower}]"
+                    else
+                      bit_name = "#{name}[#{upper}:#{lower}]"
+                    end
                     bit_span = upper - lower + 1
                   end
                   width = (bit_width * bit_span) + bit_span - 1
@@ -224,9 +250,11 @@ module Origen
           first_done = false
           named_bits include_spacers: true do |name, bit, _bitcounter|
             if _bit_in_range?(bit, max_bit, min_bit)
-              if max_bit > (size - 1) && !first_done
-                (max_bit - (size - 1)).times do
-                  line << ' ' * (bit_width + 1)
+              if bit_order == :lsb0
+                if max_bit > (size - 1) && !first_done
+                  (max_bit - (size - 1)).times do
+                    line << ' ' * (bit_width + 1)
+                  end
                 end
               end
 
@@ -283,7 +311,11 @@ module Origen
               desc << ('   ' + ('-' * (bit_width + 1) * 8)).chop
             end
           else
-            desc << ('   ' + (' ' * (bit_width + 1) * (8 - size)) + ('-' * (bit_width + 1) * size)).chop
+            if bit_order == :lsb0
+              desc << ('   ' + (' ' * (bit_width + 1) * (8 - size)) + ('-' * (bit_width + 1) * size)).chop
+            else
+              desc << ('   ' + ('-' * (bit_width + 1) * size)).chop
+            end
           end
         end
         desc.join("\n")
@@ -501,9 +533,13 @@ module Origen
         @lookup.each { |_k, v| split_bits = true if v.is_a? Array }
 
         if split_bits == false
-          current_pos = size
+          if bit_order == :lsb0
+            current_pos = size
+          else
+            current_pos = 0
+          end
           # Sort by position descending
-          @lookup.sort_by { |_name, details| -details[:pos] }.each do |name, details|
+          @lookup.sort_by { |_name, details| bit_order == :lsb0 ? -details[:pos] : details[:pos] }.each do |name, details|
             pos = details[:bits] + details[:pos]
             if options[:include_spacers] && (pos != current_pos)
               collection = BitCollection.dummy(self, nil, size: current_pos - pos, pos: pos)
@@ -882,7 +918,7 @@ module Origen
                     res:  @bits[position].data,   # already been applied at reg level
                   }.merge(options)
 
-        @lookup[id] = { pos: position, bits: 1, feature: options[:feature], bit_order: options[:bit_order] }
+        @lookup[id] = { pos: position, bits: 1, feature: options[:feature] }
         @bits.delete_at(position)    # Remove the initial bit from this position
 
         @bits.insert(position, Bit.new(self, position, options))
@@ -899,7 +935,7 @@ module Origen
                     res:  default_data,   # already been applied at reg level
                   }.merge(options)
 
-        @lookup[id] = { pos: position, bits: size, bit_order: options[:bit_order] }
+        @lookup[id] = { pos: position, bits: size }
         size.times do |n|
           bit_options = options.dup
           bit_options[:data] = options[:data][n]

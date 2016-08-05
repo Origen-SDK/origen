@@ -44,6 +44,8 @@ module C99
     def add_non_byte_aligned_regs
       add_reg :non_aligned_small, 0x1000, size: 4
       add_reg :non_aligned_big, 0x1010, size: 10
+      add_reg :non_aligned_small_msb0, 0x2000, size: 4, bit_order: :msb0
+      add_reg :non_aligned_big_msb0, 0x2010, size: 10, bit_order: :msb0
     end
   end
 
