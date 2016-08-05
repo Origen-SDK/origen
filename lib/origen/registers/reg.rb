@@ -14,12 +14,13 @@ module Origen
       # to all of its contained bits unless a specific bit has its own definition of the same
       # attribute
       REG_LEVEL_ATTRIBUTES = {
-        feature:  {},
-        reset:    { aliases: [:res] },
-        memory:   {},
-        path:     { aliases: [:hdl_path] },
-        abs_path: { aliases: [:absolute_path] },
-        access:   {}
+        feature:   {},
+        reset:     { aliases: [:res] },
+        memory:    {},
+        path:      { aliases: [:hdl_path] },
+        abs_path:  { aliases: [:absolute_path] },
+        access:    {},
+        bit_order: {}
       }
 
       # Returns the object that own the register.
@@ -86,6 +87,13 @@ module Origen
         add_bits_from_options(options)
       end
 
+      # Returns the bit order attribute of the register (either :msb0 or :lsb0). If
+      # not explicitly defined on this register it will be inherited from the parent
+      # and will default to :lsb0 at the top-level
+      def bit_order
+        @bit_order ||= parent.bit_order
+      end
+
       def freeze
         bits.each(&:freeze)
         # Call any methods which cache results to generate the instance variables
@@ -139,7 +147,11 @@ module Origen
           # BIT INDEX ROW
           line = '  '
           8.times do |i|
-            bit_num = (byte_number * 8) - i - 1
+            if bit_order == :lsb0
+              bit_num = (byte_number * 8) - i - 1
+            else
+              bit_num = (byte_index * 8) + i
+            end
             if bit_num > size - 1
               line << ' ' + ''.center(bit_width)
             else
@@ -411,7 +423,6 @@ module Origen
 
       # @api private
       def add_bits_from_options(options = {}) # :nodoc:
-        # edit Traynor
         # options is now an array for split bit groups or a hash if single bit/range bits
         # Now add the requested bits to the register, removing the unwritable bits as required
         options.each do |bit_id, bit_params|
@@ -871,7 +882,7 @@ module Origen
                     res:  @bits[position].data,   # already been applied at reg level
                   }.merge(options)
 
-        @lookup[id] = { pos: position, bits: 1, feature: options[:feature] }
+        @lookup[id] = { pos: position, bits: 1, feature: options[:feature], bit_order: options[:bit_order] }
         @bits.delete_at(position)    # Remove the initial bit from this position
 
         @bits.insert(position, Bit.new(self, position, options))
@@ -888,7 +899,7 @@ module Origen
                     res:  default_data,   # already been applied at reg level
                   }.merge(options)
 
-        @lookup[id] = { pos: position, bits: size }
+        @lookup[id] = { pos: position, bits: size, bit_order: options[:bit_order] }
         size.times do |n|
           bit_options = options.dup
           bit_options[:data] = options[:data][n]
@@ -1155,13 +1166,17 @@ module Origen
           extract_meta_data(method, *args)
         else
           if BitCollection.instance_methods.include?(method)
-            BitCollection.new(self, name, @bits).send(method, *args, &block)
+            to_bit_collection.send(method, *args, &block)
           elsif has_bits?(method)
             bits(method)
           else
             super
           end
         end
+      end
+
+      def to_bit_collection
+        BitCollection.new(self, name, @bits)
       end
 
       # Recognize that Reg responds to all BitCollection methods methods based on

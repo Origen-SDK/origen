@@ -24,6 +24,20 @@ module Origen
 
       attr_accessor :owner
       attr_accessor :name
+      attr_writer :bit_order
+    end
+
+    # Returns the bit order attribute of the model (either :msb0 or :lsb0). If
+    # not explicitly defined on this model it will be inherited from the parent
+    # and will default to :lsb0 at the top-level
+    def bit_order
+      @bit_order ||= begin
+        if parent
+          parent.bit_order
+        else
+          :lsb0
+        end
+      end
     end
 
     def method_missing(method, *args, &block) # :nodoc:
