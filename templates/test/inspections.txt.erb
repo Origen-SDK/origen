@@ -18,6 +18,11 @@ Check the multi bitgroups scattered through the register
 % $nvm.add_multi_split_reg
 <%= $nvm.regs(:multi_group).inspect %>
 
+Test of an MSB0 bit-order register
+
+% $nvm.add_msb0_regs
+<%= $nvm.regs(:SIUL2_MIDR1).inspect %>
+
 Test of regs with non byte aligned number of bits
 
 % $nvm.add_non_byte_aligned_regs

@@ -47,6 +47,16 @@ module C99
       add_reg :non_aligned_small_msb0, 0x2000, size: 4, bit_order: :msb0
       add_reg :non_aligned_big_msb0, 0x2010, size: 10, bit_order: :msb0
     end
+
+    def add_msb0_regs
+      reg :SIUL2_MIDR1, 0x4, bit_order: :msb0  do |reg|
+        bit 0..15,  :PARTNUM, res: 0b0101011101110111
+        bit 16,     :ED
+        bit 17..21, :PKG
+        bit 24..27, :MAJOR_MASK
+        bit 28..31, :MINOR_MASK
+      end
+    end
   end
 
   class NVMSub < NVM

@@ -130,7 +130,7 @@ module Origen
         bit_width = 13
         desc = ["\n0x%X - :#{name}" % address]
         r = size % 8
-        if r == 0
+        if r == 0 || (size > 8 && bit_order == :msb0)
           desc << ('   ' + ('=' * (bit_width + 1) * 8)).chop
         else
           if bit_order == :lsb0
@@ -305,8 +305,10 @@ module Origen
 
           if size >= 8
             r = size % 8
-            if byte_index == 0 && r != 0
+            if byte_index == 0 && r != 0 && bit_order == :lsb0
               desc << ('   ' + ('=' * (bit_width + 1) * (8 - r)).chop + ' ' + ('-' * (bit_width + 1) * r)).chop
+            elsif (byte_index == num_bytes - 1) && r != 0 && bit_order == :msb0
+              desc << ('   ' + ('-' * (bit_width + 1) * r)).chop
             else
               desc << ('   ' + ('-' * (bit_width + 1) * 8)).chop
             end
@@ -538,11 +540,19 @@ module Origen
           else
             current_pos = 0
           end
-          # Sort by position descending
+          # Sort by position
           @lookup.sort_by { |_name, details| bit_order == :lsb0 ? -details[:pos] : details[:pos] }.each do |name, details|
-            pos = details[:bits] + details[:pos]
+            if bit_order == :lsb0
+              pos = details[:bits] + details[:pos]
+            else
+              pos = details[:pos]
+            end
             if options[:include_spacers] && (pos != current_pos)
-              collection = BitCollection.dummy(self, nil, size: current_pos - pos, pos: pos)
+              if bit_order == :lsb0
+                collection = BitCollection.dummy(self, nil, size: current_pos - pos, pos: pos)
+              else
+                collection = BitCollection.dummy(self, nil, size: pos - current_pos, pos: current_pos)
+              end
               unless collection.size == 0
                 if block_given?
                   yield nil, collection
@@ -562,10 +572,19 @@ module Origen
                 result << [name, collection]
               end
             end
-            current_pos = details[:pos]
+            if bit_order == :lsb0
+              current_pos = details[:pos]
+            else
+              current_pos = details[:bits] + details[:pos]
+            end
           end
-          if options[:include_spacers] && current_pos != 0
-            collection = BitCollection.dummy(self, nil, size: current_pos, pos: 0)
+          if options[:include_spacers] && ((bit_order == :lsb0 && current_pos != 0) ||
+                                            bit_order == :msb0 && current_pos != size)
+            if bit_order == :lsb0
+              collection = BitCollection.dummy(self, nil, size: current_pos, pos: 0)
+            else
+              collection = BitCollection.dummy(self, nil, size: size - current_pos, pos: current_pos)
+            end
             unless collection.size == 0
               if block_given?
                 yield nil, collection
