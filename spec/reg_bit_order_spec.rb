@@ -166,7 +166,4 @@ describe "Register bit order control" do
     dut.msb0.data_b.should == 0xFF00_55AA
     dut.msb0.data_reverse.should == 0xAA55_FF00
   end
-
-  it "read masks are applied correctly"
-
 end

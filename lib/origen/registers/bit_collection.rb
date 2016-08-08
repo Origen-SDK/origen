@@ -109,7 +109,7 @@ module Origen
             v = tester.capture do
               store!
             end
-            reverse_each.with_index do |bit, i|
+            reverse_shift_out_with_index do |bit, i|
               bit.instance_variable_set('@updated_post_reset', true)
               bit.instance_variable_set('@data', v.first[i])
             end
@@ -339,8 +339,8 @@ module Origen
           write(value, force: true)
         end
         if options[:mask]
-          each_with_index { |bit, i| bit.read if options[:mask][i] == 1 }
-          each_with_index { |bit, i| bit.clear_read_flag if options[:mask][i] == 0 }
+          shift_out_with_index { |bit, i| bit.read if options[:mask][i] == 1 }
+          shift_out_with_index { |bit, i| bit.clear_read_flag if options[:mask][i] == 0 }
         else
           each(&:read)
         end
@@ -470,7 +470,7 @@ module Origen
       # value in these bits
       def setting(value)
         result = 0
-        each_with_index do |bit, i|
+        shift_out_with_index do |bit, i|
           result |= bit.setting(value[i])
         end
         result
@@ -700,11 +700,11 @@ module Origen
       def reset_data(value = nil)
         # This method was originally setup to set the reset value by passing an argument
         if value
-          each_with_index { |bit, i| bit.reset_val = value[i] }
+          shift_out_with_index { |bit, i| bit.reset_val = value[i] }
           self
         else
           data = 0
-          each_with_index do |bit, i|
+          shift_out_with_index do |bit, i|
             return bit.reset_data if bit.reset_data.is_a?(Symbol)
             data |= bit.reset_data << i
           end
@@ -719,13 +719,13 @@ module Origen
 
       # Modify writable for bits in collection
       def writable(value)
-        each_with_index { |bit, i| bit.writable = (value[i] == 0b1); bit.set_access_from_rw }
+        shift_out_with_index { |bit, i| bit.writable = (value[i] == 0b1); bit.set_access_from_rw }
         self
       end
 
       # Modify readable for bits in collection
       def readable(value)
-        each_with_index { |bit, i| bit.readable = (value[i] == 0b1); bit.set_access_from_rw }
+        shift_out_with_index { |bit, i| bit.readable = (value[i] == 0b1); bit.set_access_from_rw }
         self
       end
 
@@ -778,20 +778,20 @@ module Origen
 
       # Modify clr_only for bits in collection
       def clr_only(value)
-        each_with_index { |bit, i| bit.clr_only = (value[i] == 0b1) }
+        shift_out_with_index { |bit, i| bit.clr_only = (value[i] == 0b1) }
         self
       end
 
       # Modify set_only for bits in collection
       def set_only(value)
-        each_with_index { |bit, i| bit.set_only = (value[i] == 0b1) }
+        shift_out_with_index { |bit, i| bit.set_only = (value[i] == 0b1) }
         self
       end
 
       # Return nvm_dep value held by collection
       def nvm_dep
         nvm_dep = 0
-        each_with_index { |bit, i| nvm_dep |= bit.nvm_dep << i }
+        shift_out_with_index { |bit, i| nvm_dep |= bit.nvm_dep << i }
         nvm_dep
       end
 
@@ -881,7 +881,7 @@ module Origen
       #   myreg.data          # => 0b0011
       def shift_left(data = 0)
         prev_bit = nil
-        reverse_each do |bit|
+        reverse_shift_out do |bit|
           prev_bit.write(bit.data) if prev_bit
           prev_bit = bit
         end
@@ -904,7 +904,7 @@ module Origen
       #   myreg.data          # => 0b1100
       def shift_right(data = 0)
         prev_bit = nil
-        each do |bit|
+        shift_out do |bit|
           prev_bit.write(bit.data) if prev_bit
           prev_bit = bit
         end
