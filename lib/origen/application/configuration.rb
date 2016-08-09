@@ -187,7 +187,7 @@ module Origen
       # user can be prompted to upgrade
       def method_missing(method, *_args, &_block)
         method = method.to_s.sub('=', '')
-        Origen.log.warning "WARNING - unknown configuration attribute: #{method}"
+        Origen.log.warning "WARNING - unknown configuration attribute in #{app.name}: #{method}"
       end
     end
   end
