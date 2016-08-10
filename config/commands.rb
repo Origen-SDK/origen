@@ -8,6 +8,12 @@ aliases ={
 
 case @command
 
+when "tags"
+  Dir.chdir Origen.root do
+    system "ripper-tags --recursive lib"
+  end
+  exit 0
+
 when "specs"
   require "rspec"
   exit RSpec::Core::Runner.run(['spec'])
@@ -65,6 +71,7 @@ else
  examples     Run the examples (acceptance tests), -c will enable coverage
  test         Run both specs and examples, -c will enable coverage
  regression   Test the regression manager (runs a subset of examples)
+ tags         Generate ctags for this app
   EOT
 
 end 

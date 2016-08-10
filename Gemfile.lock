@@ -108,6 +108,7 @@ GEM
     rainbow (2.1.0)
     rake (10.5.0)
     require_all (1.3.3)
+    ripper-tags (0.3.3)
     rspec (3.5.0)
       rspec-core (~> 3.5.0)
       rspec-expectations (~> 3.5.0)
@@ -164,3 +165,4 @@ DEPENDENCIES
   origen_debuggers (~> 0)
   origen_doc_helpers (>= 0.2.0)
   origen_testers (~> 0.7)
+  ripper-tags

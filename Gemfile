@@ -11,6 +11,7 @@ gem "origen_doc_helpers", ">= 0.2.0"
 gem "loco"
 gem "origen_testers", "~> 0.7"
 gem 'origen_debuggers', '~> 0'
+gem 'ripper-tags'
 
 # Specify all runtime dependencies in origen.gemspec
 gemspec
