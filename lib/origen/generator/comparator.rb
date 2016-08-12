@@ -46,6 +46,10 @@ module Origen
         end
       end
 
+      def stats
+        Origen.app.stats
+      end
+
       def relative_path_to(file)
         p = Pathname(file).relative_path_from(Pathname.pwd).to_s
         p.gsub!('/', '\\') if Origen.running_on_windows?

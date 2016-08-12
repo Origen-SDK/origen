@@ -164,16 +164,8 @@ module Origen
       # Each additional pattern section created by calling this method
       # will have '_partN' appended to the original pattern name.
       def split(options = {})
-        @split_counter ||= 0
-        @split_counter += 1
-        name = job.output_file_body
         pattern_close(options.merge(call_shutdown_callbacks: false))
-        if name =~ /part\d+/
-          name.gsub!(/part\d+/, "part#{@split_counter}")
-        else
-          name = "#{name}_part#{@split_counter}"
-        end
-        job.output_file_body = name
+        job.inc_split_counter
         pattern_open(options.merge(call_startup_callbacks: false))
       end
 

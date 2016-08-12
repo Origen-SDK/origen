@@ -38,6 +38,7 @@ module Origen
           Origen.interface.startup(options) if Origen.interface.respond_to?(:startup)
           interface.instance_eval(&block)
           Origen.interface.shutdown(options) if Origen.interface.respond_to?(:shutdown)
+          interface.at_flow_end if interface.respond_to?(:at_flow_end)
           interface.close(flow: true)
         end
       end

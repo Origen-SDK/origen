@@ -3,6 +3,7 @@ module Origen
     # A job is responsible for executing a single pattern source
     class Job # :nodoc: all
       attr_accessor :output_file_body, :pattern
+      attr_reader :split_counter
 
       def initialize(pattern, options)
         @testing = options[:testing]
@@ -18,6 +19,11 @@ module Origen
 
       def no_comments?
         @no_comments
+      end
+
+      def inc_split_counter
+        @split_counter ||= 0
+        @split_counter += 1
       end
 
       def requested_pattern
@@ -45,7 +51,7 @@ module Origen
           fail 'Sorry the output_pattern is not available until the job has been run'
         end
         body = @output_file_body ? @output_file_body : File.basename(@pattern, '.rb')
-        output_prefix + body + output_postfix + output_extension
+        output_prefix + body + output_postfix + split_number + output_extension
       end
 
       # This can be modified at runtime by the pattern generator in response to
@@ -92,6 +98,14 @@ module Origen
 
       def output_extension
         '.' + Origen.tester.pat_extension
+      end
+
+      def split_number
+        if split_counter
+          "_part#{split_counter}"
+        else
+          ''
+        end
       end
 
       def run
