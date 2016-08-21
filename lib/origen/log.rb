@@ -12,11 +12,25 @@ module Origen
     require 'log4r'
     require 'log4r/outputter/fileoutputter'
 
+    attr_accessor :msg_hash
+
     LEVELS = [:normal, :verbose, :silent]
 
     def initialize
       @log_time_0 = @t0 = Time.new
       self.level = :normal
+      @msg_hash = init_msg_hash
+    end
+
+    def init_msg_hash
+      msg_types = [:info, :warn, :error, :deprecate, :debug, :success]
+      msg_hash = {}
+      msg_types.each do |m|
+        msg_hash[m] = Hash.new do |h, k|
+          h[k] = []
+        end
+      end
+      msg_hash
     end
 
     def console_only?
@@ -74,50 +88,56 @@ module Origen
       @level
     end
 
-    def debug(string = '')
+    def debug(string = '', msg_type = nil)
       msg = format_msg('DEBUG', string)
       log_files.debug msg unless console_only?
       console.debug msg
+      @msg_hash[:debug][msg_type] << msg
       nil
     end
 
-    def info(string = '')
+    def info(string = '', msg_type = nil)
       msg = format_msg('INFO', string)
       log_files.info msg unless console_only?
       console.info msg
+      @msg_hash[:info][msg_type] << msg
       nil
     end
     # Legacy methods
     alias_method :lputs, :info
     alias_method :lprint, :info
 
-    def success(string = '')
+    def success(string = '', msg_type = nil)
       msg = format_msg('SUCCESS', string)
       log_files.info msg unless console_only?
       console.info msg.green
+      @msg_hash[:success][msg_type] << msg
       nil
     end
 
-    def deprecate(string = '')
+    def deprecate(string = '', msg_type = nil)
       msg = format_msg('DEPRECATED', string)
       log_files.warn msg unless console_only?
       console.warn msg.yellow
+      @msg_hash[:deprecate][msg_type] << msg
       nil
     end
     alias_method :deprecated, :deprecate
 
-    def warn(string = '')
+    def warn(string = '', msg_type = nil)
       msg = format_msg('WARNING', string)
       log_files.warn msg unless console_only?
       console.warn msg.yellow
+      @msg_hash[:warn][msg_type] << msg
       nil
     end
     alias_method :warning, :warn
 
-    def error(string = '')
+    def error(string = '', msg_type = nil)
       msg = format_msg('ERROR', string)
       log_files.error msg unless console_only?
       console.error msg.red
+      @msg_hash[:error][msg_type] << msg
       nil
     end
 
