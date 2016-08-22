@@ -25,6 +25,7 @@ describe "Tester Definition" do
   it "tester pattern microcodes" do
     Origen.target.temporary = "debug"
     Origen.target.load!
+    $tester.set_timeset('func', 40)
 
     $tester.cycle
 
