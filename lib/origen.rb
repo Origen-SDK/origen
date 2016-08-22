@@ -105,9 +105,10 @@ unless defined? RGen::ORIGENTRANSITION
         Origen.app.plugins
       end
 
-      def app_loaded?
+      def application_loaded?
         @application_loaded
       end
+      alias_method :app_loaded?, :application_loaded?
 
       def plugins_loaded?
         @plugins_loaded
@@ -452,7 +453,26 @@ unless defined? RGen::ORIGENTRANSITION
           validate_origen_dev_configuration!
           ([@application] + Origen.app.plugins).each(&:on_loaded)
           @application_loaded = true
+          Array(@after_app_loaded_blocks).each(&:call)
           @application
+        end
+      end
+
+      # Sometimes it is necessary to refer to the app instance before it is fully loaded, which can lead to runtime
+      # errors.
+      #
+      # Such code can be wrapped in this method to ensure that it will run safely by differing it until the app
+      # is fully loaded.
+      #
+      #   Origen.after_app_loaded do
+      #     Origen.app.do_something
+      #   end
+      def after_app_loaded(&block)
+        if application_loaded?
+          yield
+        else
+          @after_app_loaded_blocks ||= []
+          @after_app_loaded_blocks << block
         end
       end
 
