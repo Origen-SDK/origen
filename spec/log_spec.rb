@@ -23,6 +23,26 @@ describe 'Check that the msg_hash in Origen.log stores messages correctly' do
   end
 
   @msg_type.each do |m|
+    it "Will check that the #{m} can handle nil for both msg and msg_type" do
+      initial_count = {}
+      type = [:info, :warn, :error,  :deprecate, :debug, :success]
+      type.each do |k|
+        initial_count[k] = Origen.log.msg_hash[k][nil].size
+      end
+      Origen.log.send(m)
+      Origen.log.msg_hash[m][nil].last.include?(m.to_s.upcase).should == true
+      Origen.log.msg_hash[m][nil].last[-8..-1].should == ']    || '
+      type.each do |k|
+        if k == m
+          Origen.log.msg_hash[k][nil].size.should == initial_count[k] + 1
+        else
+          Origen.log.msg_hash[k][nil].size.should == initial_count[k]
+        end
+      end
+    end
+  end
+  
+  @msg_type.each do |m|
     it "Will check that the msg_hash[:#{m}] for a non-default size is nil if not set" do
       initial_count = {}
       type = [:info, :warn, :error,  :deprecate, :debug, :success]
