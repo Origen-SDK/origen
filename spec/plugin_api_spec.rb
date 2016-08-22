@@ -17,16 +17,16 @@ describe "The plugins API" do
     # Legacy API
     Origen.app.current_plugin.name.should == :origen_testers
     Origen.app.plugins.current.name == :origen_testers
-    cmd("origen pl").should == "Current plugin is: origen_testers"
+    cmd("origen pl").should include("Current plugin is: origen_testers")
     # Legacy API
     Origen.app.current_plugin.default = :origen_debuggers
     # Legacy API
     Origen.app.current_plugin.name.should == :origen_debuggers
     Origen.app.plugins.current.name == :origen_debuggers
-    cmd("origen pl").should == "Current plugin is: origen_debuggers"
+    cmd("origen pl").should include("Current plugin is: origen_debuggers")
     Origen.app.plugins.current = nil
     Origen.app.plugins.current.should == nil
-    cmd("origen pl").should =~ /^No plugin set!/
+    cmd("origen pl").should include("No plugin set!")
     Origen.app.plugins.current = :origen_debuggers
     # Legacy API
     Origen.app.current_plugin.temporary = :origen_testers

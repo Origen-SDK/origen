@@ -109,6 +109,10 @@ unless defined? RGen::ORIGENTRANSITION
         @application_loaded
       end
 
+      def plugins_loaded?
+        @plugins_loaded
+      end
+
       # Returns the current (top-level) application instance
       def app(plugin = nil, _options = {})
         plugin, options = nil, plugin if plugin.is_a?(Hash)
@@ -418,8 +422,7 @@ unless defined? RGen::ORIGENTRANSITION
           # chdir to the new app directory (to fetch it) Origen.log would try to load the partial app.
           @running_outside_an_app = true unless in_app_workspace?
           return nil if @running_outside_an_app
-          require File.join(root, APP_CONFIG)
-          @application = _applications_lookup[:root][root.to_s]
+          # Load the app's plugins and other gem requirements
           if File.exist?(File.join(root, 'Gemfile')) && !@with_boot_environment
             # Don't understand the rules here, belt and braces approach for now to make
             # sure that all Origen plugins are auto-required (otherwise Origen won't know
@@ -429,6 +432,12 @@ unless defined? RGen::ORIGENTRANSITION
             Bundler.require(:runtime)
             Bundler.require(:default)
           end
+          @plugins_loaded = true
+          # Now load the app
+          @loading_top_level = true
+          require File.join(root, APP_CONFIG)
+          @application = _applications_lookup[:root][root.to_s]
+          @loading_top_level = false
           if @with_boot_environment
             @application.plugins.disable_current
           else
@@ -445,6 +454,11 @@ unless defined? RGen::ORIGENTRANSITION
           @application_loaded = true
           @application
         end
+      end
+
+      # @api private
+      def loading_top_level?
+        @loading_top_level
       end
 
       def launch_time

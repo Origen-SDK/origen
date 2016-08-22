@@ -1,0 +1,24 @@
+# Main patterns
+another_not_p1_or_p2_test
+bitcell_iv_0
+bitcell_iv_1
+bitcell_iv_2
+bitmap_all0
+charge_pump
+erase_all
+margin_read0_ckbd
+margin_read1_all1
+margin_read1_ckbd
+mrd_ckbd
+normal_read_ckbd
+not_p1_or_p2_test
+not_p1_test
+nvm_global_subs
+p1_only_test
+p1_or_p2_only_test
+pgm_ckbd
+program_ckbd
+program_ckbd_b0
+program_ckbd_b1
+program_ckbd_b2
+

@@ -35,7 +35,12 @@ module Origen
           root = Pathname.new(caller[0].sub(/(\\|\/)?config(\\|\/)application.rb.*/, '')).realpath
           app = base.instance
           app.root = root.to_s
-          Origen.register_application(app)
+          if Origen.plugins_loaded? && !Origen.loading_top_level?
+            Origen.log.warning "The #{app.name} plugin is using a non-standard loading mechanism, upgrade to a newer version to get rid of this error (please report a bug if that does not remove this warning)"
+            Origen.app.plugins << app
+          else
+            Origen.register_application(app)
+          end
           app.add_lib_to_load_path!
         end
       end
@@ -253,13 +258,47 @@ module Origen
     # Returns true if the given application instance is the
     # current top level application
     def current?
-      Origen.app == self
+      # If this is called before the plugins are loaded (i.e. by a plugin's application file), then
+      # it is definitely not the top-level app
+      if Origen.plugins_loaded?
+        Origen.app == self
+      else
+        false
+      end
     end
+    alias_method :standalone?, :current?
+    alias_method :running_standalone?, :current?
 
     # Returns true if the given application instance is
     # the current plugin
     def current_plugin?
-      Origen.app.plugins.current == self
+      if Origen.plugins_loaded?
+        Origen.app.plugins.current == self
+      else
+        puts <<-END
+current_plugin? cannot be used at this point in your code since the app is not loaded yet.
+
+If you are calling this from config/application.rb then you can only use current_plugin? within a block:
+
+# Not OK
+if current_plugin?
+  config.output_directory = "#{Origen.root}/output/dir1"
+else
+  config.output_directory = "#{Origen.root}/output/dir2"
+end
+
+# OK
+config.output_directory do
+  if current_plugin?
+    "#{Origen.root}/output/dir1"
+  else
+    "#{Origen.root}/output/dir2"
+  end
+end
+
+END
+        exit 1
+      end
     end
 
     # Returns the current top-level object (the DUT)
@@ -462,6 +501,10 @@ module Origen
 
     def config
       @config ||= Configuration.new(self)
+    end
+
+    def add_config_attribute(*args)
+      Application::Configuration.add_attribute(*args)
     end
 
     # Returns the name of the given application, this is the name that will
