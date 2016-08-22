@@ -453,7 +453,7 @@ unless defined? RGen::ORIGENTRANSITION
           validate_origen_dev_configuration!
           ([@application] + Origen.app.plugins).each(&:on_loaded)
           @application_loaded = true
-          Array(@after_app_loaded_blocks).each(&:call)
+          Array(@after_app_loaded_blocks).each { |b| b.call(@application) }
           @application
         end
       end
@@ -469,7 +469,7 @@ unless defined? RGen::ORIGENTRANSITION
       #   end
       def after_app_loaded(&block)
         if application_loaded?
-          yield
+          yield app
         else
           @after_app_loaded_blocks ||= []
           @after_app_loaded_blocks << block
