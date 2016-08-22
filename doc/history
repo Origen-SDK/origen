@@ -1,3 +1,60 @@
+<a class="anchor release_tag" name="v0_7_24"></a>
+<h1><a href="#v0_7_24">Tag: v0.7.24</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 22-Aug-2016 09:36AM
+
+
+* Changed the boot order to load all plugins before the top-level application. A log warning will be
+  given in the event of a plugin implementing a non-standard loading mechanism which results in it
+  getting loaded after the top-level app.
+  The standard loading mechanism for a plugin is to have this as the first item in their top-level
+  file:
+
+~~~ruby
+# lib/my\_plugin.rb
+require 'origen'
+require\_relative '../config/application.rb'
+
+# Plugin specific requires go here
+~~~
+
+* Fixed any issues with calling current? within config/application.rb (probably the main reason for a
+  plugin to implement a non-standard load before now)
+
+* Added an API for plugins to add additional application configuration attributes to their host app:
+
+~~~ruby
+# config/application.rb (of the plugin)
+require 'origen'
+class MyPluginApplication < Origen::Application
+
+  # Adds a new attribute with a default of nil
+  add\_config\_attribute(:my\_attribute)
+
+  # Adds a new attribute with a default of an empty hash
+  add\_config\_attribute(:my\_attribute, default: {})
+
+  # By default any attributes added in this way will raise an error if they are accessed before the
+  # target is loaded (this is the case for the majority of standard config attributes).
+  # If you need the attribute to be accessible before target load then do this:
+  add\_config\_attribute(:my\_attribute, depend\_on\_target: false)
+
+  # Such attributes can then be set by the top-level application in exactly the same way as the
+  # standard attributes:
+  config.my\_attribute = { some\_val: true }
+
+  # They will also accept a block:
+  config.my\_attribute do
+    if some\_condition
+      { some\_val: true }
+    end
+  end
+
+~~~
+
+
 <a class="anchor release_tag" name="v0_7_23"></a>
 <h1><a href="#v0_7_23">Tag: v0.7.23</a></h1>
 
