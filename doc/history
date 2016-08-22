@@ -1,3 +1,26 @@
+<a class="anchor release_tag" name="v0_7_25"></a>
+<h1><a href="#v0_7_25">Tag: v0.7.25</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 22-Aug-2016 10:57AM
+
+
+* Really fixed any issues with calling current? within config/application.rb this time.
+* Added an API to allow operations to be performed on the app instance before it might be fully loaded.
+  This is mainly intended for internal use, but may be useful to plugin developers:
+
+~~~ruby
+# This code may be hit before the app is fully loaded which can lead to runtime errors. This can
+# now be resolved by wrapping with this method to defer execution until the app instance is fully
+# available.
+# It will execute immediately if the app is already loaded.
+Origen.after\_app\_loaded do |app|
+  app.do\_something
+end
+~~~
+
+
 <a class="anchor release_tag" name="v0_7_24"></a>
 <h1><a href="#v0_7_24">Tag: v0.7.24</a></h1>
 

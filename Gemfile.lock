@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    origen (0.7.24)
+    origen (0.7.25)
       activesupport (~> 4.1)
       bundler (~> 1.7)
       coderay (~> 1.1)
