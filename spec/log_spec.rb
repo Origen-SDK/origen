@@ -43,6 +43,32 @@ describe 'Check that the msg_hash in Origen.log stores messages correctly' do
   end
   
   @msg_type.each do |m|
+    it "Will check that the #{m} can handle nil for msg and msg_type set with a symbol.  Padding example" do
+      initial_count = Hash.new do |h, k|
+        h[k]= {}
+      end
+      type = [:info, :warn, :error,  :deprecate, :debug, :success]
+      type.each do |k|
+        [nil, :check2].each do |k1|
+          initial_count[k][k1] = Origen.log.msg_hash[k][k1].size
+        end
+      end
+      Origen.log.send(m, :check2)
+      Origen.log.msg_hash[m][:check2].last.include?(m.to_s.upcase).should == true
+      Origen.log.msg_hash[m][:check2].last[-8..-1].should == ']    || '
+      type.each do |k|
+        if k == m
+          Origen.log.msg_hash[k][nil].size.should == initial_count[k][nil]
+          Origen.log.msg_hash[k][:check2].size.should == initial_count[k][:check2] + 1
+        else
+          Origen.log.msg_hash[k][nil].size.should == initial_count[k][nil]
+          Origen.log.msg_hash[k][:check2].size.should == initial_count[k][:check2]
+        end
+      end
+    end
+  end
+  
+  @msg_type.each do |m|
     it "Will check that the msg_hash[:#{m}] for a non-default size is nil if not set" do
       initial_count = {}
       type = [:info, :warn, :error,  :deprecate, :debug, :success]

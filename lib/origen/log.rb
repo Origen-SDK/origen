@@ -88,7 +88,13 @@ module Origen
       @level
     end
 
+    def validate_args(string, msg_type)
+      return string, msg_type unless string.is_a? Symbol
+      ['', string]
+    end
+
     def debug(string = '', msg_type = nil)
+      string, msg_type = validate_args(string, msg_type)
       msg = format_msg('DEBUG', string)
       log_files.debug msg unless console_only?
       console.debug msg
@@ -97,6 +103,7 @@ module Origen
     end
 
     def info(string = '', msg_type = nil)
+      string, msg_type = validate_args(string, msg_type)
       msg = format_msg('INFO', string)
       log_files.info msg unless console_only?
       console.info msg
@@ -108,6 +115,7 @@ module Origen
     alias_method :lprint, :info
 
     def success(string = '', msg_type = nil)
+      string, msg_type = validate_args(string, msg_type)
       msg = format_msg('SUCCESS', string)
       log_files.info msg unless console_only?
       console.info msg.green
@@ -116,6 +124,7 @@ module Origen
     end
 
     def deprecate(string = '', msg_type = nil)
+      string, msg_type = validate_args(string, msg_type)
       msg = format_msg('DEPRECATED', string)
       log_files.warn msg unless console_only?
       console.warn msg.yellow
@@ -125,6 +134,7 @@ module Origen
     alias_method :deprecated, :deprecate
 
     def warn(string = '', msg_type = nil)
+      string, msg_type = validate_args(string, msg_type)
       msg = format_msg('WARNING', string)
       log_files.warn msg unless console_only?
       console.warn msg.yellow
@@ -134,6 +144,7 @@ module Origen
     alias_method :warning, :warn
 
     def error(string = '', msg_type = nil)
+      string, msg_type = validate_args(string, msg_type)
       msg = format_msg('ERROR', string)
       log_files.error msg unless console_only?
       console.error msg.red
