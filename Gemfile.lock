@@ -166,6 +166,3 @@ DEPENDENCIES
   origen_doc_helpers (>= 0.2.0)
   origen_testers (~> 0.7)
   ripper-tags
-
-BUNDLED WITH
-   1.12.5

@@ -13,6 +13,7 @@ module Origen
     require 'log4r/outputter/fileoutputter'
 
     attr_accessor :msg_hash
+    alias_method :messages, :msg_hash
 
     LEVELS = [:normal, :verbose, :silent]
 

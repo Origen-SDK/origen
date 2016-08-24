@@ -36,7 +36,10 @@ module Origen
           app = base.instance
           app.root = root.to_s
           if Origen.plugins_loaded? && !Origen.loading_top_level?
-            Origen.log.warning "The #{app.name} plugin is using a non-standard loading mechanism, upgrade to a newer version of it to get rid of this warning (please report a bug to its owner if this warning persists)"
+            # This situation of a plugin being loaded after the top-level app could occur if the app
+            # doesn't require the plugin until later, in that case there is nothing the plugin owner
+            # can do and we just need to accept that this can happen.
+            # Origen.log.warning "The #{app.name} plugin is using a non-standard loading mechanism, upgrade to a newer version of it to get rid of this warning (please report a bug to its owner if this warning persists)"
             Origen.app.plugins << app
           else
             Origen.register_application(app)
