@@ -1,3 +1,50 @@
+<a class="anchor release_tag" name="v0_7_26"></a>
+<h1><a href="#v0_7_26">Tag: v0.7.26</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 24-Aug-2016 05:00AM
+
+
+* Origen will now maintain a lookup table of all log messages for programmatic
+  access (David Welguisz). These are grouped by message level (debug, warning,
+  etc), and additionally an identifier/category can now be supplied to all log
+  statements to further group them below the message level categories.
+
+~~~ruby
+Origen.log.success 'Good A'
+Origen.log.success 'Good B'
+
+Origen.log.error 'Bad A'
+
+Origen.log.messages # => { :info=>{},
+                    #      :warn=>{},
+                    #      :error=>{nil=>[ "[ERROR] 10.050[7.424] || Bad A" ]},
+                    #      :deprecate=>{},
+                    #      :debug=>{},
+                    #      :success=>{nil=>[ "[SUCCESS] 0.008[0.008] || Good A",
+                    #                        "[SUCCESS] 2.626[2.618] || Good B"
+                    #                      ]}
+                    #    } 
+
+Origen.log.messages[:success][nil].size  # => 2
+
+# Note that as above, by default the messages will be stored within a
+# sub-category of 'nil'.
+# This category can be set when writing the message:
+
+Origen.log.success 'Good A', :cat1
+Origen.log.success 'Good B', :cat1
+Origen.log.success 'Good C', :cat2
+
+Origen.log.messages[:success][:cat1].size  # => 2
+Origen.log.messages[:success][:cat2].size  # => 1
+~~~
+
+* Removed recently added warning when a plugin is loaded after the top-level
+  application. This situation can occur when the top-level app requires the
+  plugin later, which may be perfectly valid for some plugins.
+
 <a class="anchor release_tag" name="v0_7_25"></a>
 <h1><a href="#v0_7_25">Tag: v0.7.25</a></h1>
 
