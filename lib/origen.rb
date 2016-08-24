@@ -418,6 +418,10 @@ unless defined? RGen::ORIGENTRANSITION
       # automatically the first time the application is referenced via Origen.app
       def load_application(options = {})
         @application ||= begin
+          # Make sure the top-level root is always in the load path, it seems that some existing
+          # plugins do some strange things to require stuff from the top-level app and rely on this
+          path = File.join(root, 'lib')
+          $LOAD_PATH.unshift(path) unless $LOAD_PATH.include?(path)
           # This flag is set so that when a thread starts with no app it remains with no app. This
           # was an issue when building a new app with the fetch command and when the thread did a
           # chdir to the new app directory (to fetch it) Origen.log would try to load the partial app.
