@@ -31,7 +31,7 @@ describe 'Check that the msg_hash in Origen.log stores messages correctly' do
       end
       Origen.log.send(m)
       Origen.log.msg_hash[m][nil].last.include?(m.to_s.upcase).should == true
-      Origen.log.msg_hash[m][nil].last[-8..-1].should == ']    || '
+      Origen.log.msg_hash[m][nil].last[-4..-1].should == ' || '
       type.each do |k|
         if k == m
           Origen.log.msg_hash[k][nil].size.should == initial_count[k] + 1
@@ -55,7 +55,7 @@ describe 'Check that the msg_hash in Origen.log stores messages correctly' do
       end
       Origen.log.send(m, :check2)
       Origen.log.msg_hash[m][:check2].last.include?(m.to_s.upcase).should == true
-      Origen.log.msg_hash[m][:check2].last[-8..-1].should == ']    || '
+      Origen.log.msg_hash[m][:check2].last[-4..-1].should == ' || '
       type.each do |k|
         if k == m
           Origen.log.msg_hash[k][nil].size.should == initial_count[k][nil]
