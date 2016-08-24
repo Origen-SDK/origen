@@ -1,3 +1,15 @@
+<a class="anchor release_tag" name="v0_7_27"></a>
+<h1><a href="#v0_7_27">Tag: v0.7.27</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 24-Aug-2016 05:36AM
+
+
+Patch to add the top-level app's lib dir to the load path early in the application load
+sequence. It seems that some plugins relied on this behavior from when the app was loaded
+first before the plugins.
+
 <a class="anchor release_tag" name="v0_7_26"></a>
 <h1><a href="#v0_7_26">Tag: v0.7.26</a></h1>
 
