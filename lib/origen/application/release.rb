@@ -63,7 +63,7 @@ Your workspace has local modifications that are preventing the requested action
             listener.before_release_tag(tag, note, type, selector, options)
           end
           puts "Tagging workspace, this could take a few minutes, don't interrupt..."
-          Origen.app.rc.checkin("#{version_file} #{history_file} Gemfile.lock", force: true, comment: 'Updated app version and history')
+          Origen.app.rc.checkin("#{version_file} #{history_file} #{File.join(Origen.root, 'Gemfile.lock')}", force: true, comment: 'Updated app version and history')
           workspace_dirs.each do |wdir|
             Origen.app.rc.tag tag
           end
