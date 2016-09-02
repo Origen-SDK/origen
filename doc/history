@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_7_29"></a>
+<h1><a href="#v0_7_29">Tag: v0.7.29</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 02-Sep-2016 05:31AM
+
+
+Updated Git driver to allow a plugin to be embedded within a parent repo, see the
+tester\_std\_lib repo for an example
+
 <a class="anchor release_tag" name="v0_7_28"></a>
 <h1><a href="#v0_7_28">Tag: v0.7.28</a></h1>
 
