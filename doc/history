@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_7_31"></a>
+<h1><a href="#v0_7_31">Tag: v0.7.31</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 09-Sep-2016 06:11AM
+
+
+* Added on\_flow\_start and on\_flow\_end callbacks for program generation
+* Patch to allow interfaces to include Origen::Callbacks
+
 <a class="anchor release_tag" name="v0_7_30"></a>
 <h1><a href="#v0_7_30">Tag: v0.7.30</a></h1>
 
