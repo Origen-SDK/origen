@@ -1,4 +1,12 @@
-$.getJSON("<%= path 'search.json' %>", function(json) {
+var search_json;
+
+if (window.origen_search_id) {
+  search_json = "search_" + window.origen_search_id + ".json";
+} else {
+  search_json = "search.json";
+}
+
+$.getJSON("<%= path '' %>" + "/" + search_json, function(json) {
   window.index = lunr(function() {
     this.field("title", {boost: 10});
     this.field("subtitle", {boost: 5});
@@ -17,46 +25,65 @@ $.getJSON("<%= path 'search.json' %>", function(json) {
 });
 
 $(function() {
-  $("#search button").click(function() {
+  $("#search button").click(function(e) {
     search(true);
+    return false;
   });
   $("#search input").keypress(function(e) {
-    if(e.which == 13) {
+    if(e.which === 13) {
       e.preventDefault();
       search(false);
+      return false;
     }
   });
 })
 
 function search(go) {
-  var term = $("#search input").val();
-  // Wait for search index to populate
-  while (!window.index) {};
-  var results = window.index.search(term);
+  // If the search index has populated
+  if (window.index) {
+    var term = $("#search input").val();
+    var results = window.index.search(term);
 
-  if(results && results.length == 1) {
-    window.location.replace("<%= path "" %>" + results[0].ref + "?highlight=" + escape(term));
-  } else if(results && results.length > 1) {
-    if (go) {
-      window.location.replace("<%= path "" %>" + results[0].ref + "?highlight=" + escape(term));
+    if(results && results.length === 1) {
+      window.location = "<%= path "" %>" + results[0].ref + "?highlight=" + escape(term);
+    } else if(results && results.length > 1) {
+      if (go) {
+        window.location = "<%= path "" %>" + results[0].ref + "?highlight=" + escape(term);
+      } else {
+        displayResults(results, term);
+      }
     } else {
-      displayResults(results, term);
+      alert("Found nothing");
     }
   } else {
-    alert("Found nothing");
+  // Otherwise try again in 200ms
+    setTimeout(search(go), 200);
   }
 }
 
 function displayResults(results, term) {
   var resultTemplate = $("search-view-template");
-  var container = $("article");  
+  var container = $(".search-results");  
+  if (!container[0]) {
+    // Fall back to original behavior
+    container = $("article");  
+  }
 
   container.empty();
-  container.append("<h2>Results</h2>");
+  container.append("<h2>Search Results</h2>");
 
   $.each(results, function(i, result) {
     var article = window.articles[result.ref];
-    container.append("<p><a href=\"<%= path "" %>" + result.ref + "?highlight=" + escape(term) + "\">" + article.title + " - " + article.subtitle + "</a></p>");
+    var text = article.title;
+    if (article.subtitle) {
+      if (text) {
+        text = text + " - " + article.subtitle;
+      } else {
+        text = article.subtitle;
+      }
+    }
+ 
+    container.append("<p><a href=\"<%= path "" %>" + result.ref + "?highlight=" + escape(term) + "\">" + text + "</a></p>");
   });
 }
 
@@ -87,6 +114,12 @@ $(document).ready(function() {
 
   if (params.highlight) {
     var term = unescape(params.highlight);
-    $('article').highlight(term);
+    var articles = $('article');
+    articles.highlight(term);
+    if (articles[0]) {
+      var top = $($("span.highlight:contains(" + params.highlight + ")")[0]).offset().top;
+
+      $('html,body').animate({scrollTop: top - 350}, 500);
+    }
   }
 });

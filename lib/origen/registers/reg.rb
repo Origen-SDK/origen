@@ -1,3 +1,4 @@
+require 'json'
 module Origen
   module Registers
     # The register class can be used to represent not only h/ware resgisters,
@@ -120,27 +121,45 @@ module Origen
       def inspect
         bit_width = 13
         desc = ["\n0x%X - :#{name}" % address]
-        desc << '  ' + ('=' * (bit_width + 1) * 8)
+        r = size % 8
+        if r == 0
+          desc << ('   ' + ('=' * (bit_width + 1) * 8)).chop
+        else
+          desc << ('   ' + (' ' * (bit_width + 1) * (8 - r)) + ('=' * (bit_width + 1) * r)).chop
+        end
 
         # "<#{self.class}: #{self.name}>"
-        (size / 8).times do |byte_index|
+        num_bytes = (size / 8.0).ceil
+        num_bytes.times do |byte_index|
           # Need to add support for little endian regs here?
-          byte_number = (size / 8) - byte_index
-          max_bit = size - (byte_index * 8) - 1
+          byte_number = num_bytes - byte_index
+          max_bit = (byte_number * 8) - 1
           min_bit = max_bit - 8 + 1
 
-          line = '  '
           # BIT INDEX ROW
+          line = '  '
           8.times do |i|
-            line << '|' + "#{size - i - 1 - (byte_index * 8)}".center(bit_width)
+            bit_num = (byte_number * 8) - i - 1
+            if bit_num > size - 1
+              line << ' ' + ''.center(bit_width)
+            else
+              line << '|' + "#{bit_num}".center(bit_width)
+            end
           end
           line += '|'
           desc << line
 
           # BIT NAME ROW
           line = '  '
+          first_done = false
           named_bits include_spacers: true do |name, bit, bitcounter|
             if _bit_in_range?(bit, max_bit, min_bit)
+              if max_bit > (size - 1) && !first_done
+                (max_bit - (size - 1)).times do
+                  line << ' ' * (bit_width + 1)
+                end
+              end
+
               if bit.size > 1
 
                 if name
@@ -154,8 +173,12 @@ module Origen
                     bit_name = "#{name}[#{upper}:#{lower}]"
                     bit_span = upper - lower + 1
                   end
-                  width = bit_width * bit_span
-                  line << '|' + ":#{bit_name[0..width - 2]}".center(width + bit_span - 1)
+                  width = (bit_width * bit_span) + bit_span - 1
+                  if bit_name.length > width
+                    line << '|' + "#{bit_name[0..width - 2]}*"
+                  else
+                    line << '|' + bit_name.center(width)
+                  end
 
                 else
                   bit.shift_out_left do |bit|
@@ -166,69 +189,35 @@ module Origen
                 end
 
               else
-                bit_name = "#{name}"
-                line << '|' + ":#{bit_name[0..bit_width - 2]}".center(bit_width)
+                if name
+                  bit_name = "#{name}"
+                  if bit_name.length > bit_width
+                    txt = "#{bit_name[0..bit_width - 2]}*"
+                  else
+                    txt = bit_name
+                  end
+                else
+                  txt = ''
+                end
+                line << '|' + txt.center(bit_width)
               end
             end
+            first_done = true
           end
           line += '|'
           desc << line
 
-          ## BIT ACCESS ROW
-          # line = "Access "
-          # self.named_bits :include_spacers => true do |name, bit|
-          #  if _bit_in_range?(bit, max_bit, min_bit)
-          #    if bit.size > 1
-          #      if name
-          #        access = _bit_rw(bit)
-          #        bit_span = _num_bits_in_range(bit, max_bit, min_bit)
-          #        width = bit_width * bit_span
-          #        line << "|" + access.center(width + bit_span - 1)
-          #      else
-          #        bit.shift_out_left do |bit|
-          #          if _index_in_range?(bit.position, max_bit, min_bit)
-          #            line << "|" +  "".center(bit_width)
-          #          end
-          #        end
-          #      end
-          #    else
-          #      access = _bit_rw(bit)
-          #      line << "|" + access.center(bit_width)
-          #    end
-          #  end
-          # end
-          # line += "|"
-          # desc << line
-
-          ## BIT RESET ROW
-          # line = "Reset  "
-          # self.named_bits :include_spacers => true do |name, bit|
-          #  if _bit_in_range?(bit, max_bit, min_bit)
-          #    if bit.size > 1
-          #      if name
-          #        value = "0x%X" % bit.reset_val[_max_bit_in_range(bit, max_bit, min_bit).._min_bit_in_range(bit, max_bit, min_bit)]
-          #        bit_span = _num_bits_in_range(bit, max_bit, min_bit)
-          #        width = bit_width * bit_span
-          #        line << "|" + value.center(width + bit_span - 1)
-          #      else
-          #        bit.shift_out_left do |bit|
-          #          if _index_in_range?(bit.position, max_bit, min_bit)
-          #             line << "|" +  "".center(bit_width)
-          #          end
-          #        end
-          #      end
-          #    else
-          #      line << "|" + "#{bit.reset_val}".center(bit_width)
-          #    end
-          #  end
-          # end
-          # line += "|"
-          # desc << line
-
           # BIT STATE ROW
           line = '  '
+          first_done = false
           named_bits include_spacers: true do |name, bit, _bitcounter|
             if _bit_in_range?(bit, max_bit, min_bit)
+              if max_bit > (size - 1) && !first_done
+                (max_bit - (size - 1)).times do
+                  line << ' ' * (bit_width + 1)
+                end
+              end
+
               if bit.size > 1
                 if name
                   if bit.has_known_value?
@@ -252,24 +241,38 @@ module Origen
                   end
                 end
               else
-                if bit.has_known_value?
-                  val = bit.val
-                else
-                  if bit.reset_val == :undefined
-                    val = 'X'
+                if name
+                  if bit.has_known_value?
+                    val = bit.val
                   else
-                    val = 'M'
+                    if bit.reset_val == :undefined
+                      val = 'X'
+                    else
+                      val = 'M'
+                    end
                   end
+                  value = "#{val}" + _state_desc(bit)
+                  line << '|' + value.center(bit_width)
+                else
+                  line << '|' + ''.center(bit_width)
                 end
-                value = "#{val}" + _state_desc(bit)
-                line << '|' + value.center(bit_width)
               end
             end
+            first_done = true
           end
           line += '|'
           desc << line
 
-          desc << '  ' + ('-' * (bit_width + 1) * 8)
+          if size >= 8
+            r = size % 8
+            if byte_index == 0 && r != 0
+              desc << ('   ' + ('=' * (bit_width + 1) * (8 - r)).chop + ' ' + ('-' * (bit_width + 1) * r)).chop
+            else
+              desc << ('   ' + ('-' * (bit_width + 1) * 8)).chop
+            end
+          else
+            desc << ('   ' + (' ' * (bit_width + 1) * (8 - size)) + ('-' * (bit_width + 1) * size)).chop
+          end
         end
         desc.join("\n")
       end
@@ -373,8 +376,8 @@ module Origen
             desc[0] = desc.first.sub(/\s*\*\*\s*#{escape_special_char(full_name(bitname))}\s*\*\*\s*-?\s*/, '')
           end
         end
-        desc.shift if desc.first && desc.first.strip.empty?
-        desc.pop if desc.last && desc.last.strip.empty?
+        desc.shift while desc.first && desc.first.strip.empty?
+        desc.pop while desc.last && desc.last.strip.empty?
         desc
       end
       alias_method :descriptions, :description
@@ -385,8 +388,9 @@ module Origen
         File.readlines(define_file).each do |line|
           if line =~ /^\s*#(.*)/
             desc << Regexp.last_match[1].strip
-          elsif line =~ /^\s*(add_reg|reg)\(?\s*:(\w+)\s*,.*do/
-            @current_reg_name = Regexp.last_match[2].to_sym
+          #              http://rubular.com/r/D8lg2P5kK1                     http://rubular.com/r/XP4ydPV8Fd
+          elsif line =~ /^\s*reg\(?\s*[:"'](\w+)["']?\s*,.*\sdo/ || line =~ /^\s*add_reg\(?\s*[:"'](\w+)["']?\s*,.*/
+            @current_reg_name = Regexp.last_match[1].to_sym
             description_lookup[define_file] ||= {}
             description_lookup[define_file][@current_reg_name] ||= {}
             description_lookup[define_file][@current_reg_name][:_reg] = desc.dup
@@ -475,6 +479,7 @@ module Origen
         options = {
           include_spacers: false
         }.merge(options)
+        result = []
 
         # test if @lookup has any values stored as an array
         # if so it means there is a split group of bits
@@ -491,20 +496,38 @@ module Origen
             pos = details[:bits] + details[:pos]
             if options[:include_spacers] && (pos != current_pos)
               collection = BitCollection.dummy(self, nil, size: current_pos - pos, pos: pos)
-              yield nil, collection
+              unless collection.size == 0
+                if block_given?
+                  yield nil, collection
+                else
+                  result << [nil, collection]
+                end
+              end
             end
             collection = BitCollection.new(self, name)
             details[:bits].times do |i|
               collection << @bits[details[:pos] + i]
             end
-            yield name, collection
+            unless collection.size == 0
+              if block_given?
+                yield name, collection
+              else
+                result << [name, collection]
+              end
+            end
             current_pos = details[:pos]
           end
           if options[:include_spacers] && current_pos != 0
             collection = BitCollection.dummy(self, nil, size: current_pos, pos: 0)
-            yield nil, collection
+            unless collection.size == 0
+              if block_given?
+                yield nil, collection
+              else
+                result << [nil, collection]
+              end
+            end
           end
-        elsif split_bits == true # if there are split bits, need to convert all regsiter bit values to array elements to allow sorting
+        elsif split_bits == true # if there are split bits, need to convert all register bit values to array elements to allow sorting
 
           # if the register has bits split up across it, then store the bits in order of decreasing reg position
           # but first, stuff all the bits in a simple array, as single bits, or ranges of bits
@@ -560,19 +583,40 @@ module Origen
             pos = details[:bits] + details[:pos]
             if options[:include_spacers] && (pos != current_pos)
               collection = BitCollection.dummy(self, nil, size: current_pos - pos, pos: pos)
-              yield nil, collection, bitcounter
+              unless collection.size == 0
+                if block_given?
+                  yield nil, collection, bitcounter
+                else
+                  result << [nil, collection, bitcounter]
+                end
+              end
             end
             collection = BitCollection.new(self, name)
             details[:bits].times do |i|
               collection << @bits[details[:pos] + i]
             end
-            yield name, collection,  bitcounter
+            unless collection.size == 0
+              if block_given?
+                yield name, collection, bitcounter
+              else
+                result << [name, collection, bitcounter]
+              end
+            end
             current_pos = details[:pos]
           end
           if options[:include_spacers] && current_pos != 0
             collection = BitCollection.dummy(self, nil, size: current_pos, pos: 0)
-            yield nil, collection,  bitcounter
+            unless collection.size == 0
+              if block_given?
+                yield nil, collection, bitcounter
+              else
+                result << [nil, collection, bitcounter]
+              end
+            end
           end
+        end
+        unless block_given?
+          result
         end
       end
 
@@ -1335,6 +1379,36 @@ module Origen
         else
           bits.any? { |bit| bit.enabled_by_feature?(name) }
         end
+      end
+
+      def to_json(*args)
+        JSON.pretty_generate({
+                               name:        name,
+                               full_name:   full_name,
+                               address:     address,
+                               offset:      offset,
+                               size:        size,
+                               path:        path,
+                               reset_value: reset_value,
+                               description: description(include_name: false, include_bit_values: false),
+                               bits:        named_bits.map do |name, bit|
+                                 {
+                                   name:        name,
+                                   full_name:   bit.full_name,
+                                   position:    bit.position,
+                                   size:        bit.size,
+                                   reset_value: bit.reset_value,
+                                   access:      bit.access,
+                                   description: bit.description(include_name: false, include_bit_values: false),
+                                   bit_values:  bit.bit_value_descriptions.map do |val, desc|
+                                     {
+                                       value:       val,
+                                       description: desc
+                                     }
+                                   end
+                                 }
+                               end
+                             }, *args)
       end
 
       private

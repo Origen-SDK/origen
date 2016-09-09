@@ -1,26 +1,27 @@
 # ***************************************************************************
 # GENERATED:
-#   Time:    02-Sep-2015 04:07AM
+#   Time:    04-Aug-2016 11:33AM
 #   By:      Stephen McGinty
 #   Command: origen g v93k_workout -t v93k.rb
 # ***************************************************************************
 # ENVIRONMENT:
 #   Application
-#     Source:    ssh://git@github.com:Origen-SDK/origen.git
-#     Version:   0.2.6
-#     Branch:    master(a7d36fd261a) (+local edits)
+#     Source:    git@github.com:Origen-SDK/origen.git
+#     Version:   0.7.21
+#     Branch:    master(16638d900ea) (+local edits)
 #   Origen
 #     Source:    https://github.com/Origen-SDK/origen
-#     Version:   0.2.6
+#     Version:   0.7.21
 #   Plugins
-#     origen_core_support:      0.2.0
+#     atp:                      0.4.1
+#     origen_core_support:      0.2.3
 #     origen_debuggers:         0.5.1
-#     origen_doc_helpers:       0.2.0
-#     origen_testers:           0.5.0
+#     origen_doc_helpers:       0.4.2
+#     origen_testers:           0.7.6
 # ***************************************************************************
 # This is a dummy pattern created by the Origen test environment
 # ***************************************************************************
-FORMAT NVM_RESET NVM_CLK NVM_CLK_MUX PORTA PORTB NVM_INVOKE NVM_DONE NVM_FAIL NVM_ALVTST NVM_AHVTST NVM_DTST TCLK TRST;
+FORMAT nvm_reset nvm_clk nvm_clk_mux porta portb nvm_invoke nvm_done nvm_fail nvm_alvtst nvm_ahvtst nvm_dtst TCLK TRST;
 #                                                   n n n p        p        n n n n n n t t
 #                                                   v v v o        o        v v v v v v c r
 #                                                   m m m r        r        m m m m m m l s
@@ -198,4 +199,7 @@ R1                       nvmbist                    1 1 1 01010101 00000000 1 X 
 # Inhibit complete!
 # The invoke pin should be driving low on this cycle
 R1                       nvmbist                    1 1 1 01010101 00000000 0 X H X X X 0 1 ;
+# ######################################################################
+# ## Pattern complete
+# ######################################################################
 SQPG STOP;

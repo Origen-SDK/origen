@@ -5,6 +5,10 @@ module Origen
       attr_accessor :name
       attr_accessor :path
 
+      # Allow these parameter names to be valid. When used, they will override the
+      # methods of the same name provided by the Hash class.
+      OVERRIDE_HASH_METHODS = [:min, :max]
+
       def initialize(options = {})
         if options[:top_level]
           @top_level = self
@@ -69,6 +73,16 @@ module Origen
                 end
               end
             end
+          end
+        end
+      end
+
+      OVERRIDE_HASH_METHODS.each do |method|
+        define_method method do
+          if self[method]
+            method_missing(method)
+          else
+            super
           end
         end
       end

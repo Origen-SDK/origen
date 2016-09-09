@@ -164,16 +164,8 @@ module Origen
       # Each additional pattern section created by calling this method
       # will have '_partN' appended to the original pattern name.
       def split(options = {})
-        @split_counter ||= 0
-        @split_counter += 1
-        name = job.output_file_body
         pattern_close(options.merge(call_shutdown_callbacks: false))
-        if name =~ /part\d+/
-          name.gsub!(/part\d+/, "part#{@split_counter}")
-        else
-          name = "#{name}_part#{@split_counter}"
-        end
-        job.output_file_body = name
+        job.inc_split_counter
         pattern_open(options.merge(call_startup_callbacks: false))
       end
 
@@ -220,7 +212,11 @@ module Origen
         c2 'GENERATED:'
         c2 "  Time:    #{Origen.launch_time}"
         c2 "  By:      #{Origen.current_user.name}"
-        c2 "  Command: origen g #{job.requested_pattern} -t #{Origen.target.file.basename}"
+        l = "  Command: origen g #{job.requested_pattern} -t #{Origen.target.file.basename}"
+        if Origen.environment && Origen.environment.file
+          l += " -e #{Origen.environment.file.basename}"
+        end
+        c2(l)
         c2 '*' * 75
         c2 'ENVIRONMENT:'
         c2 '  Application'
@@ -328,6 +324,7 @@ module Origen
               listener.shutdown(options)
             end
           end
+          ss 'Pattern complete'
 
           # Now the pattern has run call the render method if the tester uses a template
           Origen.tester.render_template

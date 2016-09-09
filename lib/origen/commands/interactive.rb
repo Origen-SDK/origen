@@ -50,20 +50,14 @@ Usage: origen i [options]
   Origen.app.plugins.temporary = options[:current_plugin] if options[:current_plugin]
   Origen.environment.temporary = options[:environment] if options[:environment]
   Origen.target.temporary = options[:target] if options[:target]
-  Origen.app.load_console
+  Origen.app.load_target!
   Origen.app.runner.prepare_directories # Ensure tmp et all exist
+  listeners_for(:interactive_startup).each(&:interactive_startup)
 
-  if defined?(Pry) && options[:pry]
-    include ConsoleMethods
-    # rubocop:disable Debugger, EmptyLines
-
-
-
-
-
-
-
-    binding.pry
+  begin
+    if defined?(Pry) && options[:pry]
+      include ConsoleMethods
+      # rubocop:disable Debugger, EmptyLines
 
 
 
@@ -71,9 +65,21 @@ Usage: origen i [options]
 
 
 
-    # rubocop:enable Debugger, EmptyLines
-  else
-    IRB::ExtendCommandBundle.send :include, Origen::ConsoleMethods
-    IRB.start
+      binding.pry
+
+
+
+
+
+
+
+      # rubocop:enable Debugger, EmptyLines
+    else
+      IRB::ExtendCommandBundle.send :include, Origen::ConsoleMethods
+      IRB.start
+    end
+    ensure
+      listeners_for(:interactive_shutdown).each(&:interactive_shutdown)
+
   end
 end

@@ -27,7 +27,7 @@ module Origen
         end
         @remote = Pathname.new(options[:remote])
         @local = Pathname.new(options[:local]).expand_path
-        initialize_local_dir
+        initialize_local_dir(options)
       end
 
       # Build the local workspace for the first time.
@@ -249,7 +249,7 @@ module Origen
         end
       end
 
-      def initialize_local_dir
+      def initialize_local_dir(options = {})
         FileUtils.mkdir_p(local.to_s) unless local.exist?
       end
     end

@@ -20,6 +20,8 @@ module Origen
       # it as a string to the caller (i.e. without creating an output file)
       #
       # It expects an absolute path to a single template file as the file argument.
+      #
+      # @api private
       def compile_inline(file, options = {})
         initial_options = options.merge({})
         options = {
@@ -28,7 +30,9 @@ module Origen
           collect_stats:     false,
           initial_options:   initial_options
         }.merge(options)
-        run_erb(Pathname.new(file), options).strip
+        @scope = options[:scope]
+        file = Pathname.new(file) unless options[:string]
+        run_erb(file, options).strip
       end
 
       # Compile all files found under the source directory, non-erb files will be copied
@@ -39,6 +43,7 @@ module Origen
           sub_template:      false,
           collect_stats:     true
         }.merge(options)
+        @scope = options[:scope]
         # Doing here so the output_directory (requiring target load) doesn't get hit if
         # it is already defined
         options[:output_directory] ||= output_directory
@@ -140,10 +145,18 @@ module Origen
         options[:file] = file
         options[:top_level_file] = current_file
         b = _get_binding(opts, &block)
-        if block_given?
-          content = ERB.new(File.read(file.to_s), 0, '%<>', buffer_name_for(file)).result(b)
+        if opts[:string]
+          content = file
+          @current_buffer = '@_string_template'
+          buffer = @current_buffer
         else
-          content = ERB.new(File.read(file.to_s), 0, Origen.config.erb_trim_mode, buffer_name_for(file)).result(b)
+          content = File.read(file.to_s)
+          buffer = buffer_name_for(file)
+        end
+        if block_given?
+          content = ERB.new(content, 0, '%<>', buffer).result(b)
+        else
+          content = ERB.new(content, 0, Origen.config.erb_trim_mode, buffer).result(b)
         end
         insert(content)
       end
@@ -172,11 +185,11 @@ module Origen
       end
 
       def current_buffer
-        instance_variable_get(@current_buffer || '@_anonymous')
+        (@scope || self).instance_variable_get(@current_buffer || '@_anonymous')
       end
 
       def current_buffer=(text)
-        instance_variable_set(@current_buffer || '@_anonymous', text)
+        (@scope || self).instance_variable_set(@current_buffer || '@_anonymous', text)
       end
 
       # Returns the ERB buffer name for the given file, something like "@my_file_name"

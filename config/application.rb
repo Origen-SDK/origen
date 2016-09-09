@@ -4,7 +4,7 @@ class OrigenCoreApplication < Origen::Application
 
   config.name = "Origen Core"
   config.initials = "Origen"
-  config.rc_url = "ssh://git@github.com:Origen-SDK/origen.git"
+  config.rc_url = "git@github.com:Origen-SDK/origen.git"
   config.semantically_version = true
   config.release_externally = true
   config.gem_name = "origen"

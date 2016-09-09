@@ -1,6 +1,8 @@
 module Origen
   module Specs
     module Checkers
+      require 'nokogiri'
+
       # rubocop:disable Style/RescueModifier:
       def name_audit(name)
         return name if name.nil?
@@ -70,8 +72,9 @@ module Origen
       end
 
       def evaluate_limit(limit)
-        return limit if limit.is_a?(Numeric) || limit.is_a?(Symbol)
+        return limit if [Fixnum, Float, Numeric, Symbol].include? limit.class
         return nil if limit.nil?
+        limit = limit.to_s if [Nokogiri::XML::NodeSet, Nokogiri::XML::Text, Nokogiri::XML::Element].include? limit.class
         limit.gsub!("\n", ' ')
         limit.scrub!
         result = false

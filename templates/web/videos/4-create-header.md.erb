@@ -1,0 +1,55 @@
+% render "layouts/videos.html", id: "X49Nm_zNIV4", title: "Using the Compiler to Create a C Header",
+%   summary: "Shows a real world example of using the Origen compiler to create a C header file view of a model." do
+
+#### References
+
+* [Full source code on Github](https://github.com/Origen-Demos/4-create-header)
+* [Compiler Guide](<%= path "guides/compiler/introduction" %>)
+
+#### Code
+
+##### Templates
+
+~~~eruby
+# templates/demo/atd.h.erb
+
+/* ============================================================================
+   =============================== Module: ATD ================================
+   ============================================================================ */
+
+<%= "%" %> dut.atd0.regs.each do |name, reg|   
+typedef union ATD_<%= "<" + '%= name.to_s.upcase %' + ">" %>_union_tag {      /* <%= "<" + '%= reg.description.first %' + ">" %> */
+  vuint32_t R;
+  struct {
+<%= "%" %>   reg.named_bits(include_spacers: true).each do |bit_name, bits|
+<%= "%" %>     if bit_name
+    vuint32_t <%= "<" + '%= "#{bit_name.to_s.upcase}:#{bits.size};".ljust(30) %' + ">" %>  /* <%= "<" + '%= bits.description.first %' + ">" %> */
+<%= "%" %>     else    
+    vuint32_t <%= "<" + '%= "#{bit_name.to_s.upcase}:#{bits.size};".ljust(30) %' + ">" %>
+<%= "%" %>     end    
+<%= "%" %>   end    
+  } B;
+} ATD_<%= "<" + '%= name.to_s.upcase %' + ">" %>_tag;
+
+<%= "%" %> end
+
+struct ATD_tag {
+<%= "%" %> dut.atd0.regs.each do |name, reg|   
+  <%= "<" + '%= "ATD_#{name.to_s.upcase}_tag #{name.to_s.upcase};".ljust(30) %' + ">" %>  /* <%= "<" + '%= reg.description.first %' + ">" %> */
+<%= "%" %> end  
+};
+
+<%= "%" %> dut.atds.each_with_index do |atd, i|
+#define ATD_<%= "<" + '%= i %' + ">" %> (*(volatile struct ATD_tag *) <%= "<" + '%= atd.base_address.to_hex %' + ">" %>UL)
+<%= "%" %> end
+
+/* ATD */
+<%= "%" %> dut.atds.each_with_index do |atd, i|
+<%= "%" %>   dut.atd0.regs.each do |name, reg|   
+#define <%= "<" + '%= "ATD_#{i}_#{name.to_s.upcase}".ljust(20) + "ATD_#{i}.#{name.to_s.upcase}.R".ljust(20) %' + ">" %>  /* <%= "<" + '%= reg.description.first %' + ">" %> */
+<%= "%" %>   end
+
+<%= "%" %> end
+~~~
+
+% end

@@ -55,7 +55,7 @@ _with_doc_tester(options) do
   Origen.app.plugins.temporary = options[:current_plugin] if options[:current_plugin]
   Origen.environment.temporary = options[:environment] if options[:environment]
   Origen.target.temporary = options[:target] if options[:target]
-  Origen.app.load_target!  # This initial load is required to appply any configuration
+  Origen.app.load_target!  # This initial load is required to apply any configuration
   # options present in the target, it will loaded again before
   # each generate/compile job
 

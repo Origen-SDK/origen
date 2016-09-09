@@ -426,10 +426,10 @@ The following options are available:
             options[:comment] ||= 'Initial'
             options[:unmanaged] = true
             options[:initial] = true
-            if Origen.app.rc.git?
-              Origen.app.rc.send(:create_gitignore) unless File.exist?("#{Origen.root}/.gitignore")
+            if Origen.app.rc(uninitialized: true).git?
+              Origen.app.rc(uninitialized: true).send(:create_gitignore) unless File.exist?("#{Origen.root}/.gitignore")
             end
-            Origen.app.rc.checkin(options)
+            Origen.app.rc(uninitialized: true).checkin(options)
           end
         end
         puts

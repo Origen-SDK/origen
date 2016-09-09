@@ -10,10 +10,11 @@ module Origen
     autoload :Version_History, 'origen/specs/version_history.rb'
     autoload :Creation_Info, 'origen/specs/creation_info.rb'
     autoload :Spec_Features, 'origen/specs/spec_features.rb'
+    autoload :Documentation, 'origen/specs/documentation.rb'
     require 'origen/specs/checkers'
     include Checkers
 
-    attr_accessor :_specs, :_notes, :_exhibits, :_doc_resources, :_overrides, :_power_supplies, :_mode_selects, :_version_history, :_creation_info, :_spec_features
+    attr_accessor :_specs, :_notes, :_exhibits, :_doc_resources, :_overrides, :_power_supplies, :_mode_selects, :_version_history, :_creation_info, :_spec_features, :_documentation
 
     # Detailed description for the ip block
     attr_accessor :description
@@ -47,6 +48,7 @@ module Origen
         sub_type:      nil,
         mode:          current_mode.nil? ? nil : current_mode.name,
         spec:          nil,
+        symbol:        false,
         creating_spec: false
       }.update(options || {})
       _specs
@@ -101,6 +103,7 @@ module Origen
         sub_type:      nil,
         mode:          current_mode.nil? ? nil : current_mode.name,
         spec:          nil,
+        symbol:        false,
         creating_spec: false
       }.update(options)
       if @_specs.nil? || @_specs == {}
@@ -123,10 +126,18 @@ module Origen
         sub_type:      nil,
         mode:          current_mode.nil? ? nil : current_mode.name,
         spec:          nil,
+        symbol:        false,
         creating_spec: false
       }.update(options)
       options[:spec] = s
       !!show_specs(options)
+    end
+
+    # Adds a new documentation notion to the block
+    def documentation(header_info, selection, applicable_devices, link)
+      _documentation
+      # Create a new documenation and place it in the 5-D hash
+      @_documentation[header_info[:section]][header_info[:subsection]][selection[:interface]][selection[:type]][selection[:sub_type]][selection[:mode]][selection[:audience]] = Documentation.new(header_info, selection, applicable_devices, link)
     end
 
     # Adds a new feature to the block
@@ -215,6 +226,8 @@ module Origen
         id:   nil,
         type: nil
       }.update(options)
+      return nil if @_notes.nil?
+      return nil if @_notes.empty?
       # Empty 2-D Hash to be used for notes found based on id and type
       notes_found = Hash.new do |h, k|
         # h is the id portion of the hash
@@ -244,6 +257,8 @@ module Origen
         device: nil
       }.update(options)
       return @_spec_features if options[:id].nil? && options[:device].nil?
+      return nil if @_spec_features.nil?
+      return nil if @_spec_features.empty?
       features_found = Hash.new do |h, k|
         h[k] = {}
       end
@@ -267,12 +282,14 @@ module Origen
         id:    nil,
         type:  nil
       }.update(options)
+      return nil if @_exhibits.nil?
+      return nil if @_exhibits.empty?
       ex_found = Hash.new do |h, k|
         h[k] = Hash.new do |hh, kk|
           hh[kk] = {}
         end
       end
-      filter_hash(_exhibits, options[:block]).each do |_block, hash|
+      filter_hash(@_exhibits, options[:block]).each do |_block, hash|
         filter_hash(hash, options[:id]).each do |_id, hash_|
           filter_hash(hash_, options[:type]).each do |_type, exh|
             ex_found[_block][_id][_type] = exh
@@ -293,6 +310,8 @@ module Origen
         sub_type: nil,
         audience: nil
       }.update(options)
+      return nil if @_doc_resources.nil?
+      return nil if @_doc_resources.empty?
       dr_found = Hash.new do |h, k|
         h[k] = Hash.new do |hh, kk|
           hh[kk] = Hash.new do |hhh, kkk|
@@ -300,7 +319,7 @@ module Origen
           end
         end
       end
-      filter_hash(_doc_resources, options[:mode]).each do |_mode, hash|
+      filter_hash(@_doc_resources, options[:mode]).each do |_mode, hash|
         filter_hash(hash, options[:type]).each do |_type, hash_|
           filter_hash(hash_, options[:sub_type]).each do |_sub_type, hash__|
             filter_hash(hash__, options[:audience]).each do |_audience, spec|
@@ -316,6 +335,53 @@ module Origen
       end
     end
 
+    def documentations(options = {})
+      options = {
+        section:    nil,
+        subsection: nil,
+        interface:  nil,
+        mode:       nil,
+        type:       nil,
+        sub_type:   nil,
+        audience:   nil
+      }.update(options)
+      return nil if @_documentation.nil?
+      return nil if @_documentation.empty?
+      doc_found = Hash.new do |h, k|
+        h[k] = Hash.new do |hh, kk|
+          hh[kk] = Hash.new do |hhh, kkk|
+            hhh[kkk] = Hash.new do |hhhh, kkkk|
+              hhhh[kkkk] = Hash.new do |hhhhh, kkkkk|
+                hhhhh[kkkkk] = Hash.new do |hhhhhh, kkkkkk|
+                  hhhhhh[kkkkkk] = {}
+                end
+              end
+            end
+          end
+        end
+      end
+      filter_hash(@_documentation, options[:section]).each do |_section, hash|
+        filter_hash(hash, options[:subsection]).each do |_subsection, hash_|
+          filter_hash(hash_, options[:interface]).each do |_interface, hash__|
+            filter_hash(hash__, options[:type]).each do |_type, hash___|
+              filter_hash(hash___, options[:sub_type]).each do |_sub_type, hash____|
+                filter_hash(hash____, options[:mode]).each do |_mode, hash_____|
+                  filter_hash(hash_____, options[:audience]).each do |_audience, doc|
+                    doc_found[_section][_subsection][_interface][_type][_sub_type][_mode][_audience] = doc
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+      if doc_found.empty?
+        return nil
+      else
+        return doc_found
+      end
+    end
+
     def overrides(options = {})
       options = {
         block:    nil,
@@ -324,6 +390,8 @@ module Origen
         sub_type: nil,
         audience: nil
       }.update(options)
+      return nil if @_overrides.nil?
+      return nil if @_overrides.empty?
       overrides_found = Hash.new do |h, k|
         h[k] = Hash.new do |hh, kk|
           hh[kk] = Hash.new do |hhh, kkk|
@@ -333,7 +401,7 @@ module Origen
           end
         end
       end
-      filter_hash(_overrides, options[:block]).each do |_block, hash|
+      filter_hash(@_overrides, options[:block]).each do |_block, hash|
         filter_hash(hash, options[:spec_ref]).each do |_spec_ref, hash_|
           filter_hash(hash_, options[:mode_ref]).each do |_mode_ref, hash__|
             filter_hash(hash__, options[:sub_type]).each do |_sub_type, hash___|
@@ -356,10 +424,12 @@ module Origen
         block: nil,
         mode:  nil
       }.update(options)
+      return nil if @_mode_selects.nil?
+      return nil if @_mode_selects.empty?
       modes_found = Hash.new do|h, k|
         h[k] = {}
       end
-      filter_hash(_mode_selects, options[:block]).each do |block, hash|
+      filter_hash(@_mode_selects, options[:block]).each do |block, hash|
         filter_hash(hash, options[:mode]).each do |mode, sel|
           modes_found[block][mode] = sel
         end
@@ -379,7 +449,9 @@ module Origen
       ps_found = Hash.new do|h, k|
         h[k] = {}
       end
-      filter_hash(_power_supplies, options[:gen]).each do |gen, hash|
+      return nil if @_power_supplies.nil?
+      return nil if @_power_supplies.empty?
+      filter_hash(@_power_supplies, options[:gen]).each do |gen, hash|
         filter_hash(hash, options[:act]).each do |act, sel|
           ps_found[gen][act] = sel
         end
@@ -442,6 +514,10 @@ module Origen
       @_spec_features = nil
     end
 
+    def delete_all_documentation
+      @_documentation = nil
+    end
+
     private
 
     def _specs
@@ -486,6 +562,22 @@ module Origen
       end
     end
 
+    def _documentation
+      @_documentation ||= Hash.new do |h, k|
+        h[k] = Hash.new do |hh, kk|
+          hh[kk] = Hash.new do |hhh, kkk|
+            hhh[kkk] = Hash.new do |hhhh, kkkk|
+              hhhh[kkkk] = Hash.new do |hhhhh, kkkkk|
+                hhhhh[kkkkk] = Hash.new do |hhhhhh, kkkkkk|
+                  hhhhhh[kkkkkk] = {}
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+
     def _overrides
       @_overrides ||= Hash.new do |h, k|
         h[k] = Hash.new do |hh, kk|
@@ -521,11 +613,11 @@ module Origen
     end
 
     # Return a hash based on the filter provided
-    def filter_hash(hash, filter)
+    def filter_hash(hash, filter, debug = false)
       fail 'Hash argument is not a Hash!' unless hash.is_a? Hash
       filtered_hash = {}
       select_logic = case filter
-        when String then 'k[Regexp.new(filter)] && k.length == filter.length'
+        when String then 'k.nil? ? false : k[Regexp.new(filter)] && k.length == filter.length'
         when (Fixnum || Integer || Float || Numeric) then "k[Regexp.new('#{filter}')]"
         when Regexp then 'k[filter]'
         when Symbol then
@@ -535,6 +627,7 @@ module Origen
       end
       # rubocop:disable UnusedBlockArgument
       filtered_hash = hash.select do |k, v|
+        # binding.pry if filter == 'SubSection A'
         [TrueClass, FalseClass].include?(select_logic.class) ? select_logic : eval(select_logic)
       end
       filtered_hash
@@ -549,14 +642,22 @@ module Origen
         sub_type:          nil,
         specs_to_be_shown: SpecArray.new,
         owner:             nil,
+        symbol:            false,
         creating_spec:     false
       }.update(options)
+      options[:symbol] ? symbol = options.delete(:spec) : symbol = nil
       specs_to_be_shown = options[:specs_to_be_shown]
       filter_hash(_specs, options[:spec]).each do |_spec, hash|
         filter_hash(hash, options[:mode]).each do |_mode, hash_|
           filter_hash(hash_, options[:type]).each do |_type, hash__|
             filter_hash(hash__, options[:sub_type]).each do |_sub_type, spec|
-              specs_to_be_shown << spec
+              if symbol
+                if spec.symbol && (spec.symbol.gsub(/<.*?>/, '').downcase.to_sym == symbol)
+                  specs_to_be_shown << spec
+                end
+              else
+                specs_to_be_shown << spec
+              end
             end
           end
         end

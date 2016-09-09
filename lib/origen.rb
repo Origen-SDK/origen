@@ -3,6 +3,7 @@
 unless defined? RGen::ORIGENTRANSITION
   require 'English'
   require 'pathname'
+  require 'pry'
   # Keep a note of the pwd at the time when Origen was first loaded, this is initially used
   # by the site_config lookup.
   $_origen_invocation_pwd ||= Pathname.pwd
@@ -53,6 +54,7 @@ unless defined? RGen::ORIGENTRANSITION
     autoload :Chips,     'origen/chips'
     autoload :Netlist,   'origen/netlist'
     autoload :Models,    'origen/models'
+    autoload :Errata,    'origen/errata'
 
     APP_CONFIG = File.join('config', 'application.rb')
 
@@ -103,8 +105,13 @@ unless defined? RGen::ORIGENTRANSITION
         Origen.app.plugins
       end
 
-      def app_loaded?
+      def application_loaded?
         @application_loaded
+      end
+      alias_method :app_loaded?, :application_loaded?
+
+      def plugins_loaded?
+        @plugins_loaded
       end
 
       # Returns the current (top-level) application instance
@@ -411,13 +418,16 @@ unless defined? RGen::ORIGENTRANSITION
       # automatically the first time the application is referenced via Origen.app
       def load_application(options = {})
         @application ||= begin
+          # Make sure the top-level root is always in the load path, it seems that some existing
+          # plugins do some strange things to require stuff from the top-level app and rely on this
+          path = File.join(root, 'lib')
+          $LOAD_PATH.unshift(path) unless $LOAD_PATH.include?(path)
           # This flag is set so that when a thread starts with no app it remains with no app. This
           # was an issue when building a new app with the fetch command and when the thread did a
           # chdir to the new app directory (to fetch it) Origen.log would try to load the partial app.
           @running_outside_an_app = true unless in_app_workspace?
           return nil if @running_outside_an_app
-          require File.join(root, APP_CONFIG)
-          @application = _applications_lookup[:root][root.to_s]
+          # Load the app's plugins and other gem requirements
           if File.exist?(File.join(root, 'Gemfile')) && !@with_boot_environment
             # Don't understand the rules here, belt and braces approach for now to make
             # sure that all Origen plugins are auto-required (otherwise Origen won't know
@@ -427,6 +437,12 @@ unless defined? RGen::ORIGENTRANSITION
             Bundler.require(:runtime)
             Bundler.require(:default)
           end
+          @plugins_loaded = true
+          # Now load the app
+          @loading_top_level = true
+          require File.join(root, APP_CONFIG)
+          @application = _applications_lookup[:root][root.to_s]
+          @loading_top_level = false
           if @with_boot_environment
             @application.plugins.disable_current
           else
@@ -441,8 +457,32 @@ unless defined? RGen::ORIGENTRANSITION
           validate_origen_dev_configuration!
           ([@application] + Origen.app.plugins).each(&:on_loaded)
           @application_loaded = true
+          Array(@after_app_loaded_blocks).each { |b| b.call(@application) }
           @application
         end
+      end
+
+      # Sometimes it is necessary to refer to the app instance before it is fully loaded, which can lead to runtime
+      # errors.
+      #
+      # Such code can be wrapped in this method to ensure that it will run safely by differing it until the app
+      # is fully loaded.
+      #
+      #   Origen.after_app_loaded do
+      #     Origen.app.do_something
+      #   end
+      def after_app_loaded(&block)
+        if application_loaded?
+          yield app
+        else
+          @after_app_loaded_blocks ||= []
+          @after_app_loaded_blocks << block
+        end
+      end
+
+      # @api private
+      def loading_top_level?
+        @loading_top_level
       end
 
       def launch_time
@@ -456,7 +496,16 @@ unless defined? RGen::ORIGENTRANSITION
 
       # Compile the given file and return the result as a string
       def compile(file, options = {})
-        Origen::Generator::Compiler.new.compile_inline(file, options)
+        # This has to operate on a new instance so that helper methods can use the inline
+        # compiler within an isolated context
+        c = Origen::Generator::Compiler.new
+        # It needs to be placed on the stack so that the global render method references
+        # the correct compiler instance
+        $_compiler_stack ||= []
+        $_compiler_stack << c
+        r = c.compile_inline(file, options)
+        $_compiler_stack.pop
+        r
       end
 
       def interfaces
@@ -479,8 +528,12 @@ unless defined? RGen::ORIGENTRANSITION
           if int
             @interface = int.new(options)
           else
-            unless options.delete(:silence_no_interface_error)
-              fail "No interface has been defined for tester: #{Origen.tester.class}"
+            if defined? OrigenTesters::NoInterface
+              @interface = OrigenTesters::NoInterface.new
+            else
+              unless options.delete(:silence_no_interface_error)
+                fail "No interface has been defined for tester: #{Origen.tester.class}"
+              end
             end
           end
         end

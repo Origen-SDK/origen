@@ -50,19 +50,37 @@ module Origen
       else
         if options[:build_reference]
           @reference_tag = version_to_tag(options[:version] || get_version(options))
-          setup_reference_workspace
+          # passing the options for regression to the setup reference workspace method.
+          setup_reference_workspace(options)
           # Generate the reference files
           save_options(options)
           Origen.with_origen_root(reference_origen_root) do
-            Origen.with_disable_origen_version_check(all_processes: true) do
+            disable_origen_version_check do
               Dir.chdir reference_origen_root do
                 Bundler.with_clean_env do
-                  system 'origen -v'  # Used to make sure gems install
+                  system 'rm -rf lbin'
+                  # If regression is run using a service account, we need to setup the path/bundler manually
+                  # The regression manager needs to be passed a --service_account option when initiated.
+                  if options[:service_account]
+                    puts "Running with a service account, setting up the workspace manually now, assuming it runs BASH!! <-- can't assume bash always"
+                    puts 'This is not an ideal way, need to discuss. Though, a normal user will never set service_account to true'
+                    # Future enhancement, probably add the sourcing of files in a service_origen_setup file.
+                    # Check if service_origen_setup exists, if it does, load/execute the file. If not, ask user to provide it.
+                    # If running as a service account, service_origen_setup file is NOT optional.
+                    # More enhancements to come on this bit of code, but if someone finds a better cleaner way, I am happy to discuss the issues I have seen and come up with a solution.
+                    system 'source ~/.bash_profile'
+                    system 'source ~/.bashrc.user'
+                    system 'bundle install --gemfile Gemfile --binstubs lbin --path ~/.origen/gems/' # this needs to be executed as 'origen -v' does not seem to handle it on its own.
+                    system 'origen -v' # Let origen handle the gems installation and bundler setup.
+                  else
+                    system 'bundle exec origen -v'
+                    system 'bundle install' # Make sure bundle updates the necessary config/gems required for Origen.
+                  end
                   Origen.log.info '######################################################'
                   Origen.log.info 'running regression command in reference workspace...'
                   Origen.log.info '######################################################'
                   Origen.log.info
-                  system 'origen regression'
+                  system 'bundle exec origen regression'
                 end
               end
             end
@@ -82,6 +100,16 @@ module Origen
         unless Origen.app.stats.clean_run?
           exit 1
         end
+      end
+    end
+
+    def disable_origen_version_check
+      if Origen.respond_to?(:with_disable_origen_version_check)
+        Origen.with_disable_origen_version_check(all_processes: true) do
+          yield
+        end
+      else
+        yield
       end
     end
 
@@ -110,7 +138,7 @@ module Origen
       Origen.log.flush
       Dir.chdir reference_origen_root do
         Bundler.with_clean_env do
-          system 'origen save all'
+          system 'bundle exec origen save all'
         end
       end
       FileUtils.rm_rf "#{reference_origen_root}/output"
@@ -167,11 +195,27 @@ module Origen
       end
     end
 
-    def setup_reference_workspace
+    def setup_reference_workspace(options)
       if ws.reference_workspace_set?
-        @reference_workspace = ws.reference_workspace
+        # If the reference workspace option is true, overwrite the @reference_workspace accessor
+        if options[:reference_workspace]
+          @reference_workspace = options[:reference_workspace]
+          # Build the new reference workspace now.
+          unless File.exist?(@reference_workspace)
+            highlight { Origen.log.info 'Building reference workspace...' }
+            ws.build(@reference_workspace)
+          end
+          ws.set_reference_workspace(@reference_workspace)
+        else
+          @reference_workspace = ws.reference_workspace
+        end
       else
-        @reference_workspace = get_reference_workspace
+        if options[:reference_workspace]
+          # If the reference workspace option is true, overwrite the @reference_workspace accessor
+          @reference_workspace = options[:reference_workspace]
+        else
+          @reference_workspace = get_reference_workspace
+        end
         unless File.exist?(@reference_workspace)
           highlight { Origen.log.info 'Building reference workspace...' }
           ws.build(@reference_workspace)
@@ -243,7 +287,15 @@ module Origen
       if version.downcase == 'last'
         Origen.app.version_tracker.versions.last
       elsif version.downcase == 'latest'
-        version
+        if Origen.app.rc.git?
+          if Origen.app.config.rc_workflow == :gitflow
+            'develop'
+          else
+            'master'
+          end
+        else
+          version
+        end
       else
         version
       end

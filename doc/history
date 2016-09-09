@@ -1,3 +1,762 @@
+<a class="anchor release_tag" name="v0_7_31"></a>
+<h1><a href="#v0_7_31">Tag: v0.7.31</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 09-Sep-2016 06:11AM
+
+
+* Added on\_flow\_start and on\_flow\_end callbacks for program generation
+* Patch to allow interfaces to include Origen::Callbacks
+
+<a class="anchor release_tag" name="v0_7_30"></a>
+<h1><a href="#v0_7_30">Tag: v0.7.30</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 02-Sep-2016 10:09AM
+
+
+Patch to the release process for compatibility with apps that are embedded in a parent
+repository.
+
+<a class="anchor release_tag" name="v0_7_29"></a>
+<h1><a href="#v0_7_29">Tag: v0.7.29</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 02-Sep-2016 05:31AM
+
+
+Updated Git driver to allow a plugin to be embedded within a parent repo, see the
+tester\_std\_lib repo for an example
+
+<a class="anchor release_tag" name="v0_7_28"></a>
+<h1><a href="#v0_7_28">Tag: v0.7.28</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 24-Aug-2016 05:54AM
+
+
+Another (hopefully final!) patch to the plugin load sequence
+
+<a class="anchor release_tag" name="v0_7_27"></a>
+<h1><a href="#v0_7_27">Tag: v0.7.27</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 24-Aug-2016 05:36AM
+
+
+Patch to add the top-level app's lib dir to the load path early in the application load
+sequence. It seems that some plugins relied on this behavior from when the app was loaded
+first before the plugins.
+
+<a class="anchor release_tag" name="v0_7_26"></a>
+<h1><a href="#v0_7_26">Tag: v0.7.26</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 24-Aug-2016 05:00AM
+
+
+* Origen will now maintain a lookup table of all log messages for programmatic
+  access (David Welguisz). These are grouped by message level (debug, warning,
+  etc), and additionally an identifier/category can now be supplied to all log
+  statements to further group them below the message level categories.
+
+~~~ruby
+Origen.log.success 'Good A'
+Origen.log.success 'Good B'
+
+Origen.log.error 'Bad A'
+
+Origen.log.messages # => { :info=>{},
+                    #      :warn=>{},
+                    #      :error=>{nil=>[ "[ERROR] 10.050[7.424] || Bad A" ]},
+                    #      :deprecate=>{},
+                    #      :debug=>{},
+                    #      :success=>{nil=>[ "[SUCCESS] 0.008[0.008] || Good A",
+                    #                        "[SUCCESS] 2.626[2.618] || Good B"
+                    #                      ]}
+                    #    } 
+
+Origen.log.messages[:success][nil].size  # => 2
+
+# Note that as above, by default the messages will be stored within a
+# sub-category of 'nil'.
+# This category can be set when writing the message:
+
+Origen.log.success 'Good A', :cat1
+Origen.log.success 'Good B', :cat1
+Origen.log.success 'Good C', :cat2
+
+Origen.log.messages[:success][:cat1].size  # => 2
+Origen.log.messages[:success][:cat2].size  # => 1
+~~~
+
+* Removed recently added warning when a plugin is loaded after the top-level
+  application. This situation can occur when the top-level app requires the
+  plugin later, which may be perfectly valid for some plugins.
+
+<a class="anchor release_tag" name="v0_7_25"></a>
+<h1><a href="#v0_7_25">Tag: v0.7.25</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 22-Aug-2016 10:57AM
+
+
+* Really fixed any issues with calling current? within config/application.rb this time.
+* Added an API to allow operations to be performed on the app instance before it might be fully loaded.
+  This is mainly intended for internal use, but may be useful to plugin developers:
+
+~~~ruby
+# This code may be hit before the app is fully loaded which can lead to runtime errors. This can
+# now be resolved by wrapping with this method to defer execution until the app instance is fully
+# available.
+# It will execute immediately if the app is already loaded.
+Origen.after\_app\_loaded do |app|
+  app.do\_something
+end
+~~~
+
+
+<a class="anchor release_tag" name="v0_7_24"></a>
+<h1><a href="#v0_7_24">Tag: v0.7.24</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 22-Aug-2016 09:36AM
+
+
+* Changed the boot order to load all plugins before the top-level application. A log warning will be
+  given in the event of a plugin implementing a non-standard loading mechanism which results in it
+  getting loaded after the top-level app.
+  The standard loading mechanism for a plugin is to have this as the first item in their top-level
+  file:
+
+~~~ruby
+# lib/my\_plugin.rb
+require 'origen'
+require\_relative '../config/application.rb'
+
+# Plugin specific requires go here
+~~~
+
+* Fixed any issues with calling current? within config/application.rb (probably the main reason for a
+  plugin to implement a non-standard load before now)
+
+* Added an API for plugins to add additional application configuration attributes to their host app:
+
+~~~ruby
+# config/application.rb (of the plugin)
+require 'origen'
+class MyPluginApplication < Origen::Application
+
+  # Adds a new attribute with a default of nil
+  add\_config\_attribute(:my\_attribute)
+
+  # Adds a new attribute with a default of an empty hash
+  add\_config\_attribute(:my\_attribute, default: {})
+
+  # By default any attributes added in this way will raise an error if they are accessed before the
+  # target is loaded (this is the case for the majority of standard config attributes).
+  # If you need the attribute to be accessible before target load then do this:
+  add\_config\_attribute(:my\_attribute, depend\_on\_target: false)
+
+  # Such attributes can then be set by the top-level application in exactly the same way as the
+  # standard attributes:
+  config.my\_attribute = { some\_val: true }
+
+  # They will also accept a block:
+  config.my\_attribute do
+    if some\_condition
+      { some\_val: true }
+    end
+  end
+
+~~~
+
+
+<a class="anchor release_tag" name="v0_7_23"></a>
+<h1><a href="#v0_7_23">Tag: v0.7.23</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 12-Aug-2016 10:49AM
+
+
+Internal updates to some hooks that support OrigenTesters
+
+<a class="anchor release_tag" name="v0_7_22"></a>
+<h1><a href="#v0_7_22">Tag: v0.7.22</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 04-Aug-2016 11:43AM
+
+
+* Bug fixes to register console display
+* Added reg.data\_reverse method, this reverses the order of the data bits in
+  the returned value:
+
+~~~ruby
+my\_reg.write(0x00FF\_AA55)
+my\_reg.data               # => 0x00FF\_AA55
+my\_reg.data\_b             # => 0xFF00\_55AA
+my\_reg.data\_reverse       # => 0xAA55\_FF00
+~~~
+
+<a class="anchor release_tag" name="v0_7_21"></a>
+<h1><a href="#v0_7_21">Tag: v0.7.21</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 22-Jun-2016 11:31AM
+
+
+Updates to regression manager with respect to running regressions with a service account.
+This is still a work in progress and will be updated often.
+
+<a class="anchor release_tag" name="v0_7_20"></a>
+<h1><a href="#v0_7_20">Tag: v0.7.20</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 20-Jun-2016 10:12AM
+
+
+Added the ability to lookup a parameter value via an explicitly supplied context:
+
+~~~ruby
+dut.params.tprog        # => 20
+dut.params(:ft).tprog   # => 15
+~~~
+
+<a class="anchor release_tag" name="v0_7_19"></a>
+<h1><a href="#v0_7_19">Tag: v0.7.19</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 17-Jun-2016 10:51AM
+
+
+Added 'bundle exec' back to regression manager. Without it problems occur when regressions
+are run with a service account.
+
+<a class="anchor release_tag" name="v0_7_18"></a>
+<h1><a href="#v0_7_18">Tag: v0.7.18</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 14-Jun-2016 05:42AM
+
+
+Bug fix to allow parameters to be called 'min' and 'max'
+
+<a class="anchor release_tag" name="v0_7_17"></a>
+<h1><a href="#v0_7_17">Tag: v0.7.17</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 13-Jun-2016 22:15PM
+
+
+Bug fixes to bin script
+
+<a class="anchor release_tag" name="v0_7_16"></a>
+<h1><a href="#v0_7_16">Tag: v0.7.16</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 13-Jun-2016 10:39AM
+
+
+Minor updates to the regression manager.
+Added options to pass version and reference workspace path to the regression manager
+
+<a class="anchor release_tag" name="v0_7_15"></a>
+<h1><a href="#v0_7_15">Tag: v0.7.15</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 09-Jun-2016 21:28PM
+
+
+Added Model and Register to\_json methods
+
+<a class="anchor release_tag" name="v0_7_14"></a>
+<h1><a href="#v0_7_14">Tag: v0.7.14</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 09-Jun-2016 09:21AM
+
+
+Various minor improvements:
+
+* Fixes issue with hard links being generated in web pages whenever the application is at
+  a production release version. Now hard links are only created if the --archive switch is
+  supplied to 'origen web compile'
+* Error dumps now show the full stack trace without requiring to run with -verbose, but it
+  now separates out the application call stack from the full framework call stack
+* config.pattern\_output\_directory now works, by default is set to config.output\_directory
+* The reference directory now automatically tracks the structure of the output directory for
+  pattern generation as long as the output directory is some sub-directory of Origen.root/output.
+  Previously the app config was responsible for keeping these aligned.
+* If a test program interface defines startup and shutdown methods, these will automatically
+  be called at the start and end of every Flow.create block. Any arguments passed to
+  Flow.create will be passed in when called from a top-level flow options[:top\_level] will
+  be present and set to true.
+* Added the target environment to pattern headers.
+* Fix for new application build crashing if dotfiles have been deleted from the new app
+  template cache in /tmp.
+
+<a class="anchor release_tag" name="v0_7_13"></a>
+<h1><a href="#v0_7_13">Tag: v0.7.13</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 02-Jun-2016 11:23AM
+
+
+Fixes issue #52 and #53
+
+<a class="anchor release_tag" name="v0_7_12"></a>
+<h1><a href="#v0_7_12">Tag: v0.7.12</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 26-May-2016 05:53AM
+
+
+Fixed 'origen rc init' when using Git
+
+<a class="anchor release_tag" name="v0_7_11"></a>
+<h1><a href="#v0_7_11">Tag: v0.7.11</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 26-May-2016 05:25AM
+
+
+Improved error reporting when a sub block or controller model fails to instantiate
+
+<a class="anchor release_tag" name="v0_7_10"></a>
+<h1><a href="#v0_7_10">Tag: v0.7.10</a></h1>
+
+##### Branch: 'master'
+
+##### by Kumar Priyavadan-B21094 on 13-May-2016 11:39AM
+
+
+merged PR #50
+
+<a class="anchor release_tag" name="v0_7_9"></a>
+<h1><a href="#v0_7_9">Tag: v0.7.9</a></h1>
+
+##### Branch: 'master'
+
+##### by Kumar Priyavadan-B21094 on 05-May-2016 22:18PM
+
+
+retagging (merged PR #49)
+
+<a class="anchor release_tag" name="v0_7_8"></a>
+<h1><a href="#v0_7_8">Tag: v0.7.8</a></h1>
+
+##### Branch: 'master'
+
+##### by Kumar Priyavadan-B21094 on 02-May-2016 13:38PM
+
+
+Merged Pull Request #48. Making a release so David/Rebecca can use the gem release.
+
+<a class="anchor release_tag" name="v0_7_7"></a>
+<h1><a href="#v0_7_7">Tag: v0.7.7</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 07-Apr-2016 12:30PM
+
+
+Fixed issue with search boxes hanging the browser
+
+<a class="anchor release_tag" name="v0_7_6"></a>
+<h1><a href="#v0_7_6">Tag: v0.7.6</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 07-Apr-2016 07:54AM
+
+
+* Added after\_web\_site\_compile callback
+* Added ability for the inline compiler to take a template in the form of a string rather
+  than a pointer to a file:
+
+~~~ruby
+template =<<-END
+X is: <%= options[:x] %>
+END
+
+Origen.compile(template, string: true, x: 10)
+~~~
+
+* reg.named\_bits now returns an array when a block is not given, these now both work:
+
+~~~ruby
+myreg.named\_bits do |name, bits|
+  # ...
+end
+
+myreg.named\_bits.each do |name, bits|
+  # ...
+end
+~~~
+
+* Updated website builder to support multiple search domains on a single application website
+  by suppling a search ID in the page frontmatter:
+
+~~~text
+---
+search\_id: my\_subsection
+---
+~~~
+
+* Specs can now be looked up via their symbol (Aaron Burgmeier):
+
+~~~ruby
+dut.has\_spec?(:gvdd, symbol: true)
+~~~
+
+* Various bug fixes:
+  * Fixed console display of registers whose size is not a multiple of 8
+  * Fixed inline compiler block render bug when a scope is supplied
+  * Fixed register description parsing when a reg has been defined with add\_reg without a
+    block
+  * Register read requests will now update the expect value of non-writable bits
+
+<a class="anchor release_tag" name="v0_7_5"></a>
+<h1><a href="#v0_7_5">Tag: v0.7.5</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 04-Apr-2016 15:34PM
+
+
+* Added interactive\_startup and shutdown callbacks, this allows a device to be put into
+  the correct mode when starting up a console session with an Origen Link compatible
+tester
+  driver connected.
+* Fixed a bug where plugins that were development dependencies did not register with the
+  application properly.
+* A few other minor bug fixes.
+
+<a class="anchor release_tag" name="v0_7_4"></a>
+<h1><a href="#v0_7_4">Tag: v0.7.4</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 01-Apr-2016 16:50PM
+
+
+Added a shorthand for syncing a register in an Origen Link debug session:
+
+~~~ruby
+dut.my\_reg        # Display register with current local content
+dut.my\_reg.sync   # Sync register and display with updated content
+dut.my\_reg!       # Sync register and display with updated content
+~~~
+
+Added a memory API to all DUTs and sub-blocks which enables read/write of any memory
+location using the conventional register API and without having to pre-define the
+register.
+
+Note that at present the register object generated via the memory API will be
+different to that returned by a defined register with the same address.
+
+~~~ruby
+dut.mem(0x2000\_0000).write!(0x1111\_2222)
+
+dut.mem(0x2000\_0000).data    # => 0x1111\_2222
+
+dut.mem(0x2000\_0000).read!(0x1111\_2222)
+
+dut.mem(0x2000\_0000)[15..0].read!(0x2222)
+
+dut.mem(0x2000\_0000)[31..16].store!
+
+dut.mem(0x2000\_0000).sync
+~~~
+
+Memory can be accessed via a sub-block with a local address, however there is only
+one memory and this will return the same register object as for the corresponding
+global address.
+Say here the NVM has a base\_address of 0x4000\_0000:
+
+~~~ruby
+dut.nvm.mem(0x10).write!(0x5555\_5555)
+
+dut.mem(0x4000\_0010).data  # => 0x5555\_5555
+~~~
+
+By default this returns 32-bit register objects and the address must be aligned.
+The width can be changed on a per-DUT basis:
+
+~~~ruby
+dut.memory\_width = 16
+
+dut.mem(0x2000\_0000).size   # => 16
+~~~
+
+Finally, updated the sync method to take a size argument which corresponds to the
+number of memory locations to read out:
+
+~~~text
+(byebug) dut.mem(0x40020000).sync(10)
+40020000: FFFE0080
+40020004: 00005555
+40020008: 00000000
+4002000C: 00000000
+40020010: FFFFFFFF
+40020014: 00000000
+40020018: FFFFFFFF
+4002001C: FFFFFFFF
+40020020: FFFFFFFF
+40020024: FFFFFFFF
+~~~
+
+<a class="anchor release_tag" name="v0_7_3"></a>
+<h1><a href="#v0_7_3">Tag: v0.7.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 01-Apr-2016 11:47AM
+
+
+Update to the BitCollection#sync method to fix the data ordering. Also now preserves any
+flags that are set on the bitcollection prior to syncing.
+
+<a class="anchor release_tag" name="v0_7_2"></a>
+<h1><a href="#v0_7_2">Tag: v0.7.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 31-Mar-2016 09:12AM
+
+
+* Added BitCollection#sync method, in combination with OrigenLink, this updates the
+  value held by the register model with that currently on silicon...
+
+~~~ruby
+(byebug) dut.atd.result
+
+0x4000\_4502 - :atd\_result
+  ---------------------------------------------------------------------------------
+  |    7    |    6    |    5    |    4    |    3    |    2    |    1    |    0    |
+  |                                     r[7:0]                                    |
+  |                                      0x0                                      |
+  ---------------------------------------------------------------------------------
+
+(byebug) dut.atd.result.sync
+
+0x4000\_4502 - :atd\_result
+  ---------------------------------------------------------------------------------
+  |    7    |    6    |    5    |    4    |    3    |    2    |    1    |    0    |
+  |                                     r[7:0]                                    |
+  |                                      0xE2                                     |
+  ---------------------------------------------------------------------------------
+~~~
+
+* Added Pin#hello and Pin#goodbye methods. Calling something like dut.pin(:tdi).hello
+  from the console will cause it to continuously drive low and high with a period of
+  2 seconds. This is intended to be used as a debug aid for OrigenLink when checking
+  connections. Calling dut.pin(:tdi).goodbye will turn it off.
+
+<a class="anchor release_tag" name="v0_7_1"></a>
+<h1><a href="#v0_7_1">Tag: v0.7.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 24-Mar-2016 10:36AM
+
+
+Reinstated use of geminabox to push internal gems, turned out to be required for some
+users
+
+<a class="anchor release_tag" name="v0_7_0"></a>
+<h1><a href="#v0_7_0">Tag: v0.7.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 18-Mar-2016 05:44AM
+
+
+Updated hard dependency on nokogiri to the latest version, this is to support latest
+Ruby on Windows, but also the latest nokogiri seems easier to build.
+
+<a class="anchor release_tag" name="v0_6_12"></a>
+<h1><a href="#v0_6_12">Tag: v0.6.12</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 17-Mar-2016 11:54AM
+
+
+* Add the ability to have a spec hidden based off of the License Plate (David Welguisz)
+* Tweak to avoid reg->data conversion in pin group assert method (Chris Nappi)
+
+<a class="anchor release_tag" name="v0_6_11"></a>
+<h1><a href="#v0_6_11">Tag: v0.6.11</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 16-Mar-2016 05:38AM
+
+
+Patch to the regression command to enable regressions vs. NXP RGen v2
+
+<a class="anchor release_tag" name="v0_6_10"></a>
+<h1><a href="#v0_6_10">Tag: v0.6.10</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 15-Mar-2016 04:29AM
+
+
+No changes vs. 0.6.9, but releasing a new version of the gem to fix a Rubygems build error
+
+<a class="anchor release_tag" name="v0_6_9"></a>
+<h1><a href="#v0_6_9">Tag: v0.6.9</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 14-Mar-2016 13:05PM
+
+
+Patches to regression command
+
+<a class="anchor release_tag" name="v0_6_8"></a>
+<h1><a href="#v0_6_8">Tag: v0.6.8</a></h1>
+
+##### Branch: 'master'
+
+##### by Kumar Priyavadan-B21094 on 10-Mar-2016 17:08PM
+
+
+Updates to Virtual pin model - Aaron Burgmeier
+
+<a class="anchor release_tag" name="v0_6_7"></a>
+<h1><a href="#v0_6_7">Tag: v0.6.7</a></h1>
+
+##### Branch: 'master'
+
+##### by Kumar Priyavadan-B21094 on 10-Mar-2016 16:57PM
+
+
+* New Class for Specs Documentation - David Welguisz
+* Respect masking in pin collections - Chris Nappi
+* Added spec tests for masking in pin collections - Chris Nappi
+
+<a class="anchor release_tag" name="v0_6_6"></a>
+<h1><a href="#v0_6_6">Tag: v0.6.6</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 02-Mar-2016 03:53AM
+
+
+* \#32 - Added API to add virtual pins to a model (Aaron Burgmeier)
+
+~~~ruby
+ $dut.add\_pin :pinx
+ $dut.add\_pin :piny
+ $dut.add\_virtual\_pin(:virtual1, type: :virtual\_bit)
+ $dut.add\_virtual\_pin(:virtual2, type: :virtual\_bit)
+ $dut.add\_virtual\_pin(:virtual3, type: :ate\_ch)
+ $dut.pins.size          # => 2
+ $dut.virtual\_pins.size  # => 3
+ $dut.virtual\_pins(:virtual1).type # => :virtual\_bit
+ 
+ $dut.add\_virtual\_pin\_group :virtual, :virtual1, :virtual2, package: :p1
+ $dut.add\_virtual\_pin\_group :virtual, :virtual1, :virtual2, :virtual3, package: :p2
+ $dut.virtual\_pin\_groups.size                # => 0
+ $dut.virtual\_pin\_groups(package: :p1).size  # => 1
+ $dut.package = :p1
+ $dut.virtual\_pins(:virtual).size   # => 2
+ $dut.package = :p2
+ $dut.virtual\_pins(:virtual).size   # => 3
+~~~
+
+* \#33 - Fix issue if a global variable is nil in spec model (David Welguisz)
+
+<a class="anchor release_tag" name="v0_6_5"></a>
+<h1><a href="#v0_6_5">Tag: v0.6.5</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 25-Feb-2016 08:56AM
+
+
+Minor update to make the program generator instantiate an empty interface, rather than
+raise an error, in the case where no interface is defined by the application. This allows
+an application to be able to generate a test flow only (i.e. no instances, etc.) without
+having to create an interface.
+
+<a class="anchor release_tag" name="v0_6_4"></a>
+<h1><a href="#v0_6_4">Tag: v0.6.4</a></h1>
+
+##### Branch: 'master'
+
+##### by Ronnie Lajaunie on 22-Feb-2016 22:49PM
+
+
+Introduce maillists for release notifications.
+
+Origen uses maillists to send notifications of development and production releases.  The
+maillist files
+should be located at <code>config/maillist\_dev.txt</code> and
+<code>config/maillist\_prod.txt</code>
+
+Sample lists:
+
+~~~text
+# config/maillist\_dev.txt
+#
+# Product team X  (handles commenting like this)
+first.last@company.com
+john.smith@company.com
+~~~
+
+~~~text
+# config/maillist\_prod.txt
+#
+# Some other product team
+memory.expert@company.com       # Memory Test Lead (commenting like this is ok too)
+# Example of an ID only
+last.first
+x49509
+~~~
+
+
+To get a list of your application's mailists:
+
+~~~ruby
+Origen.app.maillist\_dev    # => [<first.last@company.com>, <john.smith@company.com>]
+Origen.app.maillist\_prod   # => [<memory.expert@company.com>, <last.first@MYcompany.com>,
+<x49509@MYcompany.com>]
+~~~
+
+You can pass the returned array directly to the send\_email method:
+
+~~~ruby
+Origen.mailer.send\_email(subject: "Hello", to: Origen.app.maillist\_dev, body: "Hello to
+all developers!")
+~~~
+
+
 <a class="anchor release_tag" name="v0_6_3"></a>
 <h1><a href="#v0_6_3">Tag: v0.6.3</a></h1>
 

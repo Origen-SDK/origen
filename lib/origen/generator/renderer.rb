@@ -4,6 +4,7 @@ module Origen
     # and source files
     module Renderer
       def render(file, options = {}, &block)
+        fail 'File argument is nil' unless file
         file = Origen.file_handler.clean_path_to_sub_template(file)
         current_pipeline << { file: file, options: options,
                               placeholder: placeholder, block: block,
@@ -45,7 +46,8 @@ module Origen
           self.current_buffer = ''
           output = compile(current[:file],
                            sub_template: true,
-                           block:        current[:block]
+                           block:        current[:block],
+                           scope:        @scope
                           )
           if current[:indent] && current[:indent] > 0
             indent = ' ' * current[:indent]

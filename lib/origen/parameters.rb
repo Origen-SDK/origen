@@ -49,9 +49,10 @@ module Origen
       self.params = orig
     end
 
-    def params
+    def params(context = nil)
       @_live_parameter_requested = false
-      _parameter_sets[_parameter_current] || Missing.new(owner: self)
+      context ||= _parameter_current
+      _parameter_sets[context] || Missing.new(owner: self)
     end
     alias_method :parameters, :params
 

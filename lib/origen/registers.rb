@@ -27,15 +27,26 @@ module Origen
     end
 
     def method_missing(method, *args, &block) # :nodoc:
+      if method[-1] == '!'
+        bang = true
+        method = method.to_s.chop.to_sym
+      end
       if _registers.key?(method)
-        reg(method)
+        r = reg(method)
+        r.sync if bang
+        r
       else
         super
       end
     end
 
     def respond_to?(sym) # :nodoc:
-      _registers.key?(sym) || super(sym)
+      if sym[-1] == '!'
+        r = sym.to_s.chop.to_sym
+        _registers.key?(r) || super(sym)
+      else
+        _registers.key?(sym) || super(sym)
+      end
     end
 
     def delete_registers
@@ -243,6 +254,10 @@ module Origen
       def contains_bits?
         true
       end
+
+      def to_json(*args)
+        materialize.to_json(*args)
+      end
     end
 
     class Collector
@@ -285,6 +300,9 @@ module Origen
     #
     # Can be called on any object to add a register to it
     def add_reg(id, address, size = nil, bit_info = {}, &_block)
+      if address.is_a?(Hash)
+        fail 'add_reg requires the address to be supplied as the 2nd argument, e.g. add_reg :my_reg, 0x1000'
+      end
       size, bit_info = nil, size if size.is_a?(Hash)
       size ||= bit_info.delete(:size) || 32
       description = bit_info.delete(:description)
@@ -478,7 +496,7 @@ module Origen
     # Can also be used to define a new register if a block is supplied in which case
     # it is equivalent to calling add_reg with a block.
     def reg(*args, &block)
-      if block_given? || (args[1].is_a?(Fixnum) && !try(:initialized?))
+      if block_given? || (args[1].is_a?(Fixnum) && !try(:_initialized?))
         @reg_define_file = define_file(caller[0])
         add_reg(*args, &block)
       else

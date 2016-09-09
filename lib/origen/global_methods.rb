@@ -31,7 +31,11 @@ module Origen
 
     # Render an ERB template
     def render(*args, &block)
-      Origen.generator.compiler.render(*args, &block)
+      if $_compiler_stack && $_compiler_stack.last
+        $_compiler_stack.last.render(*args, &block)
+      else
+        Origen.generator.compiler.render(*args, &block)
+      end
     end
 
     def dut

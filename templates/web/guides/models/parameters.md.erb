@@ -208,7 +208,14 @@ params.test.dc.vdd.min    # => 1.35
 params.test.dc.vdd.max    # => 2.75
 ~~~
 
+The context can also be explicitly supplied when fetching a parameter, this will
+override the parameter context that would otherwise be applied:
 
+~~~ruby
+params.context                  # => :default
+params.test.dc.vdd.min          # => 1.5
+params(:ate).test.dc.vdd.min    # => 1.35
+~~~
 
 #### Live Updating Parameters
 

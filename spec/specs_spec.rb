@@ -165,8 +165,16 @@ class IP_With_Specs
     creation_info('Jim Smith', '22 Mar 2015', '1.0', {source: 'block-ref-i2c', ip_block_name: :i2c, revision: 'c'}, {tool: 'ISC App', version: '0.7.5'})
     creation_info('Jim Smith', '29 Apr 2015', '1.0', {source: 'block-ref-ifc', ip_block_name: :ifc, revision: 'g'}, {tool: 'ISC App', version: '0.7.5'})
     creation_info('Jim Smith', '4 Jun 2015', '1.0', {source: 'block-ref-esdhc', ip_block_name: :esdhc, revision: 'b'}, {tool: 'ISC App', version: '0.7.5'})
-
-    
+    documentation({level: 1, section: 'Section 1', subsection: nil}, {interface: 'SoC', type: nil, subtype: nil, mode: nil, audience: :external}, [:device1], nil)
+    documentation({level: 3, section: 'Section 1', subsection: 'SubSection A'}, {interface: 'SoC', type: :dc, subtype: nil, mode: nil, audience: :external}, [:device1], 'http://link_to_section1a.xml')
+    documentation({level: 4, section: 'Section 1', subsection: 'SubSection B'}, {interface: 'SoC', type: :supply, subtype: :abs_max_ratings, mode: nil, audience: :external}, [:device2], nil)
+    documentation({level: 5, section: 'Section 2', subsection: 'SubSection A'}, {interface: 'Block A', type: :dc, subtype: :V3p3V, mode: nil, audience: :internal}, [:device1], nil)
+    documentation({level: 8, section: 'Section 2', subsection: 'SubSection B'}, {interface: 'Block A', type: :supply, subtype: nil, mode: nil, audience: :external}, [:device1, :device2], 'http://link_to_section2b.xml')
+    documentation({level: 6, section: 'Section 2', subsection: 'SubSection C'}, {interface: 'Block A', type: :power, subtype: nil, mode: nil, audience: :external}, [:device1, :device2], 'http://link_to_section2c.xml')
+    documentation({level: 0, section: 'Section 2', subsection: 'SubSection D'}, {interface: 'Block A', type: :impedance, subtype: nil, mode: nil, audience: :external}, [:device1, :device2], 'http://link_to_section2d.xml')
+    documentation({level: 1, section: 'Section 3', subsection: 'SubSection A'}, {interface: 'Block B', type: :ac, subtype: nil, mode: nil, audience: :external}, [:device1, :device2], nil)
+    documentation({level: 2, section: 'Section 3', subsection: 'SubSection B'}, {interface: 'Block B', type: :dc, subtype: :V3p3V, mode: nil, audience: :internal}, [:device1, :device2], 'http://link_to_section3b.xml')
+    documentation({level: 4, section: 'Section 3', subsection: 'SubSection C'}, {interface: 'Block B', type: :supply, subtype: nil, mode: nil, audience: :external}, [:device1, :device2], 'http://link_to_section3c.xml')    
   end
 end
 
@@ -285,6 +293,11 @@ describe "Origen Specs Module" do
     $dut.has_spec?(:tnikhov2).should == true
     $dut.has_spec?(/tnikhov/).should == true
   end
+
+  it "finding specs via :symbol option works" do
+    $dut.has_spec?(:gvdd, symbol: true).should == true  
+    $dut.has_spec?(:dvdd, symbol: true).should == false  
+  end
   
   it "can see sub_block features" do
     @ip.spec_features(id: :feature1).class.should == Origen::Specs::Spec_Features
@@ -296,6 +309,7 @@ describe "Origen Specs Module" do
    @ip.notes(id: :note1).class.should == Origen::Specs::Note 
    @ip.notes(type: :spec).size.should == 7
    @ip.delete_all_notes
+   @ip.notes(type: :spec).should == nil
    @ip.note(:note1, :spec, {mode: :default, audience: :external, text: 'Note 1', markup: 'Not<sub>e</sub> 1', internal_comment: 'Reason for note'})
    @ip.notes(type: :spec).class.should == Origen::Specs::Note 
   end
@@ -306,6 +320,7 @@ describe "Origen Specs Module" do
     get_true_hash_size(@ip.exhibits(type: :table), Origen::Specs::Exhibit).should == 3
     get_true_hash_size(@ip.exhibits(id: :exhibit5), Origen::Specs::Exhibit).should == 1
     @ip.delete_all_exhibits
+    @ip.exhibits(id: :exhibit4).should == nil
     @ip.exhibit(:exhibit4, :table, {}, {title: 'Exhibit 4', description: 'Exhibit 4 Description', reference: 'link4', markup: 'markup', block_id: :esdhc})
     get_true_hash_size(@ip.exhibits, Origen::Specs::Exhibit).should == 1
   end
@@ -324,6 +339,7 @@ describe "Origen Specs Module" do
     get_true_hash_size(@ip.doc_resources(mode: :default, type: :ac, sub_type: 'input'), Origen::Specs::Doc_Resource).should == 2
     get_true_hash_size(@ip.doc_resources(mode: :default, type: :dc, audience: :external), Origen::Specs::Doc_Resource).should == 2
     @ip.delete_all_doc_resources
+    @ip.doc_resources(type: :dc).should == nil
     @ip.doc_resource({mode: :high_performance, type: :dc, sub_type: 'input', audience: :external}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
     @ip.doc_resource({mode: :default, type: :dc, sub_type: 'input', audience: :internal}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
     @ip.doc_resource({mode: :low_power, type: :dc, sub_type: 'input', audience: :internal}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
@@ -338,6 +354,7 @@ describe "Origen Specs Module" do
     get_true_hash_size(@ip.power_supplies(gen: 'SVDD'), Origen::Specs::Power_Supply).should ==  6
     get_true_hash_size(@ip.power_supplies(act: 'X4VDD'), Origen::Specs::Power_Supply).should == 1
     @ip.delete_all_power_supplies    
+    @ip.power_supplies(gen: 'SVDD').should == nil
     @ip.power_supply('GVDD', 'G1VDD')
     @ip.power_supply('GVDD', 'G2VDD')
     @ip.power_supply('DVDD', 'D1VDD')
@@ -358,6 +375,7 @@ describe "Origen Specs Module" do
     get_true_hash_size(@ip.overrides(audience: :external), Origen::Specs::Override).should == 6
     get_true_hash_size(@ip.overrides(audience: :internal), Origen::Specs::Override).should == 0
     @ip.delete_all_overrides
+    @ip.overrides(block: :esdhc).should == nil
     @ip.override({block: :esdhc, usage: true}, {spec_id: :vdd_lp, mode_ref: :low_power, sub_type: 'input', audience: :external}, {min: 0.97}, {disable: false})
     @ip.override({block: :i2c, usage: true}, {spec_id: :clk_rise, mode_ref: :high_performance, sub_type: 'input', audience: :external}, {min: 0.97}, {disable: true})
     @ip.override({block: :ddr, usage: true}, {spec_id: :vdd, mode_ref: :high_performance, sub_type: 'output', audience: :external}, {min: 0.97}, {disable: true})
@@ -384,9 +402,35 @@ describe "Origen Specs Module" do
     get_true_hash_size(@ip.mode_selects(block: :i2c1), Origen::Specs::Mode_Select).should == 1
     get_true_hash_size(@ip.mode_selects(mode: :ddr_ddr4), Origen::Specs::Mode_Select).should == 1
     @ip.delete_all_mode_selects
+    @ip.mode_selects(block: :ddr).should == nil
     @ip.mode_select({name: :ddr, ds_header: 'DDR Controller', usage: true, location: 'path'}, {mode: :ddr_ddr3, supported: true}, {supply: 'G1VDD', voltage_level: '1.35V', use_diff: true})
     @ip.mode_select({name: :ifc1, ds_header: 'IFC', usage: true, location: 'path'}, {mode: :ifc1_nand, supported: true}, {supply: 'OVDD', voltage_level: '3.0V', use_diff: true})
     get_true_hash_size(@ip.mode_selects, Origen::Specs::Mode_Select).should == 2
+  end
+  
+  it "can see sub_block documentation" do
+    get_true_hash_size(@ip.documentations, Origen::Specs::Documentation).should == 10
+    get_true_hash_size(@ip.documentations(section: 'Section 1'), Origen::Specs::Documentation).should == 3
+    get_true_hash_size(@ip.documentations(section: 'Section 2'), Origen::Specs::Documentation).should == 4
+    get_true_hash_size(@ip.documentations(section: 'Section 3'), Origen::Specs::Documentation).should == 3
+    @ip.documentations(section: 'Section 4').should == nil
+    get_true_hash_size(@ip.documentations(subsection: 'SubSection A'), Origen::Specs::Documentation).should == 3
+    get_true_hash_size(@ip.documentations(subsection: 'SubSection B'), Origen::Specs::Documentation).should == 3
+    get_true_hash_size(@ip.documentations(subsection: 'SubSection C'), Origen::Specs::Documentation).should == 2
+    get_true_hash_size(@ip.documentations(subsection: 'SubSection D'), Origen::Specs::Documentation).should == 1
+    @ip.documentations(subsection: 'SubSection E').should == nil
+    get_true_hash_size(@ip.documentations(interface: 'SoC'), Origen::Specs::Documentation).should == 3
+    get_true_hash_size(@ip.documentations(interface: 'Block A'), Origen::Specs::Documentation).should == 4
+    get_true_hash_size(@ip.documentations(interface: 'Block B'), Origen::Specs::Documentation).should == 3
+    @ip.documentations(interface: 'Block C').should == nil
+    @ip.delete_all_documentation
+    @ip.documentations.should == nil
+    @ip.documentation({section: 'Section 1', subsection: 'SubSection B'}, {interface: 'SoC', type: :supply, subtype: :abs_max_ratings, mode: nil, audience: :external}, [:device1, :device2], nil)
+    @ip.documentation({section: 'Section 2', subsection: 'SubSection A'}, {interface: 'Block A', type: :dc, subtype: :V3p3V, mode: nil, audience: :internal}, [:device1, :device2], nil)
+    @ip.documentation({section: 'Section 2', subsection: 'SubSection B'}, {interface: 'Block A', type: :supply, subtype: nil, mode: nil, audience: :external}, [:device1, :device2], 'http://link_to_section2b.xml')
+    get_true_hash_size(@ip.documentations, Origen::Specs::Documentation).should == 3
+    get_true_hash_size(@ip.documentations(section: 'Section 1'), Origen::Specs::Documentation).should == 1
+    get_true_hash_size(@ip.documentations(section: 'Section 2'), Origen::Specs::Documentation).should == 2
   end
     
 end

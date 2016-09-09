@@ -37,7 +37,7 @@ module Origen
         if options[:force]
           version = "origin/#{version}" if remote_branch?(version)
           if paths == [local.to_s]
-            git "reset --hard #{version}"
+            git "reset --hard #{version}", options
           else
             git 'reset HEAD'
             git 'pull', options
@@ -244,7 +244,22 @@ module Origen
         end
       end
 
-      def initialized?
+      def initialized?(options = {})
+        @hierarchy_searched ||= begin
+          path = @local.dup
+          until path.root? || File.exist?("#{local}/.git")
+            if File.exist?("#{path}/.git")
+              if options[:allow_local_adjustment]
+                @local = path
+              else
+                fail "Requested local repository #{local} is within existing local repository #{path}"
+              end
+            else
+              path = path.parent
+            end
+          end
+          true
+        end
         File.exist?("#{local}/.git") &&
           git('remote -v', verbose: false).any? { |r| r =~ /#{remote_without_protocol_and_user}/ || r =~ /#{remote_without_protocol_and_user.to_s.gsub(':', "\/")}/ } &&
           !git('status', verbose: false).any? { |l| l =~ /^#? ?Initial commit$/ }
@@ -309,11 +324,12 @@ module Origen
         !(git('status --verbose', verbose: false).last =~ /^(no changes|nothing to commit|nothing added to commit but untracked files present)/)
       end
 
-      def initialize_local_dir
+      def initialize_local_dir(options = {})
         super
-        unless initialized?
+        unless initialized?(options)
           Origen.log.debug "Initializing Git workspace at #{local}"
           git 'init'
+          git 'remote remove origin', verbose: false, check_errors: false
           git "remote add origin #{remote}"
         end
       end

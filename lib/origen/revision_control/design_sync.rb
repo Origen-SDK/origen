@@ -285,7 +285,7 @@ module Origen
         end
       end
 
-      def initialize_local_dir
+      def initialize_local_dir(options = {})
         super
         unless initialized?
           Origen.log.debug "Initializing DSSC workspace at #{local}"

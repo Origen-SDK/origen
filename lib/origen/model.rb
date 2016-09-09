@@ -1,4 +1,6 @@
 require 'active_support/concern'
+require 'origen/memory'
+require 'json'
 module Origen
   # Include this module to identify it as an SoC IP Block, this will automatically
   # include common modules such as Pin and Register support
@@ -21,6 +23,8 @@ module Origen
       include Origen::Specs
       include Origen::Ports
       include Origen::Netlist
+      include Origen::Memory
+      include Origen::Errata
     end
 
     module ClassMethods
@@ -40,6 +44,12 @@ module Origen
     def is_an_origen_model?
       true
     end
+
+    # Returns true if the model is the current DUT/top-level model
+    def is_top_level?
+      Origen.top_level == self
+    end
+    alias_method :is_dut?, :is_top_level?
 
     # Means that when dealing with a controller/model pair, you can
     # always call obj.model and obj.controller to get the one you want,
@@ -295,9 +305,10 @@ module Origen
       end
     end
 
+    # @api private
     # Returns true after the model's initialize method has been run
-    def initialized?
-      !!@initialized
+    def _initialized?
+      !!@_initialized
     end
 
     def clock!
@@ -317,10 +328,27 @@ module Origen
       end
     end
 
+    def to_json(*args)
+      JSON.pretty_generate({
+                             name:      name,
+                             address:   base_address,
+                             path:      path,
+                             blocks:    sub_blocks.map do |name, block|
+                               {
+                                 name:    name,
+                                 address: block.base_address
+                               }
+                             end,
+                             registers: regs.map do |name, reg|
+                               reg
+                             end
+                           }, *args)
+    end
+
     private
 
-    def initialized
-      @initialized = true
+    def _initialized
+      @_initialized = true
     end
 
     def _controller=(controller)

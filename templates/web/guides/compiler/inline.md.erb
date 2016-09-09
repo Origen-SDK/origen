@@ -18,6 +18,16 @@ Origen.compile("#{Origen.root}/templates/my_template.txt.erb", some_option: 10)
 Any options given as shown above will be available in the <code>options</code>
 hash within the template in the usual way.
 
+The inline compiler will also accept the template in the form of a string:
+
+~~~ruby
+template =<<-END
+X is: <%= options[:x] %>
+END
+
+Origen.compile(template, string: true, x: 10)
+~~~
+
 #### Changing Scope
 
 The <code>compile</code> command will accept a <code>:scope</code> option to

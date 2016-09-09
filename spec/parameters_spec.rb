@@ -14,12 +14,16 @@ module ParametersSpec
           params.erase.pulses = pulses
           params.test.ac.period = 10.ns
           params.test.func = -> { 2 * 2 }
+          params.vdd.nom = 1
+          params.vdd.min = 0.8
+          params.vdd.max = 1.2
         end
 
         define_params :ate, inherit: :default do |params|
           params.tprog = 30
           params.erase.pulses = 4
           params.test.func = -> { 2 * 3 }
+          params.vdd.min = 0.7
         end
 
         define_params :probe, inherit: :ate do |params|
@@ -69,6 +73,22 @@ module ParametersSpec
     before :each do
       Origen.app.unload_target!
       $dut = DUT.new
+    end
+
+    it 'Parameters can be accessed via an explicit context' do
+      $dut.params.tprog.should == 20
+      $dut.params(:ate).tprog.should == 30
+      $dut.params(:probe).tprog.should == 40
+      $dut.params.test.ac.period.should == 10.ns
+      $dut.params(:ft).test.ac.period.should == 15.ns
+    end
+
+    it "Min and max parameter names don't act funny" do
+      $dut.params.vdd.nom.should == 1
+      $dut.params.vdd.min.should == 0.8
+      $dut.params.vdd.max.should == 1.2
+      $dut.params = :ate
+      $dut.params.vdd.min.should == 0.7
     end
 
     it "Defined values can be extracted" do
@@ -243,6 +263,5 @@ module ParametersSpec
       ip.params.context.should == :ate
       ip.params.a.should == 30
     end
-
   end
 end

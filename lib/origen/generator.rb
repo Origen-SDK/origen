@@ -74,7 +74,9 @@ module Origen
 
     def create_iterator
       iterator = PatternIterator.new
-      Origen.app.pattern_iterators << iterator
+      Origen.after_app_loaded do |app|
+        app.pattern_iterators << iterator
+      end
       iterator
     end
 

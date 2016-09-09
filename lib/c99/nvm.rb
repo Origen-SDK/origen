@@ -40,6 +40,11 @@ module C99
         reg.bits 7..0,     :fprot4,  reset: 0x11
       end
     end
+
+    def add_non_byte_aligned_regs
+      add_reg :non_aligned_small, 0x1000, size: 4
+      add_reg :non_aligned_big, 0x1010, size: 10
+    end
   end
 
   class NVMSub < NVM

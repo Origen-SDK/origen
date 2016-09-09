@@ -4,6 +4,22 @@ module Origen
       # Helper methods that are available to all templates
       module Helpers
 
+        def self.archive_name=(val)
+          @archive_name = val
+        end
+
+        def self.archive_name
+          @archive_name
+        end
+
+        def generate_hard_links?
+          !!archive_name
+        end
+
+        def archive_name
+          Origen::Generator::Compiler::Helpers.archive_name
+        end
+
         def current_path
           path(options[:top_level_file].to_s.sub(/^.*\/templates\/web/, '').sub(/\..*$/, ''))
         end
@@ -15,7 +31,7 @@ module Origen
         # Like current_url except always returns the latest version of the url and
         # not one with an embedded production version
         def current_latest_url
-          current_url.sub(_version, 'latest')
+          current_url.sub(_archive, 'latest')
         end
 
         def path(p)
@@ -27,7 +43,7 @@ module Origen
           elsif Origen.app.deployer.deploy_to_git?
             "#{root_path}#{p}"
           else          
-            "#{root_path}/#{_version}#{p}"
+            "#{root_path}/#{_archive}#{p}"
           end
         end
 
@@ -43,17 +59,11 @@ module Origen
           domain.sub /#{root_path}$/, ''
         end
 
-        def _version
-          # Special case for Origen core..
-          if Origen.top == Origen.root
-            version = Origen.version
+        def _archive
+          if generate_hard_links?
+            archive_name.to_s.gsub(".", "_")
           else
-            version = Origen.app.version
-          end
-          if version.development?
             'latest'
-          else
-            version.to_s.gsub(".", "_")
           end
         end
 

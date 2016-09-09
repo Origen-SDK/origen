@@ -84,6 +84,64 @@ module Origen
         end
       end
 
+      # Update the register contents with the live value from the device under test.
+      #
+      # The current tester needs to be an OrigenLink driver. Upon calling this method a request will
+      # be made to read the given register, the read data will be captured and the register model
+      # will be updated.
+      #
+      # The register parent register object is returned, this means that calling .sync on a register
+      # or bitcollection object will automatically update it and the display the register in the
+      # console.
+      #
+      # Normally this method should be called from a breakpoint during pattern debug, and it is
+      # not intended to be inserted into production pattern logic.
+      def sync(size = nil, options = {})
+        size, options = nil, size if size.is_a?(Hash)
+        if tester.try(:link?)
+          preserve_flags do
+            v = tester.capture do
+              store!
+            end
+            reverse_each.with_index do |bit, i|
+              bit.instance_variable_set('@updated_post_reset', true)
+              bit.instance_variable_set('@data', v.first[i])
+            end
+          end
+          if size
+            puts "#{parent.address.to_s(16).upcase}: " + data.to_s(16).upcase.rjust(Origen.top_level.memory_width / 4, '0')
+            if size > 1
+              step = Origen.top_level.memory_width / 8
+              Origen.top_level.mem(parent.address + step).sync(size - 1)
+            end
+            nil
+          else
+            parent
+          end
+        else
+          Origen.log.warning 'Sync is not supported on the current tester driver, register not updated'
+        end
+      end
+      alias_method :sync!, :sync
+
+      # At the end of the given block, the status flags of all bits will be restored to the state that
+      # they were upon entry to the block
+      def preserve_flags
+        orig = []
+        each do |bit|
+          orig << [bit.overlay_str, bit.is_to_be_read?, bit.is_to_be_stored?]
+        end
+        yield
+        each do |bit|
+          bit.clear_flags
+          flags = orig.shift
+          bit.overlay(flags[0])
+          bit.read if flags[1]
+          bit.store if flags[2]
+        end
+        self
+      end
+
       # Copies all data and flags from one bit collection (or reg) object to another
       #
       # This method will accept a dumb value as the argument, in which case it is essentially a write,
@@ -221,6 +279,17 @@ module Origen
         ~data & ((1 << size) - 1)
       end
 
+      # Returns the reverse of the data value held by the collection
+      def data_reverse
+        data = 0
+        reverse.each_with_index do |bit, i|
+          return undefined if bit.is_a?(Origen::UndefinedClass)
+          data |= bit.data << i
+        end
+        data
+      end
+      alias_method :reverse_data, :data_reverse
+
       # Supports reg.bit[0] and bitcollection.bit[0]
       def bit
         self
@@ -253,7 +322,7 @@ module Origen
         end
         if value
           value = Reg.clean_value(value)
-          write(value)
+          write(value, force: true)
         end
         if options[:mask]
           each_with_index { |bit, i| bit.read if options[:mask][i] == 1 }

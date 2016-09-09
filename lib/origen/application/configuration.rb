@@ -37,11 +37,11 @@ module Origen
 
       # Any attributes that want to accept a block, but not necessarily require the target
       # can be added here
-      ATTRS_THAT_ACCEPT_A_BLOCK = ATTRS_THAT_DEPEND_ON_TARGET +
-                                  [:release_instructions, :history_file, :log_directory, :copy_command,
-                                   :diff_command, :remotes,
-                                   :external_app_dirs
-                                  ]
+      ATTRS_THAT_DONT_DEPEND_ON_TARGET = [
+        :release_instructions, :history_file, :log_directory, :copy_command,
+        :diff_command, :remotes,
+        :external_app_dirs
+      ]
 
       # If a current plugin is present then its value for these attributes will be
       # used instead of that from the current application
@@ -65,13 +65,19 @@ module Origen
         @compile_only_dot_erb_files = true
         # Functions used here since Origen.root is not available when this is first instantiated
         @output_directory = -> { "#{Origen.root}/output" }
-        @reference_directory = -> { "#{Origen.root}/.ref" }
+        @reference_directory = lambda do
+          if Origen.config.output_directory.to_s =~ /(\\|\/)output(\\|\/)/
+            Origen.config.output_directory.to_s.sub(/(\\|\/)output(\\|\/)/, '\1.ref\2')
+          else
+            "#{Origen.root}/.ref"
+          end
+        end
         @release_directory = -> { Origen.root }
         @release_email_subject = false
         @log_directory = -> { "#{Origen.root}/log" }
         @pattern_name_translator = ->(name) { name }
         @pattern_directory = -> { "#{Origen.root}/pattern" }
-        @pattern_output_directory = -> { "#{Origen.root}/output/patterns" }
+        @pattern_output_directory = -> { Origen.app.config.output_directory }
         @history_file = -> { "#{Origen.root}/doc/history" }
         @default_lsf_action = :clear
         @proceed_with_pattern = ->(_name) { true }
@@ -116,7 +122,11 @@ module Origen
       #   # config/application.rb
       #
       #   config.output_directory = ->{ "#{Origen.root}/output/#{$dut.class}" }
-      ATTRS_THAT_ACCEPT_A_BLOCK.each do |name|
+      def self.add_attribute(name, options = {})
+        options = {
+          depend_on_target: true
+        }.merge(options)
+        attr_writer name
         define_method name do |override = true, &block|
           if block # _given?
             instance_variable_set("@#{name}".to_sym, block)
@@ -125,9 +135,9 @@ module Origen
                app.current? && Origen.app.plugins.current
               var = Origen.app.plugins.current.config.send(name, override: false)
             end
-            var ||= instance_variable_get("@#{name}".to_sym)
+            var ||= instance_variable_get("@#{name}".to_sym) || options[:default]
             if var.respond_to?('call')
-              if ATTRS_THAT_DEPEND_ON_TARGET.include?(name)
+              if options[:depend_on_target]
                 # If an attempt has been made to access this attribute before the target has
                 # been instantiated raise an error
                 # Note Origen.app here instead of just app to ensure we are talking to the top level application,
@@ -144,7 +154,11 @@ module Origen
         end
       end
 
-      (ATTRS_THAT_CURRENT_PLUGIN_CAN_OVERRIDE - ATTRS_THAT_ACCEPT_A_BLOCK).each do |name|
+      ATTRS_THAT_DEPEND_ON_TARGET.each { |n| add_attribute(n) }
+
+      ATTRS_THAT_DONT_DEPEND_ON_TARGET.each { |n| add_attribute(n, depend_on_target: false) }
+
+      (ATTRS_THAT_CURRENT_PLUGIN_CAN_OVERRIDE - ATTRS_THAT_DEPEND_ON_TARGET - ATTRS_THAT_DONT_DEPEND_ON_TARGET).each do |name|
         if override && ATTRS_THAT_CURRENT_PLUGIN_CAN_OVERRIDE.include?(name) &&
            app.current? && Origen.app.plugins.current
           var = Origen.app.plugins.current.config.send(name, override: false)
@@ -181,7 +195,7 @@ module Origen
       # user can be prompted to upgrade
       def method_missing(method, *_args, &_block)
         method = method.to_s.sub('=', '')
-        Origen.log.warning "WARNING - unknown configuration attribute: #{method}"
+        Origen.log.warning "WARNING - unknown configuration attribute in #{app.name}: #{method}"
       end
     end
   end

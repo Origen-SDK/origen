@@ -44,85 +44,58 @@ DFF 1.1	Flow Table
 			P1			Test	erase_all_v1							Fail														
 			!P2			Test	erase_all_v1							Fail														
 						Test	erase_all_v1							Fail														
-						Test	margin_read1_all1_v1							None		erase_vfy_0_FAILED												
-						Test	erase_all_v1							Fail									flag-true	erase_vfy_0_FAILED				
-						Test	margin_read1_all1_v1							None		erase_vfy_1_FAILED												
-						Test	erase_all_v1							Fail									flag-true	erase_vfy_1_FAILED				
-						Test	margin_read1_all1_v1							None		erase_vfy_2_FAILED												
-						Test	erase_all_v1							Fail									flag-true	erase_vfy_2_FAILED				
-						Test	margin_read1_all1_v1							None		erase_vfy_3_FAILED												
-						Test	erase_all_v1							Fail									flag-true	erase_vfy_3_FAILED				
-						Test	margin_read1_all1_v1							None		erase_vfy_4_FAILED												
-						Test	erase_all_v1							Fail									flag-true	erase_vfy_4_FAILED				
+						Test	margin_read1_all1_v1							None		erase_vfy_0_4ECF79E_FAILED												
+						Test	erase_all_v1							Fail									flag-true	erase_vfy_0_4ECF79E_FAILED				
+						Test	margin_read1_all1_v1							None		erase_vfy_1_4ECF79E_FAILED												
+						Test	erase_all_v1							Fail									flag-true	erase_vfy_1_4ECF79E_FAILED				
+						Test	margin_read1_all1_v1							None		erase_vfy_2_4ECF79E_FAILED												
+						Test	erase_all_v1							Fail									flag-true	erase_vfy_2_4ECF79E_FAILED				
+						Test	margin_read1_all1_v1							None		erase_vfy_3_4ECF79E_FAILED												
+						Test	erase_all_v1							Fail									flag-true	erase_vfy_3_4ECF79E_FAILED				
+						Test	margin_read1_all1_v1							None		erase_vfy_4_4ECF79E_FAILED												
+						Test	erase_all_v1							Fail									flag-true	erase_vfy_4_4ECF79E_FAILED				
 						Test	margin_read1_all1_v1							Fail														
 						logprint	Test_if_enable																					
 		do_erase				Test	erase_all_v1							Fail														
 		do_erase				Test	erase_all_v1							Fail														
 						logprint	Test_unless_enable																					
-		no_extra_erase				goto	ORIGEN_LABEL_1																					
-						Test	erase_all_v1							Fail														
-	ORIGEN_LABEL_1					nop																						
-		no_extra_erase				goto	ORIGEN_LABEL_2																					
+		no_extra_erase				goto	LABEL_1_4ECF79E																					
 						Test	erase_all_v1							Fail														
 						Test	erase_all_v1							Fail														
-	ORIGEN_LABEL_2					nop																						
+						Test	erase_all_v1							Fail														
+	LABEL_1_4ECF79E					nop																						
 						Test	erase_all_v1							Fail														
 						Test	erase_all_v1							Fail														
 						logprint	Test_if_passed																					
-						Test	erase_all_v1							None	erase_passed_1_PASSED													
-						Test	erase_all_v1							None	erase_passed_2_PASSED													
-						Test	margin_read1_all1_v1							Fail									flag-true	erase_passed_1_PASSED				
-						Test	margin_read1_all1_v1							Fail									flag-true	erase_passed_2_PASSED				
+						Test	erase_all_v1							None	erase_passed_1_4ECF79E_PASSED													
+						Test	erase_all_v1							None	erase_passed_2_4ECF79E_PASSED													
+						Test	margin_read1_all1_v1							Fail									flag-true	erase_passed_1_4ECF79E_PASSED				
+						Test	margin_read1_all1_v1							Fail									flag-true	erase_passed_2_4ECF79E_PASSED				
 						logprint	Test_unless_passed																					
-						Test	erase_all_v1							None		erase_passed_3_FAILED												
-						Test	erase_all_v1							None		erase_passed_4_FAILED												
-						Test	margin_read1_all1_v1							Fail									flag-true	erase_passed_3_FAILED				
-						Test	margin_read1_all1_v1							Fail									flag-true	erase_passed_4_FAILED				
+						Test	erase_all_v1							None		erase_passed_3_4ECF79E_FAILED												
+						Test	erase_all_v1							None		erase_passed_4_4ECF79E_FAILED												
+						Test	margin_read1_all1_v1							Fail									flag-true	erase_passed_3_4ECF79E_FAILED				
+						Test	margin_read1_all1_v1							Fail									flag-true	erase_passed_4_4ECF79E_FAILED				
 						logprint	Test_if_failed																					
-						Test	erase_all_v1							None		erase_failed_1_FAILED												
-						Test	erase_all_v1							None		erase_failed_2_FAILED												
-						Test	margin_read1_all1_v1							Fail									flag-true	erase_failed_1_FAILED				
-						Test	margin_read1_all1_v1							Fail									flag-true	erase_failed_2_FAILED				
+						Test	erase_all_v1							None		erase_failed_1_4ECF79E_FAILED												
+						Test	erase_all_v1							None		erase_failed_2_4ECF79E_FAILED												
+						Test	margin_read1_all1_v1							Fail									flag-true	erase_failed_1_4ECF79E_FAILED				
+						Test	margin_read1_all1_v1							Fail									flag-true	erase_failed_2_4ECF79E_FAILED				
 						logprint	Test_unless_failed																					
-						Test	erase_all_v1							None	erase_failed_3_PASSED													
-						Test	erase_all_v1							None	erase_failed_4_PASSED													
-						Test	margin_read1_all1_v1							Fail									flag-true	erase_failed_3_PASSED				
-						Test	margin_read1_all1_v1							Fail									flag-true	erase_failed_4_PASSED				
+						Test	erase_all_v1							None	erase_failed_3_4ECF79E_PASSED													
+						Test	erase_all_v1							None	erase_failed_4_4ECF79E_PASSED													
+						Test	margin_read1_all1_v1							Fail									flag-true	erase_failed_3_4ECF79E_PASSED				
+						Test	margin_read1_all1_v1							Fail									flag-true	erase_failed_4_4ECF79E_PASSED				
 						logprint	Test_if_ran																					
-						Test	erase_all_v1							Fail	erase_ran_1_RAN													
-						Test	erase_all_v1							Fail	erase_ran_2_RAN													
-						Test	margin_read1_all1_v1							Fail									flag-true	erase_ran_1_RAN				
-						Test	margin_read1_all1_v1							Fail									flag-true	erase_ran_2_RAN				
+						Test	erase_all_v1							Fail	erase_ran_1_4ECF79E_RAN													
+						Test	erase_all_v1							Fail	erase_ran_2_4ECF79E_RAN													
+						Test	margin_read1_all1_v1							Fail									flag-true	erase_ran_1_4ECF79E_RAN				
+						Test	margin_read1_all1_v1							Fail									flag-true	erase_ran_2_4ECF79E_RAN				
 						logprint	Test_unless_ran																					
-						Test	erase_all_v1							Fail	erase_ran_3_RAN													
-						Test	erase_all_v1							Fail	erase_ran_4_RAN													
-						Test	margin_read1_all1_v1							Fail									flag-clear	erase_ran_3_RAN				
-						Test	margin_read1_all1_v1							Fail									flag-clear	erase_ran_4_RAN				
-						logprint	Test_if_all_passed																					
-						Test	erase_all_v1							None	erase_all_passed_1_PASSED													
-						Test	erase_all_v1							None	erase_all_passed_2_PASSED													
-						Test	margin_read1_all1_v1							Fail				all-active		flag-true	erase_all_passed_1_PASSED							
-						Test	margin_read1_all1_v1							Fail				all-active		flag-true	erase_all_passed_2_PASSED							
-						logprint	Test_unless_any_failed																					
-						Test	erase_all_v1							None	erase_all_passed_3_PASSED													
-						Test	erase_all_v1							None	erase_all_passed_4_PASSED													
-						Test	margin_read1_all1_v1							Fail				all-active		flag-true	erase_all_passed_3_PASSED							
-						Test	margin_read1_all1_v1							Fail				all-active		flag-true	erase_all_passed_4_PASSED							
-						logprint	Test_if_any_passed																					
-						Test	erase_all_v1							None	erase_any_passed_1_PASSED													
-						Test	erase_all_v1							None	erase_any_passed_2_PASSED													
-						Test	margin_read1_all1_v1							Fail				any-active		flag-true	erase_any_passed_1_PASSED							
-						Test	margin_read1_all1_v1							Fail				any-active		flag-true	erase_any_passed_2_PASSED							
-						logprint	Test_if_all_failed																					
-						Test	erase_all_v1							None		erase_all_failed_1_FAILED												
-						Test	erase_all_v1							None		erase_all_failed_2_FAILED												
-						Test	margin_read1_all1_v1							Fail				all-active		flag-true	erase_all_failed_1_FAILED							
-						Test	margin_read1_all1_v1							Fail				all-active		flag-true	erase_all_failed_2_FAILED							
-						logprint	Test_if_any_failed																					
-						Test	erase_all_v1							None		erase_any_failed_1_FAILED												
-						Test	erase_all_v1							None		erase_any_failed_2_FAILED												
-						Test	margin_read1_all1_v1							Fail				any-active		flag-true	erase_any_failed_1_FAILED							
-						Test	margin_read1_all1_v1							Fail				any-active		flag-true	erase_any_failed_2_FAILED							
+						Test	erase_all_v1							Fail	erase_ran_3_4ECF79E_RAN													
+						Test	erase_all_v1							Fail	erase_ran_4_4ECF79E_RAN													
+						Test	margin_read1_all1_v1							Fail								not	flag-true	erase_ran_3_4ECF79E_RAN				
+						Test	margin_read1_all1_v1							Fail								not	flag-true	erase_ran_4_4ECF79E_RAN				
 						logprint	Verify_that_job_context_wraps_import																					
 			FR			Test	erase_all_v1							Fail														
 			FR			Test	erase_all_v1							Fail														
@@ -131,6 +104,6 @@ DFF 1.1	Flow Table
 			FR			Test	margin_read1_all1_v1							Fail														
 						logprint	Verify_that_job_context_wraps_enable_block_within_an_import																					
 		additional_erase	FR			Test	erase_all_v1							Fail														
-		additional_erase	FR			Test	erase_all_v1							Fail														
+			FR			Test	erase_all_v1							Fail														
 						logprint	Verify_that_flow.cz_works...																					
 						characterize	margin_read1_all1_v2 vbplus_sweep							None														
