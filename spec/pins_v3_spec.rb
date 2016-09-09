@@ -708,7 +708,7 @@ describe "Origen Pin API v3" do
       $dut.ground_pins(:gnd0).should == gnd0
     end
 
-    it "power pin groups can be added" do
+    it "ground pin groups can be added" do
       $dut.add_ground_pin(:gnd1)
       $dut.add_ground_pin(:gnd2)
       $dut.add_ground_pin(:gnd3)
@@ -762,6 +762,40 @@ describe "Origen Pin API v3" do
 
   end
 
+  
+  describe "other pins" do
+  
+    it "other pins can be added" do
+      $dut.add_pin :pinx
+      $dut.add_pin :piny
+      other0 = $dut.add_other_pin(:other0)
+      $dut.add_other_pin(:other1)
+      $dut.add_other_pin(:other2)
+      $dut.pins.size.should == 2
+      $dut.other_pins.size.should == 3
+      $dut.other_pins(:other0).should == other0
+    end
+  
+    it "other pin groups can be added" do
+      $dut.add_other_pin(:other1)
+      $dut.add_other_pin(:other2)
+      $dut.add_other_pin(:other3)
+      $dut.add_other_pin_group :other, :other1, :other2, package: :p1
+      $dut.add_other_pin_group :other, :other1, :other2, :other3, package: :p2
+      $dut.other_pins.size.should == 3
+      $dut.other_pin_groups.size.should == 0
+      $dut.other_pin_groups(package: :p1).size.should == 1
+      $dut.package = :p1
+      $dut.other_pins(:other).size.should == 2
+      $dut.other_pin_groups.size.should == 1
+      $dut.package = :p2
+      $dut.other_pins(:other).size.should == 3
+      $dut.other_pin_groups.size.should == 1
+    end
+  
+  end
+
+  
   it "driving or asserting nil is the same as 0" do
     pin = $dut.add_pin :pinx
     pin.drive(1)
