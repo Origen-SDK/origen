@@ -35,10 +35,16 @@ module Origen
           Origen.interface.set_top_level_flow
           Origen.interface.flow_generator.set_flow_description(Origen.interface.consume_comments)
           options[:top_level] = true
+          Origen.app.listeners_for(:on_flow_start).each do |listener|
+            listener.on_flow_start(options)
+          end
           Origen.interface.startup(options) if Origen.interface.respond_to?(:startup)
           interface.instance_eval(&block)
           Origen.interface.shutdown(options) if Origen.interface.respond_to?(:shutdown)
           interface.at_flow_end if interface.respond_to?(:at_flow_end)
+          Origen.app.listeners_for(:on_flow_end).each do |listener|
+            listener.on_flow_end(options)
+          end
           interface.close(flow: true)
         end
       end

@@ -24,6 +24,13 @@ module Origen
         options.each do |k, v|
           x.send(:instance_variable_set, "@#{k}", v) if x.respond_to?(k)
         end
+        if x.respond_to?(:pre_initialize)
+          if x.method(:pre_initialize).arity == 0
+            x.send(:pre_initialize, &block)
+          else
+            x.send(:pre_initialize, *args, &block)
+          end
+        end
         if x.method(:initialize).arity == 0
           x.send(:initialize, &block)
         else

@@ -37,7 +37,7 @@ module Origen
         if options[:force]
           version = "origin/#{version}" if remote_branch?(version)
           if paths == [local.to_s]
-            git "reset --hard #{version}"
+            git "reset --hard #{version}", options
           else
             git 'reset HEAD'
             git 'pull', options

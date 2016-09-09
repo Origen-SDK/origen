@@ -51,7 +51,7 @@ to specify:
 
 ~~~ruby
 # target/falcon.rb
-$dut = MyApp::Falcon.new(version: options[:version])
+MyApp::Falcon.new(version: options[:version])
 ~~~
 
 This would be used like this:
@@ -135,5 +135,19 @@ Origen.target.each_production force_debug: true do |maskset|
   # As above except Origen is running in debug mode regardless of the mode defined by the environment
 end
 ~~~
+
+#### Anonymous Targets
+
+Mostly intended for use in test cases, a temporary target can be declared on the fly with
+a block of code like this:
+
+~~~ruby
+Origen.target.temporary = -> do
+  MyDUT.new
+  OrigenTesters::V93K.new
+end
+~~~
+
+Any calls to load or reload the target will now execute the above function.
 
 % end

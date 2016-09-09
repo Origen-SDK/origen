@@ -131,9 +131,11 @@ methods that need to be run.
 There now follows a listing of all available callbacks, these have been split up by function:
 
 * [Environment Setup](#environment_setup)
+* [Environment Teardown](#environment_teardown)
 * [Generation](#generation)
 * [Reset](#reset)
 * [Pattern Generation](#pattern_generation)
+* [Program Generation](#program_generation)
 * [Web Compiler](#web_compiler)
 * [Release Process](#release_process)
 
@@ -237,6 +239,19 @@ def interactive_shutdown
   shutdown if tester.link?
 end
 ~~~
+
+
+<a class="anchor" name="environment_teardown"></a>
+
+### Environment Teardown
+
+#### on_origen_shutdown
+
+This callback is triggered at the very end of an Origen thread of execution and is 
+guaranteed to be called even if the thread crashes.
+
+An example use cases is to ensure that any temporary files are deleted.
+
 
 
 <a class="anchor" name="generation"></a>
@@ -475,6 +490,33 @@ module VirtualTester
   PersistentCallbackHandlers.new
 end
 ~~~
+
+
+<a class="anchor" name="program_generation"></a>
+
+### Program Generation
+
+
+#### on_flow_start(options)
+
+Called at the start of a top-level Flow.create block, note that it is not called at the
+beginning of sub-flows that are included by the top-level flow.
+
+Any options supplied to Flow.create are passed in as an argument.
+
+No return value is expected.
+
+
+#### on_flow_end(options)
+
+Called at the very end of a top-level Flow.create block, note that it is not called at the
+end of sub-flows that are included by the top-level flow.
+
+Any options supplied to Flow.create are passed in as an argument.
+
+No return value is expected.
+
+
 
 <a class="anchor" name="web_compiler"></a>
 

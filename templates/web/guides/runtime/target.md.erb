@@ -26,10 +26,10 @@ target device model, here are some examples:
 
 ~~~ruby
 # target/eagle.rb
-$dut = MyApp::Eagle.new
+MyApp::Eagle.new
 
 # target/falcon.rb
-$tester = MyApp::Falcon.new
+MyApp::Falcon.new
 ~~~
 
 A common variation on this theme is to have different targets for different versions of
@@ -38,16 +38,16 @@ types of test:
 
 ~~~ruby
 # target/eagle_1.rb
-$dut = MyApp::Eagle.new(version: 1)
+MyApp::Eagle.new(version: 1)
 
 # target/eagle_2.rb
-$dut = MyApp::Eagle.new(version: 2)
+MyApp::Eagle.new(version: 2)
 
 # target/falcon_func.rb
-$dut = MyApp::Falcon.new(configuration: :func)
+MyApp::Falcon.new(configuration: :func)
 
 # target/falcon_bist.rb
-$dut = MyApp::Falcon.new(configuration: :bist)
+MyApp::Falcon.new(configuration: :bist)
 ~~~
 
 #### Setting a Default Target
@@ -75,7 +75,7 @@ you the content of the current target file:
 
 Current target: falcon_bist.rb
 **********************************************************************
-  $dut = MyApp::Falcon.new(configuration: :bist)
+  MyApp::Falcon.new(configuration: :bist)
 **********************************************************************
 ~~~
 
