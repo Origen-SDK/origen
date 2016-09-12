@@ -791,7 +791,7 @@ describe "Origen Pin API v3" do
       $dut.package = :p2
       $dut.other_pins(:other).size.should == 3
       $dut.other_pin_groups.size.should == 1
-      $dut.has_other_pin?(:other1).should == true
+      $dut.has_other_pin?(:other).should == true
       $dut.has_other_pin?(:other5).should == false
     end
   
