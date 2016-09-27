@@ -432,7 +432,6 @@ module Origen
         options = {}
       end
       # check if this is a pin group alias
-
       found = false
       group = nil
       unless options[:pins_only] == true
