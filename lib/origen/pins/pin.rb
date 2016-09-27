@@ -39,6 +39,9 @@ module Origen
       # Pin RTL name, short term solution for products that do not get full HDL path for pins
       attr_accessor :rtl_name
 
+      attr_accessor :description
+      attr_accessor :notes
+
       # Should be instantiated through the HasPins macros
       def initialize(id, owner, options = {}) # :nodoc:
         options = {
