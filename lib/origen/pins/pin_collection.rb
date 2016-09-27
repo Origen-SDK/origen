@@ -8,6 +8,7 @@ module Origen
 
       attr_accessor :endian
       attr_accessor :description
+      attr_accessor :group
 
       def initialize(owner, *pins)
         options = pins.last.is_a?(Hash) ? pins.pop : {}
@@ -195,9 +196,7 @@ module Origen
           else
             pin = owner.pins(pin)
           end
-          if @store.include?(pin)
-            fail "Pin collection #{id} already contains pin #{pin.id}!"
-          else
+          unless @store.include?(pin)
             pin.invalidate_group_cache
             @store.push(pin)
           end
