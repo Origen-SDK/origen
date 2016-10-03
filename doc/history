@@ -1,3 +1,24 @@
+<a class="anchor release_tag" name="v0_7_32"></a>
+<h1><a href="#v0_7_32">Tag: v0.7.32</a></h1>
+
+##### Branch: 'master'
+
+##### by David Welguisz on 03-Oct-2016 17:47PM
+
+
+### Overall Release Note
+*  Added other\_pins.rb to lib/origen/pins directory
+*  Added improved features to expand functionality for notes.
+
+#### Pin Addition
+*  Added other\_pins.rb.  Allows for No-Connects, Reserved, and Depop Pins
+*  Added tests to check other\_pins.rb and its collection
+
+#### Documentation Addition
+*  Added easier  support to  change subscript for power supplies
+*  Added tests to make sure that subscripts work correctly
+*  Moved attributes from monkey code in  other applications that need to be in Origen base.
+
 <a class="anchor release_tag" name="v0_7_31"></a>
 <h1><a href="#v0_7_31">Tag: v0.7.31</a></h1>
 
