@@ -353,6 +353,13 @@ describe "Origen Specs Module" do
     get_true_hash_size(@ip.power_supplies(gen: 'XVDD'), Origen::Specs::Power_Supply).should ==  6
     get_true_hash_size(@ip.power_supplies(gen: 'SVDD'), Origen::Specs::Power_Supply).should ==  6
     get_true_hash_size(@ip.power_supplies(act: 'X4VDD'), Origen::Specs::Power_Supply).should == 1
+    ps = @ip.power_supplies(act: 'X4VDD').values.first.values.first
+    ps.display_name = Nokogiri::XML::DocumentFragment.parse '<ph>X4V<sub>DD</sub></ph>'
+    ps.update_input
+    ps.update_output
+    ps.display_name.to_s.should == '<ph>X4V<sub>DD</sub></ph>'
+    ps.input_display_name.to_s.should == '<ph>X4V<sub>IN</sub></ph>'
+    ps.output_display_name.to_s.should == '<ph>X4V<sub>OUT</sub></ph>'
     @ip.delete_all_power_supplies    
     @ip.power_supplies(gen: 'SVDD').should == nil
     @ip.power_supply('GVDD', 'G1VDD')

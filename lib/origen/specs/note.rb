@@ -22,6 +22,9 @@ module Origen
       # Plain text of the note.  No Mark-up allowed in this field.
       attr_accessor :text
 
+      # Note Number.  Optional.  If not set, then DITA will make the number
+      attr_accessor :number
+
       # Markup of the text field.  Currently markup has been tested with
       #
       # * DITA
@@ -46,6 +49,7 @@ module Origen
         @text = options[:text]
         @markup = options[:markup]
         @internal_comment = options[:internal_comment]
+        @number = options[:number]
       end
     end
   end

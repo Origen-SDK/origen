@@ -176,6 +176,7 @@ module Origen
     autoload :PinClock,      'origen/pins/pin_clock'
     autoload :PowerPin,      'origen/pins/power_pin'
     autoload :GroundPin,     'origen/pins/ground_pin'
+    autoload :OtherPin,      'origen/pins/other_pin'
     autoload :VirtualPin,    'origen/pins/virtual_pin'
     autoload :FunctionProxy, 'origen/pins/function_proxy'
 
@@ -215,6 +216,7 @@ module Origen
       power_pin = options.delete(:power_pin)
       ground_pin = options.delete(:ground_pin)
       virtual_pin = options.delete(:virtual_pin)
+      other_pin = options.delete(:other_pin)
       if options[:size] && options[:size] > 1
         group = PinCollection.new(self, options.merge(placeholder: true))
         group.id = id if id
@@ -231,6 +233,8 @@ module Origen
             group[i] = GroundPin.new(i, self, options)
           elsif virtual_pin
             group[i] = VirtualPin.new(i, self, options)
+          elsif other_pin
+            group[i] = OtherPin.new(i, self, options)
           else
             group[i] = Pin.new(i, self, options)
           end
@@ -253,6 +257,8 @@ module Origen
           pin = GroundPin.new(id || :temp, self, options)
         elsif virtual_pin
           pin = VirtualPin.new(id || :temp, self, options)
+        elsif other_pin
+          pin = OtherPin.new(id || :temp, self, options)
         else
           pin = Pin.new(id || :temp, self, options)
         end
@@ -280,6 +286,15 @@ module Origen
       add_pin(id, options, &block)
     end
     alias_method :add_ground_pins, :add_ground_pin
+
+    def add_other_pin(id = nil, options = {}, &block)
+      id, options = nil, id if id.is_a?(Hash)
+      options = {
+        other_pin: true
+      }.merge(options)
+      add_pin(id, options, &block)
+    end
+    alias_method :add_other_pins, :add_other_pin
 
     def add_virtual_pin(id = nil, options = {}, &block)
       id, options = nil, id if id.is_a?(Hash)
@@ -399,6 +414,11 @@ module Origen
     end
     alias_method :has_ground_pins?, :has_ground_pin?
 
+    def has_other_pin?(id)
+      !!Origen.pin_bank.find(id, other_pin: true)
+    end
+    alias_method :has_other_pins?, :has_other_pin?
+
     # Equivalent to the has_pin? method but considers virtual pins rather than regular pins
     def has_virtual_pin?(id)
       !!Origen.pin_bank.find(id, virtual_pin: true)
@@ -412,7 +432,6 @@ module Origen
         options = {}
       end
       # check if this is a pin group alias
-
       found = false
       group = nil
       unless options[:pins_only] == true
@@ -478,6 +497,18 @@ module Origen
       add_pin_group(id, *pins, options, &block)
     end
 
+    def add_other_pin_group(id, *pins, &block)
+      if pins.last.is_a?(Hash)
+        options = pins.pop
+      else
+        options = {}
+      end
+      options = {
+        other_pin: true
+      }.merge(options)
+      add_pin_group(id, *pins, options, &block)
+    end
+
     def add_virtual_pin_group(id, *pins, &block)
       if pins.last.is_a?(Hash)
         options = pins.pop
@@ -518,6 +549,15 @@ module Origen
         pin = Origen.pin_bank.find(id, ignore_context: true, ground_pin: true)
       else
         Origen.pin_bank.all_ground_pins
+      end
+    end
+
+    # Equivalent to the all_pins method but considers other pins rather than regular pins
+    def all_other_pins(id = nil, _options = {}, &_block)
+      if id
+        pin = Origen.pin_bank.find(id, ignore_context: true, other_pin: true)
+      else
+        Origen.pin_bank.all_other_pins
       end
     end
 
@@ -595,6 +635,28 @@ If you meant to define the ground_pin_group then use the add_ground_pin_group me
     end
     alias_method :ground_pin_group, :ground_pin_groups
 
+    # Equivalent to the pin_groups method but considers other pins rather than regular pins
+    def other_pin_groups(id = nil, options = {}, &_block)
+      id, options = nil, id if id.is_a?(Hash)
+      if id
+        pin = Origen.pin_bank.find(id, options.merge(other_pin: true))
+        unless pin
+          puts <<-END
+    You have tried to reference other_pin_group :#{id} within #{self.class} but it does not exist, this could be
+    because the pin group has not been defined yet or it is an alias that is not available in the current context.
+
+    If you meant to define the other_pin_group then use the add_other_pin_group method instead.
+
+          END
+          fail 'Other pin group not found'
+        end
+        pin
+      else
+        Origen.pin_bank.other_pin_groups(options)
+      end
+    end
+    alias_method :other_pin_group, :other_pin_groups
+
     # Equivalent to the pin_groups method but considers virtual pins rather than regular pins
     def virtual_pin_groups(id = nil, options = {}, &_block)
       id, options = nil, id if id.is_a?(Hash)
@@ -645,6 +707,8 @@ If you meant to define the pin then use the add_pin method instead.
           Origen.pin_bank.ground_pins
         elsif options[:virtual_pin]
           Origen.pin_bank.virtual_pins
+        elsif options[:other_pin]
+          Origen.pin_bank.other_pins
         else
           Origen.pin_bank.pins
         end
@@ -666,6 +730,15 @@ If you meant to define the pin then use the add_pin method instead.
       id, options = nil, id if id.is_a?(Hash)
       options = {
         ground_pin: true
+      }.merge(options)
+      pins(id, options, &block)
+    end
+
+    # Equivalent to the pins method but considers other pins rather than regular pins
+    def other_pins(id = nil, options = {}, &block)
+      id, options = nil, id if id.is_a?(Hash)
+      options = {
+        other_pin: true
       }.merge(options)
       pins(id, options, &block)
     end

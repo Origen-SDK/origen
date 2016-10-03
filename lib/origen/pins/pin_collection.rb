@@ -8,6 +8,7 @@ module Origen
 
       attr_accessor :endian
       attr_accessor :description
+      attr_accessor :group
 
       def initialize(owner, *pins)
         options = pins.last.is_a?(Hash) ? pins.pop : {}
@@ -17,6 +18,7 @@ module Origen
         @power_pins = options.delete(:power_pin) || options.delete(:power_pins)
         @ground_pins = options.delete(:ground_pin) || options.delete(:ground_pins)
         @virtual_pins = options.delete(:virtual_pin) || options.delete(:virtual_pins)
+        @other_pins = options.delete(:other_pin) || options.delete(:other_pins)
         @endian = options[:endian]
         @description = options[:description] || options[:desc]
         @options = options
@@ -85,6 +87,11 @@ module Origen
       # Returns true if the pin collection contains virtual pins rather than regular pins
       def virtual_pins?
         @virtual_pins
+      end
+
+      # Returns true if the pin collection contains other pins rather than regular pins
+      def other_pins?
+        @other_pins
       end
 
       def id
@@ -182,14 +189,14 @@ module Origen
             pin = owner.power_pins(pin)
           elsif ground_pins?
             pin = owner.ground_pins(pin)
+          elsif other_pins?
+            pin = owner.other_pins(pin)
           elsif virtual_pins?
             pin = owner.virtual_pins(pin)
           else
             pin = owner.pins(pin)
           end
-          if @store.include?(pin)
-            fail "Pin collection #{id} already contains pin #{pin.id}!"
-          else
+          unless @store.include?(pin)
             pin.invalidate_group_cache
             @store.push(pin)
           end
