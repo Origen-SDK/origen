@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    origen (0.7.32)
+    origen (0.7.33)
       activesupport (~> 4.1)
       bundler (~> 1.7)
       coderay (~> 1.1)
@@ -75,7 +75,7 @@ GEM
     log4r (1.1.10)
     method_source (0.8.2)
     mini_portile2 (2.0.0)
-    minitest (5.9.0)
+    minitest (5.9.1)
     multi_xml (0.5.5)
     multipart-post (2.0.0)
     nanoc (3.8.0)
@@ -95,7 +95,7 @@ GEM
       atp (~> 0.4, >= 0.4.2)
       origen (>= 0.7.23)
       require_all (~> 1)
-    parser (2.3.1.2)
+    parser (2.3.1.4)
       ast (~> 2.2)
     powerpack (0.1.1)
     pry (0.10.4)
@@ -113,7 +113,7 @@ GEM
       rspec-core (~> 3.5.0)
       rspec-expectations (~> 3.5.0)
       rspec-mocks (~> 3.5.0)
-    rspec-core (3.5.3)
+    rspec-core (3.5.4)
       rspec-support (~> 3.5.0)
     rspec-expectations (3.5.0)
       diff-lcs (>= 1.2.0, < 2.0)
