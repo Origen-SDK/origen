@@ -9,6 +9,7 @@ module Origen
       attr_accessor :endian
       attr_accessor :description
       attr_accessor :group
+      attr_accessor :group_str
 
       def initialize(owner, *pins)
         options = pins.last.is_a?(Hash) ? pins.pop : {}

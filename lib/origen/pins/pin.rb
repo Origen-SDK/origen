@@ -28,6 +28,7 @@ module Origen
       attr_reader :functions
       # Internal power supply pin is connected to
       attr_accessor :supply
+      attr_accessor :supply_str
       # Boolean on whether pin is open drain
       attr_accessor :open_drain
       # Boolean on whether pin has external pull-up
