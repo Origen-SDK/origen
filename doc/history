@@ -16,15 +16,18 @@ Adding last two lines to allow rosetta\_stone to be more robust.
 ##### by David Welguisz on 03-Oct-2016 17:47PM
 
 
-### Overall Release Note
+###### Overall Release Note
+
 *  Added other\_pins.rb to lib/origen/pins directory
 *  Added improved features to expand functionality for notes.
 
-#### Pin Addition
+###### Pin Addition
+
 *  Added other\_pins.rb.  Allows for No-Connects, Reserved, and Depop Pins
 *  Added tests to check other\_pins.rb and its collection
 
-#### Documentation Addition
+###### Documentation Addition
+
 *  Added easier  support to  change subscript for power supplies
 *  Added tests to make sure that subscripts work correctly
 *  Moved attributes from monkey code in  other applications that need to be in Origen base.

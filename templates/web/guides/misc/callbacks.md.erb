@@ -517,6 +517,18 @@ Any options supplied to Flow.create are passed in as an argument.
 No return value is expected.
 
 
+#### on_resource_start(options)
+
+Logically equivalent to on_flow_start, except this one will be called when the top
+level is a Resource.create block instead of a Flow.create block.
+
+
+#### on_resource_end(options)
+
+Logically equivalent to on_flow_end, except this one will be called when the top
+level is a Resource.create block instead of a Flow.create block.
+
+
 
 <a class="anchor" name="web_compiler"></a>
 
