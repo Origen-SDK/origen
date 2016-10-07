@@ -1,3 +1,37 @@
+<a class="anchor release_tag" name="v0_7_35"></a>
+<h1><a href="#v0_7_35">Tag: v0.7.35</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 07-Oct-2016 04:09AM
+
+
+Added utility method to format a register to be read into a data string,
+indicating which bits will be read, stored, overlaid or don't cared.
+
+~~~ruby
+Origen::Utility.read\_hex(0x55)      # => "0x55"
+Origen::Utility.read\_hex(nil)       # => "0xX"
+
+myreg.size                          # => 32
+
+Origen::Utility.read\_hex(myreg)     # =>  "0xXXXXXXXX"
+myreg[7..4].store
+Origen::Utility.read\_hex(myreg)     # =>  "0xXXXXXXSX"
+myreg[23..16].read
+Origen::Utility.read\_hex(myreg)     # =>  "0xXX00XXSX"
+myreg[23..16].read(0x12)
+Origen::Utility.read\_hex(myreg)     # =>  "0xXX12XXSX"
+reg[31..28].overlay("sub")
+reg[31..28].read
+Origen::Utility.read\_hex(myreg)     # =>  "0xVX12XXSX"
+reg[5].clear\_flags
+Origen::Utility.read\_hex(myreg)     # =>  "0xVX12XX\_ssxs\_X"
+reg[21].overlay("sub")
+reg[18].store
+Origen::Utility.read\_hex(myreg)     # =>  "0xVX\_00v1\_0s10\_XX\_ssxs\_X"
+~~~
+
 <a class="anchor release_tag" name="v0_7_34"></a>
 <h1><a href="#v0_7_34">Tag: v0.7.34</a></h1>
 
