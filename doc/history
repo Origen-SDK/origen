@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_7_36"></a>
+<h1><a href="#v0_7_36">Tag: v0.7.36</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 07-Oct-2016 05:02AM
+
+
+Patch to the Origen::Utility.read\_hex method to handle registers whose size is not
+nibble-aligned
+
 <a class="anchor release_tag" name="v0_7_35"></a>
 <h1><a href="#v0_7_35">Tag: v0.7.35</a></h1>
 
