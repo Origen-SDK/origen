@@ -54,6 +54,10 @@ module Origen
         # that are not all of the same type are expanded, e.g. -010s-3S6
         outstr = ''
         regex = '^'
+        r = reg_or_val.size % 4
+        unless r == 0
+          regex += '(' + ('.' * r) + ')'
+        end
         (reg_or_val.size / 4).times { regex += '(....)' }
         regex += '$'
         Regexp.new(regex) =~ regval
@@ -62,12 +66,15 @@ module Origen
         (reg_or_val.size / 4).times do |n|                   # now grouped by nibble
           nibbles << Regexp.last_match[n + 1]
         end
+        unless r == 0
+          nibbles << Regexp.last_match[(reg_or_val.size / 4) + 1]
+        end
 
         nibbles.each_with_index do |nibble, i|
           # If contains any special chars...
           if nibble =~ /[XSV]/
             # If all the same...
-            if nibble[0] == nibble[1] && nibble[1] == nibble[2] && nibble[2] == nibble[3]
+            if nibble.split('').all? { |c| c == nibble[0] }
               outstr += nibble[0, 1] # .to_s
             # Otherwise present this nibble in 'binary' format
             else

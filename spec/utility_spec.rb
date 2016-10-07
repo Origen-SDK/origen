@@ -6,11 +6,13 @@ describe "Utilities" do
     include Origen::Model
     def initialize
       add_reg :d, 0
+      add_reg :d1, 0, size: 35
     end
   end
 
   it "Origen::Utility.read_hex" do
-    reg = UDut.new.d
+    dut = UDut.new
+    reg = dut.d
     u = Origen::Utility
 
     u.read_hex(0x55).should == "0x55"
@@ -30,5 +32,10 @@ describe "Utilities" do
     reg[21].overlay("sub")
     reg[18].store
     u.read_hex(reg).should == "0xVX_00v1_0s10_XX_ssxs_X"
+
+    # Test it can handle non-nibble-aligned regs
+    u.read_hex(dut.d1).should == "0xXXXXXXXXX"
+    dut.d1[3..0].read
+    u.read_hex(dut.d1).should == "0xXXXXXXXX0"
   end
 end
