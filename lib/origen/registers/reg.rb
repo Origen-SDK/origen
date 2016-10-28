@@ -971,6 +971,7 @@ module Origen
       #   reg(:control).bit(1)                  # => Returns a BitCollection containing status bit
       #   reg(:control).bit(1,2)                # => Returns a BitCollection containing both status bits
       def bit(*args)
+        multi_bit_names = false
         # return get_bits_with_constraint(nil,:default) if args.size == 0
         constraint = extract_feature_params(args)
         if constraint.nil?
@@ -994,8 +995,8 @@ module Origen
                 collection << get_bits_with_constraint(bit_number, constraint)
               end
             else
+              multi_bit_names = args.size > 1
               # Reaches here if bit name is specified
-
               if @lookup.include?(arg_item)
                 split_bits = false
                 @lookup.each { |_k, v| split_bits = true if v.is_a? Array }
@@ -1022,6 +1023,9 @@ module Origen
           end
           nil
         else
+          if multi_bit_names
+            collection.sort_by!(&:position)
+          end
           collection
         end
       end

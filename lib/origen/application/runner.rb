@@ -25,8 +25,21 @@ module Origen
             record_invocation(options) do
               prepare_for_lsf
               Origen.app.listeners_for(:before_lsf_submission).each(&:before_lsf_submission)
+              batch = []
               expand_lists_and_directories(options[:files], options).each do |file|
-                Origen.app.lsf_manager.submit_origen_job(file, options)
+                if options[:batch]
+                  # Batch jobs into groups of 10
+                  batch << file
+                  if batch.size == options[:batch]
+                    Origen.app.lsf_manager.submit_origen_job(batch.join(' '), options)
+                    batch = []
+                  end
+                else
+                  Origen.app.lsf_manager.submit_origen_job(file, options)
+                end
+              end
+              if options[:batch]
+                Origen.app.lsf_manager.submit_origen_job(batch.join(' '), options) unless batch.empty?
               end
             end
             Origen.log.info ''

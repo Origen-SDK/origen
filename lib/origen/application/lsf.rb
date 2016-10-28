@@ -84,7 +84,6 @@ module Origen
             puts cmd
             '496212'  # Return a dummy ID to keep the caller happy
           else
-            # puts cmd
             output = `#{cmd}`
             Origen.log.info output.strip
             if output.split("\n").last =~ /Job <(\d+)> is submitted/
@@ -130,13 +129,16 @@ module Origen
       # to warn if a single users current job count gets above 500.
       # This method prevents that stage from being reached.
       def limit_job_submissions
-        if remote_jobs_count > 450
+        @local_job_count ||= 0
+        if @local_job_count == 100
           while remote_jobs_count > 400
             puts 'Waiting for submitted jobs count to fall below limit...'
             sleep 5
           end
+          @local_job_count = 0
           yield
         else
+          @local_job_count += 1
           yield
         end
       end

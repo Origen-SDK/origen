@@ -1355,5 +1355,23 @@ module RegTest
       revtest.data_b.should == 0xFF00_55AA
       revtest.data_reverse.should == 0xAA55_FF00
     end
+
+    it "multi-named bit collections work" do
+      add_reg :mnbit,   0x03,  8,  :d  => { pos: 6, bits: 2 },
+                                   :b  => { pos: 4, bits: 2 },
+                                   :c  => { pos: 2, bits: 2 },
+                                   :a  => { pos: 0, bits: 2 }
+
+      mnbit.data.should == 0
+      mnbit.bits(:d, :a).write(0b0110)
+      mnbit.d.data.should == 0b01
+      mnbit.a.data.should == 0b10
+      mnbit.data.should == 0b01000010
+      mnbit.write(0)
+      mnbit.bits(:b, :c).write(0b0110)
+      mnbit.b.data.should == 0b01
+      mnbit.c.data.should == 0b10
+      mnbit.data.should == 0b00011000
+    end
   end
 end
