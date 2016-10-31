@@ -42,6 +42,21 @@ module Origen
         @input_display_name = ''
         @output_display_name = ''
       end
+
+      def update_input
+        @input_display_name = change_subscript('IN')
+      end
+
+      def update_output
+        @output_display_name = change_subscript('OUT')
+      end
+
+      def change_subscript(new_subscript)
+        temp_display_name = @display_name.dup
+        sub_input = temp_display_name.at_css 'sub'
+        sub_input.content = new_subscript unless sub_input.nil?
+        temp_display_name
+      end
     end
   end
 end

@@ -28,6 +28,7 @@ module Origen
       attr_reader :functions
       # Internal power supply pin is connected to
       attr_accessor :supply
+      attr_accessor :supply_str
       # Boolean on whether pin is open drain
       attr_accessor :open_drain
       # Boolean on whether pin has external pull-up
@@ -38,6 +39,9 @@ module Origen
       attr_accessor :type
       # Pin RTL name, short term solution for products that do not get full HDL path for pins
       attr_accessor :rtl_name
+
+      attr_accessor :description
+      attr_accessor :notes
 
       # Should be instantiated through the HasPins macros
       def initialize(id, owner, options = {}) # :nodoc:

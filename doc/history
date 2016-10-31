@@ -1,3 +1,135 @@
+<a class="anchor release_tag" name="v0_7_37"></a>
+<h1><a href="#v0_7_37">Tag: v0.7.37</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 28-Oct-2016 05:38AM
+
+
+* LSF
+  * Changed the check for the amount of submitted jobs to be done every
+    100 submissions instead of on every submission. This cuts submission
+    time by ~0.5s in trials.
+  * Added some pre-work to provide the ability to specify a number of jobs
+    that should be batched together, e.g. to setup such that each LSF job
+    generates N patterns instead of 1 pattern/job.
+    
+* Registers - added the ability to create bit collections from multiple
+  named bits:
+
+~~~text
+>> dut.myreg
+=>
+0x24 - :myreg
+  ================================================================================================================
+  |      7      |      6      |      5      |      4      |      3      |      2      |      1      |      0      |
+  |         bitsx[1:0]        |         bitsy[1:0]        |                       bitsz[3:0]                      |
+  |            0x0            |            0x0            |                          0x0                          |
+  ----------------------------------------------------------------------------------------------------------------
+
+>> dut.myreg.bits(:bitsx, :bitsz).write(0x2C)
+
+>> dut.myreg
+=>
+0x24 - :myreg
+  ================================================================================================================
+  |      7      |      6      |      5      |      4      |      3      |      2      |      1      |      0      |
+  |         bitsx[1:0]        |         bitsy[1:0]        |                       bitsz[3:0]                      |
+  |            0x2            |            0x0            |                          0xC                          |
+  ----------------------------------------------------------------------------------------------------------------
+~~~
+
+<a class="anchor release_tag" name="v0_7_36"></a>
+<h1><a href="#v0_7_36">Tag: v0.7.36</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 07-Oct-2016 05:02AM
+
+
+Patch to the Origen::Utility.read\_hex method to handle registers whose size is not
+nibble-aligned
+
+<a class="anchor release_tag" name="v0_7_35"></a>
+<h1><a href="#v0_7_35">Tag: v0.7.35</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 07-Oct-2016 04:09AM
+
+
+Added utility method to format a register to be read into a data string,
+indicating which bits will be read, stored, overlaid or don't cared.
+
+~~~ruby
+Origen::Utility.read\_hex(0x55)      # => "0x55"
+Origen::Utility.read\_hex(nil)       # => "0xX"
+
+myreg.size                          # => 32
+
+Origen::Utility.read\_hex(myreg)     # =>  "0xXXXXXXXX"
+myreg[7..4].store
+Origen::Utility.read\_hex(myreg)     # =>  "0xXXXXXXSX"
+myreg[23..16].read
+Origen::Utility.read\_hex(myreg)     # =>  "0xXX00XXSX"
+myreg[23..16].read(0x12)
+Origen::Utility.read\_hex(myreg)     # =>  "0xXX12XXSX"
+reg[31..28].overlay("sub")
+reg[31..28].read
+Origen::Utility.read\_hex(myreg)     # =>  "0xVX12XXSX"
+reg[5].clear\_flags
+Origen::Utility.read\_hex(myreg)     # =>  "0xVX12XX\_ssxs\_X"
+reg[21].overlay("sub")
+reg[18].store
+Origen::Utility.read\_hex(myreg)     # =>  "0xVX\_00v1\_0s10\_XX\_ssxs\_X"
+~~~
+
+<a class="anchor release_tag" name="v0_7_34"></a>
+<h1><a href="#v0_7_34">Tag: v0.7.34</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 06-Oct-2016 07:54AM
+
+
+Added on\_resource\_start and end callbacks during program generation. These are equivalent
+to on\_flow\_start/end, but the resource version will be called when the top-level flow is
+a Resource.create block instead of a Flow.create block.
+
+<a class="anchor release_tag" name="v0_7_33"></a>
+<h1><a href="#v0_7_33">Tag: v0.7.33</a></h1>
+
+##### Branch: 'master'
+
+##### by David Welguisz on 03-Oct-2016 21:23PM
+
+
+Adding last two lines to allow rosetta\_stone to be more robust.
+
+<a class="anchor release_tag" name="v0_7_32"></a>
+<h1><a href="#v0_7_32">Tag: v0.7.32</a></h1>
+
+##### Branch: 'master'
+
+##### by David Welguisz on 03-Oct-2016 17:47PM
+
+
+###### Overall Release Note
+
+*  Added other\_pins.rb to lib/origen/pins directory
+*  Added improved features to expand functionality for notes.
+
+###### Pin Addition
+
+*  Added other\_pins.rb.  Allows for No-Connects, Reserved, and Depop Pins
+*  Added tests to check other\_pins.rb and its collection
+
+###### Documentation Addition
+
+*  Added easier  support to  change subscript for power supplies
+*  Added tests to make sure that subscripts work correctly
+*  Moved attributes from monkey code in  other applications that need to be in Origen base.
+
 <a class="anchor release_tag" name="v0_7_31"></a>
 <h1><a href="#v0_7_31">Tag: v0.7.31</a></h1>
 

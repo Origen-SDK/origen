@@ -21,8 +21,14 @@ module Origen
         else
           Origen.log.info "Generating... #{Origen.file_handler.current_file.basename}"
           interface = Origen.reset_interface(options)
+          Origen.app.listeners_for(:on_resource_start).each do |listener|
+            listener.on_resource_start(options)
+          end
           interface.resources_mode do
             interface.instance_eval(&block)
+          end
+          Origen.app.listeners_for(:on_resource_end).each do |listener|
+            listener.on_resource_end(options)
           end
           interface.close
         end
