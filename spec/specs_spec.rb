@@ -108,6 +108,7 @@ class IP_With_Specs
     version_history('March 1, 2015', 'John Doe', 'Initial checkin.  Something here about what was added')
     version_history('April 15, 2015', 'Jane Doe', 'Made this better by doing one, two, three things.')
     version_history('May 30, 2015', 'Jim Bob', 'Review with Subject Matter Experts.')
+    version_history('October 1, 2016', 'Sue Bird', {internal: 'Change with internal comments', external: 'For external customers'}, 'label.01.02.03', false)
     doc_resource({mode: :default, type: :ac, sub_type: 'input', audience: :external}, {title: 'Title for Table 1', note_refs: :note1, exhibit_refs: nil}, {before: nil, after: nil}, {})
     doc_resource({mode: :low_power, type: :ac, sub_type: 'input', audience: :external}, {title: 'Title for Table 1', note_refs: [:note5, :note6], exhibit_refs: nil}, {before: nil, after: nil}, {})
     doc_resource({mode: :high_performance, type: :ac, sub_type: 'input', audience: :external}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
@@ -284,7 +285,6 @@ describe "Origen Specs Module" do
     end
     @ip.specs(:ip_setup_time).min.exp.should == 2.4e-10
     @ip.specs(:ip_setup_time).min.value.should == 2.4e-10
-
   end
 
   it "fuzzy finding with a regex works" do
@@ -438,6 +438,19 @@ describe "Origen Specs Module" do
     get_true_hash_size(@ip.documentations, Origen::Specs::Documentation).should == 3
     get_true_hash_size(@ip.documentations(section: 'Section 1'), Origen::Specs::Documentation).should == 1
     get_true_hash_size(@ip.documentations(section: 'Section 2'), Origen::Specs::Documentation).should == 2
+  end
+  
+  it 'can see sub_block version history' do
+    get_true_hash_size(@ip.version_histories, Origen::Specs::Version_History).should == 4
+    tmp = @ip.version_histories(label: 'label.01.02.03', debug: true)
+    get_true_hash_size(tmp, Origen::Specs::Version_History).should == 1
+    tmp_vh = tmp.values.first.values.first.values.first
+    tmp_vh.author.should == 'Sue Bird'
+    tmp_vh.date.should == 'October 1, 2016'
+    tmp_vh.label.should == 'label.01.02.03'
+    tmp_vh.external_changes_internal.should == false
+    tmp_vh.changes.class.should == Hash
+    tmp_vh.changes.should == {internal: 'Change with internal comments', external: 'For external customers'}
   end
     
 end
