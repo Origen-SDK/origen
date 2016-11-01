@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_7_38_pre1"></a>
+<h2><a href="#v0_7_38_pre1">Tag: v0.7.38.pre1</a></h2>
+
+##### Branch: 'develop'
+
+##### by David Welguisz on 31-Oct-2016 22:30PM
+
+
+### Overall Release Note
+*  Added label to Origen::Specs::Version\_History class
+
 <a class="anchor release_tag" name="v0_7_37"></a>
 <h1><a href="#v0_7_37">Tag: v0.7.37</a></h1>
 
