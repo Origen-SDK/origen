@@ -174,12 +174,12 @@ module Origen
       @_doc_resources[mode][type][sub_type][audience] = Doc_Resource.new(selector, table_title, text, options)
     end
 
-    def version_history(date, author, changes)
+    def version_history(date, author, changes, label = nil, mark_external_internal = nil)
       # Welguisz:  No idea why this is here, but keeping it here because it follows other blocks
       _version_history
       # Create a new Version History and place it in the version history 2-D Hash
-      tmp_ver_history = Version_History.new(date, author, changes)
-      @_version_history[date][author] = tmp_ver_history
+      tmp_ver_history = Version_History.new(date, author, changes, label, mark_external_internal)
+      @_version_history[date][author][label] = tmp_ver_history
     end
 
     def override(block_options = {}, find_spec = {}, values = {}, options = {})
@@ -463,6 +463,33 @@ module Origen
       end
     end
 
+    def version_histories(options = {})
+      options = {
+        date:   nil,
+        author: nil,
+        label:  nil
+      }.update(options)
+      vh_found = Hash.new do |h, k|
+        h[k] = Hash.new do |hh, kk|
+          hh[kk] = {}
+        end
+      end
+      return nil if @_version_history.nil?
+      return nil if @_version_history.empty?
+      filter_hash(@_version_history, options[:date]).each do |date, hash|
+        filter_hash(hash, options[:author]).each do |author, hash1|
+          filter_hash(hash1, options[:label]).each do |label, ver|
+            vh_found[date][author][label] = ver
+          end
+        end
+      end
+      if vh_found.empty?
+        return nil
+      else
+        return vh_found
+      end
+    end
+
     def versions
       @_version_history
     end
@@ -604,7 +631,9 @@ module Origen
 
     def _version_history
       @_version_history ||= Hash.new do |h, k|
-        h[k] = {}
+        h[k] = Hash.new do |hh, kk|
+          hh[kk] = {}
+        end
       end
     end
 
