@@ -40,3 +40,16 @@ describe "a User" do
   end
 
 end
+
+describe 'Advanced User Options' do
+  it 'Switch User should work' do
+    original_user = Origen.current_user
+    new_user = User.new('crradm')
+    Origen.with_user(new_user) do 
+      Origen.current_user.id.should == 'crradm'
+      Origen.current_user.id.should_not == original_user.id
+    end
+    Origen.current_user.id.should == original_user.id
+    Origen.current_user.id.should_not == 'crradm'
+  end
+end
