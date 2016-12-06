@@ -56,6 +56,8 @@ unless defined? RGen::ORIGENTRANSITION
     autoload :Models,    'origen/models'
     autoload :Errata,    'origen/errata'
 
+    attr_reader :switch_user
+
     APP_CONFIG = File.join('config', 'application.rb')
 
     class OrigenError < StandardError
@@ -313,6 +315,15 @@ unless defined? RGen::ORIGENTRANSITION
         @root_fudge_active = false
       end
 
+      # This is similar to the command line of 'sudo <user_name>'.  The main
+      # use case is when someone is running with a Service Account and needs
+      # to change to an actually user instead of the service account
+      def with_user(user_obj, &block)
+        @switch_user = user_obj
+        block.call
+        @switch_user = nil
+      end
+
       # Turns off bundler and all plugins if the app is loaded within this block
       # @api private
       def with_boot_environment
@@ -566,6 +577,7 @@ unless defined? RGen::ORIGENTRANSITION
       # @api private
       def current_user
         if app_loaded? || in_app_workspace?
+          return @switch_user unless @switch_user.nil?
           application.current_user
         else
           User.new(User.current_user_id)
