@@ -1,3 +1,25 @@
+<a class="anchor release_tag" name="v0_7_39"></a>
+<h1><a href="#v0_7_39">Tag: v0.7.39</a></h1>
+
+##### Branch: 'master'
+
+##### by David Welguisz on 06-Dec-2016 12:56PM
+
+
+### Overall Release Note
+*  Added ability to switch\_user for a block of code
+
+### New Feature (switch\_user)
+* To switch the user for a block of code, you can do the following:
+~~~~
+# Origen.current\_user ==> Original user
+Origen.with\_user(User.new('user\_id')) do
+  # Origen.current\_user ==> user\_id
+  block of code
+end
+# Origen.current\_user ==> Original User
+~~~~
+
 <a class="anchor release_tag" name="v0_7_38"></a>
 <h1><a href="#v0_7_38">Tag: v0.7.38</a></h1>
 
