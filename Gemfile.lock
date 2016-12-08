@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    origen (0.7.39)
+    origen (0.7.40)
       activesupport (~> 4.1)
       bundler (~> 1.7)
       coderay (~> 1.1)
@@ -70,7 +70,7 @@ GEM
     httpclient (2.8.2.4)
     i18n (0.7.0)
     json (1.8.3)
-    kramdown (1.12.0)
+    kramdown (1.13.0)
     loco (0.0.6)
     log4r (1.1.10)
     method_source (0.8.2)
@@ -95,7 +95,7 @@ GEM
       atp (~> 0.4, >= 0.4.2)
       origen (>= 0.7.23)
       require_all (~> 1)
-    parser (2.3.1.4)
+    parser (2.3.2.0)
       ast (~> 2.2)
     powerpack (0.1.1)
     pry (0.10.4)

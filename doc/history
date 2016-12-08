@@ -1,3 +1,15 @@
+<a class="anchor release_tag" name="v0_7_40"></a>
+<h1><a href="#v0_7_40">Tag: v0.7.40</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 08-Dec-2016 09:26AM
+
+
+Instantiating a persistent callback handler no longer has a dependency on the app being
+loaded.
+This fixes some app boot issues when origen\_testers is required.
+
 <a class="anchor release_tag" name="v0_7_39"></a>
 <h1><a href="#v0_7_39">Tag: v0.7.39</a></h1>
 
