@@ -479,8 +479,10 @@ unless defined? RGen::ORIGENTRANSITION
       # Such code can be wrapped in this method to ensure that it will run safely by differing it until the app
       # is fully loaded.
       #
-      #   Origen.after_app_loaded do
-      #     Origen.app.do_something
+      # If the application is already loaded by the time this is called, then it will execute straight away.
+      #
+      #   Origen.after_app_loaded do |app|
+      #     app.do_something
       #   end
       def after_app_loaded(&block)
         if application_loaded?
