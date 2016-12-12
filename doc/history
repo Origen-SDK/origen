@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_7_41"></a>
+<h1><a href="#v0_7_41">Tag: v0.7.41</a></h1>
+
+##### Branch: 'master'
+
+##### by David Welguisz on 12-Dec-2016 17:41PM
+
+
+Added color attr\_accessor to  pin\_collection.rb
+Will allow for graphic generation to use color to coordinate pins.
+
 <a class="anchor release_tag" name="v0_7_40"></a>
 <h1><a href="#v0_7_40">Tag: v0.7.40</a></h1>
 
