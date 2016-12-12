@@ -10,6 +10,7 @@ module Origen
       attr_accessor :description
       attr_accessor :group
       attr_accessor :group_str
+      attr_accessor :color
 
       def initialize(owner, *pins)
         options = pins.last.is_a?(Hash) ? pins.pop : {}
