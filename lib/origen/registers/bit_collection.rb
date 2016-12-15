@@ -101,7 +101,7 @@ module Origen
         if tester.try(:link?)
           preserve_flags do
             v = tester.capture do
-              store!
+              store!(sync: true)
             end
             reverse_each.with_index do |bit, i|
               bit.instance_variable_set('@updated_post_reset', true)
@@ -502,15 +502,15 @@ module Origen
       end
 
       # Marks all bits to be stored
-      def store
+      def store(options = {})
         each(&:store)
         self
       end
 
       # Marks all bits to be stored and then calls read!
-      def store!
-        store
-        read!
+      def store!(options = {})
+        store(options)
+        read!(options)
         self
       end
 
