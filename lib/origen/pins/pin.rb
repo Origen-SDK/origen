@@ -78,6 +78,26 @@ module Origen
         send(@reset)
       end
 
+      # Returns the drive cycle wave assigned to the pin based on the currently enabled timeset,
+      # or nil if none is set.
+      # Note that if a timeset is set then all pins will always return a wave as they will pick
+      # up a default waveform if none is explicitly assigned to it.
+      def drive_wave
+        if dut.current_timeset
+          dut.current_timeset.send(:wave_for, self, type: :drive)
+        end
+      end
+
+      # Returns the compare cycle wave assigned to the pin based on the currently enabled timeset,
+      # or nil if none is set
+      # Note that if a timeset is set then all pins will always return a wave as they will pick
+      # up a default waveform if none is explicitly assigned to it.
+      def compare_wave
+        if dut.current_timeset
+          dut.current_timeset.send(:wave_for, self, type: :compare)
+        end
+      end
+
       # Causes the pin to continuously drive 1 for 2 seconds and then drive 0 for 2 seconds.
       #
       # This is not an API that is intended to be used within a pattern. Rather it is a debug aid when

@@ -44,7 +44,7 @@ module Origen
           if args.first
             timesets(args.first)
           else
-            @current_timeset
+            timesets[@current_timeset]
           end
         end
       end

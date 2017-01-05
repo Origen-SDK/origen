@@ -2,13 +2,26 @@ module Origen
   module Pins
     module Timing
       class Wave
-        attr_reader :events
+        attr_reader :events, :timeset, :index
 
         VALID_DRIVE_DATA = [0, 1, :data]
         VALID_COMPARE_DATA = [0, 1, :data]
 
-        def initialize
+        def initialize(timeset)
+          @timeset = timeset
           @events = []
+        end
+
+        # Returns an array containing all dut pin_ids that
+        # are assigned to this wave by the parent timeset
+        def pin_ids
+          @pins_ids ||= timeset.send(:pin_ids_for, self)
+        end
+
+        # Returns an array containing all dut pin objects that
+        # are assigned to this wave by the parent timeset
+        def pins
+          @pins ||= pin_ids.map { |id| dut.pin(id) }
         end
 
         def drive(data, options)
@@ -30,7 +43,11 @@ module Origen
         end
         alias :compare_edge :compare
 
-        def dont_care(*args)
+        def dont_care(options)
+          self.type = :drive
+          validate_time(options) do |t|
+            events << [t, :x]
+          end
         end
         alias :highz :dont_care
 
@@ -47,6 +64,15 @@ module Origen
         end
 
         private
+
+        def clear_cache
+          @pin_ids = nil
+          @pins = nil
+        end
+
+        def index=(val)
+          @index = val
+        end
 
         def validate_data(data)
           valid = drive? ? VALID_DRIVE_DATA : VALID_COMPARE_DATA
