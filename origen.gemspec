@@ -49,4 +49,5 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "gems", "~>0.8"
   spec.add_runtime_dependency "highline", "~>1.7"
   spec.add_runtime_dependency "geminabox", "0.12.4"
+  spec.add_runtime_dependency "dentaku", "~>2"
 end
