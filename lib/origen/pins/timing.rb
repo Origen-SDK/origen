@@ -16,11 +16,11 @@ module Origen
         if block_given?
           timesets(*args, &block)
         else
-          timesets(args.first) { }
+          timesets(args.first) {}
         end
       end
 
-      def timesets(name=nil, options={})
+      def timesets(name = nil, options = {})
         name, options = nil, name if name.is_a?(Hash)
         @timesets ||= {}.with_indifferent_access
         # If defining a new timeset
@@ -48,7 +48,7 @@ module Origen
           end
         end
       end
-      alias :timeset :current_timeset
+      alias_method :timeset, :current_timeset
 
       # Set the current timeset, this will be called automatically
       # if the timeset is changed via tester.set_timeset
@@ -59,7 +59,18 @@ module Origen
           fail "Timeset #{id} has not been defined!"
         end
       end
-      alias :timeset= :current_timeset=
+      alias_method :timeset=, :current_timeset=
+
+      # Set the current timeset period, this will be called automatically
+      # if the timeset is changed via tester.set_timeset
+      def current_timeset_period=(val)
+        @current_timeset_period = val
+      end
+
+      # Returns the current timeset period or nil
+      def current_timeset_period
+        @current_timeset_period
+      end
     end
   end
 end

@@ -3,12 +3,12 @@ module Origen
     module Timing
       class Timeset
         attr_reader :id
-       
+
         # Returns an array containing the defined waves for drive cycles.
         # The wave at position 0 will be applied be default to any pin which
         # does not otherwise have a specific wave assignment.
         attr_reader :drive_waves
-        
+
         # Returns an array containing the defined waves for compare cycles
         # The wave at position 0 will be applied be default to any pin which
         # does not otherwise have a specific wave assignment.
@@ -24,10 +24,9 @@ module Origen
           # Temporary storage of pin assignments
           @pin_ids = { drive: [], compare: [] }
 
-
           # Create the default waves, these can be overridden later
           wave do |w|
-            w.compare :data, at: "period / 2"
+            w.compare :data, at: 'period / 2'
           end
 
           wave do |w|
@@ -108,7 +107,7 @@ module Origen
             end
           end
         end
-        
+
         def wave_for(pin, options)
           assign_pins unless @pin_ids == :done
           if options[:type] == :drive
@@ -129,7 +128,7 @@ module Origen
         end
 
         def all_pin_ids
-          @all_pin_ids ||= dut.pins.values.map { |p| p.id }
+          @all_pin_ids ||= dut.pins.values.map(&:id)
         end
       end
     end

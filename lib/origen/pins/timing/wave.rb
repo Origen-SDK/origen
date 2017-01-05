@@ -12,6 +12,15 @@ module Origen
           @events = []
         end
 
+        # Returns the events array but with any formula based times
+        # evaluated.
+        # Note that this does not raise an error if the period is not currently
+        # set, in that case any events that reference it will have nil for
+        # their time.
+        def evaluated_events
+          events.map { |e| [calc.evaluate(e[0], period: dut.current_timeset_period), e[1]] }
+        end
+
         # Returns an array containing all dut pin_ids that
         # are assigned to this wave by the parent timeset
         def pin_ids
@@ -41,7 +50,7 @@ module Origen
             end
           end
         end
-        alias :compare_edge :compare
+        alias_method :compare_edge, :compare
 
         def dont_care(options)
           self.type = :drive
@@ -49,7 +58,7 @@ module Origen
             events << [t, :x]
           end
         end
-        alias :highz :dont_care
+        alias_method :highz, :dont_care
 
         def type
           @type ||= :drive
@@ -78,7 +87,7 @@ module Origen
           valid = drive? ? VALID_DRIVE_DATA : VALID_COMPARE_DATA
           data = :data if :data == :pattern
           unless valid.include?(data)
-            fail "Uknown data value #{data}, only these are valid: #{valid.join(", ")}"
+            fail "Uknown data value #{data}, only these are valid: #{valid.join(', ')}"
           end
           yield data
         end
@@ -92,7 +101,7 @@ module Origen
         def type=(t)
           if @type
             if @type != t
-              fail "Timing waves cannot both drive and compare within a cycle period!"
+              fail 'Timing waves cannot both drive and compare within a cycle period!'
             end
           else
             @type = t
@@ -101,16 +110,16 @@ module Origen
 
         def validate_time(options)
           unless options[:at]
-            fail "When defining a wave event you must supply the time via the option :at"
+            fail 'When defining a wave event you must supply the time via the option :at'
           end
           t = options[:at]
 
           if t.is_a?(String)
-            d = calc.dependencies(t) - ["period", "period_in_ns"]
-            if !d.empty?
+            d = calc.dependencies(t) - %w(period period_in_ns)
+            unless d.empty?
               fail "Wave time formulas can only include the variable 'period' (or 'period_in_ns'), this variable is not allowed: #{d}"
             end
-            t = t.gsub("period_in_ns", "period")
+            t = t.gsub('period_in_ns', 'period')
             unless calc.evaluate(t, period: 100)
               fail "There appears to be an error in the formula: #{t}"
             end
@@ -120,7 +129,7 @@ module Origen
             yield t
             return
           end
-          fail "The :at option in a wave event definition must be either a number or a string"
+          fail 'The :at option in a wave event definition must be either a number or a string'
         end
       end
     end
