@@ -24,6 +24,11 @@ module Origen
       include Origen::Model
     end
 
+    # Top-level timing manager/API, returns an instance of Origen::Pins::Timing
+    def timing
+      @timing ||= Pins::Timing.new
+    end
+
     def reset!
       reset bang: true
     end

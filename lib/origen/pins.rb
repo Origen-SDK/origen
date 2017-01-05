@@ -179,6 +179,9 @@ module Origen
     autoload :OtherPin,      'origen/pins/other_pin'
     autoload :VirtualPin,    'origen/pins/virtual_pin'
     autoload :FunctionProxy, 'origen/pins/function_proxy'
+    require 'origen/pins/timing'
+
+    include Timing
 
     # @api private
     # API v2, deprecated
