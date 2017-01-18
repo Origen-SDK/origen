@@ -34,7 +34,7 @@ describe "Origen Pin API v3" do
   end
 
   describe "Adding and scoping pins" do
-
+    
     it "pins can be added" do
       $dut.add_pin :pinx
       $dut.add_pin :piny do |pin|
@@ -938,5 +938,27 @@ describe "Origen Pin API v3" do
     $dut.pins(:jtag)[1].direction.should == :input
     $dut.pins(:nvm)[0].direction.should == :output
     $dut.pins(:nvm)[1].direction.should == :output
+  end
+
+  describe "Issue Fixes for Pins" do
+    it "#69 ::: pins groups can be composed of standalone pins and other groups" do
+      $dut.add_pin(:tdi)
+      $dut.add_pin(:tdo)
+      $dut.add_pin(:tclk)
+      $dut.add_pin(:tms)
+      $dut.add_pins(:porta, size: 8)
+      $dut.add_pins(:portb, size: 16)
+    
+      $dut.pins.size.should == 28
+      $dut.add_pin_group :jtag, :tdi, :tdo, :tclk, :tms
+      $dut.add_pin_group :ports, :porta, :portb
+      $dut.add_pin_group :all, :tdi, :tdo, :tclk, :tms, :porta, :portb
+      $dut.add_pin_group :all2, :jtag, :ports
+    
+      $dut.pins(:jtag).size.should == 4
+      $dut.pins(:ports).size.should == 24
+      $dut.pins(:all).size.should == 28
+      $dut.pins(:all2).size.should == 28
+    end
   end
 end

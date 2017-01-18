@@ -434,15 +434,17 @@ module Origen
       # check if this is a pin group alias
       found = false
       group = nil
+      pins_left = pins.dup
       unless options[:pins_only] == true
         pins.each do |i|
           if pin_groups.include?(i)
             group = add_pin_group_alias(id, i, options)
+            pins_left.delete(i)
             found = true
           end
         end
       end
-      unless found # not a pin group alias
+      unless pins_left.empty? && !block_given? # not a pin group alias
         group = Origen.pin_bank.find_or_create_pin_group(id, self, options)
         if block_given?
           yield group
@@ -463,9 +465,9 @@ module Origen
           #
           # In both cases though we always want pins(:pa)[0] to return :pa0.
           if options[:endian] == :little
-            pins.each { |pin| group.add_pin(pin, options) }
+            pins_left.each { |pin| group.add_pin(pin, options) }
           else
-            pins.reverse_each { |pin| group.add_pin(pin, options) }
+            pins_left.reverse_each { |pin| group.add_pin(pin, options) }
           end
         end
       end
