@@ -245,7 +245,9 @@ module Origen
         end
         yield group if block_given?
         group.each do |pin|
+          pin.send(:primary_group_index=, pin.id)
           pin.id = "#{group.id}#{pin.id}".to_sym
+          pin.send(:primary_group=, group)
           pin.finalize
         end
         if group.size == 1

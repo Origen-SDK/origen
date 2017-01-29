@@ -325,6 +325,20 @@ module Origen
         end
       end
 
+      # If the pin was defined initially as part of a group then this will return that group,
+      # otherwise it will return nil
+      def group
+        @primary_group
+      end
+      alias_method :primary_group, :group
+
+      # If the pin is a member of a primary group, this returns its index number within that
+      # group, otherwise returns nil
+      def group_index
+        @primary_group_index
+      end
+      alias_method :primary_group_index, :group_index
+
       # Returns a hash containing the pin groups that the given pin is a member of
       def groups
         # Origen.pin_bank.all_pin_groups.select do |name, group|
@@ -930,6 +944,16 @@ module Origen
         else
           fail "Pin ext_pulldown  attribute '#{value}' must be either true or false"
         end
+      end
+
+      private
+
+      def primary_group=(group)
+        @primary_group = group
+      end
+
+      def primary_group_index=(number)
+        @primary_group_index = number
       end
     end
   end
