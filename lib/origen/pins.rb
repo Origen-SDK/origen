@@ -471,6 +471,7 @@ module Origen
           end
         end
       end
+      group = Origen.pin_bank.find_or_create_pin_group(id, self, options) if group.nil?
       group
       # Origen.pin_bank.add_pin_group(group, self, {:pins_exist => true}.merge(options))
     end
