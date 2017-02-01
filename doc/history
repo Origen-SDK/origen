@@ -1,3 +1,13 @@
+<a class="anchor release_tag" name="v0_7_44"></a>
+<h1><a href="#v0_7_44">Tag: v0.7.44</a></h1>
+
+##### Branch: 'master'
+
+##### by David Welguisz on 01-Feb-2017 13:15PM
+
+
+Fixed an issue with add\_pin\_group when pins is an empty array.
+
 <a class="anchor release_tag" name="v0_7_43"></a>
 <h1><a href="#v0_7_43">Tag: v0.7.43</a></h1>
 
