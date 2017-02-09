@@ -102,6 +102,7 @@ Your workspace has local modifications that are preventing the requested action
 
       def release_gem
         if File.exist?(File.join Origen.root, "#{Origen.app.gem_name}.gemspec")
+          Origen.app.listeners_for(:before_release_gem).each(&:before_release_gem)
           unless system 'rake gem:release'
             puts '***************************************'.red
             puts '***************************************'.red
@@ -109,6 +110,7 @@ Your workspace has local modifications that are preventing the requested action
             puts '***************************************'.red
             puts '***************************************'.red
           end
+          Origen.app.listeners_for(:after_release_gem).each(&:after_release_gem)
         end
       end
 
