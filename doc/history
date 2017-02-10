@@ -1,3 +1,23 @@
+<a class="anchor release_tag" name="v0_7_45"></a>
+<h1><a href="#v0_7_45">Tag: v0.7.45</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 09-Feb-2017 11:33AM
+
+
+Added before\_release\_gem and after\_release\_gem callbacks
+
+<a class="anchor release_tag" name="v0_7_44"></a>
+<h1><a href="#v0_7_44">Tag: v0.7.44</a></h1>
+
+##### Branch: 'master'
+
+##### by David Welguisz on 01-Feb-2017 13:15PM
+
+
+Fixed an issue with add\_pin\_group when pins is an empty array.
+
 <a class="anchor release_tag" name="v0_7_43"></a>
 <h1><a href="#v0_7_43">Tag: v0.7.43</a></h1>
 

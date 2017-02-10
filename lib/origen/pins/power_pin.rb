@@ -1,6 +1,15 @@
 module Origen
   module Pins
     class PowerPin < Pin
+      attr_accessor :current_limit
+
+      def initialize(id, owner, options = {}) # :nodoc:
+        v = options[:voltage] || options[:voltages]
+        self.voltage = v if v
+        self.current_limit = options[:current_limit] if options[:current_limit]
+        super
+      end
+
       # Set the operating voltage for the pin, can be a single value or an array
       def voltage=(val)
         @voltages = [val].flatten.uniq
