@@ -73,6 +73,7 @@ module Origen
         @size = 1
         @value = 0
         @clock = nil
+        @meta = options[:meta] || {}
         on_init(owner, options)
         # Assign the initial state from the method so that any inversion is picked up...
         send(@reset)
@@ -159,7 +160,13 @@ module Origen
           default = instance_variable_get("@#{attribute}")
           if options[:function]
             v = functions[:ids][options[:function]][attribute]
-            return v if v
+            if v
+              if v.is_a?(Hash) && default.is_a?(Hash)
+                return default.merge(v) # v will overwrite any default values
+              else
+                return v
+              end
+            end
             # else fall back to context-based lookup
           end
           mode_id = options[:mode] || current_mode_id
@@ -170,7 +177,16 @@ module Origen
             config_id = config_id.to_sym if config_id
             configuration = mode[config_id] || mode[:all]
             if configuration
-              configuration[attribute] || default
+              v = configuration[attribute]
+              if v
+                if v.is_a?(Hash) && default.is_a?(Hash)
+                  return default.merge(v) # v will overwrite any default values
+                else
+                  return v
+                end
+              else
+                default
+              end
             else
               default
             end
