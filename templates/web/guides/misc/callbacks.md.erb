@@ -601,6 +601,24 @@ are available in the arguments.
 
 No return value is expected.
 
+#### before_release_gem
+
+This callback is triggered immediately before the gem is built if the application is a plugin.
+It is not called at all if the application is a top-level app.
+
+It can be used to prepare files to be included in the gem package.
+
+No return value is expected.
+
+#### after_release_gem
+
+This callback is triggered immediately before the gem is built if the application is a plugin.
+It is not called at all if the application is a top-level app.
+
+It can be used to clean up after building the gem package.
+
+No return value is expected.
+
 #### after_release_tag(identifier, note, type, selector, options)
 
 This callback is triggered immediately after the application has been tagged and before the
