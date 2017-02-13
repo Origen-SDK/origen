@@ -18,7 +18,7 @@ module Origen
         # set, in that case any events that reference it will have nil for
         # their time.
         def evaluated_events
-          events.map { |e| [calc.evaluate(e[0], period: dut.current_timeset_period), e[1]] }
+          events.map { |e| [calc.evaluate(e[0], period: dut.current_timeset_period).ceil, e[1]] }
         end
 
         # Returns an array containing all dut pin_ids that
