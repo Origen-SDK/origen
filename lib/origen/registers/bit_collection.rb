@@ -98,7 +98,7 @@ module Origen
       # not intended to be inserted into production pattern logic.
       def sync(size = nil, options = {})
         size, options = nil, size if size.is_a?(Hash)
-        if tester.try(:link?)
+        if tester.respond_to?(:capture)
           preserve_flags do
             v = tester.capture do
               store!(sync: true)
