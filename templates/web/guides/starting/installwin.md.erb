@@ -50,7 +50,19 @@ Execute the following command to get a sensible set settings to start off with:
 
 ### 2. Install Pre-Requisites
 
-To install the package manager (chocolatey), please copy the text below into the console (running as administrator)
+Before starting this next section you should ensure that the following environment variables
+are set if your computer accesses the internet via a proxy (the proxy url here is an example and
+the real one will be specific to your company environment):
+
+~~~text
+HTTP_PROXY  = http://proxy.my_company.com:8080
+HTTPS_PROXY = https://proxy.my_company.com:8080
+~~~
+
+Here is a link to a 3rd party tutorial on [How to Create an Environment Variable in Windows](https://kb.wisc.edu/cae/page.php?id=24500).
+
+
+The next step is to install a package manager, please copy the text below into the console (running as administrator)
 
 ~~~text
 @powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
@@ -125,6 +137,18 @@ at which point you should see something like this:
 ~~~
 
 Congratulations, Origen is now installed!
+
+Some users have reported an error at this point which complains about the <code>HOME</code>
+environment variable not being set.
+
+If you see that, set it to something like this by
+following this 3rd party tutorial on [How to Create an Environment Variable in Windows](https://kb.wisc.edu/cae/page.php?id=24500):
+
+~~~text
+HOME = C:\Users\my_user_id
+~~~
+
+
 
 Note that the version of Origen that is installed to your Ruby installation does not need to
 be kept up to date with the latest version of Origen. You can now consider your Ruby environment
