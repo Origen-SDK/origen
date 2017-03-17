@@ -2,159 +2,135 @@
 
 Origen can be installed on Linux or Windows, this guide refers to the Windows installation.
 
-The lack of a package manager in windows makes it harder to install various packages from the command line.  
-
-We recommend using [chocolatey](http://chocolatey.org); an open source windows package manager.
-
-You can imagine chocolatey to be somewhat like apt-get or other package managers on Linux, but built with Windows in mind.
-
-This guide will use **chocolatey** as the package manager to:
-
-* [Install Ruby](#Install_Ruby)
-* [Install Ruby-Dependencies](#Install_Ruby-Dependencies)
-   * [Install Ruby-Development-Kit](#Install_Ruby-Development-Kit) 
-   * [Install RubyGems](#Install_RubyGems)
-   * [Install RubyGems-SSL-workaround](#Install_RubyGems-SSL-workaround)
-* [Install Utilities](#Install_Utilities)
-
-#####**Note:** 
-
-######Origen installation has been tested on Windows 7 only at this time, but we don’t think the installation process will be any different.
-
-######*An active internet connection is required before proceeding.*
-
-If running on Linux is of interest then please see this guide instead:
+If you want to run on Linux then please see this guide instead:
 [How to Install Origen on Linux](<%= path "guides/starting/installing" %>)
 
-
-#### Background
-
-Origen is distributed as a Ruby gem, which is the Ruby language's package manager.
-
-Installation of Origen consists of the following steps:
-
-* [Install Ruby](#Install_Ruby)
-* [Install Ruby-Dependencies](#Install_Ruby-Dependencies)
-* [Install Origen](#Install_Origen)
-
-### Install Chocolatey
-
-All commands mentioned below need to be typed in the command prompt running as an administrator 
-
-~~~text
-Start → run → cmd runas /user:Administrator
-~~~
-
-* if the above command does not work, please follow the solution [here](http://www.howtogeek.com/howto/windows-vista/run-a-command-as-administrator-from-the-windows-vista-run-box/)
-
-##### 1. Chocolatey
+<div class="alert alert-info" role="alert"> <strong>Last updated on 15th February 2017</strong>
+  <br>The vast majority of Origen use in production is on Linux, and over time this Windows guide can
+  become out of date and no one realizes.
+  If you do experience any issues when following this guide, then please do let us
+  know <a href="<%= path "guides/starting/installwin" %>/#Comments">via the comments below</a> and we will update it as required.
+</div>
 
 
-To install the package manager (chocolatey), please type the text below in the command prompt (running as administrator)
+### 1. Install a Better Console
+
+Download Console [by following this link](https://sourceforge.net/projects/console/files/latest/download?source=typ_redirect).
+
+Move the .zip file to <code>C:/Program Files</code>, then right click it and select <code>Extract All...</code>.
+
+Open the unzipped folder and right click on <code>Console.exe</code> and select <code>Send to > Desktop (create shortcut)</code>.
+
+Open the console from your desktop and execute the following command, we recommend that you create all of
+your Origen application workspaces in <code>C:\origen</code>:
 
 ~~~text
-@powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))" && SET PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin
+mkdir C:\origen
 ~~~
 
-### Install Ruby
+Select <code>Edit > Settings</code> from the console menu and enable the checkbox at the bottom
+of the settings called <code>Save settings to user directory</code>.
 
-With the package manager installed, Installing Ruby is a breeze. Just type the following in the command prompt window (running as administrator)
+Execute the following command to get a sensible set settings to start off with:
 
 ~~~text
-cinst ruby -y --force
+@powershell New-Item -ItemType directory -Force -Path %appdata%\Console; (new-object System.Net.WebClient).DownloadFile('http://origen-sdk.org/files/console.xml','%appdata%\Console\console.xml')
 ~~~
 
-This should install Ruby v2.1.6 (latest supported by the package manager as of writing this guide)
+<div class="alert alert-info" role="alert"> <strong>Opening the Console</strong>
+  <br>
+  The rest of this guide requires you to open the console with administrator privileges and then execute
+  the given commands, do this by right-clicking on the desktop shortcut you just created and selecting
+  <code>Run as administrator</code>.
+  <br>
+  Some of the operations will require that you open a new console session in order for the previous operation
+  to take effect. If any errors are encountered please start a new console session and try again before
+  reporting it.
+</div>
 
-If the package manager upgrades to the latest version (v2.2.3), it will install that latest version instead.
+### 2. Install Pre-Requisites
 
-Please check the ruby version and make a note of it. We will need it later for the RubyGems workaround.
+Before starting this next section you should ensure that the following environment variables
+are set if your computer accesses the internet via a proxy (the proxy url here is an example and
+the real one will be specific to your company environment):
 
 ~~~text
-ruby -v
+HTTP_PROXY  = http://proxy.my_company.com:8080
+HTTPS_PROXY = https://proxy.my_company.com:8080
 ~~~
 
-* You *might* need to close the command prompt and open a new one after installing Ruby for ruby -v to work.
-
-Once the installer finishes, please close the current window and open a new one (as administrator)
-
-### Install Ruby-Dependencies
+Here is a link to a 3rd party tutorial on [How to Create an Environment Variable in Windows](https://kb.wisc.edu/cae/page.php?id=24500).
 
 
-
-- #### Install Ruby-Development-Kit
-
-In the new window, type the following
+The next step is to install a package manager, please copy the text below into the console (running as administrator)
 
 ~~~text
-cinst ruby2.devkit -y --force
+@powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
 ~~~
 
-- #### Install RubyGems
+<div class="alert alert-danger" role="alert">Now re-open the console (Run as administrator)</div>
 
-In the same window, now type
+Install some required packages by running these commands from the console:
+
+~~~tetxt
+choco install git -y --force
+choco install unxutils -y --force
+choco install consoleZ -y --force
+~~~
+
+<div class="alert alert-danger" role="alert">Now re-open the console (Run as administrator)</div>
+
+### 3. Install Ruby
 
 ~~~text
-cinst rubygems -y --force
+choco install ruby -y --version=2.2.4 --force
+choco install ruby2.devkit -y --force
 ~~~
 
-- #### Install RubyGems-SSL-workaround
+<div class="alert alert-danger" role="alert">Now re-open the console (Run as administrator)</div>
 
-The latest version of Rubygems (that we installed above) is currently broken on Windows.
-However, there is a workaround that has been developed and it involves a series of steps.
-The workaround also depends on which version of Ruby has been installed.
-
-The following commands will perform all the steps required for the workaround.
-
-If Ruby version installed is v2.1.X
+Execute the following command from the console:
 
 ~~~text
-@powershell (new-object System.Net.WebClient).DownloadFile('https://github.com/rubygems/rubygems/releases/download/v2.0.15/rubygems-update-2.0.15.gem','C:\rubygems-update-2.0.15.gem') && gem install --local C:\rubygems-update-2.0.15.gem && update_rubygems --no-ri --no-rdoc && gem uninstall rubygems-update -x
+@powershell (new-object System.Net.WebClient).DownloadFile('https://rubygems.org/downloads/rubygems-update-2.6.7.gem’,'C:\rubygems-update-2.6.7.gem') && gem install --local C:\rubygems-update-2.6.7.gem && update_rubygems --no-ri --no-rdoc && gem uninstall rubygems-update -x
 ~~~
 
-
-If Ruby version installed is v2.2.X
+Open <code>C:\tools\DevKit2\config.yml</code> in your favorite editor and write this at the
+bottom:
 
 ~~~text
-@powershell (new-object System.Net.WebClient).DownloadFile('https://github.com/rubygems/rubygems/releases/download/v2.2.3/rubygems-update-2.2.3.gem’,'C:\rubygems-update-2.2.3.gem') && gem install --local C:\rubygems-update-2.2.3.gem && update_rubygems --no-ri --no-rdoc && gem uninstall rubygems-update -x
+- C:/tools/ruby22
 ~~~
 
-Once the command finishes, please check the gem version installed by typing
+Save it, and then execute the following commands from the console:
 
 ~~~text
-gem --version
+cd C:\tools\DevKit2\
+ruby dk.rb install
 ~~~
 
-The Gem version should be **v2.0.15** for Ruby v2.1.X or v2.2.3 for Ruby v2.2.X
-
-Before attempting to install the Origen gem, please confirm that the DevKit has been installed successfully and that it has successfully detected the ruby installation.
-
-Please follow the steps below:
+Ensure that you see the following output when running the above command, if not review
+what you have added to <code>C:\tools\DevKit2\config.yml</code>:
 
 ~~~text
- - open C:\Tools\DevKit\config.yml in your favorite editor and type the path to your ruby installation directory 
-   (see image below for example). 
+[INFO] Installing 'C:/tools/ruby22/lib/ruby/site_ruby/2.2.0/rubygems/default
+[INFO] Installing 'C:/tools/ruby22/lib/ruby/site_ruby/devkit.rb'
 ~~~
-   config.yml: ![config.yml](https://a.disquscdn.com/uploads/mediaembed/images/2542/9947/original.jpg)
 
-~~~text
- - Open a command prompt window and type the following:
-     - cd C:\Tools\DevKit\
-     - ruby dk.rb install
-~~~
-   commands: ![type these commands](https://a.disquscdn.com/uploads/mediaembed/images/2542/9948/original.jpg)
+<div class="alert alert-danger" role="alert">Now re-open the console (Run as administrator)</div>
 
-### Install Origen
+### 4. Install Origen
 
-Origen is available as a packaged gem and can be easily installed by typing:
+Finally, run this command to install Origen:
 
 ~~~text
 gem install origen --no-ri --no-rdoc
 ~~~
 
-######*this can take several minutes to finish without updating the screen, so please be patient
+This can take several minutes to finish without updating the screen, so please be patient.
 
-You can then verify Origen availability by running origen -v at which point you should see something like this:
+You can then verify Origen availability by running <code>origen -v</code>
+at which point you should see something like this:
 
 ~~~text
     Origen: <%= Origen.version %>
@@ -162,41 +138,23 @@ You can then verify Origen availability by running origen -v at which point you 
 
 Congratulations, Origen is now installed!
 
+Some users have reported an error at this point which complains about the <code>HOME</code>
+environment variable not being set.
+
+If you see that, set it to something like this by
+following this 3rd party tutorial on [How to Create an Environment Variable in Windows](https://kb.wisc.edu/cae/page.php?id=24500):
+
+~~~text
+HOME = C:\Users\my_user_id
+~~~
+
+
+
 Note that the version of Origen that is installed to your Ruby installation does not need to
 be kept up to date with the latest version of Origen. You can now consider your Ruby environment
 to be frozen for the foreseeable future.
 
 See the section on [Understanding Gems](<%= path "guides/starting/gems" %>) for details on
 why that is.
-
-
-### Install Utilities
-
-It is also recommend to install a recent version (2.x) of Git
-
-We can do that easily now by typing
-
-~~~text
-cinst git -y
-~~~
-
-This will install Git v2.5.2 (latest version available as of writing this guide)
-
-**Optional:**
-
-We recommend that you also install the following utilities for a more UNIX like experience on windows.
-
- - UnxUtils (cinst unxutils -y)
- - ConsoleZ (cinst consoleZ -y)
- - Console2 (download from http://sourceforge.net/projects/console/)
-
-
-
-### Video
-
-For your convenience, you can also watch the installation process in the video below.
-
-<iframe width="853" height="480" src="https://www.youtube.com/embed/Gt2EvRpZmfY" frameborder="0" allowfullscreen></iframe>
-
 
 % end

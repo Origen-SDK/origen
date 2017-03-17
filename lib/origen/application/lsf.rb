@@ -37,11 +37,13 @@ module Origen
       # Example
       #   # soc/nevis.rb
       #
-      #   ORIGEN::Runner::LSF.configuration do |config|
-      #   # Use "msg.nevis" for the project string when running in Noida
-      #   if %x["domainname"] =~ /nidc/
-      #     Origen.config.lsf.project =  "msg.nevis"
+      #   Origen::Runner::LSF.configuration do |config|
+      #     # Use "msg.nevis" for the project string when running in Noida
+      #     if %x["domainname"] =~ /nidc/
+      #       config.lsf.project =  "msg.nevis"
+      #     end
       #   end
+      #
       #   # Change the default group
       #   Origen.config.lsf.group = "lam"
       def self.configuration
