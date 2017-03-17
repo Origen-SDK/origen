@@ -127,13 +127,6 @@ describe "Pin timing API" do
   it "evaluated_events calculates the times" do
     dut.timeset = :func
     p = dut.pin(:tck)
-    p.drive_wave.events[0].should == [0, :data]
-    p.drive_wave.events[1].should == [25, 0]
-    p.drive_wave.events[2].should == ["period - 10", :x]
-    p.drive_wave.evaluated_events[0].should == [0, :data]
-    p.drive_wave.evaluated_events[1].should == [25, 0]
-    p.drive_wave.evaluated_events[2].should == [nil, :x]
-
     dut.current_timeset_period = 100
     p.drive_wave.events[0].should == [0, :data]
     p.drive_wave.events[1].should == [25, 0]

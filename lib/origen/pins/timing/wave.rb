@@ -18,7 +18,11 @@ module Origen
         # set, in that case any events that reference it will have nil for
         # their time.
         def evaluated_events
-          events.map { |e| [calc.evaluate(e[0], period: dut.current_timeset_period).ceil, e[1]] }
+          if dut.current_timeset_period
+            events.map { |e| [calc.evaluate(e[0], period: dut.current_timeset_period).ceil, e[1]] }
+          else
+            fail 'The current timeset period has not been set'
+          end
         end
 
         # Returns an array containing all dut pin_ids that
