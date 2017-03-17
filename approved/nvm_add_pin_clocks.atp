@@ -1,20 +1,23 @@
 // ***************************************************************************
 // GENERATED:
-//   Time:    31-Aug-2015 03:21AM
-//   By:      Stephen McGinty
+//   Time:    16-Mar-2017 21:25PM
+//   By:      Lajaunie Ronald-B01784
 //   Command: origen g add_pin_clocks -t debug.rb
 // ***************************************************************************
 // ENVIRONMENT:
 //   Application
-//     Source:    ssh://git@github.com:Origen-SDK/origen.git
-//     Version:   0.2.3
-//     Branch:    master(5ccfa6bfcca) (+local edits)
+//     Source:    git@github.com:Origen-SDK/origen.git
+//     Version:   0.7.45
+//     Branch:    master(3d9d3b33a66) (+local edits)
 //   Origen
 //     Source:    https://github.com/Origen-SDK/origen
-//     Version:   0.2.3
+//     Version:   0.7.45
 //   Plugins
-//     origen_core_support:      0.1.1
-//     origen_doc_helpers:       0.2.0
+//     atp:                      0.4.2
+//     origen_core_support:      0.2.3
+//     origen_debuggers:         0.5.1
+//     origen_doc_helpers:       0.4.2
+//     origen_testers:           0.7.11
 // ***************************************************************************
 // This is a dummy pattern created by the Origen test environment
 // ***************************************************************************
@@ -29,6 +32,17 @@ compressed = yes;
 vector ($tset, nvm_reset, nvm_clk, nvm_clk_mux, porta, portb, nvm_invoke, nvm_done, nvm_fail, nvm_alvtst, nvm_ahvtst, nvm_dtst, tclk, trst)                               
 {                                                                                               
 start_label pattern_st:                                                                         
+//                                                                                              n n n p        p        n n n n n n t t
+//                                                                                              v v v o        o        v v v v v v c r
+//                                                                                              m m m r        r        m m m m m m l s
+//                                                                                              - - - t        t        - - - - - - k t
+//                                                                                              r c c a        b        i d f a a d    
+//                                                                                              e l l                   n o a l h t    
+//                                                                                              s k k                   v n i v v s    
+//                                                                                              e   -                   o e l t t t    
+//                                                                                              t   m                   k     s s      
+//                                                                                                  u                   e     t t      
+//                                                                                                  x                                  
 // ######################################################################
 // ## Enter Test Mode
 // ######################################################################
@@ -42,7 +56,7 @@ start_label pattern_st:
                                                                  > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;
                                                                  > nvm_slow                     1 1 1 00111000 00000000 1 H L X X X 0 1 ;                               
 repeat 100                                                       > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
-// Start clock on nvm_clk: cycles_per_half_period=6, start cycle=100
+// [PinClock] Start nvm_clk.clock at 100: period=500ns, cycles=12, duty=6/6
 repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
 repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
 repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
@@ -60,30 +74,113 @@ repeat 6                                                         > intram       
 repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
 repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
 repeat 4                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
-// Stop clock on nvm_clk: stop cycle=200
+// [PinClock] Stop nvm_clk.clock: stop_cycle=200
 repeat 100                                                       > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
-// Start clock on nvm_clk: cycles_per_half_period=6, start cycle=300
-repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 4                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
-// Stop clock on nvm_clk: stop cycle=400
+// [PinClock] Start nvm_clk.clock at 300: period=500ns, cycles=12, duty=6/6
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+// [PinClock] Stop nvm_clk.clock: stop_cycle=400
 repeat 100                                                       > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
-// Start clock on nvm_clk_mux: cycles_per_half_period=12, start cycle=500
-// Start clock on nvm_clk: cycles_per_half_period=6, start cycle=500
+// [PinClock] Start nvm_clk_mux.clock at 500: period=1000ns, cycles=25, duty=12/13
+// [PinClock] Start nvm_clk.clock at 500: period=500ns, cycles=12, duty=6/6
 repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
 repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
 repeat 6                                                         > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
@@ -101,7 +198,7 @@ repeat 6                                                         > intram       
 repeat 6                                                         > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
 repeat 6                                                         > intram                       1 0 0 00000000 00000000 0 H L X X X 0 1 ;
 repeat 4                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
-// Stop clock on nvm_clk: stop cycle=600
+// [PinClock] Stop nvm_clk.clock: stop_cycle=600
 repeat 8                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
 repeat 12                                                        > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
 repeat 12                                                        > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
@@ -111,15 +208,17 @@ repeat 12                                                        > intram       
 repeat 12                                                        > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
 repeat 12                                                        > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
 repeat 8                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
-// Stop clock on nvm_clk_mux: stop cycle=700
+// [PinClock] Stop nvm_clk_mux.clock: stop_cycle=700
 repeat 100                                                       > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
-// Start clock on nvm_clk: cycles_per_half_period=25, start cycle=800
+// [PinClock] Start nvm_clk.clock at 800: period=2000ns, cycles=50, duty=25/25
 repeat 25                                                        > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
 repeat 25                                                        > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
 repeat 25                                                        > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
 repeat 25                                                        > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+// [PinClock] Update nvm_clk.clock at 900: period=2000ns, cycles=100, duty=50/50
 repeat 50                                                        > intram_fast                  1 1 1 00000000 00000000 0 H L X X X 0 1 ;
 repeat 50                                                        > intram_fast                  1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+// [PinClock] Update nvm_clk.clock at 1000: period=2000ns, cycles=20, duty=10/10
 repeat 10                                                        > intram_slow                  1 1 1 00000000 00000000 0 H L X X X 0 1 ;
 repeat 10                                                        > intram_slow                  1 0 1 00000000 00000000 0 H L X X X 0 1 ;
 repeat 10                                                        > intram_slow                  1 1 1 00000000 00000000 0 H L X X X 0 1 ;
@@ -130,13 +229,16 @@ repeat 10                                                        > intram_slow  
 repeat 10                                                        > intram_slow                  1 0 1 00000000 00000000 0 H L X X X 0 1 ;
 repeat 10                                                        > intram_slow                  1 1 1 00000000 00000000 0 H L X X X 0 1 ;
 repeat 10                                                        > intram_slow                  1 0 1 00000000 00000000 0 H L X X X 0 1 ;
-// Stop clock on nvm_clk: stop cycle=1100
+// [PinClock] Stop nvm_clk.clock: stop_cycle=1100
 repeat 100                                                       > intram_slow                  1 1 1 00000000 00000000 0 H L X X X 0 1 ;
-// Start clock on nvm_clk: cycles_per_half_period=10, start cycle=1200
+// [PinClock] Start nvm_clk.clock at 1200: period=2000ns, cycles=50, duty=25/25
 repeat 25                                                        > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
 repeat 25                                                        > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
 repeat 25                                                        > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
 repeat 25                                                        > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
-// Stop clock on nvm_clk: stop cycle=1300
+// [PinClock] Stop nvm_clk.clock: stop_cycle=1300
+// ######################################################################
+// ## Pattern complete
+// ######################################################################
 end_module                                                       > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
 }                                                                                               

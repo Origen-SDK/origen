@@ -1,123 +1,137 @@
 module Origen
   module Pins
     class PinClock
-      attr_accessor :running
-      attr_accessor :cycles_per_half_period
-      attr_accessor :last_edge
-      attr_accessor :next_edge
+      attr_reader :cycles_per_duty, :last_edge, :next_edge
 
       def initialize(owner, options = {})
         @owner = owner
         @running = false
-        @cycles_per_half_period = 0
-        @ns_per_half_period = 0
-        update_half_period(options)
+
+        @clock_period_in_ns = 0
+        @tester_period_in_ns = 0
+
+        update_clock_period(options)
+        update_tester_period_local
+        update_clock_parameters
+      end
+
+      def start_clock(options = {})
+        # Throw error if this pin is already a running clock
+        if running?
+          fail "PIN CLOCK ERROR: Clock on #{@owner.name} already running."
+        end
+
+        clock_updated = update_clock_period(options)
+        tester_updated = update_tester_period_local
+        if clock_updated || tester_updated
+          update_clock_parameters
+        end
+
+        cc "[PinClock] Start #{@owner.name}.clock at #{Origen.tester.cycle_count}: period=#{@clock_period_in_ns}ns, cycles=#{cycles_per_period}, duty=#{duty_str}"
+        update_edges
+        Origen.tester.push_running_clock(@owner) unless running?
+        @running = true
+      end
+
+      def stop_clock(options = {})
+        cc "[PinClock] Stop #{@owner.name}.clock: stop_cycle=#{Origen.tester.cycle_count}" if running?
+        Origen.tester.pop_running_clock(@owner) if running?
+        @running = false
+      end
+
+      def restart_clock
+        stop_clock
+        update_clock
+        start_clock
+      end
+
+      def update_clock
+        if update_tester_period_local
+          update_clock_parameters
+          cc "[PinClock] Update #{@owner.name}.clock at #{Origen.tester.cycle_count}: period=#{@clock_period_in_ns}ns, cycles=#{cycles_per_period}, duty=#{duty_str}"
+          update_edges
+        end
       end
 
       def running?
         @running
       end
 
-      def start_clock(options = {})
-        fail "ERROR: Clock on #{@owner.name} already running." if running?
-
-        if update_required?(options)
-          update_half_period(options)
-        end
-
-        @last_edge = Origen.tester.cycle_count
-        @next_edge = Origen.tester.cycle_count + @cycles_per_half_period
-        cc "Start clock on #{@owner.name}: cycles_per_half_period=#{@cycles_per_half_period}, start cycle=#{@last_edge}"
-        Origen.tester.push_running_clock(@owner) unless running?
-        @running = true
-      end
-
-      def restart_clock(_options = {})
-        stop_clock
-        update_clock
-        start_clock
-      end
-
-      def stop_clock(_options = {})
-        cc "Stop clock on #{@owner.name}: stop cycle=#{Origen.tester.cycle_count}" if running?
-        Origen.tester.pop_running_clock(@owner) if running?
-        @running = false
-      end
-
-      def update_clock
-        unless update_half_period(period_in_ns: @ns_per_half_period)
-          @last_edge = Origen.tester.cycle_count
-          @next_edge = Origen.tester.cycle_count + @cycles_per_half_period
-        end
-      end
-
       def toggle
         @owner.toggle
-        @last_edge = Origen.tester.cycle_count
-        @next_edge = Origen.tester.cycle_count + @cycles_per_half_period
+        update_edges
+      end
+
+      # The only caller to this should be legacy support so just force 50% duty cycle
+      def cycles_per_half_period
+        @cycles_per_duty.min
       end
 
       private
 
-      def update_half_period(options = {})
-        old_cycles_per_half_period = @cycles_per_half_period
-        options = { cycles: 0,
-                    period_in_s: 0, period_in_ms: 0, period_in_us: 0, period_in_ns: 0,
-                    frequency_in_hz: 0, frequency_in_khz: 0, frequency_in_mhz: 0,
-                    freq_in_hz: 0, freq_in_khz: 0, freq_in_mhz: 0
-                  }.merge(options)
-
-        cycles = 0
-        cycles += options[:cycles]
-        cycles += s_to_cycles(options[:period_in_s])
-        cycles += ms_to_cycles(options[:period_in_ms])
-        cycles += us_to_cycles(options[:period_in_us])
-        cycles += ns_to_cycles(options[:period_in_ns])
-        cycles += hz_to_cycles(options[:frequency_in_hz])
-        cycles += khz_to_cycles(options[:frequency_in_khz])
-        cycles += mhz_to_cycles(options[:frequency_in_mhz])
-        cycles += hz_to_cycles(options[:freq_in_hz])
-        cycles += khz_to_cycles(options[:freq_in_khz])
-        cycles += mhz_to_cycles(options[:freq_in_mhz])
-
-        @cycles_per_half_period = cycles / 2
-        @ns_per_half_period = cycles * Origen.tester.current_period_in_ns
-        @cycles_per_half_period == old_cycles_per_half_period
+      def update_clock_parameters
+        @cycles_per_duty = [(cycles_per_period / 2.0).floor, (cycles_per_period / 2.0).ceil]
       end
 
-      def s_to_cycles(time) # :nodoc:
-        ((time.to_f) * 1000 * 1000 * 1000 / Origen.tester.current_period_in_ns).to_int
+      def cycles_per_period
+        (@clock_period_in_ns / @tester_period_in_ns).to_int
       end
 
-      def ms_to_cycles(time) # :nodoc:
-        ((time.to_f) * 1000 * 1000 / Origen.tester.current_period_in_ns).to_int
+      def update_edges
+        @last_edge = Origen.tester.cycle_count
+        @next_edge = Origen.tester.cycle_count + @cycles_per_duty[0]
+        @cycles_per_duty.reverse!
       end
 
-      def us_to_cycles(time) # :nodoc:
-        ((time.to_f * 1000) / Origen.tester.current_period_in_ns).to_int
+      def update_tester_period_local
+        if Origen.tester.current_period_in_ns == @tester_period_in_ns
+          return false
+        else
+          @tester_period_in_ns = Origen.tester.current_period_in_ns
+          return true
+        end
       end
 
-      def ns_to_cycles(time) # :nodoc:
-        (time.to_f / Origen.tester.current_period_in_ns).to_int
+      def update_clock_period(options = {})
+        new = get_clock_period(options)
+
+        if new == @clock_period_in_ns
+          false
+        else
+          @clock_period_in_ns = new
+          true
+        end
       end
 
-      def hz_to_cycles(freq) # :nodoc:
-        (freq == 0) ? freq : s_to_cycles(1 / freq.to_f)
+      def get_clock_period(options = {})
+        return @clock_period_in_ns if options.empty?
+
+        p = []
+
+        # Passed in as time
+        p << (options[:period_in_s] * 1_000_000_000) if options[:period_in_s]
+        p << (options[:period_in_ms] * 1_000_000) if options[:period_in_ms]
+        p << (options[:period_in_us] * 1_000) if options[:period_in_us]
+        p << (options[:period_in_ns] * 1) if options[:period_in_ns]
+
+        # Passed in as frequency (or freq.)
+        p << ((1.0 / options[:frequency_in_hz]) * 1_000_000_000) if options[:frequency_in_hz]
+        p << ((1.0 / options[:freq_in_hz]) * 1_000_000_000) if options[:freq_in_hz]
+        p << ((1.0 / options[:frequency_in_khz]) * 1_000_000) if options[:frequency_in_khz]
+        p << ((1.0 / options[:freq_in_khz]) * 1_000_000) if options[:freq_in_khz]
+        p << ((1.0 / options[:frequency_in_mhz]) * 1_000) if options[:frequency_in_mhz]
+        p << ((1.0 / options[:freq_in_mhz]) * 1_000) if options[:freq_in_mhz]
+
+        # Passed in as cycles (not advised)
+        p << (options[:cycles] * Origen.tester.period_in_ns) if options[:cycles]
+
+        return @clock_period_in_ns if p.empty?
+        fail "[Pin Clock] ERROR: Multiple unit declarations for #{@owner.name}.clock" if p.size > 1
+        p[0].to_int
       end
 
-      def khz_to_cycles(freq) # :nodoc:
-        (freq == 0) ? freq : ms_to_cycles(1 / freq.to_f)
-      end
-
-      def mhz_to_cycles(freq) # :nodoc:
-        (freq == 0) ? freq : us_to_cycles(1 / freq.to_f)
-      end
-
-      def update_required?(options)
-        options[:cycles] ||
-          options[:period_in_s] || options[:period_in_ms] || options[:period_in_us] || options[:period_in_ns]
-        options[:frequency_in_hz] || options[:frequency_in_khz] || options[:frequency_in_mhz] ||
-          options[:freq_in_hz] || options[:freq_in_khz] || options[:freq_in_mhz]
+      def duty_str
+        "#{@cycles_per_duty[0]}/#{@cycles_per_duty[1]}"
       end
     end
   end
