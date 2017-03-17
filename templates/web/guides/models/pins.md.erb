@@ -34,7 +34,7 @@ class MySoC
   end
 
   def instantiate_pins(options={})
-    add_pin :tclk, reset: :drive_hi
+    add_pin :tclk, reset: :drive_hi, meta: { max_freq: 15.Mhz }
     add_pin :tdi, direction: :input
     add_pin :tdo, direction: :output
     add_pin :tms
@@ -53,6 +53,7 @@ Some points to note in the above code:
   the <code>:reset</code> option.
 * Pins are I/Os by default, however they can be defined as input or output only by using the <code>:direction</code>
   option.
+* Application-specific meta data can be attached to the given pin via the <code>:meta</code> option  
 
 Pins are accessed via the <code>pin</code> method:
 
@@ -220,6 +221,17 @@ ground_pins(:gnd)
 ground_pin_groups.each do |id, group|
   # Do this for each ground pin group
 end
+~~~
+
+Power pins have some dedicated attributes that can be defined, in additional to the generic meta-data hash supported
+by all pins:
+
+~~~ruby
+add_power_pin :vddio, voltage: 3, current_limit: 50.mA, meta: { min_voltage: 1.5 }
+
+power_pin(:vddio).voltage             # => 3
+power_pin(:vddio).current_limit       # => 50E-03
+power_pin(:vddio).meta[:min_voltage]  # => 1.5
 ~~~
   
 #### Virtual Pin Modelling
@@ -439,6 +451,12 @@ one function the pin may be an input, but when used as another function it is an
 The attributes listed in the constant <code>FUNCTION_SCOPED_ATTRIBUTES</code> in the [Pin API](<%= path "api/Origen/Pins/Pin.html" %>)
 can be set to specific values per context (mode and/or configuration).
 
+If any of these function-scoped attributes are a hash then the function-specific value will be merged with any
+default value that has been defined on the pin. This allows the function to override default values and inherit
+default values for attributes that it doesn't care about.
+Look at the meta data in the example below to see this in action.
+
+
 Here is an example of adding a function:
 
 ~~~ruby
@@ -447,11 +465,11 @@ class MySoC
 
   def initialize
     add_pin :pin1
-    add_pin :pin2
+    add_pin :pin2, meta: { vol: 0.4, voh: 0.6 }   # Example of default meta data
 
     # Define some pin functions
     pin(:pin1).add_function :nvm_fail, direction: :output
-    pin(:pin2).add_function :nvm_done, direction: :output
+    pin(:pin2).add_function :nvm_done, direction: :output, meta: { voh: 0.7 }  # Override some of the meta data
     pin(:pin1).add_function :tdi, direction: :input
     pin(:pin2).add_function :tdo, direction: :output
 
@@ -476,6 +494,10 @@ $dut.pins(:jtag)[0].direction    # => :output
 $dut.pins(:jtag)[1].direction    # => :input
 $dut.pins(:nvm)[0].direction     # => :output
 $dut.pins(:nvm)[1].direction     # => :output
+
+# The pin's meta data can be overridden by function
+$dut.pin(:tdo).meta         # => { vol: 0.4, voh: 0.6 }
+$dut.pin(:nvm_done).meta    # => { vol: 0.4, voh: 0.7 }
 ~~~
 
 % end

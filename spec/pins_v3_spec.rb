@@ -580,6 +580,27 @@ describe "Origen Pin API v3" do
       $dut.pin(:piny).direction.should == :output
     end
 
+    it "pin meta data can be added and also scoped by mode" do
+      $dut.add_pin :pinx, meta: { a: 2, c: 1 }
+      $dut.add_pin :piny
+      $dut.pin(:pinx).add_function :nvm_fail, meta: { a: 1 }, mode: :nvmbist
+      $dut.pin(:pinx).add_function :tdi,  meta: { b: 1 }, mode: :user
+      $dut.mode = :nvmbist
+      $dut.pin(:pinx).meta[:a].should == 1  # Function specific overrides the default
+      $dut.pin(:pinx).meta[:b].should == nil
+      $dut.pin(:pinx).meta[:c].should == 1
+      $dut.mode = :user
+      $dut.pin(:pinx).meta[:a].should == 2
+      $dut.pin(:pinx).meta[:b].should == 1
+      $dut.pin(:pinx).meta[:c].should == 1
+      # Test for default meta data hash
+      $dut.pin(:piny).meta.should == {}
+      # Make sure we don't break legacy apps where the function-specific meta data might not be a hash
+      $dut.pin(:pinx).add_function :m1,  meta: "Some string data", mode: :m1
+      $dut.mode = :m1
+      $dut.pin(:pinx).meta.should == "Some string data"
+    end
+
     it "pin functions can be scoped by configuration" do
       $dut.add_pin :pinx
       $dut.add_pin :piny
@@ -680,6 +701,16 @@ describe "Origen Pin API v3" do
       $dut.power_pins(:vdd0).voltage = [1.2,2.5]
       $dut.power_pins(:vdd0).voltage.should == [1.2,2.5]
       $dut.power_pins(:vdd0).voltages.should == [1.2,2.5]
+    end
+
+    it "power pin data can be set at instantiation time" do
+      $dut.add_power_pin :vdd0, voltage: 5, current_limit: 10.uA, meta: { irange: (5..10) }
+      $dut.add_power_pin :vdd1, voltages: [1,2]
+      $dut.power_pins(:vdd0).voltage.should == 5
+      $dut.power_pins(:vdd0).voltages.should == [5]
+      $dut.power_pins(:vdd1).voltages.should == [1,2]
+      $dut.power_pins(:vdd0).current_limit.should == 10.uA
+      $dut.power_pins(:vdd0).meta[:irange].should == (5..10)
     end
 
     it "power pin groups can be added" do
