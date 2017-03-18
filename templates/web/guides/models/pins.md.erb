@@ -478,4 +478,80 @@ $dut.pins(:nvm)[0].direction     # => :output
 $dut.pins(:nvm)[1].direction     # => :output
 ~~~
 
+#### Pin Clock Functionality
+
+The API supports creating a free-running clock on any existing pin, where the timing parameters
+of the clock can be specified and vector generation (in relation to the current tester timeset)
+will be automatically handled.  See the Pin Clock API below.
+
+##### enable_clock(options)
+
+Enable the clock functionality on a given pin.  Does not start the clock, only sets up
+its internally tracked parameters.  Clock can be specified in cycles, time, or frequency
+
+~~~ruby
+$dut.pin(:pin1).enable_clock(period_in_ns: 200)       # create free-running clock with 200ns period
+$dut.pin(:pin2).enable_clock(frequency_in_khz: 32)    # create 32Khz free-running clock
+~~~
+
+##### start_clock(options = {})
+
+Start an existing clock or create and start a free-running clock on a given pin
+
+~~~ruby
+$dut.pin(:pin2).start_clock                           # start up existing clock pin2
+$dut.pin(:pin3).start_clock(period_in_us: 2)          # create and start clock with 2us period
+~~~
+
+##### stop_clock, pause_clock
+
+Stop the clock running on a given pin
+
+~~~ruby
+$dut.pin(:pin1).stop_clock                            # stop clock on pin1
+$dut.pin(:pin2).pause_clock                           # stop clock on pin2
+$dut.pin(:pin3).pause_clock                           # stop clock on pin3
+~~~
+
+##### resume_clock(options = {})
+
+Restart an existing clock.  Can be restarted with existing parameters or restarted with a new clock setup
+
+~~~ruby
+$dut.pin(:pin2).resume_clock                         # resume clocking on pin2 with existing clock setup
+$dut.pin(:pin3).resume_clock(period_in_ns: 100)      # resume clocking on pin3 with new clock parameters
+~~~
+
+Some addtional examples:
+
+~~~ruby
+
+# Create timeset with 2-ns period
+$tester.set_timeset('ts_50Mhz', 20)      # timeset period is 20ns
+
+# In this example, we enable (without immediately starting) a clock pin with
+#   100ns period and then pause, resume, and stop later in the pattern.
+$dut.pin(:pin1).enable_clock(period_in_ns: 100)
+$dut.pin(:pin1).start_clock
+...
+$dut.pin(:pin1).pause_clock
+...
+$dut.pin(:pin1).resume_clock
+...
+$dut.pin(:pin1).stop_clock
+...
+
+# In this example, we start free-running clock with 200ns period, then later stop
+#   and restart with a different (100ns period) setup.
+$dut.pin(:pin2).start_clock(period_in_ns: 200)
+...
+$dut.pin(:pin2).stop_clock
+...
+$dut.pin(:pin2).start_clock(period_in_ns: 100)
+...
+$dut.pin(:pin2).stop_clock
+...
+~~~
+
+
 % end
