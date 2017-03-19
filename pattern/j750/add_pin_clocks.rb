@@ -14,13 +14,12 @@ Pattern.create do
   $dut.pins(:clk).stop_clock
   Origen.tester.cycle(:repeat => 100)
 
-
   #################################################
   # TEST B.  
   #################################################
   $dut.pins(:clk).start_clock
   100.times do
-    Origen.tester.cycle
+    Origen.tester.cycle dont_compress: true
   end
   $dut.pins(:clk).stop_clock
   Origen.tester.cycle(:repeat => 100)
