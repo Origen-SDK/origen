@@ -18,15 +18,22 @@ module Origen
     def require!
       unless required?
         while updates_required?
+          Origen.log.info '*******************************************************************************'
           Origen.log.info 'The following remotes need to be updated, this will now happen automatically:'
           dirty_remotes.each do |name, remote|
             if remote[:path]
-              Origen.log.info "  #{name} - #{remote[:path]}"
+              Origen.log.info "  #{name} - #{remote[:path]}".green
             else
-              Origen.log.info "  #{name} - #{remote[:version]}"
+              Origen.log.info "  #{name} - #{remote[:version]}".green
             end
           end
+          Origen.log.info ''
+
           update!
+
+          Origen.log.info ''
+          Origen.log.info 'Finished updating remotes.'
+          Origen.log.info '*******************************************************************************'
         end
         @required = true
       end
@@ -289,7 +296,7 @@ module Origen
       end
     end
 
-    # Makes all dirty imports clean
+    # Makes all dirty remotes clean
     def update!
       ensure_remotes_directory
       dirty_remotes.each do |_name, remote|
@@ -305,12 +312,20 @@ module Origen
           create_symlink(remote[:path], dir)
 
         else
-          unless File.exist?("#{dir}/.initial_populate_successful")
-            ws.build(dir, rc_url: remote[:vault], allow_rebuild: true)
-            ws.switch_version(dir, remote[:version])
+          rc_url = remote[:rc_url] || remote[:vault]
+          tag = Origen::VersionString.new(remote[:version])
+          version_file = dir.to_s + '/.current_version'
+          if File.exist?("#{dir}/.initial_populate_successful")
+            FileUtils.rm_f(version_file) if File.exist?(version_file)
+            rc = RevisionControl.new remote: rc_url, local: dir
+            rc.checkout version: prefix_tag(tag), force: true
+            `echo "#{tag}" >> "#{version_file}"`
+          else
+            rc = RevisionControl.new remote: rc_url, local: dir
+            rc.checkout version: prefix_tag(tag), force: true
             `touch "#{dir}/.initial_populate_successful"`
+            `echo "#{tag}" >> "#{version_file}"`
           end
-          ws.switch_version(dir, remote[:version])
         end
       end
     end
@@ -321,14 +336,25 @@ module Origen
 
     def ensure_remotes_directory
       unless remotes.empty?
-        unless File.exist?(ws.remotes_directory)
-          FileUtils.mkdir_p(ws.remotes_directory)
+        unless File.exist?(Origen.app.remotes_dir)
+          FileUtils.mkdir_p Origen.app.remotes_dir
         end
       end
     end
 
     def ws
       Origen.app.workspace_manager
+    end
+
+    # If the supplied tag looks like a semantic version number, then make sure it has the
+    # 'v' prefix
+    def prefix_tag(tag)
+      tag = Origen::VersionString.new(tag)
+      if tag.semantic?
+        tag.prefixed
+      else
+        tag
+      end
     end
   end
 end

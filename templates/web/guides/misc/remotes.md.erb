@@ -1,13 +1,5 @@
 % render "layouts/guides.html" do
 
-<div class="alert alert-danger">
-  Unfortunately this API currently only supports remote DesignSync repositories, however it
-  will soon be updated to use the
-  <a href="<%= path "guides/misc/revisioncontrol" %>">abstract revision control API</a>
-  under the hood. At that point it will work with remote data stored in any revision control
-  system supported by Origen.
-</div>
-
 ### What is a 'Remote'?
 
 In some cases, your application may require access to external data that is 
@@ -23,9 +15,9 @@ the required remote within the <code>config/application.rb</code> file.
 
 Three details are required:
 
-* The sub-directory within the Origen remotes workspace where you want the population to occur
-* The path to the vault containing the plugin application
-* The version of it that you want to use
+* <code>dir</code>: The sub-directory within the Origen remotes workspace where you want the population to occur, (aka. local)
+* <code>vault</code> or <code>rc_url</code>: The path to the vault/repo, 'vault' and 'rc_url' can be used interchangeably
+* <code>version</code>: The version, or tag, that you want to use
 
 Once in possession of these details add them to the <code>config.remotes</code>
 attribute. 
@@ -36,13 +28,13 @@ that populates two remotes:
 config.remotes = [
   {
     dir: "source/include/v_ip_ate",
-    vault: "sync://sync-15000:15000/v_ip_ate_c90lp/compiler/include",
-    version: "v0.0.0.dev1",
+    vault: "sync://sync-15000:15000/v_ip_ate/compiler/include",
+    version: "v1.0.1",
   },
   {
-    dir: "source/include/v_ip_capi",
-    vault: "sync://sync-15100:15100/v_ip_capi/compiler/include",
-    version: "v1.0.0",
+    dir: "artwork",
+    rc_url: "git@github.com:Origen-SDK/artwork.git",
+    version: "master",
   }
 ]
 ~~~
@@ -57,7 +49,7 @@ located at:
 .<top>_remotes_DO_NOT_HAND_MODIFY/source/include/v_ip_ate
 ~~~
 
-Please note that the value of :dir must be unique within the application.
+Please note that the value of <code>dir</code> must be unique for each remote within the application.
 
 #### Origen Does the Rest
 
