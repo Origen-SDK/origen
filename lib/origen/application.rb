@@ -181,7 +181,7 @@ module Origen
     end
     alias_method :imports_dir, :imports_directory
 
-    # Returns a path to the remotes directory for the application. e.g. if the app live 
+    # Returns a path to the remotes directory for the application. e.g. if the app live
     # at /home/thao/my_app, then the remotes directory will typically
     # be /home/thao/.my_app_remotes_DO_NOT_HAND_MODIFY
     #
