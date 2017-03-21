@@ -181,6 +181,18 @@ module Origen
     end
     alias_method :imports_dir, :imports_directory
 
+    # Returns a path to the remotes directory for the application. e.g. if the app live
+    # at /home/thao/my_app, then the remotes directory will typically
+    # be /home/thao/.my_app_remotes_DO_NOT_HAND_MODIFY
+    #
+    # Origen will ensure that this directory is outside of the scope of the current application's revision
+    # control system. This prevents conflicts with the revision control system for the application and those
+    # used to import 3rd party dependencies
+    def remotes_directory
+      workspace_manager.remotes_directory
+    end
+    alias_method :remotes_dir, :remotes_directory
+
     # Returns the namespace used by the application as a string
     def namespace
       @namespace ||= self.class.to_s.split('::').first.gsub('_', '').sub('Application', '')
