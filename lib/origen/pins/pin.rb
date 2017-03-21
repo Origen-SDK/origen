@@ -913,6 +913,10 @@ module Origen
         @clock.next_edge
       end
 
+      def duty_cycles
+        @clock.cycles_per_duty
+      end
+
       def half_period
         @clock.cycles_per_half_period
       end

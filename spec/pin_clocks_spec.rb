@@ -67,9 +67,23 @@ describe "Pin Clocking Definition" do
     $dut.pin(:pinx).start_clock
     $dut.pin(:pinx).is_a_running_clock?.should == true
     $dut.pin(:pinx).half_period.should == 1
+    $dut.pin(:pinx).duty_cycles.should == [1,1]
     20.times { $tester.cycle }
     $tester.set_timeset("intram_fast", 20)
     $dut.pin(:pinx).update_clock
+    $dut.pin(:pinx).half_period.should == 2
+    $dut.pin(:pinx).duty_cycles.should == [2,2]
+  end
+
+  it "clock pin can have non50% duty cycle" do
+    $tester.set_timeset("intram", 20)
+    $dut.add_pin :pinx
+    $dut.add_pin :piny
+    $dut.pin(:pinx).enable_clock(period_in_ns: 100)
+    $dut.pin(:pinx).is_a_running_clock?.should == false
+    $dut.pin(:pinx).start_clock
+    $dut.pin(:pinx).is_a_running_clock?.should == true
+    $dut.pin(:pinx).duty_cycles.sort.should == [2,3]
     $dut.pin(:pinx).half_period.should == 2
   end
 

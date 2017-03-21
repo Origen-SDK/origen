@@ -27,7 +27,7 @@ PATH
       yard (~> 0.8)
 
 GEM
-  remote: https://rubygems.org/
+  remote: http://rubygems.org/
   specs:
     activesupport (4.2.7.1)
       i18n (~> 0.7)

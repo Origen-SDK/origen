@@ -136,7 +136,7 @@ The regression results are:
       end
 
       def external?(type)
-        [:production, :major, :minor, :bugfix].include?(type)
+        [:production, :major, :minor, :tiny, :bugfix].include?(type)
       end
     end
   end
