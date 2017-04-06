@@ -1,3 +1,16 @@
+<a class="anchor release_tag" name="v0_7_47"></a>
+<h1><a href="#v0_7_47">Tag: v0.7.47</a></h1>
+
+##### Branch: 'master'
+
+##### by David Welguisz on 06-Apr-2017 14:05PM
+
+
+### Overall Release Note
+*  Added symbols for samples per second with the following prefixes: k, M, G.
+*  Should support kilo/Mega/Giga samples per second.
+*  Useful for ADC and DAC modes.
+
 <a class="anchor release_tag" name="v0_7_46"></a>
 <h1><a href="#v0_7_46">Tag: v0.7.46</a></h1>
 
