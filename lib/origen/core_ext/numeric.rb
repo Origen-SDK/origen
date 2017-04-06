@@ -29,13 +29,15 @@ class Numeric
     result
   end
 
-  %w(GHz Ghz GTs Gts).each do |m|
+  #Msps ==> Mega samples per second
+  
+  %w(GHz Ghz GTs Gts Gsps).each do |m|
     define_method m do
       self * 1_000_000_000
     end
   end
 
-  %w(MHz Mhz MTs Mts).each do |m|
+  %w(MHz Mhz MTs Mts Msps).each do |m|
     define_method m do
       self * 1_000_000
     end
@@ -75,7 +77,7 @@ class Numeric
     end
   end
 
-  %w(kHz KHz Khz kO ko kOhm kohm).each do |m|
+  %w(kHz KHz Khz kO ko kOhm kohm ksps).each do |m|
     define_method m do
       self * 1_000
     end
