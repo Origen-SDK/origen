@@ -319,12 +319,16 @@ module Origen
             FileUtils.rm_f(version_file) if File.exist?(version_file)
             rc = RevisionControl.new remote: rc_url, local: dir
             rc.checkout version: prefix_tag(tag), force: true
-            `echo "#{tag}" >> "#{version_file}"`
+            File.open(version_file, 'w') do |f|
+              f.write tag
+            end
           else
             rc = RevisionControl.new remote: rc_url, local: dir
             rc.checkout version: prefix_tag(tag), force: true
-            `touch "#{dir}/.initial_populate_successful"`
-            `echo "#{tag}" >> "#{version_file}"`
+            FileUtils.touch "#{dir}/.initial_populate_successful"
+            File.open(version_file, 'w') do |f|
+              f.write tag
+            end
           end
         end
       end
