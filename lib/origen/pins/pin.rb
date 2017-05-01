@@ -590,18 +590,22 @@ module Origen
 
       def set_value(val)
         invalidate_vector_cache
-        # If val is a data bit extract the value of it
-        val = val.respond_to?(:data) ? val.data : val
-        # Assume driving/asserting a nil value means 0
-        val = 0 unless val
-        if val > 1
-          fail "Attempt to set a value of #{val} on pin #{name}"
-        end
-        @repeat_previous = false
-        if inverted?
-          @value = val == 0 ? 1 : 0
+        if val.is_a?(String) || val.is_a?(Symbol)
+          @vector_formatted_value = val.to_s
         else
-          @value = val
+          # If val is a data bit extract the value of it
+          val = val.respond_to?(:data) ? val.data : val
+          # Assume driving/asserting a nil value means 0
+          val = 0 unless val
+          if val > 1
+            fail "Attempt to set a value of #{val} on pin #{name}"
+          end
+          @repeat_previous = false
+          if inverted?
+            @value = val == 0 ? 1 : 0
+          else
+            @value = val
+          end
         end
       end
       alias_method :data=, :set_value

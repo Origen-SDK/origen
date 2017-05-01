@@ -133,4 +133,11 @@ Pattern.create do
   cc "The invoke pin should be driving low on this cycle"
   $tester.cycle
 
+  ss 'Test applying eplicit pin state values'
+  dut.pin(:clk).drive('P')
+  10.cycles
+  dut.pin(:clk).expect('t')
+  10.cycles
+  dut.pin(:clk).drive(1)
+  10.cycles
 end

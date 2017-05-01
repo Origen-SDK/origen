@@ -1,6 +1,6 @@
 # ***************************************************************************
 # GENERATED:
-#   Time:    17-Mar-2017 06:41AM
+#   Time:    01-May-2017 10:12AM
 #   By:      Stephen McGinty
 #   Command: origen g v93k_workout -t v93k.rb
 # ***************************************************************************
@@ -8,7 +8,7 @@
 #   Application
 #     Source:    git@github.com:Origen-SDK/origen.git
 #     Version:   0.7.45
-#     Branch:    timing_api(2822b205c40) (+local edits)
+#     Branch:    timing_api(f86385c938c) (+local edits)
 #   Origen
 #     Source:    https://github.com/Origen-SDK/origen
 #     Version:   0.7.45
@@ -198,6 +198,39 @@ R1                       nvmbist                    1 1 1 01010101 00000000 1 X 
 # This should be the last thing you see until 'Inhibit complete!'
 # Inhibit complete!
 # The invoke pin should be driving low on this cycle
+R1                       nvmbist                    1 1 1 01010101 00000000 0 X H X X X 0 1 # ;
+# ######################################################################
+# ## Test applying eplicit pin state values
+# ######################################################################
+R1                       nvmbist                    1 P 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 P 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 P 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 P 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 P 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 P 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 P 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 P 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 P 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 P 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 t 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 t 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 t 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 t 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 t 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 t 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 t 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 t 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 t 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 t 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 1 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 1 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 1 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 1 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 1 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 1 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 1 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 1 1 01010101 00000000 0 X H X X X 0 1 # ;
+R1                       nvmbist                    1 1 1 01010101 00000000 0 X H X X X 0 1 # ;
 R1                       nvmbist                    1 1 1 01010101 00000000 0 X H X X X 0 1 # ;
 # ######################################################################
 # ## Pattern complete
