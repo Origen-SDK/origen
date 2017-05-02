@@ -66,6 +66,8 @@ module Origen
             end
           end
         end
+        alias_method :compare_wave, :wave
+        alias_method :drive_wave, :wave
 
         # The timeset will cache a view of the dut's pins for performance,
         # calling this method will clear that cache and regenerate the internal

@@ -25,11 +25,11 @@ describe "Pin timing API" do
       # Complex definition, defines an alternative default compare
       # wave and specific timing for :tck
       timeset :func do |t|
-        t.wave do |w|
+        t.compare_wave do |w|
           w.compare :data, at: "period / 4"
         end
 
-        t.wave :tck do |w|
+        t.drive_wave :tck do |w|
           w.drive :data, at: 0
           w.drive 0, at: 25
           w.dont_care at: "period - 10"
@@ -38,11 +38,11 @@ describe "Pin timing API" do
 
       # Another timeset to test the wave assignment to pin groups
       timeset :t2 do |t|
-        t.wave :gpio5 do |w|
+        t.compare_wave :gpio5 do |w|
           w.compare :data, at: 100
         end
 
-        t.wave :gpio do |w|
+        t.drive_wave :gpio do |w|
           w.drive :data, at: 200
         end
       end
