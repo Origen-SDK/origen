@@ -42,7 +42,8 @@ module Origen
         #     w.dont_care at: "period - 10"
         #   end
         def wave(*pin_ids)
-          w = Wave.new(self)
+          options = pin_ids.last.is_a?(Hash) ? pin_ids.pop : {}
+          w = Wave.new(self, options)
           yield w
           if w.drive?
             if pin_ids.empty?
@@ -87,12 +88,14 @@ module Origen
         def assign_pins
           @pin_ids[:drive].each_with_index do |ids, i|
             expand_groups(ids) do |id|
-              @drive_pin_map[id] = i
+              @drive_pin_map[id] ||= []
+              @drive_pin_map[id] << i
             end
           end
           @pin_ids[:compare].each_with_index do |ids, i|
             expand_groups(ids) do |id|
-              @compare_pin_map[id] = i
+              @compare_pin_map[id] ||= []
+              @compare_pin_map[id] << i
             end
           end
           @pin_ids = :done
@@ -113,9 +116,37 @@ module Origen
         def wave_for(pin, options)
           assign_pins unless @pin_ids == :done
           if options[:type] == :drive
-            drive_waves[@drive_pin_map[pin.id] || 0]
+            i = @drive_pin_map[pin.id]
+            if i
+              if i.size > 1
+                code = options[:code]
+                code = nil if code == 1
+                code = nil if code == 0
+                i.each do |ix|
+                  return drive_waves[ix] if drive_waves[ix].code == code
+                end
+              else
+                drive_waves[i[0]]
+              end
+            else
+              drive_waves[0]
+            end
           else
-            compare_waves[@compare_pin_map[pin.id] || 0]
+            i = @compare_pin_map[pin.id]
+            if i
+              if i.size > 1
+                code = options[:code]
+                code = nil if code == 'L' || code == :L
+                code = nil if code == 'H' || code == :H
+                i.each do |ix|
+                  return drive_waves[ix] if drive_waves[ix].code == code
+                end
+              else
+                compare_waves[i[0]]
+              end
+            else
+              compare_waves[0]
+            end
           end
         end
 
@@ -123,9 +154,9 @@ module Origen
           assign_pins unless @pin_ids == :done
           map = wave.drive? ? @drive_pin_map : @compare_pin_map
           if wave.index == 0
-            all_pin_ids.select { |id| !map[id] || map[id] == 0 }
+            all_pin_ids.select { |id| !map[id] || map[id].include?(0) }
           else
-            all_pin_ids.select { |id| map[id] == wave.index }
+            all_pin_ids.select { |id| map[id] && map[id].include?(wave.index) }
           end
         end
 

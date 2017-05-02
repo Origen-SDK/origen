@@ -34,6 +34,13 @@ describe "Pin timing API" do
           w.drive 0, at: 25
           w.dont_care at: "period - 10"
         end
+
+        t.drive_wave :tck, code: 'T' do |w|
+          w.drive 1, at: 0
+          w.drive 0, at: 10
+          w.drive 1, at: 20
+          w.drive 0, at: 30
+        end
       end
 
       # Another timeset to test the wave assignment to pin groups
@@ -86,7 +93,7 @@ describe "Pin timing API" do
 
   it "the default waves can be overridden" do
     t = dut.timeset(:func)
-    t.drive_waves.size.should == 2
+    t.drive_waves.size.should == 3
     t.compare_waves.size.should == 1
     t.compare_waves[0].events[0].should == ["period / 4", :data]
   end
@@ -98,6 +105,8 @@ describe "Pin timing API" do
     dut.timeset(:func).drive_waves[0].pins.size.should == 19
     dut.timeset(:func).drive_waves[1].pins.size.should == 1
     dut.timeset(:func).drive_waves[1].pins[0].id.should == :tck
+    dut.timeset(:func).drive_waves[2].pins.size.should == 1
+    dut.timeset(:func).drive_waves[2].pins[0].id.should == :tck
     dut.timeset(:func).compare_waves[0].pins.size.should == 20
   end
 
@@ -108,6 +117,7 @@ describe "Pin timing API" do
     dut.pin(:tms).compare_wave.events[0].should == ["period / 2", :data]
     dut.timeset = :func
     dut.pin(:tck).drive_wave.events.size.should == 3
+    dut.pin(:tck).drive_wave('T').events.size.should == 4
     dut.pin(:tms).compare_wave.events[0].should == ["period / 4", :data]
   end
 

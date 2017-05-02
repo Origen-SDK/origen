@@ -3,11 +3,17 @@ module Origen
     module Timing
       class Wave
         attr_reader :events, :timeset, :index
+        # Returns the pattern code value associated with the wave. By default this will return nil
+        # if no code was given at the time the wave was defined, which means it is the wave that will
+        # be applied for the conventional code values of 0, 1, H, L.
+        attr_reader :code
 
         VALID_DRIVE_DATA = [0, 1, :data]
         VALID_COMPARE_DATA = [0, 1, :data]
 
-        def initialize(timeset)
+        def initialize(timeset, options = {})
+          @code = options[:code]
+          @code = nil if [0, 1, 'H', 'L', :H, :L].include?(@code)
           @timeset = timeset
           @events = []
         end

@@ -83,9 +83,13 @@ module Origen
       # or nil if none is set.
       # Note that if a timeset is set then all pins will always return a wave as they will pick
       # up a default waveform if none is explicitly assigned to it.
-      def drive_wave
-        if dut.current_timeset
-          dut.current_timeset.send(:wave_for, self, type: :drive)
+      def drive_wave(code = nil)
+        if t = dut.current_timeset
+          # Cache this for performance since potentially this is something that could be called on
+          # every cycle in some applications
+          @drive_waves ||= {}
+          @drive_waves[t.id] ||= {}
+          @drive_waves[t.id][code] ||= dut.current_timeset.send(:wave_for, self, type: :drive, code: code)
         end
       end
 
@@ -93,9 +97,13 @@ module Origen
       # or nil if none is set
       # Note that if a timeset is set then all pins will always return a wave as they will pick
       # up a default waveform if none is explicitly assigned to it.
-      def compare_wave
-        if dut.current_timeset
-          dut.current_timeset.send(:wave_for, self, type: :compare)
+      def compare_wave(code = nil)
+        if t = dut.current_timeset
+          # Cache this for performance since potentially this is something that could be called on
+          # every cycle in some applications
+          @compare_waves ||= {}
+          @compare_waves[t.id] ||= {}
+          @compare_waves[t.id][code] ||= dut.current_timeset.send(:wave_for, self, type: :compare, code: code)
         end
       end
 
