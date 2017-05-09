@@ -1163,6 +1163,20 @@ module RegTest
       reg(:reg1).bits(:data)[15..8].write(0xFF)
       reg(:reg1).data.should == 0x0000_FF00
       reg(:reg1).reset
+      # Verify that bits are stored in consistent order
+      reg(:reg1).to_a.map {|b| b.position }.should == 
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+      reg(:reg1)[].to_a.map {|b| b.position }.should == 
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+      reg(:reg1)[15..0].to_a.map {|b| b.position }.should ==
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+      reg(:reg1)[][15..0].to_a.map {|b| b.position }.should ==
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+      reg(:reg1)[15..0][15..8].to_a.map {|b| b.position }.should ==
+        [8, 9, 10, 11, 12, 13, 14, 15]
+      reg(:reg1)[15..0][15..8][3..0].to_a.map {|b| b.position }.should ==
+        [8, 9, 10, 11]
+
       reg(:reg1)[15..0][15..8][3..0].write(0xF)
       reg(:reg1).data.should == 0x0000_0F00
 
