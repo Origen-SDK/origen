@@ -32,7 +32,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "net-ldap", "~>0.13"
   spec.add_runtime_dependency "httparty", "~>0.13"
   spec.add_runtime_dependency "bundler", "~>1.7"
-  spec.add_runtime_dependency "nokogiri", "1.6.8.2" if RUBY_VERSION < '2.3'
+  spec.add_runtime_dependency "nokogiri", "1.6.7.2" if RUBY_VERSION < '2.3'
   spec.add_runtime_dependency "nokogiri", "~>1.7.0" if RUBY_VERSION >= '2.3'
   spec.add_runtime_dependency "rspec", "~>3"
   spec.add_runtime_dependency "rspec-legacy_formatters", "~>1"
