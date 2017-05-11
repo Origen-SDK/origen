@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{The Semiconductor Developer's Kit}
   spec.homepage      = "http://origen-sdk.org"
   spec.license       = 'LGPL-3'
-  spec.required_ruby_version     = '>= 1.9.3'
+  spec.required_ruby_version     = '>= 2.3.0'
   spec.required_rubygems_version = '>= 1.8.11'
 
   spec.files         = Dir["lib/**/*.rb", "lib/**/*.erb", "templates/code_generators/**/*", 
@@ -32,8 +32,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "net-ldap", "~>0.13"
   spec.add_runtime_dependency "httparty", "~>0.13"
   spec.add_runtime_dependency "bundler", "~>1.7"
-  spec.add_runtime_dependency "nokogiri", "1.6.7.2" if RUBY_VERSION < '2.3'
-  spec.add_runtime_dependency "nokogiri", "~>1.7.0" if RUBY_VERSION >= '2.3'
+  spec.add_runtime_dependency "nokogiri", "~>1.7.0"
   spec.add_runtime_dependency "rspec", "~>3"
   spec.add_runtime_dependency "rspec-legacy_formatters", "~>1"
   spec.add_runtime_dependency "thor", "~>0.19"
