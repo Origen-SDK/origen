@@ -43,4 +43,10 @@ describe "Inline compiler" do
     END
     Origen.compile(template, scope: ScopeTester.new, string: true).should == "Layout header\nyo\nLayout footer"
   end
+
+  it "running the compiler as part of a pattern job doesn't kill it" do
+    Origen.load_target("debug.rb")
+    Origen.app.plugins.current = nil
+    Origen.app.runner.launch action: :generate, files: "compiler_test", output: "#{Origen.root}/tmp"
+  end
 end

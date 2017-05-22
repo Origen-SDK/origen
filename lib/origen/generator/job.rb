@@ -109,7 +109,7 @@ module Origen
       end
 
       def run
-        Origen.app.current_job = self
+        Origen.app.current_jobs << self
         begin
           if @options[:compile]
             Origen.generator.compiler.compile(@requested_pattern, @options)
@@ -151,6 +151,7 @@ module Origen
             raise
           end
         end
+        Origen.app.current_jobs.pop
       end
     end
   end
