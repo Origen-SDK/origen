@@ -3,7 +3,7 @@ $VERBOSE = nil  # Don't care about world writable dir warnings and the like
 
 require 'pathname'
 require 'fileutils'
-require 'byebug' # Un-comment to debug this file
+#require 'byebug' # Un-comment to debug this file
 
 class OrigenBootError < StandardError
 end
@@ -102,8 +102,6 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
         cmd = "bundle install --gemfile #{ENV['BUNDLE_GEMFILE']} --binstubs #{ENV['BUNDLE_BIN']} --path #{ENV['BUNDLE_PATH']}"
         # puts cmd
         puts 'Installing required gems...'
-        puts "FUCK YOU"
-        byebug
         puts
         `chmod o-w #{origen_root}` # Stops some annoying world writable warnings during install
         `chmod o-w #{origen_root}/bin` if File.exist?("#{origen_root}/bin")
