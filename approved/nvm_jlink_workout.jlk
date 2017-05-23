@@ -1,22 +1,23 @@
 // ***************************************************************************
 // GENERATED:
-//   Time:    02-Sep-2015 04:07AM
+//   Time:    23-May-2017 09:12AM
 //   By:      Stephen McGinty
 //   Command: origen g jlink_workout -t jlink.rb
 // ***************************************************************************
 // ENVIRONMENT:
 //   Application
-//     Source:    ssh://git@github.com:Origen-SDK/origen.git
-//     Version:   0.2.6
-//     Branch:    master(a7d36fd261a) (+local edits)
+//     Source:    git@github.com:Origen-SDK/origen.git
+//     Version:   0.7.47
+//     Branch:    master(c26f1db197d) (+local edits)
 //   Origen
 //     Source:    https://github.com/Origen-SDK/origen
-//     Version:   0.2.6
+//     Version:   0.7.47
 //   Plugins
-//     origen_core_support:      0.2.0
-//     origen_debuggers:         0.5.1
-//     origen_doc_helpers:       0.2.0
-//     origen_testers:           0.5.0
+//     atp:                      0.5.4
+//     origen_core_support:      0.2.3
+//     origen_debuggers:         0.5.2
+//     origen_doc_helpers:       0.4.4
+//     origen_testers:           0.9.6
 // ***************************************************************************
 // This is a dummy pattern created by the Origen test environment
 // ***************************************************************************
@@ -55,4 +56,7 @@ w4 0x5678, 0x1122AA55
 // ######################################################################
 // ## Test read
 // ######################################################################
-mem 0x1234, 1
+mem 0x1234, 0x1
+// ######################################################################
+// ## Pattern complete
+// ######################################################################
