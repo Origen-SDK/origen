@@ -1,3 +1,16 @@
+<a class="anchor release_tag" name="v0_8_0"></a>
+<h1><a href="#v0_8_0">Tag: v0.8.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 23-May-2017 09:24AM
+
+
+* Updated remote manage to work better on Windows (Corey Engelken)
+* Registers with bit 0 in the MSB position are now supported, see
+  [http://origen-sdk.org/origen/guides/models/registers/#Bit_Order_and_Serial_Processing](http://origen-sdk.org/origen/guides/models/registers/#Bit_Order_and_Serial_Processing)
+* Fixed issue with Ruby 2.3 being required by some dependencies
+
 <a class="anchor release_tag" name="v0_7_47"></a>
 <h1><a href="#v0_7_47">Tag: v0.7.47</a></h1>
 

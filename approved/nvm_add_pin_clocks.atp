@@ -1,23 +1,23 @@
 // ***************************************************************************
 // GENERATED:
-//   Time:    16-Mar-2017 21:25PM
-//   By:      Lajaunie Ronald-B01784
+//   Time:    23-May-2017 09:12AM
+//   By:      Stephen McGinty
 //   Command: origen g add_pin_clocks -t debug.rb
 // ***************************************************************************
 // ENVIRONMENT:
 //   Application
 //     Source:    git@github.com:Origen-SDK/origen.git
-//     Version:   0.7.45
-//     Branch:    master(3d9d3b33a66) (+local edits)
+//     Version:   0.7.47
+//     Branch:    master(c26f1db197d) (+local edits)
 //   Origen
 //     Source:    https://github.com/Origen-SDK/origen
-//     Version:   0.7.45
+//     Version:   0.7.47
 //   Plugins
-//     atp:                      0.4.2
+//     atp:                      0.5.4
 //     origen_core_support:      0.2.3
-//     origen_debuggers:         0.5.1
-//     origen_doc_helpers:       0.4.2
-//     origen_testers:           0.7.11
+//     origen_debuggers:         0.5.2
+//     origen_doc_helpers:       0.4.4
+//     origen_testers:           0.9.6
 // ***************************************************************************
 // This is a dummy pattern created by the Origen test environment
 // ***************************************************************************
@@ -185,29 +185,34 @@ repeat 6                                                         > intram       
 repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
 repeat 6                                                         > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
 repeat 6                                                         > intram                       1 0 0 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
+repeat 5                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
 repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
+                                                                 > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 5                                                         > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
 repeat 6                                                         > intram                       1 0 0 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 0 0 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
-repeat 6                                                         > intram                       1 0 0 00000000 00000000 0 H L X X X 0 1 ;
+repeat 2                                                         > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
 repeat 4                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 2                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 4                                                         > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 0 00000000 00000000 0 H L X X X 0 1 ;
+repeat 3                                                         > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
+repeat 3                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 3                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 3                                                         > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
+repeat 6                                                         > intram                       1 0 0 00000000 00000000 0 H L X X X 0 1 ;
+repeat 4                                                         > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
 // [PinClock] Stop nvm_clk.clock: stop_cycle=600
-repeat 8                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 12                                                        > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
 repeat 12                                                        > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 12                                                        > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
+repeat 13                                                        > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
 repeat 12                                                        > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 12                                                        > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
+repeat 13                                                        > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
 repeat 12                                                        > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
-repeat 12                                                        > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
-repeat 8                                                         > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 13                                                        > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
+repeat 12                                                        > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
+repeat 13                                                        > intram                       1 1 0 00000000 00000000 0 H L X X X 0 1 ;
 // [PinClock] Stop nvm_clk_mux.clock: stop_cycle=700
 repeat 100                                                       > intram                       1 1 1 00000000 00000000 0 H L X X X 0 1 ;
 // [PinClock] Start nvm_clk.clock at 800: period=2000ns, cycles=50, duty=25/25

@@ -146,8 +146,8 @@ When serially processing a register (in a pattern driver for example), some of t
 Here is a summary of the APIs that are available for serially processing a register and how they behave in respect to this
 attribute:
   
-* shift_out / shift_out_with_index - A logical rather than a physical shift, this will process the bits LSB first and will behave the 
-  same regardless of the register's bit order.
+* shift_out / shift_out_with_index - A logical rather than a physical shift, this will process the bits with the LSB going first
+  and it will behave the same regardless of the register's bit order.
 * reverse_shift_out / reverse_shift_out_with_index - As above, but MSB first.  
 * shift_out_left / shift_out_left_with_index - Think of this as a physical shift, it will process the top-left bit of the
   register first and which bit that is will depend on the bit order.
@@ -158,7 +158,7 @@ All of these APIs behave like this:
 ~~~ruby
 myreg.shift_out_left_with_index do |bit, i|
   # This block will execute for each bit in the register
-  # *bit* is an bit object (instance of Origen::Reg::Bit)
+  # *bit* is a bit object (instance of Origen::Reg::Bit)
   # *i* is the iteration index, 0, 1, 2, etc. Note that this is only available for the _with_index versions.
   bist_shift(bit)
 end

@@ -1,23 +1,23 @@
 # ***************************************************************************
 # GENERATED:
-#   Time:    01-May-2017 10:12AM
+#   Time:    23-May-2017 09:41AM
 #   By:      Stephen McGinty
 #   Command: origen g v93k_workout -t v93k.rb
 # ***************************************************************************
 # ENVIRONMENT:
 #   Application
 #     Source:    git@github.com:Origen-SDK/origen.git
-#     Version:   0.7.45
-#     Branch:    timing_api(f86385c938c) (+local edits)
+#     Version:   0.8.0
+#     Branch:    timing_api(e5fc6454ddd) (+local edits)
 #   Origen
 #     Source:    https://github.com/Origen-SDK/origen
-#     Version:   0.7.45
+#     Version:   0.8.0
 #   Plugins
-#     atp:                      0.5.0
+#     atp:                      0.5.4
 #     origen_core_support:      0.2.3
-#     origen_debuggers:         0.5.1
+#     origen_debuggers:         0.5.2
 #     origen_doc_helpers:       0.4.4
-#     origen_testers:           0.9.0
+#     origen_testers:           0.9.6
 # ***************************************************************************
 # This is a dummy pattern created by the Origen test environment
 # ***************************************************************************
@@ -200,7 +200,7 @@ R1                       nvmbist                    1 1 1 01010101 00000000 1 X 
 # The invoke pin should be driving low on this cycle
 R1                       nvmbist                    1 1 1 01010101 00000000 0 X H X X X 0 1 # ;
 # ######################################################################
-# ## Test applying eplicit pin state values
+# ## Test applying explicit pin state values
 # ######################################################################
 R1                       nvmbist                    1 P 1 01010101 00000000 0 X H X X X 0 1 # ;
 R1                       nvmbist                    1 P 1 01010101 00000000 0 X H X X X 0 1 # ;
