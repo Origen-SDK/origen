@@ -49,6 +49,8 @@ module Origen
         # Add any site_configs from where we are currently running from, i.e. the application
         # directory area
         until path.root?
+          file = File.join(path, 'config', 'origen_site_config.yml')
+          configs << YAML.load_file(file) if File.exist?(file)
           file = File.join(path, 'origen_site_config.yml')
           configs << YAML.load_file(file) if File.exist?(file)
           path = path.parent

@@ -3,6 +3,7 @@ $VERBOSE = nil  # Don't care about world writable dir warnings and the like
 
 require 'pathname'
 require 'fileutils'
+#require 'byebug' # Un-comment to debug this file
 
 class OrigenBootError < StandardError
 end
@@ -45,33 +46,36 @@ else
 end
 
 if origen_root
+  # Force everyone to have a consistent way of installing gems with bundler
+  ENV['BUNDLE_GEMFILE'] = File.join(origen_root, 'Gemfile')
+  ENV['BUNDLE_PATH'] = File.expand_path(Origen.site_config.gem_install_dir)
+  ENV['BUNDLE_BIN'] = File.join(origen_root, 'lbin')
+
+  # Ensure that system gems are copied to the local gem dir every time, this might waste a little bit
+  # of time, but it ensures that any updates to the system gem list are automatically applied which
+  # is helpful in a corporate environment with no sudo access to the Ruby installation
+  #
+  # This is invoked from an external process so that it can step out of this bundled environment
+  # and have visibility of the system gems
+  if Origen.site_config.gem_manage_bundler && Origen.site_config.gem_use_from_system
+    exe = File.expand_path('../copy_system_gems', __FILE__)
+    gems = Origen.site_config.gem_use_from_system.map { |g,v| "#{g} #{v}" }.join(' ')
+    local_gem_dir = "#{ENV['BUNDLE_PATH']}/ruby/#{Pathname.new(Gem.dir).basename}"
+    Bundler.with_clean_env do
+      system "#{exe} #{local_gem_dir} #{gems}"
+    end
+  end
+
   # If it looks like a bundled binstub of origen exists, and we have not been invoked through that,
   # then run that instead.
   if Origen.site_config.gem_manage_bundler && File.exist?("#{origen_root}/lbin/origen") && !ENV['BUNDLE_BIN_PATH'] &&
      File.exist?(File.expand_path(Origen.site_config.gem_install_dir))
     exec Gem.ruby, "#{origen_root}/lbin/origen", *ARGV
     exit 0
-  else
-    # Force everyone to have a consistent way of installing gems with bundler
-    ENV['BUNDLE_GEMFILE'] = File.join(origen_root, 'Gemfile')
-    ENV['BUNDLE_PATH'] = File.expand_path(Origen.site_config.gem_install_dir)
-    ENV['BUNDLE_BIN'] = File.join(origen_root, 'lbin')
   end
 end
 
 if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_manage_bundler
-  # Retrieve any system gem specs that might be required before we enter the clean env
-  if Origen.site_config.gem_manage_bundler && Origen.site_config.gem_use_from_system
-    system_gem_specs = Origen.site_config.gem_use_from_system.map do |gem, version|
-      begin
-        Gem::Specification.find_by_name(gem, version)
-      rescue Gem::LoadError
-      end
-    end
-  else
-    system_gem_specs = []
-  end
-
   # Overriding bundler here so that bundle install can be automated as required
   require 'bundler/shared_helpers'
   if Bundler::SharedHelpers.in_bundle?
@@ -90,9 +94,6 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
         `chmod o-w #{origen_root}/bin` if File.exist?("#{origen_root}/bin")
         `chmod o-w #{origen_root}/.bin` if File.exist?("#{origen_root}/.bin")
         result = false
-
-        # Set this here since the clean environment will not have access to the ENV variable
-        local_gem_dir = "#{ENV['BUNDLE_PATH']}/ruby/#{Pathname.new(Gem.dir).basename}"
 
         Bundler.with_clean_env do
           if Origen.os.unix?
@@ -120,55 +121,6 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
               end
             else
               puts 'Unable to determine gcc version, proceeding with fingers crossed...'
-            end
-            # Need to compact the system gem specs array to remove reference to any nil elements which will cause an error below.
-            system_gem_specs.compact!
-            # Some gems (particularly those with C extensions that need to be built), can be hard to install reliably
-            # across a large user base. Initially seed the user's local gem area with the system-installed gems,
-            # this means that the system Ruby owner can provide an installation for these hard-to-install gems.
-            unless system_gem_specs.empty?
-              %w(bin cache extensions gems specifications).each do |subdir|
-                d = "#{local_gem_dir}/#{subdir}"
-                FileUtils.mkdir_p(d) unless File.exist?(d)
-              end
-              system_gem_specs.each do |spec|
-                begin
-                  (spec.executables || []).each do |bin|
-                    unless File.exist?("#{local_gem_dir}/bin/#{bin}")
-                      FileUtils.cp("#{spec.bin_dir}/#{bin}", "#{local_gem_dir}/bin")
-                    end
-                  end
-                  p = Pathname.new(spec.cache_file)
-                  unless File.exist?("#{local_gem_dir}/cache/#{p.basename}")
-                    FileUtils.cp(spec.cache_file, "#{local_gem_dir}/cache")
-                  end
-                  if spec.extension_dir && File.exist?(spec.extension_dir)
-                    spec.extension_dir =~ /.*extensions(.*)/
-                    sub_dir = Pathname.new(Regexp.last_match(1)).dirname.to_s
-                    local_ext_dir = "#{local_gem_dir}/extensions/#{sub_dir}"
-                    FileUtils.mkdir_p(local_ext_dir) unless File.exist?(local_ext_dir)
-
-                    # If the file exists in the extensions directory, skip copying it over.
-                    p = Pathname.new(spec.extension_dir)
-                    unless File.exist?("#{local_ext_dir}/#{p.basename}")
-                      FileUtils.cp_r(spec.extension_dir, local_ext_dir)
-                    end
-                  end
-
-                  # If the file exists in the gem directory, skip copying it over.
-                  p = Pathname.new(spec.gem_dir)
-                  unless File.exist?("#{local_gem_dir}/gems/#{p.basename}")
-                    FileUtils.cp_r(spec.gem_dir, "#{local_gem_dir}/gems")
-                  end
-                  # If the file exists in the specifications directory, skip copying it over.
-                  p = Pathname.new(spec.spec_file)
-                  unless File.exist?("#{local_gem_dir}/specifications/#{p.basename}")
-                    FileUtils.cp(spec.spec_file, "#{local_gem_dir}/specifications")
-                  end
-                rescue
-                  puts "Had problems installing #{spec.name} from your system Ruby, proceeding with fingers crossed..."
-                end
-              end
             end
           end
           result = system(cmd)

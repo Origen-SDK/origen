@@ -1,3 +1,19 @@
+<a class="anchor release_tag" name="v0_9_0"></a>
+<h1><a href="#v0_9_0">Tag: v0.9.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 23-May-2017 08:12AM
+
+
+* Improved how gems which should be used from the system (specified via the
+  gem\_use\_from\_system variable in the site config) are copied to the user's
+  gem area.
+* Applications can now place an origen\_site\_config.yml file in their config
+  directory if they want to override any site-wide settings.
+* Bumped the required Nokogiri version to 1.7.2 to support Ruby 2.3 and enable
+  installation on Windows.
+
 <a class="anchor release_tag" name="v0_8_0"></a>
 <h1><a href="#v0_8_0">Tag: v0.8.0</a></h1>
 
