@@ -61,6 +61,7 @@ if origen_root
     exe = File.expand_path('../copy_system_gems', __FILE__)
     gems = Origen.site_config.gem_use_from_system.map { |g,v| "#{g} #{v}" }.join(' ')
     local_gem_dir = "#{ENV['BUNDLE_PATH']}/ruby/#{Pathname.new(Gem.dir).basename}"
+    require 'bundler'
     Bundler.with_clean_env do
       system "#{exe} #{local_gem_dir} #{gems}"
     end
