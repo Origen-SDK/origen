@@ -1,3 +1,13 @@
+<a class="anchor release_tag" name="v0_10_1"></a>
+<h1><a href="#v0_10_1">Tag: v0.10.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 23-May-2017 22:47PM
+
+
+Removed some debug helpers that were left in the last release
+
 <a class="anchor release_tag" name="v0_10_0"></a>
 <h1><a href="#v0_10_0">Tag: v0.10.0</a></h1>
 
