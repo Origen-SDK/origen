@@ -8,7 +8,7 @@
 
 * Updated remote manage to work better on Windows (Corey Engelken)
 * Registers with bit 0 in the MSB position are now supported, see
-  http://origen-sdk.org/origen//guides/models/registers/#Bit\_Order\_and\_Serial\_Processing
+  [http://origen-sdk.org/origen/guides/models/registers/#Bit_Order_and_Serial_Processing](http://origen-sdk.org/origen/guides/models/registers/#Bit_Order_and_Serial_Processing)
 * Fixed issue with Ruby 2.3 being required by some dependencies
 
 <a class="anchor release_tag" name="v0_7_47"></a>
