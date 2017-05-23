@@ -111,6 +111,59 @@ $dut.nvm.analog.ctrl[3..0]
 $dut.nvm.analog.ctrl.adch[1..0]
 ~~~
 
+#### Bit Order and Serial Processing
+  
+By default, a register is defined with its LSB in bit position 0, this can be changed to the MSB at position 0 by setting the
+<code>bit_order</code> attribute as shown below:
+  
+~~~ruby
+reg :ctrl, 0x0024, size: 16, bit_order: :msb0 do |reg|
+  # Bit definitions would be exactly the same as the above example
+end
+~~~
+
+A register with the MSB in bit position 0 will appear reversed in the console view, compare the following to the earlier example:
+  
+~~~text
+> origen i
+
+>> $dut.nvm.analog.ctrl
+=>
+0x24 - :ctrl
+  ================================================================================================================
+  |      0      |      1      |      2      |      3      |      4      |      5      |      6      |      7      |
+  |                             :adch[4:0]                              |    :coco    |    :aien    |    :diff    |
+  |                                0x1F                                 |    0(RO)    |      0      |      0      |
+  ----------------------------------------------------------------------------------------------------------------
+  |      8      |      9      |     10      |     11      |     12      |     13      |     14      |     15      |
+  |             |             |             |             |             |             |             |             |
+  |             |             |             |             |             |             |             |             |
+  ----------------------------------------------------------------------------------------------------------------
+~~~
+
+When serially processing a register (in a pattern driver for example), some of the APIs will change order depending on the
+<code>bit_order</code> value.
+Here is a summary of the APIs that are available for serially processing a register and how they behave in respect to this
+attribute:
+  
+* shift_out / shift_out_with_index - A logical rather than a physical shift, this will process the bits LSB first and will behave the 
+  same regardless of the register's bit order.
+* reverse_shift_out / reverse_shift_out_with_index - As above, but MSB first.  
+* shift_out_left / shift_out_left_with_index - Think of this as a physical shift, it will process the top-left bit of the
+  register first and which bit that is will depend on the bit order.
+* shift_out_right / shift_out_right_with_index - As above, but with the bottom-right bit going first.
+  
+All of these APIs behave like this:
+  
+~~~ruby
+myreg.shift_out_left_with_index do |bit, i|
+  # This block will execute for each bit in the register
+  # *bit* is an bit object (instance of Origen::Reg::Bit)
+  # *i* is the iteration index, 0, 1, 2, etc. Note that this is only available for the _with_index versions.
+  bist_shift(bit)
+end
+~~~
+  
 #### Base Addresses
 
 When defining registers the address specified should be the local address within the owning

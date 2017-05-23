@@ -50,6 +50,7 @@ module Origen
       Origen.top_level == self
     end
     alias_method :is_dut?, :is_top_level?
+    alias_method :top_level?, :is_top_level?
 
     # Means that when dealing with a controller/model pair, you can
     # always call obj.model and obj.controller to get the one you want,

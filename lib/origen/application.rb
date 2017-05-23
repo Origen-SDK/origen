@@ -23,7 +23,6 @@ module Origen
     require 'origen/users'
     include Origen::Users
 
-    attr_accessor :current_job
     attr_accessor :name
     attr_accessor :namespace
 
@@ -97,6 +96,14 @@ module Origen
           end
         end
       end
+    end
+
+    def current_job
+      current_jobs.last
+    end
+
+    def current_jobs
+      @current_jobs ||= []
     end
 
     # Load all rake tasks defined in the application's lib/task directory
