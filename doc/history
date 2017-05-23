@@ -1,3 +1,18 @@
+<a class="anchor release_tag" name="v0_10_0"></a>
+<h1><a href="#v0_10_0">Tag: v0.10.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 23-May-2017 22:40PM
+
+
+Added hooks to allow the integration of an origen updater plugin to help manage the
+process of updating an application's gems.
+
+Temporarily rolled back the Nokogiri version increase after initial problems in some
+environments, will update to the latest version soon one the updater plugin is
+available.
+
 <a class="anchor release_tag" name="v0_9_1"></a>
 <h1><a href="#v0_9_1">Tag: v0.9.1</a></h1>
 
