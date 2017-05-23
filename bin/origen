@@ -3,7 +3,7 @@ $VERBOSE = nil  # Don't care about world writable dir warnings and the like
 
 require 'pathname'
 require 'fileutils'
-#require 'byebug' # Un-comment to debug this file
+require 'byebug' # Un-comment to debug this file
 
 class OrigenBootError < StandardError
 end
@@ -51,20 +51,32 @@ if origen_root
   ENV['BUNDLE_PATH'] = File.expand_path(Origen.site_config.gem_install_dir)
   ENV['BUNDLE_BIN'] = File.join(origen_root, 'lbin')
 
-  # Ensure that system gems are copied to the local gem dir every time, this might waste a little bit
-  # of time, but it ensures that any updates to the system gem list are automatically applied which
-  # is helpful in a corporate environment with no sudo access to the Ruby installation
-  #
-  # This is invoked from an external process so that it can step out of this bundled environment
-  # and have visibility of the system gems
-  if Origen.site_config.gem_manage_bundler && Origen.site_config.gem_use_from_system
-    exe = File.expand_path('../copy_system_gems', __FILE__)
-    gems = Origen.site_config.gem_use_from_system.map { |g,v| "#{g} #{v}" }.join(' ')
+  if ARGV.first == 'update'
+    ARGV.shift
     local_gem_dir = "#{ENV['BUNDLE_PATH']}/ruby/#{Pathname.new(Gem.dir).basename}"
+    updater_dir = Dir.glob("#{local_gem_dir}/gems/origen_updater-*").sort.last
+    exe = File.expand_path('../update', __FILE__)
     require 'bundler'
-    Bundler.with_clean_env do
-      system "#{exe} #{local_gem_dir} #{gems}"
+
+    args = ARGV.join(' ')
+
+    on_updated_callback = lambda do
+      Bundler.with_clean_env do
+        system "#{exe} #{origen_root} #{updater_dir}/lib/origen_updater/on_updated #{args}"
+      end
     end
+
+    # This is invoked from an external process so that it can step out of this bundled environment
+    # and have visibility of the system gems
+    Bundler.with_clean_env do
+      system "#{exe} #{origen_root} #{updater_dir}/lib/origen_updater/update #{args}"
+    end
+
+    # Now fall through and act like 'origen -v'
+    while ARGV.size > 0 do
+      ARGV.pop
+    end
+    ARGV << '-v'
   end
 
   # If it looks like a bundled binstub of origen exists, and we have not been invoked through that,
@@ -90,6 +102,8 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
         cmd = "bundle install --gemfile #{ENV['BUNDLE_GEMFILE']} --binstubs #{ENV['BUNDLE_BIN']} --path #{ENV['BUNDLE_PATH']}"
         # puts cmd
         puts 'Installing required gems...'
+        puts "FUCK YOU"
+        byebug
         puts
         `chmod o-w #{origen_root}` # Stops some annoying world writable warnings during install
         `chmod o-w #{origen_root}/bin` if File.exist?("#{origen_root}/bin")
@@ -145,13 +159,7 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
           end
         end
         if result
-          # This is a shim to help NXP run regression tests between an old version of an app running
-          # RGen and a new version running Origen
-          origen = File.join(ENV['BUNDLE_BIN'], 'origen')
-          rgen = File.join(ENV['BUNDLE_BIN'], 'rgen')
-          if File.exist?(rgen) && !File.exist?(origen) && Origen.os.linux?
-            exec "ln -s #{rgen} #{origen}"
-          end
+          on_updated_callback.call if on_updated_callback
           exec "origen #{ARGV.join(' ')}"
           exit 0
         else
@@ -165,24 +173,12 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
       Bundler.setup
     end
   end
+  on_updated_callback.call if on_updated_callback
   require 'bundler/setup'
   require 'origen'
 else
   $LOAD_PATH.unshift "#{File.expand_path(File.dirname(__FILE__))}/../lib"
   require 'origen'
-end
-
-# This is a shim to help NXP run regression tests between an old version of an app running
-# RGen and a new version running Origen
-# If RGen < 3 is present then abort the process here and execute the rgen bin file instead
-begin
-  require 'rgen'
-  if RGen.version.major == 2
-    exec Gem.ruby, "#{RGen.top}/bin/rgen", *ARGV
-    exit 0
-  end
-rescue LoadError
-  # No problem, RGen not present
 end
 
 begin

@@ -14,7 +14,7 @@ PATH
       log4r (~> 1.1.10, ~> 1.1)
       nanoc (~> 3.7)
       net-ldap (~> 0.13)
-      nokogiri (= 1.7.2)
+      nokogiri (= 1.6.7.2)
       pry (~> 0.10)
       rake (~> 10)
       rspec (~> 3)
@@ -74,7 +74,7 @@ GEM
     loco (0.0.6)
     log4r (1.1.10)
     method_source (0.8.2)
-    mini_portile2 (2.1.0)
+    mini_portile2 (2.0.0)
     minitest (5.10.2)
     multi_xml (0.6.0)
     multipart-post (2.0.0)
@@ -82,8 +82,8 @@ GEM
       cri (~> 2.3)
     nesty (1.0.2)
     net-ldap (0.16.0)
-    nokogiri (1.7.2)
-      mini_portile2 (~> 2.1.0)
+    nokogiri (1.6.7.2)
+      mini_portile2 (~> 2.0.0.rc2)
     origen_core_support (0.2.3)
       origen (>= 0.2.6)
     origen_debuggers (0.5.2)
@@ -169,4 +169,4 @@ DEPENDENCIES
   ripper-tags
 
 BUNDLED WITH
-   1.13.6
+   1.14.6
