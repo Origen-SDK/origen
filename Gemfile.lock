@@ -95,6 +95,8 @@ GEM
       atp (~> 0.5.4)
       origen (>= 0.7.40)
       require_all (~> 1)
+    origen_updater (0.5.0)
+      origen
     parser (2.4.0.0)
       ast (~> 2.2)
     powerpack (0.1.1)
@@ -166,6 +168,7 @@ DEPENDENCIES
   origen_debuggers (~> 0)
   origen_doc_helpers (>= 0.2.0)
   origen_testers (~> 0.7)
+  origen_updater
   ripper-tags
 
 BUNDLED WITH
