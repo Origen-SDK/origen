@@ -8,9 +8,9 @@
 
 * Added support for driving custom waveform codes on V93K (will also work on any other tester that
   supports such a thing), see: 
-  http://origen-sdk.org/origen/guides/pattern/v93k/#Driving\_Custom\_Waveforms
+  [http://origen-sdk.org/origen/guides/pattern/v93k/#Driving_Custom_Waveforms](http://origen-sdk.org/origen/guides/pattern/v93k/#Driving_Custom_Waveforms)
 * Added APIs to define and consume timing waveforms, see:
-  http://origen-sdk.org/origen/guides/pattern/timing/#Complex\_Timing
+  [http://origen-sdk.org/origen/guides/pattern/timing/#Complex_Timing](http://origen-sdk.org/origen/guides/pattern/timing/#Complex_Timing)
 
 <a class="anchor release_tag" name="v0_11_0"></a>
 <h1><a href="#v0_11_0">Tag: v0.11.0</a></h1>
