@@ -1,0 +1,95 @@
+% render "layouts/guides.html", heading: "Workspace and Dependency Management" do
+
+This guide provides advice on how to create new application workspaces and how to
+safely update your application's dependencies.
+
+This advice is particularly critical when running in a corporate Linux environment where
+the Linux distribution is older and/or you don't have permission to write to the
+system Ruby installation.
+
+#### Fix My Workspace
+
+The most important takeaway from this guide is to add the <code>origen_updater</code> plugin to your
+application, this provides a command which should fix your workspace if you ever end up
+in a situation where the <code>origen</code> or <code>bundle</code> commands are no longer working.
+
+Add it to your application's Gemfile like this:
+
+~~~ruby
+# Gemfile
+source 'https://rubygems.org'
+
+gem 'origen_updater'
+~~~
+
+Note that if your application is a plugin you should always add this to your Gemfile too,
+i.e. don't put it in the .gemspec.
+
+After adding it for the first time run:
+
+~~~text
+origen -v
+~~~
+
+This will invoke the plugin and it will create a new executable in your
+application - <code>bin/fix_my_workspace</code>.
+
+**This file should be committed to your revision control system to ensure that it is
+always available to you in the future**. It's contents may be changed automatically from time-to-time if you upgrade
+to a new version of the origen_updater plugin, in which case the changes should be committed
+to revision control too.
+
+To fix your workspace at any time simply run:
+
+~~~text
+./bin/fix_my_workspace
+~~~
+
+
+#### Creating a New Workspace
+
+Creating a new workspace means setting up an existing application within a new directory
+for the first time.
+
+The most important thing to remember in this case is to **always run <code>origen -v</code>
+as the first step after importing the application files from your revision control system.**
+
+Doing this ensures that Origen provides some basic configuration of [Bundler](<%= path "guides/starting/gems" %>)
+which will ensure that it runs well within a restricted corporate environment.
+
+After doing this for the first time, you can then safely run the <code>bundle</code> command
+directly if you want to.
+
+If you forget to do this and run <code>bundle</code> first, then you can recover by running
+the <code>fix_my_workspace</code> command as described above.
+
+#### Updating Dependencies
+
+Updating dependencies means changing the version of a given gem/plugin within your Gemfile
+or .gemspec.
+
+In some cases (depending on what gems you already have installed locally), you can simply make
+the edit and then continue running the <code>origen</code> command without any problems.
+
+If you don't already have the gem version installed locally, you will get a [Bundler](<%= path "guides/starting/gems" %>)
+error which may or may not clearly describe the problem.
+
+The easiest way to resolve things at this point is to simply run the <code>fix_my_workspace</code>
+command as described above.
+
+Alternatively, following this sequence will create a working environment with the new dependency
+in most cases:
+
+~~~text
+> bundle
+
+// If that doesn't work try this, where gem_name is the name of the gem you just updated in
+// your Gemfile/.gemspec
+> bundle update <gem_name>
+
+// If that doesn't work try this, this will completely re-build your gem bundle, which will pull in the
+// latest versions of all gems which satisfy the rules defined in your Gemfile
+> bundle update
+~~~
+
+% end
