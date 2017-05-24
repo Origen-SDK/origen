@@ -1,3 +1,13 @@
+<a class="anchor release_tag" name="v0_11_0"></a>
+<h1><a href="#v0_11_0">Tag: v0.11.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 24-May-2017 13:25PM
+
+
+Bumped Nokogiri version to the latest, and new integration with the origen\_updater plugin
+
 <a class="anchor release_tag" name="v0_10_1"></a>
 <h1><a href="#v0_10_1">Tag: v0.10.1</a></h1>
 
