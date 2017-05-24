@@ -1,3 +1,17 @@
+<a class="anchor release_tag" name="v0_12_0"></a>
+<h1><a href="#v0_12_0">Tag: v0.12.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 24-May-2017 21:06PM
+
+
+* Added support for driving custom waveform codes on V93K (will also work on any other tester that
+  supports such a thing), see: 
+  http://origen-sdk.org/origen/guides/pattern/v93k/#Driving\_Custom\_Waveforms
+* Added APIs to define and consume timing waveforms, see:
+  http://origen-sdk.org/origen/guides/pattern/timing/#Complex\_Timing
+
 <a class="anchor release_tag" name="v0_11_0"></a>
 <h1><a href="#v0_11_0">Tag: v0.11.0</a></h1>
 
