@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    origen (0.9.1)
+    origen (0.11.0)
       activesupport (~> 4.1)
       bundler (~> 1.7)
       coderay (~> 1.1)
@@ -97,6 +97,8 @@ GEM
       atp (~> 0.5.4)
       origen (>= 0.7.40)
       require_all (~> 1)
+    origen_updater (0.5.0)
+      origen
     parser (2.4.0.0)
       ast (~> 2.2)
     powerpack (0.1.1)
@@ -168,7 +170,8 @@ DEPENDENCIES
   origen_debuggers (~> 0)
   origen_doc_helpers (>= 0.2.0)
   origen_testers (~> 0.7)
+  origen_updater
   ripper-tags
 
 BUNDLED WITH
-   1.13.6
+   1.14.6

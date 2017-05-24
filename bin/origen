@@ -51,22 +51,6 @@ if origen_root
   ENV['BUNDLE_PATH'] = File.expand_path(Origen.site_config.gem_install_dir)
   ENV['BUNDLE_BIN'] = File.join(origen_root, 'lbin')
 
-  # Ensure that system gems are copied to the local gem dir every time, this might waste a little bit
-  # of time, but it ensures that any updates to the system gem list are automatically applied which
-  # is helpful in a corporate environment with no sudo access to the Ruby installation
-  #
-  # This is invoked from an external process so that it can step out of this bundled environment
-  # and have visibility of the system gems
-  if Origen.site_config.gem_manage_bundler && Origen.site_config.gem_use_from_system
-    exe = File.expand_path('../copy_system_gems', __FILE__)
-    gems = Origen.site_config.gem_use_from_system.map { |g,v| "#{g} #{v}" }.join(' ')
-    local_gem_dir = "#{ENV['BUNDLE_PATH']}/ruby/#{Pathname.new(Gem.dir).basename}"
-    require 'bundler'
-    Bundler.with_clean_env do
-      system "#{exe} #{local_gem_dir} #{gems}"
-    end
-  end
-
   # If it looks like a bundled binstub of origen exists, and we have not been invoked through that,
   # then run that instead.
   if Origen.site_config.gem_manage_bundler && File.exist?("#{origen_root}/lbin/origen") && !ENV['BUNDLE_BIN_PATH'] &&
@@ -145,13 +129,6 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
           end
         end
         if result
-          # This is a shim to help NXP run regression tests between an old version of an app running
-          # RGen and a new version running Origen
-          origen = File.join(ENV['BUNDLE_BIN'], 'origen')
-          rgen = File.join(ENV['BUNDLE_BIN'], 'rgen')
-          if File.exist?(rgen) && !File.exist?(origen) && Origen.os.linux?
-            exec "ln -s #{rgen} #{origen}"
-          end
           exec "origen #{ARGV.join(' ')}"
           exit 0
         else
@@ -170,19 +147,6 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
 else
   $LOAD_PATH.unshift "#{File.expand_path(File.dirname(__FILE__))}/../lib"
   require 'origen'
-end
-
-# This is a shim to help NXP run regression tests between an old version of an app running
-# RGen and a new version running Origen
-# If RGen < 3 is present then abort the process here and execute the rgen bin file instead
-begin
-  require 'rgen'
-  if RGen.version.major == 2
-    exec Gem.ruby, "#{RGen.top}/bin/rgen", *ARGV
-    exit 0
-  end
-rescue LoadError
-  # No problem, RGen not present
 end
 
 begin
