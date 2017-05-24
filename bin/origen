@@ -51,34 +51,6 @@ if origen_root
   ENV['BUNDLE_PATH'] = File.expand_path(Origen.site_config.gem_install_dir)
   ENV['BUNDLE_BIN'] = File.join(origen_root, 'lbin')
 
-  if ARGV.first == 'update'
-    ARGV.shift
-    local_gem_dir = "#{ENV['BUNDLE_PATH']}/ruby/#{Pathname.new(Gem.dir).basename}"
-    updater_dir = Dir.glob("#{local_gem_dir}/gems/origen_updater-*").sort.last
-    exe = File.expand_path('../update', __FILE__)
-    require 'bundler'
-
-    args = ARGV.join(' ')
-
-    on_updated_callback = lambda do
-      Bundler.with_clean_env do
-        system "#{exe} #{origen_root} #{updater_dir}/lib/origen_updater/on_updated #{args}"
-      end
-    end
-
-    # This is invoked from an external process so that it can step out of this bundled environment
-    # and have visibility of the system gems
-    Bundler.with_clean_env do
-      system "#{exe} #{origen_root} #{updater_dir}/lib/origen_updater/update #{args}"
-    end
-
-    # Now fall through and act like 'origen -v'
-    while ARGV.size > 0 do
-      ARGV.pop
-    end
-    ARGV << '-v'
-  end
-
   # If it looks like a bundled binstub of origen exists, and we have not been invoked through that,
   # then run that instead.
   if Origen.site_config.gem_manage_bundler && File.exist?("#{origen_root}/lbin/origen") && !ENV['BUNDLE_BIN_PATH'] &&
@@ -157,7 +129,6 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
           end
         end
         if result
-          on_updated_callback.call if on_updated_callback
           exec "origen #{ARGV.join(' ')}"
           exit 0
         else
@@ -171,7 +142,6 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
       Bundler.setup
     end
   end
-  on_updated_callback.call if on_updated_callback
   require 'bundler/setup'
   require 'origen'
 else
