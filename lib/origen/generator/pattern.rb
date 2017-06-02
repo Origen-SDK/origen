@@ -194,9 +194,7 @@ module Origen
 
       # Creates a header and footer for the pattern based on the current tester and any supplied options
       def pattern_wrapper(iterators, args, options = {})
-        options[:iterators] = iterators
-        options[:args] = args
-        pattern_open(options)
+        pattern_open(options.merge(iterators: iterators, args: args))
         yield      # Pass control back to the pattern source
         pattern_close(options)
       end
