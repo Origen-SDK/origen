@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_12_1"></a>
+<h1><a href="#v0_12_1">Tag: v0.12.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 06-Jun-2017 06:02AM
+
+
+Bug fix caused by recent bit\_order feature addition when registers have a non-std parent
+object.
+
 <a class="anchor release_tag" name="v0_12_0"></a>
 <h1><a href="#v0_12_0">Tag: v0.12.0</a></h1>
 
