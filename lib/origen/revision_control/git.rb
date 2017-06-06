@@ -261,7 +261,7 @@ module Origen
           true
         end
         File.exist?("#{local}/.git") &&
-          git('remote -v', verbose: false).any? { |r| r =~ /#{remote_without_protocol_and_user}/ || r =~ /#{remote_without_protocol_and_user.to_s.gsub(':', "\/")}/ } &&
+          #    git('remote -v', verbose: false).any? { |r| r =~ /#{remote_without_protocol_and_user}/ || r =~ /#{remote_without_protocol_and_user.to_s.gsub(':', "\/")}/ } &&
           !git('status', verbose: false).any? { |l| l =~ /^#? ?Initial commit$/ }
       end
 
