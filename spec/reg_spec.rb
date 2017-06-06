@@ -491,6 +491,14 @@ module RegTest
         Reg.dummy.size.should == 16
     end
 
+    it "dummy regs can shift" do
+      i = 0
+      Reg.dummy.shift_out_right do |bit|
+        bit.position.should == i
+        i += 1
+      end
+    end
+
     it "should respond to value as an alias of data" do
         reg = Reg.new(self, 0x10, 16, :dummy, b0: {pos: 0, bits: 8}, 
                                               b1: {pos: 8, bits: 8})

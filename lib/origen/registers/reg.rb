@@ -91,7 +91,7 @@ module Origen
       # not explicitly defined on this register it will be inherited from the parent
       # and will default to :lsb0 at the top-level
       def bit_order
-        @bit_order ||= parent.bit_order
+        @bit_order ||= parent.respond_to?(:bit_order) ? parent.bit_order : :lsb0
       end
 
       def freeze
