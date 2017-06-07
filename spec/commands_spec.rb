@@ -7,7 +7,7 @@ describe "Origen commands" do
     output.should include "Application: #{Origen.app.version}"
     output.should include "Origen: #{Origen.version}"
 
-    if ['i386-mingw32','x64-mingw32'].include? RUBY_PLATFORM
+    if Origen.os.windows?
       output = `cd / && origen -v`
     else	
       output = `cd ~/ && origen -v`
