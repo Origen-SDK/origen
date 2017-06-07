@@ -161,7 +161,7 @@ Origen.session.secret.private?
 It is important to note that this is a <b>per individual session</b> parameter. That is, you must set this for all
 sessions that you want to make private.
 
-Another note: under the hood, this uses Ruby's <code>File.chmod</code> method, which itself is platform dependent. This
+Another note: under the hood, this uses Ruby's <code>FileUtils.chmod</code> method, which itself is platform dependent. This
 was built with a Unix use case in mind, so your milage may vary with other operating systems. But, this is standard Ruby,
 so it should run regardless of OS and its effect. You can view additional details on the
 (RubyDocs page)[https://ruby-doc.org/core-2.2.0/File.html#method-i-chmod].
