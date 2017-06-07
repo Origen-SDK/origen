@@ -14,9 +14,9 @@ module Origen
 
       def inspect
         if persisted?
-          "< #{app.class}'s Database >"
+          app == Origen ? "Origen's Global Database" : "< #{app.class}'s Database >"
         else
-          "< #{app.class}'s Session >"
+          app == Origen ? "Origen's Global Session" : "< #{app.class}'s Session >"
         end
       end
 

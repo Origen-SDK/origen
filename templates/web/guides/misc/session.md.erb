@@ -94,4 +94,76 @@ def firmware_rc
 end
 ~~~
 
+### Global Sessions
+
+Origen also has a global session that is accessible across all Origen applications, plugins, etc., or from outside 
+any of those at all! Note, however, that 'global' is in terms of a single user. This is <b>not</b> a shared session across
+the entire Origen installation (in the case of site-wide Origen installions as referenced in the 
+[Origen Installation Guides](<%= path "/guides/starting/company/" %>).
+
+Accessing Origen's global session is similiar to that of the application specific sessions and works in much the same
+way:
+
+~~~ruby
+Origen.session #=> Origen's Global Session
+
+Origen.session.globals #=> Create a new database called 'globals' available across all of Origen.
+
+# One use case encountered was to store another machine's IP that other applications would SSH into.
+# This IP is the same for all Origen applications for a given user (i.e., each user has their own 
+# machine to log into).
+Origen.session.ssh[:machine_ip] = "255.255.255.0"
+Origen.session.ssh[:machine_ip] #=> "255.255.255.0"
+
+# --Move to another Origen workspace--
+Origen.session.ssh[:machine_ip] #=> "255.255.255.0"
+~~~
+
+The session itself is stored in the same fashion as the application sessions, just at a more accessible location. That
+location is at <code>Origen.home</code>, which equates to <code>~/.origen/</code>. There lives the global <code>.session</code>.
+
+### Private Sessions
+
+By default, the session databases are accessible to the user and to members of the same group (in Unix speak, that is), and are
+readable by everyone. The session contains a variable that can be set to instead make the session only accessible by the user.
+This is accomplished by just setting the permissions to <code>0600</code>.
+
+To enable a private session, you can, at anytime, run:
+
+~~~ruby
+Origen.session.secret.private = true
+~~~
+
+The next time that a session is updated, the permissions will be modified accordingly. Likewise, you can disable the private
+database by running:
+
+~~~ruby
+Origen.session.secret.private = false
+~~~
+
+If you want to create a new session that is private from the beginning, just set the private variable prior to performing
+the first session write:
+
+~~~ruby
+# This session doesn't exist yet:
+
+Origen.session.always_secret.private = true
+Origen.session.always_secret[:my_key] = "my value"
+~~~
+
+You can check whether a session is private or not by querying one of the methods below:
+
+~~~ruby
+Origen.session.secret.private
+Origen.session.secret.private?
+~~~
+
+It is important to note that this is a <b>per individual session</b> parameter. That is, you must set this for all
+sessions that you want to make private.
+
+Another note: under the hood, this uses Ruby's <code>File.chmod</code> method, which itself is platform dependent. This
+was built with a Unix use case in mind, so your milage may vary with other operating systems. But, this is standard Ruby,
+so it should run regardless of OS and its effect. You can view additional details on the
+(RubyDocs page)[https://ruby-doc.org/core-2.2.0/File.html#method-i-chmod].
+
 % end
