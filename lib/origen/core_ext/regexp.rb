@@ -6,11 +6,11 @@ class Regexp
     }.update(options)
     expr, mods = '', ''
     if to_yaml.match(/regexp\s+\/(.*)\/(.*)/).nil?
-      Origen.log.error("Cannot convert the regular expression to text, something changed in the YAML view of the regular expressions")
+      Origen.log.error('Cannot convert the regular expression to text, something changed in the YAML view of the regular expressions')
       fail
     else
       (expr, mods) = to_yaml.match(/regexp\s+\/(.*)\/(.*)/).captures
     end
-    options[:no_mods] ? "\/#{expr}\/" : "\/#{expr}\/#{mods}"    
+    options[:no_mods] ? "\/#{expr}\/" : "\/#{expr}\/#{mods}"
   end
 end
