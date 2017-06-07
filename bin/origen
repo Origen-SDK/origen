@@ -8,8 +8,6 @@ require 'fileutils'
 class OrigenBootError < StandardError
 end
 
-ORIGEN_MIN_GCC_VERSION = '4.6.3'
-
 # Keep a note of the pwd at the time when Origen was first loaded, this is initially used
 # by the site_config lookup.
 $_origen_invocation_pwd ||= Pathname.pwd
@@ -86,26 +84,6 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
               Origen.site_config.gem_build_switches.each do |switches|
                 `bundle config build.#{switches}`
               end
-            end
-            gcc_version = begin
-              begin
-                line = `gcc --version`.split("\n").first
-              rescue
-                puts "You don't seem to have gcc available, make sure you following the Origen installation instructions:"
-                puts 'http://origen-sdk.org/origen/latest/guides/starting/installing/'
-                exit 1
-              end
-              if line =~ /(\d+\.\d+\.\d+)/
-                Regexp.last_match(1)
-              end
-            end
-            if gcc_version
-              if gcc_version < ORIGEN_MIN_GCC_VERSION
-                puts "Origen requires a minimum of GCC version #{ORIGEN_MIN_GCC_VERSION}, but you have #{gcc_version}."
-                exit 1
-              end
-            else
-              puts 'Unable to determine gcc version, proceeding with fingers crossed...'
             end
           end
           result = system(cmd)

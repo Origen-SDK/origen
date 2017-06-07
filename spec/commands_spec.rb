@@ -7,13 +7,13 @@ describe "Origen commands" do
     output.should include "Application: #{Origen.app.version}"
     output.should include "Origen: #{Origen.version}"
 
-    if RUBY_PLATFORM == "i386-mingw32" then
+    if ['i386-mingw32','x64-mingw32'].include? RUBY_PLATFORM
       output = `cd / && origen -v`
     else	
       output = `cd ~/ && origen -v`
-      output.should_not include "Application: #{Origen.app.version}"
-      output.should include "Origen: #{Origen.version}"
     end
+    output.should_not include "Application: #{Origen.app.version}"
+    output.should include "Origen: #{Origen.version}"
   end
 
   specify "target works" do
