@@ -1,3 +1,25 @@
+<a class="anchor release_tag" name="v0_13_0"></a>
+<h1><a href="#v0_13_0">Tag: v0.13.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 08-Jun-2017 03:24AM
+
+
+* Added a global session to allow data to be easily exchanged between all of
+  user's Origen application workspaces (Corey Engelken)
+  See here for more info:
+  http://origen-sdk.org/origen/guides/misc/session/#Global\_Sessions  
+* Added Regex#to\_txt method (Brian Caquelin)
+
+~~~ruby
+regex = /abc/i
+regex.to\_txt                    # => "\/abc\/i"
+regex.to\_txt(no\_mods: true)     # => "\/abc\/"
+~~~
+
+* Removed dependency on GCC (Brian Caquelin)
+
 <a class="anchor release_tag" name="v0_12_1"></a>
 <h1><a href="#v0_12_1">Tag: v0.12.1</a></h1>
 
