@@ -6,10 +6,9 @@
 ##### by Stephen McGinty on 08-Jun-2017 03:24AM
 
 
-* Added a global session to allow data to be easily exchanged between all of
+* Added a [global session](http://origen-sdk.org/origen/guides/misc/session/#Global_Sessions)
+  to allow data to be easily exchanged between all of a
   user's Origen application workspaces (Corey Engelken)
-  See here for more info:
-  http://origen-sdk.org/origen/guides/misc/session/#Global\_Sessions  
 * Added Regex#to\_txt method (Brian Caquelin)
 
 ~~~ruby
