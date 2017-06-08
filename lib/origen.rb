@@ -683,6 +683,17 @@ unless defined? RGen::ORIGENTRANSITION
         @current_command
       end
 
+      # Provides a global Origen session stored at ~/.origen/session (Origen.home)
+      def session(reload = false)
+        @session = nil if reload
+        @session ||= Database::KeyValueStores.new(self, persist: false)
+      end
+
+      # Returns the home directory of Origen (i.e., the primary place that Origen operates out of)
+      def home
+        "#{Dir.home}/.origen"
+      end
+
       private
 
       def current_command=(val)
