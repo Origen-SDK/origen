@@ -2,6 +2,7 @@ module Origen
   class Application
     # Responsible for handling all submissions to the LSF
     class LSF
+      include Origen::Utility::InputCapture
       # The LSF command configuration that will be used for all submissions to
       # the LSF. An instance of this class is returned via the configuration
       # method and which can be used to modify the LSF behavior on a per-setup
@@ -22,9 +23,31 @@ module Origen
         def initialize
           @group = nil
           @project = 'msg.te'
-          @resource = 'linux'
-          @queue = 'short'
           @debug = false
+
+          # The following will grep the output of the bqueues command. It will search for the queue based on
+          # the LSF configuration and assign the queue accordingly. This assumes that the queues are named short or shortq
+          # and probably can be modified to parse out whatever we need as the queue name.
+          # The resource is currently assigned as either linux or rhel6 as well dependent on the queue assignment
+          `bqueues > /tmp/queuenames.log`
+          file = File.open('/tmp/queuenames.log')
+          columns = []
+          file.each_line do |line|
+            columns << line.split(' ')[0, 11]
+          end
+          queuenames = []
+          # rubocop:disable Style/For: Prefer each over for
+          for i in 1..(columns.size - 1)
+            # rubocop:enable Style/For: Prefer each over for
+            queuenames << columns[i][0]
+          end
+          if queuenames.include?('short')
+            @queue = 'short'
+            @resource = 'linux'
+          elsif queuenames.include?('shortq')
+            @queue = 'shortq'
+            @resource = 'rhel6'
+          end
         end
       end
 
