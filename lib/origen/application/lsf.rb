@@ -24,11 +24,21 @@ module Origen
           @group = nil
           @project = 'msg.te'
           @debug = false
+          require 'timeout'
           puts 'Please enter one of the values from the proposed list'
-          @queue = get_text(suggested_values: Origen.lsf.queuenames, single: true)
-          # There is no command yet to find all the available resource values, so providing a list here of
-          # 2 values that are most commonly used.
-          @resource = get_text(suggested_values: 'linux, rhel6', single: true)
+          begin
+            # Default Timeout for input is 15 seconds
+            Timeout.timeout 15 do
+              @queue = get_text(suggested_values: Origen.lsf.queuenames, single: true, default: 'short')
+              # There is no command yet to find all the available resource values, so providing a list here of
+              # 2 values that are most commonly used.
+              @resource = get_text(suggested_values: 'linux, rhel6', single: true, default: 'linux')
+            end
+            # In case of no input, default values for @queue and @resource are used
+            rescue Timeout::Error
+              @queue = 'short'
+              @resource = 'linux'
+          end
         end
       end
 
