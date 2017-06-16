@@ -2,12 +2,12 @@ module Origen
   class Application
     # Responsible for handling all submissions to the LSF
     class LSF
-      include Origen::Utility::InputCapture
       # The LSF command configuration that will be used for all submissions to
       # the LSF. An instance of this class is returned via the configuration
       # method and which can be used to modify the LSF behavior on a per-setup
       # basis.
       class Configuration
+        include Origen::Utility::InputCapture
         # The group parameter, default: nil
         attr_accessor :group
         # The project parameter, default: 'msg.te'
@@ -24,28 +24,11 @@ module Origen
           @group = nil
           @project = 'msg.te'
           @debug = false
-
-          # The following will grep the output of the bqueues command. It will search for the queue based on
-          # the LSF configuration and assign the queue accordingly. This assumes that the queues are named short or shortq
-          # and probably can be modified to parse out whatever we need as the queue name.
-          # The resource is currently assigned as either linux or rhel6 as well dependent on the queue assignment
-          `bqueues > /tmp/queuenames.log`
-          file = File.open('/tmp/queuenames.log')
-          columns = []
-          file.each_line do |line|
-            columns << line.split(' ')[0, 11]
-          end
-          queuenames = []
-          (1..(columns.size - 1)).each do |i|
-            queuenames << columns[i][0]
-          end
-          if queuenames.include?('short')
-            @queue = 'short'
-            @resource = 'linux'
-          elsif queuenames.include?('shortq')
-            @queue = 'shortq'
-            @resource = 'rhel6'
-          end
+          puts "Please enter one of the values from the proposed list"
+          @queue = get_text(suggested_values: Origen.lsf.queuenames, single: true)
+          # There is no command yet to find all the available resource values, so providing a list here of
+          # 2 values that are most commonly used.
+          @resource = get_text(suggested_values: "linux, rhel6", single: true) 
         end
       end
 
