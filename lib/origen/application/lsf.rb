@@ -36,9 +36,7 @@ module Origen
             columns << line.split(' ')[0, 11]
           end
           queuenames = []
-          # rubocop:disable Style/For: Prefer each over for
-          for i in 1..(columns.size - 1)
-            # rubocop:enable Style/For: Prefer each over for
+          (1..(columns.size - 1)).each do |i|
             queuenames << columns[i][0]
           end
           if queuenames.include?('short')
