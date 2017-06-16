@@ -619,19 +619,19 @@ module Origen
         end
       end
 
-     def queuenames
-         `bqueues > /tmp/queuenames.log`
-          file = File.open('/tmp/queuenames.log')
-          columns = []
-          file.each_line do |line|
-            columns << line.split(' ')[0, 11]
-          end
-          queuenames = []
-          (1..(columns.size - 1)).each do |i|
-            queuenames << columns[i][0]
-          end
+      def queuenames
+        `bqueues > /tmp/queuenames.log`
+        file = File.open('/tmp/queuenames.log')
+        columns = []
+        file.each_line do |line|
+          columns << line.split(' ')[0, 11]
+        end
+        queuenames = []
+        (1..(columns.size - 1)).each do |i|
+          queuenames << columns[i][0]
+        end
         queuenames
-     end 
+      end
 
       def execute_remotely(options = {})
         job_started(options[:id])

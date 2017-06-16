@@ -24,11 +24,11 @@ module Origen
           @group = nil
           @project = 'msg.te'
           @debug = false
-          puts "Please enter one of the values from the proposed list"
+          puts 'Please enter one of the values from the proposed list'
           @queue = get_text(suggested_values: Origen.lsf.queuenames, single: true)
           # There is no command yet to find all the available resource values, so providing a list here of
           # 2 values that are most commonly used.
-          @resource = get_text(suggested_values: "linux, rhel6", single: true) 
+          @resource = get_text(suggested_values: 'linux, rhel6', single: true)
         end
       end
 
