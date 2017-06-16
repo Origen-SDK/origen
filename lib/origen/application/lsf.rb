@@ -26,18 +26,23 @@ module Origen
           @debug = false
           require 'timeout'
           puts 'Please enter one of the values from the proposed list'
-          begin
-            # Default Timeout for input is 15 seconds
-            Timeout.timeout 15 do
-              @queue = get_text(suggested_values: Origen.lsf.queuenames, single: true)
-              # There is no command yet to find all the available resource values, so providing a list here of
-              # 2 values that are most commonly used.
-              @resource = get_text(suggested_values: 'linux, rhel6', single: true)
-            end
-            # In case of no input, default values for @queue and @resource are used
-            rescue Timeout::Error
-              @queue = 'short'
-              @resource = 'linux'
+          # Check if @queue and @resource are empty first
+          if @queue.to_s.empty? && @resource.to_s.empty?
+            begin
+                # Default Timeout for input is 15 seconds
+                Timeout.timeout 15 do
+                  @queue = get_text(suggested_values: Origen.lsf.queuenames, single: true)
+                  # There is no command yet to find all the available resource values, so providing a list here of
+                  # 2 values that are most commonly used.
+                  @resource = get_text(suggested_values: 'linux, rhel6', single: true)
+                end
+                # In case of no input, default values for @queue and @resource are used
+                rescue Timeout::Error
+                  @queue = 'short'
+                  @resource = 'linux'
+              end
+          else
+            puts "LSF queue has already been set to #{@queue}"
           end
         end
       end
