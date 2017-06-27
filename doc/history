@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_20_1"></a>
+<h1><a href="#v0_20_1">Tag: v0.20.1</a></h1>
+
+##### Branch: 'master'
+
+##### by nxa19128 on 27-Jun-2017 14:33PM
+
+
+Initialized @max\_address\_reg\_size to prevent nil case for single-register sub-block. Pull
+Request #92 - Chris Hume.
+
 <a class="anchor release_tag" name="v0_20_0"></a>
 <h1><a href="#v0_20_0">Tag: v0.20.0</a></h1>
 
