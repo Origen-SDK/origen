@@ -7,6 +7,7 @@
 gem_manage_bundler: true
 # Where user's local gems will be installed if gem_manage_bundler is set to true.
 gem_install_dir: ~/.origen/gems
+origen_install_dir: ~/.origen
 # Some gems can be difficult to install reliably across individual user environments.
 # Such gems can be installed to a communal system Ruby and then listed here, Origen
 # will then use the system version of the given gem instead of trying to install

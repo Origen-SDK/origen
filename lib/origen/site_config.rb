@@ -65,6 +65,16 @@ module Origen
         # Add the one from the Origen core as the lowest priority, this one defines
         # the default values
         configs << YAML.load_file(File.expand_path('../../../origen_site_config.yml', __FILE__))
+        # Add the site_config from the user's home directory as highest priority, if it exists
+        # But, make sure we take the site installation's setup into account.
+        # That is, if user's home directories are somewhere else, make sure we use that directory to the find
+        # the user's overwrite file. The user can then override that if they want."
+        install_path = configs.find { |c| c.key?("origen_install_dir") }
+        install_path = install_path ? install_path["origen_install_dir"] : nil
+        user_config = File.join(File.expand_path(install_path), 'origen_site_config.yml')
+        if File.exists?(user_config)
+          configs.unshift(YAML.load_file(user_config))
+        end
         configs
       end
     end
