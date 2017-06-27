@@ -332,6 +332,9 @@ module Origen
       local_vars[:reset] ||= :memory if local_vars[:memory]
       @min_reg_address ||= address
       @max_reg_address ||= address
+      # Must set an initial value, otherwise max_address_reg_size will be nil if a sub_block contains only
+      # a single register.
+      @max_address_reg_size = size unless @max_address_reg_size
       @min_reg_address = address if address < @min_reg_address
       if address > @max_reg_address
         @max_address_reg_size = size
