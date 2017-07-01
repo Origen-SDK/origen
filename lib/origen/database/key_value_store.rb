@@ -58,6 +58,10 @@ module Origen
       def has_key?(key)
         store.include? key
       end
+      
+      def rm_session_file
+        FileUtils.rm_f(file)
+      end
 
       private
 
@@ -96,7 +100,7 @@ module Origen
           database.record_new_store(name)
           @uncommitted = false
         end
-        File.open(file.to_s, 'w') do |f|
+        File.open(file.to_s, 'wb') do |f|
           Marshal.dump(store, f)
         end
         if persisted?
