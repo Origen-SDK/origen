@@ -75,6 +75,10 @@ module Origen
         end
         send(method, *args, &block)
       end
+      
+      def has_key? key
+        stores.include? key
+      end
 
       # Returns the names of all known stores
       def stores
