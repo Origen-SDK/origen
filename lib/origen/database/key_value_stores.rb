@@ -75,8 +75,8 @@ module Origen
         end
         send(method, *args, &block)
       end
-      
-      def has_key? key
+
+      def has_key?(key)
         stores.include? key
       end
 
