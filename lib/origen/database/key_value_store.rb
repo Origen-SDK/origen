@@ -53,6 +53,10 @@ module Origen
       def persisted?
         database.persisted?
       end
+      
+      def private?
+        @private
+      end
 
       # Check if the store has a key
       def has_key?(key)
