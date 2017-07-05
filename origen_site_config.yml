@@ -32,16 +32,16 @@ gem_use_from_system:
 #
 #   # Without email_domain specified
 #   User.new("ax1234@company.com").email  # => "ax1234@company.com"  
-#email_domain: company.com
-#email_server: smtp.company.net
-#email_port: 25
+email_domain: amd.com
+email_server: atlsmtp10.amd.com
+email_port: 25
 
 # Required parameters to connect to your company's LDAP system
-#ldap_username: cn=manager,dc=example,dc=com
-#ldap_password: opensesame
-#ldap_host: ids.company.net
-#ldap_port: 636
-#ldap_base_dn: ou=people,ou=intranet,dc=com
+ldap_username: cn=manager,dc=amd,dc=com
+ldap_password: opensesame
+ldap_host: atlldap.amd.com
+ldap_port: 636
+ldap_base_dn: ou=people,ou=intranet,dc=com
 # Optional to override the name given to the user ID attribute on the LDAP system ('id' by default)
 #ldap_user_id_attribute: uid
 

@@ -1,4 +1,6 @@
 require "spec_helper"
+require 'yaml'
+require 'json'
 
 # Some dummy classes to test out the pins module
 class PinsV3Dut
@@ -824,6 +826,7 @@ describe "Origen Pin API v3" do
       $dut.other_pin_groups.size.should == 1
       $dut.has_other_pin?(:other).should == true
       $dut.has_other_pin?(:other5).should == false
+      binding.pry
     end
   
   end

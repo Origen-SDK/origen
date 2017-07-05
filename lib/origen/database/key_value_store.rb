@@ -53,7 +53,7 @@ module Origen
       def persisted?
         database.persisted?
       end
-      
+
       def private?
         @private
       end
