@@ -5,10 +5,12 @@ module Origen
       # Returns the parent database (the application's collection of
       # key-value stores)
       attr_reader :database
+      attr_accessor :private
 
       def initialize(database, name)
         @name = name
         @database = database
+        @private = false
       end
 
       # Read a value from the store
