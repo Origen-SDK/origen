@@ -107,7 +107,6 @@ module Origen
         unless file.dirname.exist?
           FileUtils.mkdir_p(file.dirname.to_s)
         end
-        `chmod u+w #{file}` if file.exist?
         if @uncommitted
           database.record_new_store(name)
           @uncommitted = false
@@ -115,16 +114,22 @@ module Origen
         File.open(file.to_s, 'wb') do |f|
           Marshal.dump(store, f)
         end
+        if private?
+          FileUtils.chmod(0600, file)
+        else
+          FileUtils.chmod(0664, file)
+        end
         if persisted?
           dssc.check_in file, new: true, keep: true, branch: 'Trunk'
         end
       end
 
       def file
+        file_path = database.app == Origen ? Origen.home : database.app.root
         if persisted?
-          @file ||= Pathname.new("#{database.app.root}/.db/#{name.to_s.symbolize}")
+          @file ||= Pathname.new("#{file_path}/.db/#{name.to_s.symbolize}")
         else
-          @file ||= Pathname.new("#{database.app.root}/.session/#{name.to_s.symbolize}")
+          @file ||= Pathname.new("#{file_path}/.session/#{name.to_s.symbolize}")
         end
       end
     end
