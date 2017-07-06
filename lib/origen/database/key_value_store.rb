@@ -59,6 +59,11 @@ module Origen
       def private?
         @private
       end
+      
+      # Check if the store has a key
+      def has_key?(key)
+        store.include? key
+      end
 
       private
 
