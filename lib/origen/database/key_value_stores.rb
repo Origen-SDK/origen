@@ -84,7 +84,7 @@ module Origen
       def persisted?
         @persist
       end
-      
+
       def has_key?(key)
         stores.include? key
       end

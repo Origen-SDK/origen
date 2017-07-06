@@ -59,12 +59,12 @@ module Origen
       def private?
         @private
       end
-      
+
       # Check if the store has a key
       def has_key?(key)
         store.include? key
       end
-      
+
       # Remove the session file in the case it gets corrupted
       # This can happen when a complex object is not handled
       # correctly by the Marshal method.
