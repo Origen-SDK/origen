@@ -85,6 +85,10 @@ module Origen
         @persist
       end
 
+      def has_key?(key)
+        stores.include? key
+      end
+
       private
 
       def refresh_table
