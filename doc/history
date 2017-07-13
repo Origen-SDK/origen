@@ -1,3 +1,15 @@
+<a class="anchor release_tag" name="v0_20_2"></a>
+<h1><a href="#v0_20_2">Tag: v0.20.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Lajaunie Ronald-B01784 on 13-Jul-2017 14:04PM
+
+
+* Added methods to database key value stores PR #102 (info-rchitect)
+* Fixed a bug where the file handler was erroring when it found the same file twice with
+Dir.glob PR #95 (info-rchitect)
+
 <a class="anchor release_tag" name="v0_20_1"></a>
 <h1><a href="#v0_20_1">Tag: v0.20.1</a></h1>
 
