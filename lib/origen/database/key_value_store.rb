@@ -76,6 +76,11 @@ module Origen
       def delete_key(key)
         store.delete(key)
       end
+      
+      # Return an array of store keys
+      def keys
+        store.keys
+      end
 
       private
 
