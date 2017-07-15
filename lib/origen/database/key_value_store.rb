@@ -81,7 +81,11 @@ module Origen
       def keys
         store.keys
       end
-
+      
+      def user_keys
+        store.keys.reject { |k| k.to_s.match(/refresh_interval_in_minutes/) }
+      end
+      
       private
 
       def dssc
