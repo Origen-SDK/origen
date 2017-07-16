@@ -76,16 +76,16 @@ module Origen
       def delete_key(key)
         store.delete(key)
       end
-      
+
       # Return an array of store keys
       def keys
         store.keys
       end
-      
+
       def user_keys
         store.keys.reject { |k| k.to_s.match(/refresh_interval_in_minutes/) }
       end
-      
+
       private
 
       def dssc
