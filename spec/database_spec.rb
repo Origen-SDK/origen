@@ -21,8 +21,8 @@ describe 'session stores' do
   describe 'it can return its keys as an array' do
     Origen.app.session.spec[:first_key] = 1
     Origen.app.session.spec[:second_key] = 2
-    Origen.app.session.spec.keys.should == [:refresh_interval_in_minutes, :second_key, :first_key]
-    Origen.app.session.spec.user_keys.should == [:second_key, :first_key]
+    Origen.app.session.spec.keys.sort.should == [:first_key, :refresh_interval_in_minutes, :second_key]
+    Origen.app.session.spec.user_keys.sort.should == [:first_key, :second_key]
   end
  
 end
