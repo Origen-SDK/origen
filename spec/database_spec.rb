@@ -13,7 +13,7 @@ describe 'session stores' do
     Origen.app.session.spec.has_key?(:first_key).should == true
   end
   
-  describe 'it can add and delete a key' do
+  describe 'it can delete a key' do
     Origen.app.session.spec.delete_key(:first_key)
     Origen.app.session.spec.has_key?(:first_key).should == false
   end
@@ -21,8 +21,7 @@ describe 'session stores' do
   describe 'it can return its keys as an array' do
     Origen.app.session.spec[:first_key] = 1
     Origen.app.session.spec[:second_key] = 2
-    Origen.app.session.spec.keys.sort.should == [:first_key, :refresh_interval_in_minutes, :second_key]
-    Origen.app.session.spec.user_keys.sort.should == [:first_key, :second_key]
+    Origen.app.session.spec.keys.sort.should == [:first_key, :second_key]
   end
  
 end

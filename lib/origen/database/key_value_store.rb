@@ -77,13 +77,9 @@ module Origen
         store.delete(key)
       end
 
-      # Return an array of store keys
+      # Return an array of store keys, excluding the 'infrastructure' key(s)
       def keys
-        store.keys
-      end
-
-      def user_keys
-        store.keys.reject { |k| k.to_s.match(/refresh_interval_in_minutes/) }
+        store.keys - [:refresh_interval_in_minutes]
       end
 
       private
