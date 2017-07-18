@@ -75,6 +75,8 @@ module Origen
       # Deletes a key from the active store
       def delete_key(key)
         store.delete(key)
+        save_to_file
+        load_from_file
       end
 
       # Return an array of store keys, excluding the 'infrastructure' key(s)
