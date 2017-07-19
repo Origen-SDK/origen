@@ -1,3 +1,36 @@
+<a class="anchor release_tag" name="v0_20_2"></a>
+<h1><a href="#v0_20_2">Tag: v0.20.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Lajaunie Ronald-B01784 on 13-Jul-2017 14:04PM
+
+
+* Added methods to database key value stores PR #102 (info-rchitect)
+* Fixed a bug where the file handler was erroring when it found the same file twice with
+Dir.glob PR #95 (info-rchitect)
+
+<a class="anchor release_tag" name="v0_20_1"></a>
+<h1><a href="#v0_20_1">Tag: v0.20.1</a></h1>
+
+##### Branch: 'master'
+
+##### by nxa19128 on 27-Jun-2017 14:33PM
+
+
+Initialized @max\_address\_reg\_size to prevent nil case for single-register sub-block. Pull
+Request #92 - Chris Hume.
+
+<a class="anchor release_tag" name="v0_20_0"></a>
+<h1><a href="#v0_20_0">Tag: v0.20.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 16-Jun-2017 07:35AM
+
+
+Changed to MIT license
+
 <a class="anchor release_tag" name="v0_13_0"></a>
 <h1><a href="#v0_13_0">Tag: v0.13.0</a></h1>
 

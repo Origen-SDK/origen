@@ -171,8 +171,8 @@ module Origen
                     Dir.glob("#{options[:default_dir]}/#{file}")).sort
         if matches.size == 0
           matches = Dir.glob("#{options[:default_dir]}/**{,/*/**}/#{file}").sort # Takes symlinks into consideration
-          matches = matches.flatten.uniq
         end
+        matches = matches.flatten.uniq
       end
 
       if matches.size == 0
