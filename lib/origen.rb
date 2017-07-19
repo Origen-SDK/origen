@@ -55,6 +55,8 @@ unless defined? RGen::ORIGENTRANSITION
     autoload :Netlist,   'origen/netlist'
     autoload :Models,    'origen/models'
     autoload :Errata,    'origen/errata'
+    autoload :LSF,           'origen/application/lsf'
+    autoload :LSFManager,    'origen/application/lsf_manager'
 
     attr_reader :switch_user
 
@@ -263,6 +265,13 @@ unless defined? RGen::ORIGENTRANSITION
         end
         !path.root?
       end
+
+      # Shortcut method to find if Origen was invoked from within an application or from
+      # the global Origen install. This is just the opposite of in_app_workspace?
+      def running_globally?
+        !in_app_workspace?
+      end
+      alias_method :invoked_globally?, :running_globally?
 
       def root(plugin = nil)
         if plugin
@@ -586,10 +595,6 @@ unless defined? RGen::ORIGENTRANSITION
         end
       end
 
-      def lsf
-        application.lsf_manager
-      end
-
       def running_on_windows?
         Origen.os.windows?
       end
@@ -692,6 +697,24 @@ unless defined? RGen::ORIGENTRANSITION
       # Returns the home directory of Origen (i.e., the primary place that Origen operates out of)
       def home
         "#{Dir.home}/.origen"
+      end
+
+      def lsf_manager
+        @lsf_manager ||= Origen::Application::LSFManager.new
+      end
+
+      # Picks between either the global lsf_manager or the application's LSF manager
+      def lsf
+        if running_globally?
+          lsf_manager
+        else
+          application.lsf_manager
+        end
+      end
+
+      # Returns the Origen LSF instance, not the lsf_manager. Use Origen.lsf for that
+      def lsf!
+        @lsf ||= Origen::Application::LSF.new
       end
 
       private

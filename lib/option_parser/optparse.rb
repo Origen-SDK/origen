@@ -7,6 +7,13 @@ class OptionParser
     lsf_options = ARGV.dup
     orig_parse!(*args)
     lsf_options -= ARGV  # Now contains all original options
-    Origen.app.lsf_manager.command_options = lsf_options
+
+    # Pick whether we should be using the application's LSF instance or Origen's
+    # global LSF instance
+    if Origen.running_globally?
+      Origen.lsf_manager.command_options = lsf_options
+    else
+      Origen.app.lsf_manager.command_options = lsf_options
+    end
   end
 end
