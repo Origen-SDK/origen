@@ -277,7 +277,7 @@ unless defined? RGen::ORIGENTRANSITION
                 path = path.parent
               end
               if path.root?
-                fail 'Something went wrong resolving the application root!'
+                path = top
               end
               path
             end

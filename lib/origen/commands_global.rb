@@ -15,15 +15,14 @@ aliases = {
 
 # Load all of the Gemfile's dependencies and grab any global commands.
 # If the environment isn't setup for user's custom Origen, just define global_commands as empty and move on
-if Origen.site_config.custom_user_builds && File.exists?(File.join(File.expand_path(Origen.site_config.origen_install_dir), 'Gemfile'))
+if Origen.site_config.custom_user_builds && File.exist?(File.join(File.expand_path(Origen.site_config.origen_install_dir), 'Gemfile'))
   # Load the Gemfile
   Bundler.require
   Bundler.require(:development)
   Bundler.require(:runtime)
   Bundler.require(:default)
-  
+
   # Get a list of registered plugins and get the global launcher
-  #puts Origen._applications_lookup[:name].each do |plugin_name, ins|
   @global_launcher = Origen._applications_lookup[:name].map do |plugin_name, plugin|
     shared = plugin.config.shared || {}
     if shared[:global_launcher]
@@ -96,16 +95,16 @@ The following commands are available:
  interactive  Start an interactive Origen console (short-cut alias: "i"), this is just
               IRB with the 'origen' lib loaded automatically
   EOT
-  
+
   if @global_launcher && !@global_launcher.empty?
     puts ''
-    puts 'The following commands are provided by plugins:'
+    puts 'The following global commands are provided by plugins:'
     @global_commands.each do |str|
       puts str
     end
   end
 
-puts <<-EOT
+  puts <<-EOT
 
 Many commands can be run with -h (or --help) for more information.
   EOT

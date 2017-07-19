@@ -61,7 +61,6 @@ if origen_root
 else
   # Force everyone to have a consistent way of installing gems with bundler.
   # In this case, we aren't running from an Origen application, so build everything at Origen.home instead
-  #gemfile = File.join(Origen.home, 'Gemfile')
   origen_root = File.expand_path(Origen.site_config.origen_install_dir)
   gemfile = File.join(origen_root, 'Gemfile')
   unless File.exists?(gemfile)
@@ -148,7 +147,6 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
   require 'origen'
 else
   $LOAD_PATH.unshift "#{File.expand_path(File.dirname(__FILE__))}/../lib"
-  puts $LOAD_PATH
   require 'origen'
 end
 
