@@ -58,7 +58,7 @@ if origen_root
   end
   
   boot_app = true
-else
+elsif Origen.site_config.gem_manage_bundler && Origen.site_config.custom_user_builds
   # Force everyone to have a consistent way of installing gems with bundler.
   # In this case, we aren't running from an Origen application, so build everything at Origen.home instead
   origen_root = File.expand_path(Origen.site_config.origen_install_dir)
