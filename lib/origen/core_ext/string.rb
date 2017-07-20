@@ -10,8 +10,12 @@ end
 
 class String
   def to_dec
-    if self =~ /0x(.*)/
+    if self =~ /^0x(.*)/i
       Regexp.last_match[1].to_i(16)
+    elsif self =~ /0d(.*)/i
+      Regexp.last_match[1].to_i(10)
+    elsif self =~ /0o(.*)/i
+      Regexp.last_match[1].to_i(8)
     elsif self =~ /0b(.*)/
       Regexp.last_match[1].to_i(2)
     else
@@ -121,5 +125,95 @@ class String
     else
       split(/ |\_|\-/).map(&:capitalize).join(' ')
     end
+  end
+
+  # Convert a verilog number string to an interger
+  def verilog_to_i
+    verilog_hash = parse_verilog_number
+    bit_str = verilog_to_bits
+    msb_size_bit = bit_str.size - verilog_hash[:size]
+    if verilog_hash[:signed] == true
+      if bit_str[msb_size_bit] == '1'
+        "0b#{bit_str}".to_dec * -1
+      else
+        "0b#{bit_str}".to_dec
+      end
+    else
+      "0b#{bit_str}".to_dec
+    end
+  end
+
+  def verilog_to_bits
+    verilog_hash = parse_verilog_number
+    if [verilog_hash[:radix], verilog_hash[:value]].include?(nil)
+      Origen.log.error("The string '#{self}' does not appear to be valid Verilog number notation!")
+      fail
+    end
+    value_bit_string = create_bit_string_from_verilog(verilog_hash[:value], verilog_hash[:radix])
+    audit_verilog_value(value_bit_string, verilog_hash[:radix], verilog_hash[:size], verilog_hash[:signed])
+  end
+
+  private
+
+  def parse_verilog_number
+    str = nil
+    verilog_hash = {}.tap do |parse_hash|
+      [:size, :radix, :value].each do |attr|
+        parse_hash[attr] = nil
+      end
+    end
+    verilog_hash[:signed] = false
+    if match(/\_/)
+      str = delete('_')
+    else
+      str = self
+    end
+    str.downcase!
+    case str
+    when /^\d+$/ # Just a value
+      verilog_hash[:size], verilog_hash[:radix], verilog_hash[:value] = 32, 'b', self
+    when /^[b,o,d,h]\S+$/ # A value and a radix
+      _m, verilog_hash[:radix], verilog_hash[:value] = /^([b,o,d,h])(\S+)$/.match(str).to_a
+      verilog_hash[:size] = calc_verilog_value_bit_size(verilog_hash[:value], verilog_hash[:radix])
+    when /^\d+\'[b,o,d,h]\S+$/ # A value, a radix, and a size
+      _m, verilog_hash[:size], verilog_hash[:radix], verilog_hash[:value] = /^(\d+)\'([b,o,d,h])(\S+)$/.match(str).to_a
+    when /^\d+\'s[b,o,d,h]\S+$/ # A signed value, a radix, and a size
+      _m, verilog_hash[:size], verilog_hash[:radix], verilog_hash[:value] = /^(\d+)\'s([b,o,d,h])(\S+)$/.match(str).to_a
+      verilog_hash[:signed] = true
+    else
+      Origen.log.error("The string '#{self}' does not appear to be valid Verilog number notation!")
+      fail
+    end
+    verilog_hash[:size] = verilog_hash[:size].to_i if verilog_hash[:size].is_a?(String)
+    verilog_hash
+  end
+
+  def calc_verilog_value_bit_size(val, radix)
+    create_bit_string_from_verilog(val, radix).size
+  end
+
+  def create_bit_string_from_verilog(val, radix)
+    bit_str = ''
+    case radix
+    when 'b'
+      return val
+    when 'o', 'd'
+      bit_str = "0#{radix}#{val}".to_dec.to_bin
+    when 'h'
+      bit_str = "0x#{val}".to_dec.to_bin
+    end
+    2.times { bit_str.slice!(0) }
+    bit_str
+  end
+
+  def audit_verilog_value(bit_str, radix, size, signed)
+    size_diff = bit_str.size - size
+    if size_diff > 0
+      Origen.log.warn("Truncating Verilog number '#{self}' by #{size_diff} MSBs!")
+      size_diff.times { bit_str.slice!(0) }
+    elsif size_diff < 0
+      bit_str = '0' * size_diff.abs + bit_str
+    end
+    bit_str
   end
 end
