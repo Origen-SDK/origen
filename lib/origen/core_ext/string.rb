@@ -127,7 +127,7 @@ class String
     end
   end
 
-  # Convert a verilog number string to an interger
+  # Convert a verilog number string to an integer
   def verilog_to_i
     verilog_hash = parse_verilog_number
     bit_str = verilog_to_bits
@@ -143,6 +143,7 @@ class String
     end
   end
 
+  # Convert a verilog numeber string to a bit string
   def verilog_to_bits
     verilog_hash = parse_verilog_number
     if [verilog_hash[:radix], verilog_hash[:value]].include?(nil)
