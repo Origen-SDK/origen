@@ -105,5 +105,10 @@ describe Hash do
     h.recursive_find_by_key(:k).should == 'needle'
     h.recursive_find_by_key(:x).should == 1
     h.recursive_find_by_key(:y).should == 2
+    h={:xx=>1,:xy=>2,:yz=>{:a=>{:xyk=>"needle"}}}
+    h.recursive_find_by_key(/^x/).should == {:xx=>1, :xy=>2, :xyk=>"needle"}
+    h.recursive_find_by_key(/^a/).should == nil
+    h.recursive_find_by_key(/k$/).should == 'needle'
+    h.recursive_find_by_key(/xy/).should == {:xy=>2, :xyk=>"needle"}
   end
 end
