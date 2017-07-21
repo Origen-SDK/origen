@@ -79,4 +79,18 @@ describe String do
     "8'shA6".verilog_to_i.should == -166
     "9'shA6".verilog_to_i.should == 166
   end
+  
+  specify 'can correctly identify a verilog number' do
+    "10100110".is_verilog_number?.should == true
+    "b10100110".is_verilog_number?.should == true
+    "o246".is_verilog_number?.should == true
+    "d166".is_verilog_number?.should == true
+    "hA6".is_verilog_number?.should == true
+    "8'b10100110".is_verilog_number?.should == true
+    "8'o246".is_verilog_number?.should == true
+    "8'd166".is_verilog_number?.should == true
+    "8'hA6".is_verilog_number?.should == true
+    "0x1234".is_verilog_number?.should == false
+    "12".is_verilog_number?.should == false
+  end
 end

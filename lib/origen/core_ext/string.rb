@@ -154,6 +154,15 @@ class String
     audit_verilog_value(value_bit_string, verilog_hash[:radix], verilog_hash[:size], verilog_hash[:signed])
   end
 
+  def is_verilog_number?
+    case self
+    when /^[0,1]+$/, /^[b,o,d,h]\S+$/, /^\d+\'[b,o,d,h]\S+$/, /^\d+\'s[b,o,d,h]\S+$/
+      true
+    else
+      false
+    end
+  end
+
   private
 
   def parse_verilog_number
@@ -171,7 +180,7 @@ class String
     end
     str.downcase!
     case str
-    when /^\d+$/ # Just a value
+    when /^[0,1]+$/ # Just a value
       verilog_hash[:size], verilog_hash[:radix], verilog_hash[:value] = 32, 'b', self
     when /^[b,o,d,h]\S+$/ # A value and a radix
       _m, verilog_hash[:radix], verilog_hash[:value] = /^([b,o,d,h])(\S+)$/.match(str).to_a
