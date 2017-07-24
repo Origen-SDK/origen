@@ -112,11 +112,5 @@ describe Hash do
     h.recursive_find_by_key(/xy/).should == {:xy=>2, :xyk=>"needle"}
     h.recursive_find_by_key(/k1/).should == 'corner_case'
   end
-  
-  it 'can recursively find by values' do
-    h={:x=>1,:y=>2,:z=>{:a=>{:k=>"needle"}}}
-    h.recursive_find_by_value(1).should == 'needle'
-    h.recursive_find_by_value(2).should == 1
-    h.recursive_find_by_value('needle').should == 2
-  end
+ 
 end

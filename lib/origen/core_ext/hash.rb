@@ -78,5 +78,4 @@ class Hash
       return search_results
     end
   end
-  
 end
