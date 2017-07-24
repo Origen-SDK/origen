@@ -64,7 +64,8 @@ class Hash
           # ...push that on to the list of places to search.
           stack << v
         elsif key.is_a? Regexp
-          search_results[k] = v if key.match(k)
+          binding.pry if $stop == 1
+          search_results[k] = v if key.match(k.to_s)
         else
           return v if (k == key)
         end
