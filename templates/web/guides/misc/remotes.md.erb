@@ -51,6 +51,13 @@ located at:
 
 Please note that the value of <code>dir</code> must be unique for each remote within the application.
 
+You can get a handle on the top-level remotes dir via the helper <code>Origen.app.remotes_dir</code>, as shown
+in this example:
+  
+~~~ruby
+data = File.read("#{Origen.app.remotes_dir}/source/include/v_ip_ate")
+~~~
+  
 #### Origen Does the Rest
 
 With those details added Origen will then take care of ensuring that the dependencies
