@@ -7,7 +7,7 @@ module Origen
     FALSE_VALUES = ['false', 'FALSE', '0', 0]
 
     # Define a couple of site configs variables that need a bit of processing
-    
+
     # Gets the gem_intall_dir. This is either site_config.home_dir/gems or the site configs gem_install_dir
     def gem_install_dir
       return "#{tool_repo_install_dir}/gems" if gems_use_tool_repo && tool_repo_install_dir && !user_install_enable
@@ -17,7 +17,7 @@ module Origen
       end
       dir
     end
-    
+
     # Gets the user_install_dir. Like gem_install_dir, this default to somewhere home_dir, unless overridden
     def user_install_dir
       dir = find_val('user_install_dir')
@@ -47,7 +47,7 @@ module Origen
 
     private
 
-    def find_val(val, options={})
+    def find_val(val, options = {})
       env = "ORIGEN_#{val.upcase}"
       if ENV.key?(env)
         config = ENV[env]
@@ -76,16 +76,16 @@ module Origen
         # directory area
         until path.root?
           file = File.join(path, 'config', 'origen_site_config.yml')
-          configs << YAML.load_file(file) if (File.exist?(file) && YAML.load_file(file))
+          configs << YAML.load_file(file) if File.exist?(file) && YAML.load_file(file)
           file = File.join(path, 'origen_site_config.yml')
-          configs << YAML.load_file(file) if (File.exist?(file) && YAML.load_file(file))
+          configs << YAML.load_file(file) if File.exist?(file) && YAML.load_file(file)
           path = path.parent
         end
         # Add and any site_configs from the directory hierarchy where Ruby is installed
         path = Pathname.new($LOAD_PATH.last)
         until path.root?
           file = File.join(path, 'origen_site_config.yml')
-          configs << YAML.load_file(file) if (File.exist?(file) && YAML.load_file(file))
+          configs << YAML.load_file(file) if File.exist?(file) && YAML.load_file(file)
           path = path.parent
         end
         # Add the one from the Origen core as the lowest priority, this one defines

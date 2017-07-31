@@ -16,7 +16,7 @@ aliases = {
 
 # Load all of the Gemfile's dependencies and grab any global commands.
 # If no Gemfile is defined, don't require any extra bundler stuff though we most likely won't register any global commands
-#if Origen.site_config.user_install_enable && File.exist?(File.join(File.expand_path(Origen.site_config.origen_install_dir), 'Gemfile'))
+# if Origen.site_config.user_install_enable && File.exist?(File.join(File.expand_path(Origen.site_config.origen_install_dir), 'Gemfile'))
 if ENV['BUNDLE_GEMFILE']
   # Load the Gemfile
   Bundler.require
@@ -34,7 +34,6 @@ end
     file
   end
 end.compact
-
 
 require 'origen/global_methods'
 include Origen::GlobalMethods
