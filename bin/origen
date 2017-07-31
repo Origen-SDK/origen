@@ -58,10 +58,24 @@ if origen_root
   end
   
   boot_app = true
-elsif Origen.site_config.gem_manage_bundler && Origen.site_config.custom_user_builds
+elsif Origen.site_config.gem_manage_bundler && (Origen.site_config.user_install_enable || Origen.site_config.tool_repo_install_dir)
   # Force everyone to have a consistent way of installing gems with bundler.
   # In this case, we aren't running from an Origen application, so build everything at Origen.home instead
-  origen_root = File.expand_path(Origen.site_config.origen_install_dir)
+  # Have two options here: if user_install_enable is tru, use user_install_dir. Otherwise, use the tool_repo_install_dir
+  Origen.site_config.user_install_enable ? origen_root = File.expand_path(Origen.site_config.user_install_dir) : origen_root = File.expand_path(Origen.site_config.tool_repo_install_dir)
+  unless Dir.exists?(origen_root)
+    load File.expand_path('../../lib/origen/utility/input_capture.rb', __FILE__)
+    include Origen::Utility::InputCapture
+    
+    puts "Root directory '#{origen_root}' does not exist. Would you like to create it?"
+    if get_text(confirm: :return_boolean)
+      FileUtils.mkdir(origen_root)
+    else
+      puts "Exiting with creating Origen install"
+      exit!
+    end
+  end
+  
   gemfile = File.join(origen_root, 'Gemfile')
   unless File.exists?(gemfile)
     # Create a default Gemfile that can be further customized by the user.
@@ -81,7 +95,7 @@ elsif Origen.site_config.gem_manage_bundler && Origen.site_config.custom_user_bu
   boot_app = false
 end
 
-if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_manage_bundler && (boot_app || Origen.site_config.custom_user_builds)
+if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_manage_bundler && (boot_app || Origen.site_config.user_install_enable || Origen.site_config.tool_repo_install_dir)
   # Overriding bundler here so that bundle install can be automated as required
   require 'bundler/shared_helpers'
   if Bundler::SharedHelpers.in_bundle?

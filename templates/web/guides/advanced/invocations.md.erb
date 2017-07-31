@@ -1,0 +1,129 @@
+% render "layouts/guides.html" do
+
+When installing Origen as an individual user in an environment where
+the user has full admin privileges, its quite straightforward: just install Origen as any other Ruby gem.
+However, when used on system where the user does not have these admin privileges, as most company's Linux servers will
+be, installing Origen such that its available for all can be a bit daunting and individuals lose ways of customizing
+their global Origen installs.
+
+Assuming that a central IT or admin user has installed Origen in some central location, this guide goes though Origen's
+various invocations and what can be done for users to regain full control over their Origen install or for experienced users
+to build and maintain custom installs.
+
+#### Invocations
+
+When you install the <code>origen</code> gem, the origen executable will be registered on your system. Alternatively,
+the origen repository can be downloaded directly to your system, then the executable sourced from the <code>bin/origen</code>
+directory. It is also possible to create your own script to source Origen any way you want. However you choose to do so,
+that Origen executable becomes your <code>Universal Origen Install</code>. Origen invocations stemming from this location are
+invoked <code>universally</code>.
+
+Universal invocations provide a common, site-wide means to start up Origen or allow for an experienced user or IT department 
+to setup an Origen install in a project or tools workspace. However, normal users lose the ability to customize their 
+installations as these installations are generally not writable by the user base at large.
+
+For example, in order to add global commands to Origen, you must add additional dependencies to Origen's <code>Gemfile</code>.
+However, if Origen is living in some tool directory, changing the <code>Gemfile</code> will affect everyone's installation
+(for better or worse) and individual users lose control over their global installation. The 
+[Site Config](<%= path "guides/starting/company/" %>) can help us with this.
+
+#### Site Config For User Installations
+
+You can switch up Origen to instead invoke from your own home directory. Recall that the 
+[Site Config](<%= path "guides/starting/company/" %>) from earlier in the guides
+can set global parameters for Origen and that the site configs will stack upon themselves, overwriting  parameters
+until the root site config at the Origen invocation directory is reached. The top-most site config is the one that is
+located in your <code>home_dir</code>, which is <code>~/.origen</code> by default. This means that you
+can overwrite anything in Origen's site config by providing one yourself.
+
+To enable user installations, add a couple parameters to your site config. Again, your user's site config will be the
+top-most site config, but as long as the parameters are set somewhere and not overriden it will be fine. This could
+even be at the universal install's site config if it's their wish that all users have their own global environments.
+
+To enable, add these parameters to your site config:
+
+~~~
+user_install_enable: true   # Set to false by default Origen site config
+user_install_dir: ~/.origen # Or where you want it to be. 
+                            # If this is undefined, it is equal to <home_dir> in the site config
+                            # This is undefined by default/
+~~~
+
+This will first enable the user install, then indicate that the user install should be installed at
+<code>user_install_dir</code>.
+
+<code>user_install_dir</code> is actually undefined by default, and thus points to <code>home_dir</code>. If this
+location works for you, you need not update that parameter (unless some other site config is overwriting it
+and you want to change it back).
+
+Now, when you run <code>origen -v</code>, you will see <code>Bundler</code> busy itself creating some files in your home
+install. What exactly is it doing? Its giving you your own <code>Gemfile</code> to use when running Origen globally.
+After <code>Bundler</code> completes, you can <code>ls</code> on your <code>~/.origen</code> directory (or wherever
+your <code>user_install_dir</code> is pointing) and you will see a <code>Gemfile</code> sitting there. Right now, 
+all its going to have is <code>origen</code>. It should look something like this:
+
+~~~
+# frozen_string_literal: true
+source "http://rubygems.org"
+
+# gem "rails"
+gem 'origen'
+~~~
+
+However, you can add anything you want to this Gemfile. Adding additional dependencies here enables them in
+your global Origen. You can also point this <code>Gemfile</code> to a specific version of Origen or even
+to a local copy of it. This gives your application-external Origen installation the same flexibility that you have
+in your applications.
+
+#### Site Config For Toolset Installations
+
+It is likely that different users will want different global Origen setups. Having multiple universal setups
+can get messy, difficult to maintain, and depending on your organization's structure, may not even be able to be built
+by standard users.
+
+<code>Tool Repository Installations</code> allow for what is essentially a <code>user installation</code> to be built at any given
+location and enabled without needing to flip any enable switch. Additionally, this allows for all of the gems
+to be built in that same directory. The purpose of these installations is to allow all users to use a common installation
+without needing to build gems or mess with their site configs but allow any standard user to build and maintain one
+without having to dig into the universal install.
+
+To setup a toolset installation, just point the site config's <code>tool_repo_install_dir</code> to wherever you
+wish to install it. Running <code>origen -v</code> will install a tool repo installation at that location. Now,
+when users point their <code>tool_repo_install_dir</code> to that same directory, they will be running with the same
+dependencies.
+
+At the end of day, what this allows for is Origen invocations at the global level (external to an application, 
+that is) to stem off from the <code>univeral install</code> and branch out to either toolset-specific setups or to the 
+user's own setup.
+
+The purpose of these installs is to allow a project toolset manager, or other experienced Origen user, to define a
+global install's dependencies to be used by a project, a team, or etc. Since only a site config and Gemfile is needed,
+maintaince is very low. The install manager need only update the Gemfile with whatever dependencies and versions
+required. Users of this install then just need to source this site config either by making sure the site config
+is in their invocation path (again, see the [Site Config](<%= path "guides/starting/company/" %>) for this, or 
+by sourcing a script that sets the environment variable <code>ORIGEN_TOOL_REPO_INSTALL_DIR</code> (recall that site
+configs can be overwritten by settting environment variables with the same name and <code>ORIGEN</code> prepended).
+This provides a quick and easy way of setting up, using, and managing a custom install at the global level from a single
+universal setup.
+
+In theory, these installs will be rock solid. That is, the dependencies used are tried-and-tested and these installs
+are slower to pick up the latest versions, or to provide a standard dependency set for the course of the project. It is
+ultimately up to the install's manager to define how it will be used though.
+
+The user-level site config will still take precendence though. Meaning that even if the <code>tool_repo_install_dir</code>
+is defined, if the <code>user_install_enable</code> is set, a custom user install will be used instead. Then, if
+<code>user_install_dir</code> is be disabled again, the toolset directory will be used.
+
+A potential pitfall here would be a power user that may normally want to use their home directory's install but also wants
+to use a specific Origen install when working on a specific project. The environment variables will still reign supreme over
+the site config. Thus, by, for example, having their site config set <code>user_install_enable</code>, then even by
+setting <code>tool_repo_install_dir</code> they can use the environment variable <code>ORIGEN_USER_INSTALL_ENABLE</code>
+to switch between their own install and the tool repo's install.
+
+For safety, a site config or source script that sets the <code>tool_repo_install_dir</code> could also disable the
+<code>user_install_enable</code>. However, normal users probably won't have their own site config file anyway so this
+should only be needed if the universal site config, or another site config, is setting <code>user_install_enable</code>.
+Likewise, that source script could also set the environment variables directly, guaranteeing that the shell will use
+that setup.
+
+% end

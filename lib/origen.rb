@@ -696,7 +696,7 @@ unless defined? RGen::ORIGENTRANSITION
 
       # Returns the home directory of Origen (i.e., the primary place that Origen operates out of)
       def home
-        "#{Dir.home}/.origen"
+        File.expand_path(Origen.site_config.home_dir)
       end
 
       def lsf_manager

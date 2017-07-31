@@ -12,28 +12,29 @@ aliases = {
 @command = aliases[@command] || @command
 
 @global_commands = []
+@application_options = []
 
 # Load all of the Gemfile's dependencies and grab any global commands.
-# If the environment isn't setup for user's custom Origen, just define global_commands as empty and move on
-if Origen.site_config.custom_user_builds && File.exist?(File.join(File.expand_path(Origen.site_config.origen_install_dir), 'Gemfile'))
+# If no Gemfile is defined, don't require any extra bundler stuff though we most likely won't register any global commands
+#if Origen.site_config.user_install_enable && File.exist?(File.join(File.expand_path(Origen.site_config.origen_install_dir), 'Gemfile'))
+if ENV['BUNDLE_GEMFILE']
   # Load the Gemfile
   Bundler.require
   Bundler.require(:development)
   Bundler.require(:runtime)
   Bundler.require(:default)
-
-  # Get a list of registered plugins and get the global launcher
-  @global_launcher = Origen._applications_lookup[:name].map do |plugin_name, plugin|
-    shared = plugin.config.shared || {}
-    if shared[:global_launcher]
-      file = "#{plugin.root}/#{shared[:global_launcher]}"
-      require file
-      file
-    end
-  end.compact
-else
-  @global_launcher = []
 end
+
+# Get a list of registered plugins and get the global launcher
+@global_launcher = Origen._applications_lookup[:name].map do |plugin_name, plugin|
+  shared = plugin.config.shared || {}
+  if shared[:global_launcher]
+    file = "#{plugin.root}/#{shared[:global_launcher]}"
+    require file
+    file
+  end
+end.compact
+
 
 require 'origen/global_methods'
 include Origen::GlobalMethods
