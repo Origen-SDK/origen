@@ -25,6 +25,7 @@ module Origen
       include Origen::Netlist
       include Origen::Memory
       include Origen::Errata
+      include Origen::Fuses
     end
 
     module ClassMethods
