@@ -42,6 +42,11 @@ module Origen
           # Don't want to do this up front since it is possible that some patterns
           # will actually have an explicit value in the name.
           translation = Origen.config.pattern_name_translator(name)
+          # Give the current plugin a go at translating the name if the current application
+          # has not modified it
+          if translation == name && Origen.app.plugins.current
+            translation = Origen.app.plugins.current.config.pattern_name_translator(name)
+          end
           if translation
             if translation.is_a?(Hash)
               name = translation[:source]
