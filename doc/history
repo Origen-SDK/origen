@@ -1,3 +1,16 @@
+<a class="anchor release_tag" name="v0_20_3"></a>
+<h1><a href="#v0_20_3">Tag: v0.20.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 02-Aug-2017 11:38AM
+
+
+* Added keys method to session stores, very similar to the Hash#keys method
+  (Brian Caquelin)
+* The current plugin's config.pattern\_name\_translator is now given a
+  chance to translate a pattern name when dispatched via a parent app.
+
 <a class="anchor release_tag" name="v0_20_2"></a>
 <h1><a href="#v0_20_2">Tag: v0.20.2</a></h1>
 
