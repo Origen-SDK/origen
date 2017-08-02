@@ -10,9 +10,11 @@ module Origen
           default_value: 0
         }.merge(options)
         @name, @start_addr, @size, @owner = name, start_addr, size, owner
-        # Check if the start address is in Verilog
+        # Check if the start address is in Verilog format or includes the number base in it
         if @start_addr.is_a? String
-          @start_addr = @start_addr.verilog_to_i if @start_addr.is_verilog_number?
+          if @start_addr.is_verilog_number? || @start_addr.match(/^0[x,o,d,b]\S+/)
+            @start_addr = @start_addr.to_dec
+          end
         end
         unless @size.is_a?(Numeric) && @start_addr.size.is_a?(Numeric)
           Origen.log.error("Fuse fields must have numeric attributes for 'size' and 'start_addr'!")

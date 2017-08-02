@@ -10,14 +10,10 @@ end
 
 class String
   def to_dec
-    if self =~ /^0x(.*)/i
-      Regexp.last_match[1].to_i(16)
-    elsif self =~ /0d(.*)/i
-      Regexp.last_match[1].to_i(10)
-    elsif self =~ /0o(.*)/i
-      Regexp.last_match[1].to_i(8)
-    elsif self =~ /0b(.*)/
-      Regexp.last_match[1].to_i(2)
+    if self.is_verilog_number?
+      verilog_to_dec
+    elsif match(/^0[x,o,d,b]\S+/)
+      _to_dec(self)
     else
       to_i
     end
@@ -127,33 +123,6 @@ class String
     end
   end
 
-  # Convert a verilog number string to an integer
-  def verilog_to_i
-    verilog_hash = parse_verilog_number
-    bit_str = verilog_to_bits
-    msb_size_bit = bit_str.size - verilog_hash[:size]
-    if verilog_hash[:signed] == true
-      if bit_str[msb_size_bit] == '1'
-        "0b#{bit_str}".to_dec * -1
-      else
-        "0b#{bit_str}".to_dec
-      end
-    else
-      "0b#{bit_str}".to_dec
-    end
-  end
-
-  # Convert a verilog numeber string to a bit string
-  def verilog_to_bits
-    verilog_hash = parse_verilog_number
-    if [verilog_hash[:radix], verilog_hash[:value]].include?(nil)
-      Origen.log.error("The string '#{self}' does not appear to be valid Verilog number notation!")
-      fail
-    end
-    value_bit_string = create_bit_string_from_verilog(verilog_hash[:value], verilog_hash[:radix])
-    audit_verilog_value(value_bit_string, verilog_hash[:radix], verilog_hash[:size], verilog_hash[:signed])
-  end
-
   def is_verilog_number?
     case self
     when /^[0,1]+$/, /^[b,o,d,h]\S+$/, /^\d+\'[b,o,d,h]\S+$/, /^\d+\'s[b,o,d,h]\S+$/
@@ -164,6 +133,45 @@ class String
   end
 
   private
+
+  # Convert a verilog number string to an integer
+  def verilog_to_dec
+    verilog_hash = parse_verilog_number
+    bit_str = verilog_to_bits
+    msb_size_bit = bit_str.size - verilog_hash[:size]
+    if verilog_hash[:signed] == true
+      if bit_str[msb_size_bit] == '1'
+        _to_dec("0b#{bit_str}") * -1
+      else
+        _to_dec("0b#{bit_str}")
+      end
+    else
+      _to_dec("0b#{bit_str}")
+    end
+  end
+
+  # Convert a verilog number string to a bit string
+  def verilog_to_bits
+    verilog_hash = parse_verilog_number
+    if [verilog_hash[:radix], verilog_hash[:value]].include?(nil)
+      Origen.log.error("The string '#{self}' does not appear to be valid Verilog number notation!")
+      fail
+    end
+    value_bit_string = create_bit_string_from_verilog(verilog_hash[:value], verilog_hash[:radix])
+    audit_verilog_value(value_bit_string, verilog_hash[:radix], verilog_hash[:size], verilog_hash[:signed])
+  end
+
+  def _to_dec(str)
+    if str =~ /^0x(.*)/i
+      Regexp.last_match[1].to_i(16)
+    elsif str =~ /0d(.*)/i
+      Regexp.last_match[1].to_i(10)
+    elsif str =~ /0o(.*)/i
+      Regexp.last_match[1].to_i(8)
+    elsif str =~ /0b(.*)/
+      Regexp.last_match[1].to_i(2)
+    end
+  end
 
   def parse_verilog_number
     str = nil

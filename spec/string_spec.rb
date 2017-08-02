@@ -39,45 +39,28 @@ describe String do
     'Brian is_a dull-boy, TOO bad for dng'.titleize(keep_specials: true).should == 'Brian Is_a Dull-boy, Too Bad For Dng'
   end
   
-  specify 'parse verilog numbers and create bit strings' do
-    "10100110".verilog_to_bits.should == "00000000000000000000000010100110"
-    "b10100110".verilog_to_bits.should == "10100110"
-    "o246".verilog_to_bits.should == "10100110"
-    "d166".verilog_to_bits.should == "10100110"
-    "hA6".verilog_to_bits.should == "10100110"
-    "8'b10100110".verilog_to_bits.should == "10100110"
-    "8'o246".verilog_to_bits.should == "10100110"
-    "8'd166".verilog_to_bits.should == "10100110"
-    "8'hA6".verilog_to_bits.should == "10100110"
-  end
-  
-  specify 'should truncate verilog bit strings if the size is smaller than the bit string' do
-    "4'b10100110".verilog_to_bits.should == "0110"
-    "5'o246".verilog_to_bits.should == "00110"
-    "6'd166".verilog_to_bits.should == "100110"
-    "7'hA6".verilog_to_bits.should == "0100110"
-  end
-  
-  specify 'should extend verilog bit strings if size is greater than the number' do
-    "8'b0110".verilog_to_bits.should == "00000110"
-    "8'o6".verilog_to_bits.should == "00000110"
+  specify 'convert hex, octal, dec, binary strings to decimal' do
+    "0xA6".to_dec.should == 166
+    "0d166".to_dec.should == 166
+    "0b10100110".to_dec.should == 166
+    "0o246".to_dec.should == 166  
   end
   
   specify 'convert verilog numbers, represented as string, to an integer' do
-    "10100110".verilog_to_i.should == 166
-    "b10100110".verilog_to_i.should == 166
-    "o246".verilog_to_i.should == 166
-    "d166".verilog_to_i.should == 166
-    "hA6".verilog_to_i.should == 166
-    "8'b10100110".verilog_to_i.should == 166
-    "8'o246".verilog_to_i.should == 166
-    "8'd166".verilog_to_i.should == 166
-    "8'hA6".verilog_to_i.should == 166
+    "10100110".to_dec.should == 166
+    "b10100110".to_dec.should == 166
+    "o246".to_dec.should == 166
+    "d166".to_dec.should == 166
+    "hA6".to_dec.should == 166
+    "8'b10100110".to_dec.should == 166
+    "8'o246".to_dec.should == 166
+    "8'd166".to_dec.should == 166
+    "8'hA6".to_dec.should == 166
   end
   
   specify 'correctly converts signed verilog numbers to an integer' do
-    "8'shA6".verilog_to_i.should == -166
-    "9'shA6".verilog_to_i.should == 166
+    "8'shA6".to_dec.should == -166
+    "9'shA6".to_dec.should == 166
   end
   
   specify 'can correctly identify a verilog number' do
