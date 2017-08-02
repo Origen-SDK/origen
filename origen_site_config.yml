@@ -16,35 +16,23 @@ home_dir: ~/.origen
 
 # ORIGEN STARTUP OPTIONS
 # These options define how and where Origen should boot.
-# For these options: 'Startup' refers to Origen running externally from any application instance.
-# 'Startup app' refers to the actual Origen instance that is running during Origen 'startup'
-# 'User install' refers to an Origen startup running out of the user's 'user_install_dir' directory.
-# 'Global install' refers to an Origen startup running out of some other location in the event of
-#   'user_install_enable' set to false, but 'global_install_dir' being defined.
-# Likewise:
-#   'user startup (app)' refers to starting up Origen from the user's home directory.
-#   'user startup (app)' refers to starting up Origen from the global install directory.
-#   'universal startup (app)' refers to starting up Origen from the universal directory, that is, the location that 
-#     Origen is sourced from (or where 'which origen' points to).
-# NOTE: If 'user_install_enable' is true AND 'user_install_dir' is valid, but non-existing, Origen will
-#  create a 'startup app' at 'user_install_dir'. BUT, if 'global_install_dir' is defined but that path is
-#  not existing (or no 'startup app' exists there), Origen will raise an error.
+# See the guides at advanced/invocations for additional details.
 
-# By default, don't allow user install. This is more for power users to utilize for debug or who want absolute control
-# over their environment.
+# By default, don't allow user install. This is more for power users to utilize for debug or those who want absolute 
+# control over their environment.
 user_install_enable: false
 
 # Default to the user's install dir being the .origen in their home directory but allow it to be overridden
 #user_install_dir: ~/.origen
 
-# Default 'global_install_dir' to nil, meaning no 'global_install_dir' is present. If neither this nor user_install_enable
-# is present, the universal startup will be used.
+# Default 'tool_repo_install_dir' to nil, meaning no 'tool_repo_install_dir' is present. If neither this nor 
+# 'user_install_enable' is present, the universal install will be used.
 #tool_repo_install_dir: nil
 
-# If tool_repo_install_dir is set, then, by default, Bundler will use and build the gems in the tool repo.
+# If 'tool_repo_install_dir' is set, then, by default, Bundler will use and build the gems in the tool repo.
 # Purpose of this, is to allow a power user to setup and install these gems and for individuals to just use.
 # Added this parameter and set to true so that this will be the default behavior. Otherwise, gem_install_dir
-# would need to be overridden and set with the 'tool_repo_install_dir'
+# would need to be overwritten and set with the 'tool_repo_install_dir'
 gems_use_tool_repo: true
 
 # Some gems can be difficult to install reliably across individual user environments.

@@ -2,19 +2,15 @@
 $VERBOSE = nil  # Don't care about world writable dir warnings and the like
 
 if $_fix_my_workspace_version_check
-  $_fix_my_workspace_version = '0.5.0'
+  $_fix_my_workspace_version = '0.6.0'
 else
-  # if we're running this from a development environment (i.e., bin/ inside of origen repo) then
-  # load this origen, not whichever one the system is pointing to.
   if File.exists?(File.expand_path('../../lib/origen.rb', __FILE__))
+    $LOAD_PATH.unshift(File.expand_path('../../lib', __FILE__))
     require 'origen'
-    load File.expand_path('../../lib/origen.rb', __FILE__)
-    load File.expand_path('../../lib/origen/operating_systems.rb', __FILE__)
-    load File.expand_path('../../lib/origen/site_config.rb', __FILE__)
   else
     require 'origen'
   end
-  
+
   if !Origen.site_config.gem_manage_bundler
     puts 'Sorry but you have opted to manage Bundler yourself via your Origen site config, and this means'
     puts 'that I cannot make certain assumptions about how your workspace is configured.'
@@ -79,9 +75,23 @@ else
       fixed = true
     end
 
-    `chmod o-w #{ENV['BUNDLE_BIN']}` if File.exist?(ENV['BUNDLE_BIN'])
+    if File.exist?(ENV['BUNDLE_BIN'])
+      `chmod o-w #{ENV['BUNDLE_BIN']}`
+
+      # Make .bat versions of all executables, Bundler should really be doing this when running
+      # on windows
+      if Origen.os.windows?
+        Dir.glob("#{ENV['BUNDLE_BIN']}/*").each do |bin|
+          unless bin =~ /.bat$/
+            bat = "#{bin}.bat"
+            unless File.exist?(bat)
+              File.open(bat, 'w') { |f| f.write('@"ruby.exe" "%~dpn0" %*') }
+            end
+          end
+        end
+      end
+    end
 
     system 'origen -v' if fixed
-
   end
 end

@@ -46,7 +46,7 @@ To enable, add these parameters to your site config:
 user_install_enable: true   # Set to false by default Origen site config
 user_install_dir: ~/.origen # Or where you want it to be. 
                             # If this is undefined, it is equal to <home_dir> in the site config
-                            # This is undefined by default/
+                            # This is undefined by default
 ~~~
 
 This will first enable the user install, then indicate that the user install should be installed at
@@ -98,9 +98,9 @@ user's own setup.
 
 The purpose of these installs is to allow a project toolset manager, or other experienced Origen user, to define a
 global install's dependencies to be used by a project, a team, or etc. Since only a site config and Gemfile is needed,
-maintaince is very low. The install manager need only update the Gemfile with whatever dependencies and versions
+maintenance is very low. The install manager need only update the Gemfile with whatever dependencies and versions
 required. Users of this install then just need to source this site config either by making sure the site config
-is in their invocation path (again, see the [Site Config](<%= path "guides/starting/company/" %>) for this, or 
+is in their invocation path (again, see the [Site Config](<%= path "guides/starting/company/" %>) for this), or 
 by sourcing a script that sets the environment variable <code>ORIGEN_TOOL_REPO_INSTALL_DIR</code> (recall that site
 configs can be overwritten by settting environment variables with the same name and <code>ORIGEN</code> prepended).
 This provides a quick and easy way of setting up, using, and managing a custom install at the global level from a single
@@ -116,7 +116,7 @@ is defined, if the <code>user_install_enable</code> is set, a custom user instal
 
 A potential pitfall here would be a power user that may normally want to use their home directory's install but also wants
 to use a specific Origen install when working on a specific project. The environment variables will still reign supreme over
-the site config. Thus, by, for example, having their site config set <code>user_install_enable</code>, then even by
+the site config. Thus, by, for example, having their site config set <code>user_install_enable</code> and by
 setting <code>tool_repo_install_dir</code> they can use the environment variable <code>ORIGEN_USER_INSTALL_ENABLE</code>
 to switch between their own install and the tool repo's install.
 
