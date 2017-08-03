@@ -47,7 +47,7 @@ describe String do
   end
   
   specify 'convert verilog numbers, represented as string, to an integer' do
-    "10100110".to_dec.should == 166
+    "10100110".to_dec.should == 10100110
     "b10100110".to_dec.should == 166
     "o246".to_dec.should == 166
     "d166".to_dec.should == 166
@@ -64,7 +64,7 @@ describe String do
   end
   
   specify 'can correctly identify a verilog number' do
-    "10100110".is_verilog_number?.should == true
+    "10100110".is_verilog_number?.should == false
     "b10100110".is_verilog_number?.should == true
     "o246".is_verilog_number?.should == true
     "d166".is_verilog_number?.should == true

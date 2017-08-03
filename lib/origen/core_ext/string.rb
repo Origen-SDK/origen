@@ -125,7 +125,7 @@ class String
 
   def is_verilog_number?
     case self
-    when /^[0,1]+$/, /^[b,o,d,h]\S+$/, /^\d+\'[b,o,d,h]\S+$/, /^\d+\'s[b,o,d,h]\S+$/
+    when /^[b,o,d,h]\S+$/, /^\d+\'[b,o,d,h]\S+$/, /^\d+\'s[b,o,d,h]\S+$/
       true
     else
       false
