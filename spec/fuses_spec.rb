@@ -16,10 +16,15 @@ class SoC_With_Fuses
       reprogrammeable: true,
       default_value: 1
     }
+    my_fuse_field_data = {
+      reprogrammeable: true,
+      default_value: 1
+    }
     
     fuse_field :ff1, 0xDEADBEEF, 8, ff1_fuse_field_data
     fuse_field :ff2, 1024, 4, ff2_fuse_field_data
-    
+    fuse_field :my_fuse_field, 1048, 32, my_fuse_field_data
+        
   end
   
 end
@@ -52,30 +57,33 @@ describe "Fuses" do
   end
 
   it "can create and interact with top level fuses" do
-    dut.fuses.size.should == 2
-    dut.fuses[:ff1].name.should == :ff1
-    dut.fuses[:ff1].start_addr.should == 0xDEADBEEF
-    dut.fuses[:ff1].size.should == 8
-    dut.fuses[:ff1].default_value.should == 0
-    dut.fuses[:ff1].reprogrammeable?.should == false
-    dut.fuses[:ff1].customer_visible?.should == true
-    dut.fuses[:ff2].name.should == :ff2
-    dut.fuses[:ff2].start_addr.should == 1024
-    dut.fuses[:ff2].size.should == 4
-    dut.fuses[:ff2].default_value.should == 1
-    dut.fuses[:ff2].reprogrammeable?.should == true
-    dut.fuses[:ff2].customer_visible?.should == false
+    dut.fuses.should == [:ff1, :ff2, :my_fuse_field]
+    dut.fuses.size.should == 3
+    dut.fuses(/ff/).class.should == Hash
+    dut.fuses(/ff/).size.should == 2
+    dut.fuses(:ff1).name.should == :ff1
+    dut.fuses(:ff1).start_addr.should == 0xDEADBEEF
+    dut.fuses(:ff1).size.should == 8
+    dut.fuses(:ff1).default_value.should == 0
+    dut.fuses(:ff1).reprogrammeable?.should == false
+    dut.fuses(:ff1).customer_visible?.should == true
+    dut.fuses(:ff2).name.should == :ff2
+    dut.fuses(:ff2).start_addr.should == 1024
+    dut.fuses(:ff2).size.should == 4
+    dut.fuses(:ff2).default_value.should == 1
+    dut.fuses(:ff2).reprogrammeable?.should == true
+    dut.fuses(:ff2).customer_visible?.should == false
   end
   
   it "can create and interact with IP level fuses" do
     dut.ip_with_fuses.fuses.size.should == 1
     dut.ip_with_fuses.fuses.include?(:ff2).should== false
-    dut.ip_with_fuses.fuses[:ff1].name.should == :ff1
-    dut.ip_with_fuses.fuses[:ff1].start_addr.should == 0x1000_0009
-    dut.ip_with_fuses.fuses[:ff1].size.should == 16
-    dut.ip_with_fuses.fuses[:ff1].default_value.should == 0
-    dut.ip_with_fuses.fuses[:ff1].reprogrammeable?.should == true
-    dut.ip_with_fuses.fuses[:ff1].customer_visible?.should == true
+    dut.ip_with_fuses.fuses(:ff1).name.should == :ff1
+    dut.ip_with_fuses.fuses(:ff1).start_addr.should == 0x1000_0009
+    dut.ip_with_fuses.fuses(:ff1).size.should == 16
+    dut.ip_with_fuses.fuses(:ff1).default_value.should == 0
+    dut.ip_with_fuses.fuses(:ff1).reprogrammeable?.should == true
+    dut.ip_with_fuses.fuses(:ff1).customer_visible?.should == true
   end
     
 end
