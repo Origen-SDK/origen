@@ -38,4 +38,42 @@ describe String do
     'Brian is_a dull-boy, TOO bad for dng'.titleize.should == 'Brian Is A Dull Boy, Too Bad For Dng'
     'Brian is_a dull-boy, TOO bad for dng'.titleize(keep_specials: true).should == 'Brian Is_a Dull-boy, Too Bad For Dng'
   end
+  
+  specify 'convert hex, octal, dec, binary strings to decimal' do
+    "0xA6".to_dec.should == 166
+    "0d166".to_dec.should == 166
+    "0b10100110".to_dec.should == 166
+    "0o246".to_dec.should == 166  
+  end
+  
+  specify 'convert verilog numbers, represented as string, to an integer' do
+    "10100110".to_dec.should == 10100110
+    "b10100110".to_dec.should == 166
+    "o246".to_dec.should == 166
+    "d166".to_dec.should == 166
+    "hA6".to_dec.should == 166
+    "8'b10100110".to_dec.should == 166
+    "8'o246".to_dec.should == 166
+    "8'd166".to_dec.should == 166
+    "8'hA6".to_dec.should == 166
+  end
+  
+  specify 'correctly converts signed verilog numbers to an integer' do
+    "8'shA6".to_dec.should == -166
+    "9'shA6".to_dec.should == 166
+  end
+  
+  specify 'can correctly identify a verilog number' do
+    "10100110".is_verilog_number?.should == false
+    "b10100110".is_verilog_number?.should == true
+    "o246".is_verilog_number?.should == true
+    "d166".is_verilog_number?.should == true
+    "hA6".is_verilog_number?.should == true
+    "8'b10100110".is_verilog_number?.should == true
+    "8'o246".is_verilog_number?.should == true
+    "8'd166".is_verilog_number?.should == true
+    "8'hA6".is_verilog_number?.should == true
+    "0x1234".is_verilog_number?.should == false
+    "12".is_verilog_number?.should == false
+  end
 end

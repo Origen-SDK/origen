@@ -1,0 +1,53 @@
+% render "layouts/guides.html" do
+
+The Fuses or e-Fuses model here is bare-bones, requiring few arguments to instantiate a fuse field:
+
+* Name
+* Start Address
+* Size
+
+Any other options passed during instantiation will be modeled as attributes of the fuse field.
+
+~~~ruby
+idcode_attrs = {
+  customer_visible: true,
+  owner: 'Ginty',
+  default_value: 0x0
+}
+serial_id_attrs = {
+  customer_visible: false,
+  owner: 'Seth',
+  default_value: 0x0
+}
+$dut.fuse_field(:idcode, 0xDEADBEEF, 128, idcode_attrs)
+$dut.fuse_field(:serial_id, 0xF5F5F5F5, 64, serial_id_attrs)
+~~~
+
+Accessing fuses behaves similarly to other Origen models, returning an array of fuse field names when
+calledwithout an argument.
+
+~~~shell
+$dut.fuses # => [:idcode, :serial_id]
+~~~
+
+Given the potentially large number of fuses on SoCs, one may search for fuse fields using a regular expression.
+This can be handy when wanting to iterate around a desired collection of fuse fields, such as memory repair fuses.
+
+~~~shell
+ $dut.fuses(/code/) # => Array of size one containing the fuse field :idcode
+~~~
+
+Attributes are accessed as any other model
+
+~~~shell
+$dut.fuses(:idcode).customer_visible # => true
+$dut.fuses(:idcode).owner            # => 'Ginty'
+~~~
+
+Fuses can be modeled within any class that includes Origen::SubBlocks, as is often the case, fuses are
+owned by individual IP or the top level device.  
+
+Currently there are no rich methods for interacting with the fuse fields, ala Origen::Registers, so 
+please feel free to contibute.
+
+% end

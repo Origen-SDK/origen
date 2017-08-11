@@ -57,6 +57,7 @@ unless defined? RGen::ORIGENTRANSITION
     autoload :Errata,    'origen/errata'
     autoload :LSF,           'origen/application/lsf'
     autoload :LSFManager,    'origen/application/lsf_manager'
+    autoload :Fuses,     'origen/fuses'
 
     attr_reader :switch_user
 
