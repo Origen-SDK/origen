@@ -42,6 +42,23 @@ Displaying numbers in hex or binary format is very common, some helpers exist fo
 100.to_bin.to_dec   # => 100
 ~~~
 
+Many data sources imported by Origen use Verilog numbers represented as Strings, to represent
+things such as memory addresses, bit size, etc. that need to be modeled as numbers.
+
+~~~ruby
+"b10100110".to_dec          # => 166
+"o246".to_dec               # => 166
+"d166".to_dec               # => 166
+"hA6".to_dec                # => 166
+"8'b10100110".to_dec        # => 166
+"8'o246".to_dec             # => 166
+"8'd166".to_dec             # => 166
+"8'hA6".to_dec              # => 166
+"8'o246".is_verilog_number? # => true
+"8'd166".is_verilog_number? # => true
+"8'hA6".is_verilog_number?  # => true
+~~~
+
 #### Part Select
 
 Ruby does not natively support a Verilog style part select to allow the numeric value of a subset
