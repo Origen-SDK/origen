@@ -55,6 +55,7 @@ unless defined? RGen::ORIGENTRANSITION
     autoload :Netlist,   'origen/netlist'
     autoload :Models,    'origen/models'
     autoload :Errata,    'origen/errata'
+    autoload :Fuses,     'origen/fuses'
 
     attr_reader :switch_user
 
