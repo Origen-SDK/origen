@@ -1,0 +1,22 @@
+% render "layouts/guides.html" do
+
+As you may have noticed, running <code>origen</code> or <code>origen -h</code> gives you a different set of commands
+depending on where you run. When you run Origen from outside of an application, you are getting the Origen
+<code>global</code> commands. When you run Origen inside of an application's workspace, you are getting
+the <code>application & shared</code> commands. This division of the commands gives only what is relevant for wherever
+Origen was invoked. For example, it does not make sense to create a new application when you are in one. Nor does make
+sense to try and generate a pattern or compile a website if the application doesn't exist.
+
+Plugins can add [Shared Commands](<%= path "guides/plugins/creating/#Sharing_Application_Commands" %>) and 
+[Global Commands](<%= path "guides/plugins/creating/#Sharing_Global_Commands" %>). In order to use these commands 
+though, the plugin must be added as a [dependency](<%= path "guides/starting/gems" %>). Inside an application, this is 
+easy, just add it to the Gemfile. To add commands to your global commands is a bit more involved and is out of scope 
+for a beginner's guide.
+
+Normally, advanced users will handle setting up 
+[Tool Repo Installs](<%= path "guides/advanced/invocations/#Site_Config_For_Toolset_Installations" %>) for others
+to use. Please see the topic on this for setting this up. You can also 
+[Enable Your User-Directory Install](<%= path "guides/advanced/invocations/#Site_Config_For_User_Installations" %>) 
+if you wish to add global dependencies yourself.
+
+% end

@@ -24,6 +24,7 @@ ORIGEN_COMMAND_ALIASES = {
 
 @command = ARGV.shift
 @command = ORIGEN_COMMAND_ALIASES[@command] || @command
+@global_commands = []
 
 # Don't log to file during the save command since we need to preserve the last log,
 # this is done as early in the process as possible so any deprecation warnings during
@@ -215,6 +216,16 @@ if shared_commands && shared_commands.size != 0
   end
 end
 
+# Get a list of registered plugins and get the global launcher
+@global_launcher = Origen._applications_lookup[:name].map do |plugin_name, plugin|
+  shared = plugin.config.shared || {}
+  if shared[:global_launcher]
+    file = "#{plugin.root}/#{shared[:global_launcher]}"
+    require file
+    file
+  end
+end.compact
+
 case @command
 when 'generate', 'program', 'compile', 'merge', 'interactive', 'target', 'environment',
      'save', 'lsf', 'web', 'time', 'dispatch', 'rc', 'lint', 'plugin', 'fetch', 'mode' # , 'add'
@@ -270,6 +281,14 @@ EOT
   if @plugin_commands && !@plugin_commands.empty?
     puts 'The following commands are provided by plugins:'
     @plugin_commands.each do |str|
+      puts str
+    end
+  end
+
+  if @global_launcher && !@global_launcher.empty?
+    puts ''
+    puts 'The following global commands are provided by plugins:'
+    @global_commands.each do |str|
       puts str
     end
   end

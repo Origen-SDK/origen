@@ -97,7 +97,7 @@ GEM
       atp (~> 0.5.4)
       origen (>= 0.7.40)
       require_all (~> 1)
-    origen_updater (0.5.0)
+    origen_updater (0.6.0)
       origen
     parser (2.4.0.0)
       ast (~> 2.2)

@@ -98,6 +98,7 @@ config.shared = {
 #  :templates => "templates",
 #  :programs => "program",
 #  :command_launcher => "config/shared_commands.rb"
+#  :global_launcher => "config/global_commands.rb"
 }
 ~~~
 
@@ -150,7 +151,7 @@ origen atd_test:prod_pats   # Generate all production patterns from the ATD plug
 origen atd_test:prod_prog   # Generate the production test program from the ATD plugin
 ~~~
 
-#### Sharing Commands
+#### Sharing Application Commands
 
 To share custom commands supply a path to a command definition/launcher file within the plugin
 as shown in the example above.
@@ -199,5 +200,78 @@ else
 
 end
 ~~~
+
+#### Sharing Global Commands
+
+The above allows you to share commands when running from within an application instance. But what if
+we want to share commands regardless of whether we are running in an application? In this way, Origen
+can be even further utilized as a tool distribution platform and but allow all of our non-application
+specific functionality to still be used. E.g., LSF manager, authentication, revision control APIs, etc.
+
+Adding shared global commands is very similiar to adding shared application commands, as shown above. The 
+<code>global_launcher</code> option in the <code>config.shared</code> definition points to a file containing
+the global commands. This file, call it <code>config/global_commands.rb</code>, for example, is analogous to
+the <code>config/shared_commands.rb</code> file from the above and looks about the same, with the exception
+that the <code>@plugin_commands</code> variable is now <code>@global_commands</code>. An example is below:
+
+~~~
+
+case @command
+
+# Print the current version notes of the atd_test module.
+when "atd_test:version_notes"
+  require "#{Origen.root!}/lib/commands/version_notes"
+  exit 0
+
+else
+  @global_commands << <<-EOT
+ atd_test:version_notes             Checks the dPDM BOM versus the DS HREFs
+                                    -h for a full description
+  EOT
+
+end
+
+~~~
+
+<b>Please note though that this requires the plugin to be added as a dependency to non-application Origen 
+invocations. Please see the</b> [Invocation Considerations](<%= path "guides/starting/invoking" %>) <b>page 
+for an explanation or refresher on what this means.</b>
+
+#### Command Sharing Considerations
+
+Due to the way that Origen acknowledges shared, global, and application commands, a pitfall exists where user-defined commands
+can step on each other (known as <i>command clobbering</i>). This has the implication that you may not be running the command you think you
+are running.
+
+Consider a plugin, called <code>my_plugin_1</code> that adds and implements a shared command <code>my_command</code>. This
+command will be available to any application which contains <code>my_plugin_1</code> as a dependency. Now, consider a second plugin,
+<code>my_plugin_2</code> which is also a dependency of the application. <code>my_plugin_2</code> also adds and implements the
+command <code>my_command</code>. Both plugins are adding the same command and are clobbering the command listing. The behavior
+will be dependent on the load order and can be difficult to predict.
+
+For example, if <code>my_plugin_1</code> is listed before <code>my_plugin_2</code> in the application's <code>Gemfile</code>, then
+<code>my_plugin_1</code> will be loaded and evaluated first and <code>my_command</code> in <code>my_plugin_1</code> will be run. However,
+that is not all the consideration needed. If <code>my_plugin_1</code> actually lists <code>my_plugin_2</code> as its dependency,
+then <code>my_plugin_2</code> will be loaded before <code>my_plugin_1</code> regardless of the load order in the application's
+<code>Gemfile</code>. Now, <code>my_command</code> in <code>my_plugin_2</code> will be run. This means that it can be difficult
+to track which one of the commands will be run in the case of command clobbering between plugins. You can use the <code>bundle</code>
+command to see what the final load order is and track down which version of the command will be run.
+
+The solution to this is to add namespacing to each of the plugins, as shown in the 
+[Sharing Application Commands](<%= path "guides/plugins/creating#Sharing_Application_Commands" %>) 
+section above. <b>However, this is up to the plugin developers to abide by. Origen does not guarantee nor enforce this 
+behavior and is none the wiser to plugins stepping on each other. No
+warnings or errors are generated in the event of command clobbering.</b>
+
+Regarding global commands, the same pitfall exists. However, an additional issue is that a shared command can now clobber a global
+command. In the current Origen implementation, shared commands take precedence over global commands. Meaning, if <code>my_plugin_1</code>
+implements <code>my_command</code> as a global command and, for one reason or another, it implements <code>my_command</code> as a shared
+command, then when running in an application the <code>shared</code> version of <code>my_command</code> will be used. However, external
+to an application, the <code>global</code> version of <code>my_command</code> will be run. Like shared command clobbering, <b>no warnings
+or errors are generated, Origen is completely oblivious to this behavior, and it is up to the plugin developers to ensure this does not
+occur.</b>
+
+This is a known issue which has been registerd with the core team. For tracking this issue's status, please see the 
+[Cascading Commands Issue on Github.](https://github.com/Origen-SDK/origen/issues/108)
 
 % end
