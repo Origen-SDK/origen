@@ -2,12 +2,15 @@
 $VERBOSE = nil  # Don't care about world writable dir warnings and the like
 
 if $_fix_my_workspace_version_check
-  $_fix_my_workspace_version = '0.6.0'
+  $_fix_my_workspace_version = '0.7.0'
 else
-  if File.exists?(File.expand_path('../../lib/origen.rb', __FILE__))
+  if File.exist?(File.expand_path('../../lib/origen.rb', __FILE__))
+    # If this script is being run from within an origen-core workspace, use that Origen-core,
+    # not the system-installed origen-core version.
     $LOAD_PATH.unshift(File.expand_path('../../lib', __FILE__))
     require 'origen'
   else
+    # Use system-installed Origen (the gem in system Ruby)
     require 'origen'
   end
 
