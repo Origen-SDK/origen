@@ -1,3 +1,16 @@
+<a class="anchor release_tag" name="v0_21_0"></a>
+<h1><a href="#v0_21_0">Tag: v0.21.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 14-Aug-2017 08:37AM
+
+
+* Added a system to allow plugins to extend and add commands to Origen outwith
+  the scope of an application (Corey Engelken)
+* Added support for Verilog formatted numbers in the String#to\_dec method and
+  added an API for modelling fuse blocks (Brian Caquelin)
+
 <a class="anchor release_tag" name="v0_20_3"></a>
 <h1><a href="#v0_20_3">Tag: v0.20.3</a></h1>
 
