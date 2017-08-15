@@ -61,7 +61,7 @@ if origen_root
 elsif Origen.site_config.gem_manage_bundler && (Origen.site_config.user_install_enable || Origen.site_config.tool_repo_install_dir)
   # Force everyone to have a consistent way of installing gems with bundler.
   # In this case, we aren't running from an Origen application, so build everything at Origen.home instead
-  # Have two options here: if user_install_enable is tru, use user_install_dir. Otherwise, use the tool_repo_install_dir
+  # Have two options here: if user_install_enable is true, use user_install_dir. Otherwise, use the tool_repo_install_dir
   Origen.site_config.user_install_enable ? origen_root = File.expand_path(Origen.site_config.user_install_dir) : origen_root = File.expand_path(Origen.site_config.tool_repo_install_dir)
   unless Dir.exists?(origen_root)
     load File.expand_path('../../lib/origen/utility/input_capture.rb', __FILE__)
@@ -174,7 +174,11 @@ begin
     require 'origen/commands_global'
   end
 rescue Exception => e
-  unless e.is_a?(SystemExit) && e.status == 0
+  # A formatted stack dump will not be printed if the application ends via 'exit 0' or 'exit 1'. In that
+  # case the application code is responsible for printing a helpful error message.
+  # This will intercept all other exits, e.g. via 'fail "Something has done wrong"', and split the stack
+  # dump to separate all in-application references from Origen core/plugin references.
+  unless e.is_a?(SystemExit)
     puts
     if Origen.app_loaded?
       puts 'COMPLETE CALL STACK'
