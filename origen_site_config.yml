@@ -1,3 +1,17 @@
+# GENERAL SETUP
+
+# Application generator plugins can be used to extend the available new application templates
+# that are offered via the 'origen new' command.
+# This allows you to offer application shells that are unique to your company or to specific
+# domains within your company.
+#app_generators:
+#  # Example of how to reference a plugin from an internal gem server (recommended)
+#  - ["http://gems.mycompany.net:9292", my_app_generators]
+#  # Alternatively a file system path to a central copy of a plugin can be used
+#  - "/path/to/some/central/location/my_app_generators"
+#  # Or a reference to a plugin's Git repository can be used
+#  - "http://bitbucket.mycompany.net/origen/my_app_generators.git"
+
 # GEM SETUP
 
 # If your company has an internal gem server enter it here
