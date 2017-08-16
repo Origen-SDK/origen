@@ -50,11 +50,11 @@ module Origen
     def find_val(val, options = {})
       env = "ORIGEN_#{val.upcase}"
       if ENV.key?(env)
-        config = ENV[env]
+        val = ENV[env]
         if TRUE_VALUES.include?(val)
-          config = true
+          return true
         elsif FALSE_VALUES.include?(val)
-          config = false
+          return false
         end
         config
       else
