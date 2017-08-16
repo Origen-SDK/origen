@@ -1,3 +1,16 @@
+<a class="anchor release_tag" name="v0_22_0"></a>
+<h1><a href="#v0_22_0">Tag: v0.22.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 16-Aug-2017 16:42PM
+
+
+* Updated the 'origen new' command to allow company specific application generators to hook
+  into it.
+* Fixed bug whereby site\_config variables set to true or false via environment variables
+  were not converted into Ruby booleans.
+
 <a class="anchor release_tag" name="v0_21_0"></a>
 <h1><a href="#v0_21_0">Tag: v0.21.0</a></h1>
 

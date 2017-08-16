@@ -1,6 +1,6 @@
 module Origen
   MAJOR = 0
-  MINOR = 21
+  MINOR = 22
   BUGFIX = 0
   DEV = nil
 
