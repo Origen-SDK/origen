@@ -507,8 +507,10 @@ module Origen
     end
     alias_method :has_reg, :has_reg?
 
-    # Returns the register object matching the given name, or a hash of all registers,
-    # associated with a feature,if no name is specified.
+    # Returns
+    #  -the register object matching the given name
+    #  -or a hash of all registes matching a given regular expression
+    #  -or a hash of all registers, associated with a feature, if no name is specified.
     #
     # Can also be used to define a new register if a block is supplied in which case
     # it is equivalent to calling add_reg with a block.
@@ -520,6 +522,7 @@ module Origen
         # Example use cases:
         # reg(:reg2)
         # reg(:name => :reg2)
+        # reg('/reg2/')
         if !args.empty? && args.size == 1 && (args[0].class != Hash || (args[0].key?(:name) && args[0].size == 1))
           if args[0].class == Hash
             name = args[0][:name]
@@ -527,6 +530,9 @@ module Origen
           end
           if has_reg(name)
             return _registers[name]
+          elsif name =~ /\/(.+)\//
+            regex = Regexp.last_match(1)
+            return match_registers(regex)
           else
             if Origen.config.strict_errors
               puts ''
@@ -592,6 +598,15 @@ module Origen
     alias_method :regs, :reg
 
     private
+
+    def match_registers(regex)
+      regs_to_return = RegCollection.new(self)
+      _registers.each do |k, v|
+        regs_to_return[k] = v if k.to_s.match(/#{regex}/)
+      end
+      regs_to_return
+    end
+    alias_method :regs_match, :match_registers
 
     def reg_missing_error(params)
       if Origen.config.strict_errors
