@@ -92,6 +92,13 @@ This is a sub-template.
 The value of Y is: <%= "<" + "%= options[:y] %" + ">" %>
 ~~~
 
+Note:  There are required options keys that cannot be altered when passing options
+to a sub-template.
+
+~~~ruby
+[:scope, :file, :top_level_file]
+~~~
+
 #### Using Sub-Templates for Layout
 
 The <code>render</code> method also supports a block form which can be used
