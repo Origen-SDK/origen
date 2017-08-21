@@ -13,8 +13,6 @@ The following commands are available:
               new origen application workspace in "./my_app"
  interactive  Start an interactive Origen console (short-cut alias: "i"), this is just
               IRB with the 'origen' lib loaded automatically
- fetch        Automatically creates the workspace for the requested plugin and
-              populates the latest version of the plugin (short-cut alias: "f")
 
 Many commands can be run with -h (or --help) for more information.
 ~~~
@@ -38,6 +36,10 @@ questions and it should need no additional configuration to get started.
 
 You can immediately start adding your application specific logic to the <code>lib</code>
 directory.
+
+As your experience with Origen grows, you can extend the `origen new` command to
+add your own customized starter applications. This process is described in the
+advanced guides, see: [Creating Custom Application Generators](<%= path 'guides/advanced/newapps' %>).
 
 #### Documenting Your Application
 

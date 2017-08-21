@@ -26,6 +26,14 @@ class OrigenCoreApplication < Origen::Application
     #:files => ["lib", "config/application.rb"],
   }
 
+  config.remotes = [
+    {
+      dir: "origen_app_generators",
+      rc_url: "https://github.com/Origen-SDK/origen_app_generators.git",
+      version: "1006fe8",
+    }
+  ]
+
   #config.lsf.project = "origen core"
   
   config.web_directory = "git@github.com:Origen-SDK/Origen-SDK.github.io.git/origen"
