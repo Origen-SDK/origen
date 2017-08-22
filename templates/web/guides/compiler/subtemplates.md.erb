@@ -92,8 +92,8 @@ This is a sub-template.
 The value of Y is: <%= "<" + "%= options[:y] %" + ">" %>
 ~~~
 
-Note:  There are required options keys that cannot be altered when passing options
-to a sub-template.
+Note:  There are reserved options keys that should not be altered when passing options
+to a sub-template, otherwise the compiler will not function correctly.
 
 ~~~ruby
 [:scope, :file, :top_level_file]
