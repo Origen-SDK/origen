@@ -135,13 +135,14 @@ The following options are available:
     when 'new'
       _build_web_dir
     when 'compile'
-      Origen.app.load_target!
       if options[:remote]
+        Origen.app.load_target!
         _require_web_directory
         _deployer.prepare!(options)
         # If the whole site has been requested that start from a clean slate
         _build_web_dir if ARGV.empty?
       else
+        Origen.app.load_target!(force_debug: true)
         Origen.set_development_mode
       end
       options[:files] = ARGV.dup
