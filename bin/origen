@@ -178,7 +178,9 @@ rescue Exception => e
   # case the application code is responsible for printing a helpful error message.
   # This will intercept all other exits, e.g. via 'fail "Something has done wrong"', and split the stack
   # dump to separate all in-application references from Origen core/plugin references.
-  unless e.is_a?(SystemExit)
+  if e.is_a?(SystemExit)
+    exit e.status
+  else
     puts
     if Origen.app_loaded?
       puts 'COMPLETE CALL STACK'

@@ -216,9 +216,7 @@ module Origen
       @remotes = {}
       top_level_remotes
       top_level_remotes.each do |remote|
-        traverse_remotes(remote) do |remote|
-          add_remote(remote)
-        end
+        add_remote(remote)
       end
       # Add remotes from imports
       Origen.app.plugins.each do |plugin|
@@ -233,29 +231,8 @@ module Origen
       Origen.app.config.remotes    #+ Origen.app.config.remotes_dev (there are no core remotes at this time)
     end
 
-    # Walks down an import tree recursively yielding all nested imports, if
-    # the imported application has not been populated yet then it will
-    # not return any nested imports.
-    #
-    # This will also update the required origen version if a app
-    # instance is encountered that requires a newer version than the current
-    # version.
-    def traverse_remotes(remote, &block)
-      yield remote
-      if remote_present?(remote)
-        app = Origen.application_instance(origen_root_for(remote), reload: true)
-        app.config.remotes.each do |remote|
-          traverse_remotes(remote, &block)
-        end
-      end
-    end
-
     def remotes
       @remotes ||= resolve_remotes
-    end
-
-    def remote_present?(remote)
-      !!origen_root_for(remote, accept_missing: true)
     end
 
     # Conflicts are resolved by the following rules:
