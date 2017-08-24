@@ -241,6 +241,7 @@ module Origen
         false
       end
     end
+    alias_method :has_regs?, :owns_registers?
 
     def sub_block(name, options = {})
       if i = options.delete(:instances)
