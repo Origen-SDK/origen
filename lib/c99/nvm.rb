@@ -101,6 +101,10 @@ module C99
         bits 13..8, :upper, description: 'This is dreg3 bit upper'
         bit 7..0,  :lower, writable: false, reset: 0x55, description: "This is dreg3 bit lower\nThis is dreg3 bit lower line 2"
       end
+
+      reg :dreg4, 0x1000, size: 8, description: "** Data Register 4 **\nThis is dreg4" do
+        bit 7..0, :busy, reset: 0x55, description: "**Busy Bits** - These do something super cool\n\n0 | Job0\n1 | Job1\n10 | Job2\n11 | Job3\n100 | Job4\n101 | Job5\n110 | Job6\n111 | Job7\n1000 | Job8\n1001 | Job9\n1010 | Job10\n1011 | Job11\n1100 | Job12\n1101 | Job13\n1110 | Job14\n1111 | Job15\n10000 | Job16\n10001 | Job17\n10010 | Job18"
+      end
     end
   end
 end

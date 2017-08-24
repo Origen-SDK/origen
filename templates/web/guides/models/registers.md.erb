@@ -491,5 +491,48 @@ reg.is_to_be_read?        # => false
 reg.data.to_hex           # => "0x1F"
 ~~~
 
+#### More Examples
+
+Here are some addtional examples showing how to iterate through a model's registers
+
+~~~ruby
+class Top
+  include Origen::TopLevel
+
+  def initialize
+    reg :adc0_cfg, 0x200 do
+      bits 31..0, :data
+    end
+    reg :adc1_cfg, 0x300 do
+      bits 31..0, :data
+    end
+    reg :dac_cfg, 0x400 do
+      bits 31..0, :data
+    end
+    reg :status, 0x100 do
+      bits 31..0, :data
+    end
+  end
+end
+
+$dut = Top.new
+
+# Iterate over ALL registers (:adc0_cfg, :adc1_cfg, :dac_cfg, :status)
+$dut.regs do |r|
+  # do something with register r
+end
+
+# Iterate over all registers matching a regular expression
+# Ex 1: Only ADC cfg registers (:adc0_cfg, :adc1_cfg)
+$dut.regs('/acd\d_cfg/') do |r|
+  # do someting with register r
+end
+
+# Ex 2: Any cfg registers (:adc0_cfg, :adc1_cfg, :dac_cfg)
+$dut.regs('/cfg/') do |r|
+  # do someting with register r
+end
+~~~
+
 
 % end
