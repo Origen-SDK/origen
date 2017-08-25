@@ -28,7 +28,7 @@ class Numeric
     end
     result
   end
-  
+
   def as_units(units)
     if self >= 1_000_000_000_000_000
       "#{self / 1_000_000_000_000_000.0}P#{units}"
