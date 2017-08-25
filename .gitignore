@@ -40,5 +40,3 @@
 # Cruft from other revision control systems
 .SYNC
 .svn
-
-Gemfile.lock
