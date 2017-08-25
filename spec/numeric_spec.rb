@@ -47,5 +47,24 @@ describe Numeric do
     1.MB.should == 1024 * 1024
     1.GB.should == 1024 * 1024 * 1024
   end
-
+  
+  specify "metric unit conversions work" do
+    1.as_s.should == '1s'
+    10.as_a.should == '10a'
+    100.as_ohm.should == '100ohm'
+    1_000.as_bps.should == '1.0kbps'
+    10_100.as_ts.should == '10.1kts'
+    12_000_000.as_Ohm.should == '12.0MOhm'
+    123_000_000_000.as_Hz.should == '123.0GHz'
+    123_456_000_000_000.as_hz.should == '123.456Thz'
+    1.23e16.as_Ts.should == '12.3PTs'
+    0.1.as_v.should == '100.0mv'
+    0.001.as_V.should == '1.0mV'
+    0.00002.as_A.should == '20.0uA'
+    0.0000003.as_s.should == '300.0ns'
+    0.000000000004.as_sps.should == '4.0psps'
+    5.1e-14.as_units("parsec").should == '51.0aparsec'  # About 15.7cm
+    6.12e-100.as_units("googol").should == '6.120e-100googol'  # 6.12
+    1e20.as_units("hp").should == '100000.0Php'
+  end
 end
