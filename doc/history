@@ -30,8 +30,8 @@
 dut.regs('/acd\d\_cfg/')  # => [reg\_obj, reg\_obj]
 
 # Ex 2: Any cfg registers (:adc0\_cfg, :adc1\_cfg, :dac\_cfg)
-$dut.regs('/cfg/')       # => [reg\_obj, reg\_obj, reg\_obj]
-+~~~
+dut.regs('/cfg/')         # => [reg\_obj, reg\_obj, reg\_obj]
+~~~
 
 * Various documentation updates
 
