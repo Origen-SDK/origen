@@ -316,6 +316,7 @@ module Origen
               # Screen out common redundant output
               unless line =~ /^Logging/ || line == '' ||
                      line =~ /V(\d+\.\d+-\d+|\d.\d+)/ || # Screen out something like "V5.1-1205" or "V6R2010"
+                     line =~ /^3DEXPERIENCER\d+x$/ || # Screen out something like '3DEXPERIENCER2016x'
                      line.strip.empty?
                 output << line.strip
               end

@@ -4,6 +4,10 @@ unless defined? RGen::ORIGENTRANSITION
   require 'English'
   require 'pathname'
   require 'pry'
+  # require these here to make required files consistent between global commands invoke globally and global commands
+  # invoked from an application workspace
+  require 'colored'
+  require 'fileutils'
   # Keep a note of the pwd at the time when Origen was first loaded, this is initially used
   # by the site_config lookup.
   $_origen_invocation_pwd ||= Pathname.pwd
@@ -587,12 +591,13 @@ unless defined? RGen::ORIGENTRANSITION
       # Use User.current to retrieve the current user, this is an internal API that will
       # be cleaned up (removed) in future
       # @api private
-      def current_user
+      def current_user(options = {})
+        @current_user = nil if options[:refresh]
         if app_loaded? || in_app_workspace?
           return @switch_user unless @switch_user.nil?
-          application.current_user
+          @current_user ||= application.current_user
         else
-          User.new(User.current_user_id)
+          @current_user ||= User.new(User.current_user_id)
         end
       end
 
