@@ -43,6 +43,7 @@ module RegTest
         reg(:tcu).bits(:peter).data.should == 7
         reg(:tcu).reset
         reg(:tcu).data.should == 12
+        reg(:tcu).contains_bits?.should == true
     end
 =begin   
     it "Reads in excel TCU registers by backwards single bits in range" do
@@ -390,6 +391,38 @@ module RegTest
         end
         reg.data.should == 0xC201
         reg.bits(:b1).data.should == 0x2
+    end
+
+    specify "can use named bits with bit ordering" do
+        reg1 = Reg.new(self, 0x10, 16, :dummy, b0: {pos: 1, bits: 7, res: 0x55}, 
+                                               b1: {pos: 8, bits: 4, res: 0xA},
+                                               b2: {pos: 14,bits: 2, res: 1})
+
+        reg2 = Reg.new(self, 0x11, 8, :dummy_msb, bit_order: :msb0, msb0: {pos: 6, bits: 1}, 
+                                                                    msb1: {pos: 4, bits: 2, res: 0x3},
+                                                                    msb2: {pos: 0, bits: 1, res: 1})
+  
+        reg1.named_bits[0] == reg1.bits(:b0) 
+        reg1.named_bits[2] == reg1.bits(:b2) 
+        reg1.named_bits(include_spacers: true)[1] == reg1.bits(:b0) 
+        reg1.named_bits(include_spacers: true)[4] == reg1.bits(:b2) 
+        reg2.named_bits[0] == reg2.bits(:msb0) 
+        reg2.named_bits[2] == reg2.bits(:msb2) 
+        reg2.named_bits(include_spacers: true)[1] == reg2.bits(:msb0) 
+        reg2.named_bits(include_spacers: true)[4] == reg2.bits(:msb2) 
+        names = []
+        reg1.named_bits { |name, bits| names.push(name) }
+        names.should == [:b2, :b1, :b0]
+        names = []
+        reg1.named_bits(include_spacers: true) { |name, bits| names.push(name) }
+        names.should == [:b2, nil, :b1, :b0, nil]
+        names = []
+        reg2.named_bits { |name, bits| names.push(name) }
+        names.should == [:msb2, :msb1, :msb0]
+        names = []
+        reg2.named_bits(include_spacers: true) { |name, bits| names.push(name) }
+        names.should == [:msb2, nil, :msb1, :msb0, nil]
+         #reg1.reverse_named_bits[2] == reg1.bits(:b2) 
     end
 
     specify "can check bit positions of used_bits" do
@@ -782,10 +815,17 @@ module RegTest
       nvm.reg(:dreg).bits(:bit14).bit_value_descriptions.size.should == 2
       nvm.reg(:dreg3).bits(:bit15).bit_value_descriptions.size.should == 0
       nvm.reg(:dreg3).bits(:bit14).bit_value_descriptions.size.should == 2
+      nvm.reg(:dreg4).bits(:busy).bit_value_descriptions.size.should == 19
+      nvm.reg(:dreg4).bits(:busy).bit_value_descriptions(format: :hex).size.should == 19
+      nvm.reg(:dreg4).bits(:busy).bit_value_descriptions(format: :dec).size.should == 19
       nvm.reg(:dreg).bits(:bit14).bit_value_descriptions[0].should == "Coolness is disabled"
       nvm.reg(:dreg).bits(:bit14).bit_value_descriptions[1].should == "Coolness is enabled"
       nvm.reg(:dreg3).bits(:bit14).bit_value_descriptions[0].should == "Coolness is disabled"
       nvm.reg(:dreg3).bits(:bit14).bit_value_descriptions[1].should == "Coolness is enabled"
+      nvm.reg(:dreg4).bits(:busy).bit_value_descriptions[8].should == "Job8"
+      nvm.reg(:dreg4).bits(:busy).bit_value_descriptions(format: :dec)[1000].should == "Job8"
+      nvm.reg(:dreg4).bits(:busy).bit_value_descriptions(format: :hex)[4096].should == "Job8"
+      lambda { nvm.reg(:dreg4).bits(:busy).bit_value_descriptions(format: :octal) }.should raise_error
       nvm.reg(:dreg).bits(:bit14).description(include_bit_values: false, include_name: false).should == ["This does something cool"]
       nvm.reg(:dreg3).bits(:bit14).description(include_bit_values: false, include_name: false).should == ["This does something cool"]
     end
@@ -951,13 +991,13 @@ module RegTest
     end
 
     it "global reg and bit meta data can be added by a plugin" do
-      Origen::Registers.default_reg_metadata do |reg|
+      Origen::Registers.default_reg_meta_data do |reg|
         reg.attr_x
         reg.attr_y = 10
         reg.attr_z = 20
       end
 
-      Origen::Registers.default_bit_metadata do |bit|
+      Origen::Registers.default_bit_meta_data do |bit|
         bit.attr_bx
         bit.attr_by = 10
         bit.attr_bz = 20
@@ -1211,6 +1251,39 @@ module RegTest
       reg_dot1.d1.val.should == 0
     end
 
+    specify "regs can be deleted" do
+      class RegOwner
+        include Origen::Model
+        def initialize
+          reg :reg1, 0, size: 8 do
+            bits 7..0, :d1
+          end
+          reg :reg2, 0, size: 8 do
+            bits 7..0, :d1
+          end
+          reg :reg3, 0, size: 8 do
+            bits 7..0, :d1
+          end
+        end
+      end
+      top = RegOwner.new
+      top.has_reg?(:reg1).should == true
+      top.has_reg?(:reg2).should == true
+      top.has_reg?(:reg3).should == true
+      top.has_reg?(:reg4).should == false
+      top.del_reg(:reg2)
+      top.has_reg?(:reg1).should == true
+      top.has_reg?(:reg2).should == false
+      top.has_reg?(:reg3).should == true
+      top.has_reg?(:reg4).should == false
+      top.delete_registers
+      top.has_reg?(:reg1).should == false
+      top.has_reg?(:reg2).should == false
+      top.has_reg?(:reg3).should == false
+      top.has_reg?(:reg4).should == false
+    end
+
+
     specify "regs can be Marshaled" do
       # Spec cannot be mashaled (as the reg owner) so embed the test
       # reg in a class which will marshal without error
@@ -1346,6 +1419,14 @@ module RegTest
       sr2.data.should == 0b1100
     end
 
+    it 'regs can be frozen' do
+      reg :frz1, 0, size: 4
+      frz1.write(0xF)
+      frz1.data.should == 0b1111
+      frz1.freeze
+      frz1.frozen?.should == true
+    end
+
     it 'the original reg definition API still works' do
       add_reg :mclkdiv2,   0x03,  16,  :osch       => { :pos => 15 },
                                        :asel       => { :pos => 14 },
@@ -1394,6 +1475,39 @@ module RegTest
       mnbit.b.data.should == 0b01
       mnbit.c.data.should == 0b10
       mnbit.data.should == 0b00011000
+    end
+
+    it "regs can be grabbed using regular expression" do
+      class RegOwner
+        include Origen::Model
+        def initialize
+          reg :adc0_cfg, 0, size: 8 do
+            bits 7..0, :d1
+          end
+          reg :adc1_cfg, 0, size: 8 do
+            bits 7..0, :d1
+          end
+          reg :dac_cfg, 0, size: 8 do
+            bits 7..0, :d1
+          end
+        end
+      end
+      top = RegOwner.new
+      top.regs.inspect.should == "[:adc0_cfg, :adc1_cfg, :dac_cfg]"
+      top.regs('/adc\d_cfg/').inspect.should == "[:adc0_cfg, :adc1_cfg]"
+      top.regs('/cfg/').inspect.should == "[:adc0_cfg, :adc1_cfg, :dac_cfg]"
+      expected_output = <<-EOT
+[
+0x0 - :dac_cfg
+   ===============================================================================================================
+  |      7      |      6      |      5      |      4      |      3      |      2      |      1      |      0      |
+  |                                                    d1[7:0]                                                    |
+  |                                                      0x0                                                      |
+   ---------------------------------------------------------------------------------------------------------------]
+  EOT
+      expect do
+        top.regs('/dac/').show
+      end.to output(expected_output).to_stdout
     end
   end
 end

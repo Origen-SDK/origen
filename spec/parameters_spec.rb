@@ -197,6 +197,8 @@ module ParametersSpec
       $dut.params = :probe
       $dut.erase.time.data.should == 3
       $dut.erase.pulses.data.should == 4
+
+      lambda { $dut.erase.pulses.bind $dut.params.erase.pulses }.should raise_error
     end
 
     it "inherited value works" do

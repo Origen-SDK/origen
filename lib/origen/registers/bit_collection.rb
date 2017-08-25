@@ -225,10 +225,11 @@ module Origen
       end
 
       def bit_value_descriptions(_bitname = nil)
+        options = _bitname.is_a?(Hash) ? _bitname : {}
         if name == :unknown
           []
         else
-          @reg.bit_value_descriptions(name)
+          @reg.bit_value_descriptions(name, options)
         end
       end
 
