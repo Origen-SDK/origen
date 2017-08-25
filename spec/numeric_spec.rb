@@ -59,9 +59,9 @@ describe Numeric do
     123_456_000_000_000.as_hz.should == '123.456Thz'
     1.23e16.as_Ts.should == '12.3PTs'
     0.1.as_v.should == '100.0mv'
-    0.001.as_V.should == '1.0mv'
+    0.001.as_V.should == '1.0mV'
     0.00002.as_A.should == '20.0uA'
-    0.0000003.as_s.should == '300.0nA'
+    0.0000003.as_s.should == '300.0ns'
     0.000000000004.as_sps.should == '4.0psps'
     5.1e-14.as_units("parsec").should == '51.0aparsec'  # About 15.7cm
     6.12e-100.as_units("googol").should == '6.120e-100googol'  # 6.12
