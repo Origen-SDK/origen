@@ -1,3 +1,40 @@
+<a class="anchor release_tag" name="v0_23_0"></a>
+<h1><a href="#v0_23_0">Tag: v0.23.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 25-Aug-2017 21:38PM
+
+
+* Added numeric value to a string-with-units helper methods (@arkohler), e.g.
+
+~~~ruby
+12\_000\_000.as\_Ohm          # => '12.0MOhm'
+123\_000\_000\_000.as\_Hz      # => '123.0GHz'
+123\_456\_000\_000\_000.as\_hz  # => '123.456Thz'
+~~~
+
+* Stopped dumping the stack trace when Origen ends from 'exit 1'. This makes the command
+  line output cleaner, but an un-controlled exit via "fail 'some error!'" will still cause
+  a stack dump as before.
+* User.current will now always return the same user object (Corey Engelken)
+* The 'origen web compile' command will now always run in debug mode (Corey Engelken)
+* Fixed bug where an Origen app/plugin added via a remote would be actively loaded rather
+  than just being treated like non-application files.
+* Cleanup command line output with Design Sync 2016 (Corey Engelken)
+* Model#reg now accepts a regex in string format to return a matching subset of registers
+  (Ronnie Lajaunie):
+
+~~~ruby
+# Ex 1: Only ADC cfg registers (:adc0\_cfg, :adc1\_cfg)
+dut.regs('/acd\d\_cfg/')  # => [reg\_obj, reg\_obj]
+
+# Ex 2: Any cfg registers (:adc0\_cfg, :adc1\_cfg, :dac\_cfg)
+$dut.regs('/cfg/')       # => [reg\_obj, reg\_obj, reg\_obj]
++~~~
+
+* Various documentation updates
+
 <a class="anchor release_tag" name="v0_22_0"></a>
 <h1><a href="#v0_22_0">Tag: v0.22.0</a></h1>
 
