@@ -518,19 +518,19 @@ end
 $dut = Top.new
 
 # Iterate over ALL registers (:adc0_cfg, :adc1_cfg, :dac_cfg, :status)
-$dut.regs do |r|
+$dut.regs.each do |r|
   # do something with register r
 end
 
 # Iterate over all registers matching a regular expression
 # Ex 1: Only ADC cfg registers (:adc0_cfg, :adc1_cfg)
-$dut.regs('/acd\d_cfg/') do |r|
-  # do someting with register r
+$dut.regs('/acd\d_cfg/').each do |r|
+  # do something with register r
 end
 
 # Ex 2: Any cfg registers (:adc0_cfg, :adc1_cfg, :dac_cfg)
-$dut.regs('/cfg/') do |r|
-  # do someting with register r
+$dut.regs('/cfg/').each do |r|
+  # do something with register r
 end
 ~~~
 
