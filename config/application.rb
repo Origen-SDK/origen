@@ -31,6 +31,7 @@ class OrigenCoreApplication < Origen::Application
       dir: "origen_app_generators",
       rc_url: "https://github.com/Origen-SDK/origen_app_generators.git",
       version: "1006fe8",
+      development: true
     }
   ]
 

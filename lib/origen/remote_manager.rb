@@ -221,7 +221,7 @@ module Origen
       # Add remotes from imports
       Origen.app.plugins.each do |plugin|
         plugin.config.remotes.each do |import_remote|
-          add_remote(import_remote)
+          add_remote(import_remote) unless import_remote[:development]
         end
       end
       @remotes
