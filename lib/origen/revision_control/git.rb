@@ -362,7 +362,11 @@ module Origen
             exit_status = wait_thr.value
             unless exit_status.success?
               if options[:check_errors]
-                fail GitError, "This command failed: 'git #{command}'"
+                if output.any? { |l| l =~ /Not a git repository/ }
+                  fail RevisionControlUninitialized
+                else
+                  fail GitError, "This command failed: 'git #{command}'"
+                end
               end
             end
           end
