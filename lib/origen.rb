@@ -75,7 +75,7 @@ unless defined? RGen::ORIGENTRANSITION
 
     class GitError < OrigenError; status_code(11); end
     class DesignSyncError < OrigenError; status_code(12); end
-    class RevisionControlUninitialized < OrigenError; status_code(13); end
+    class RevisionControlUninitializedError < OrigenError; status_code(13); end
 
     class << self
       include Origen::Utility::TimeAndDate

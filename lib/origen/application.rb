@@ -136,7 +136,7 @@ module Origen
 
             end
           # The rc_url has been defined, but the initial app checkin has not been done yet
-          rescue RevisionControlUninitialized
+          rescue RevisionControlUninitializedError
             @revision_controller = nil
           end
         elsif config.vault

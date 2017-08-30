@@ -363,7 +363,7 @@ module Origen
             unless exit_status.success?
               if options[:check_errors]
                 if output.any? { |l| l =~ /Not a git repository/ }
-                  fail RevisionControlUninitialized
+                  fail RevisionControlUninitializedError
                 else
                   fail GitError, "This command failed: 'git #{command}'"
                 end
