@@ -119,20 +119,25 @@ module Origen
     def revision_controller(options = {})
       if current?
         if config.rc_url
-          if config.rc_url =~ /^sync:/
-            @revision_controller ||= RevisionControl::DesignSync.new(
-              local:  root,
-              remote: config.rc_url
-            )
-          elsif config.rc_url =~ /git/
-            @revision_controller ||= RevisionControl::Git.new(
-              local:                  root,
-              # If a workspace is based on a fork of the master repo, config.rc_url may not
-              # be correct
-              remote:                 (options[:uninitialized] ? config.rc_url : (RevisionControl::Git.origin || config.rc_url)),
-              allow_local_adjustment: true
-            )
+          begin
+            if config.rc_url =~ /^sync:/
+              @revision_controller ||= RevisionControl::DesignSync.new(
+                local:  root,
+                remote: config.rc_url
+              )
+            elsif config.rc_url =~ /git/
+              @revision_controller ||= RevisionControl::Git.new(
+                local:                  root,
+                # If a workspace is based on a fork of the master repo, config.rc_url may not
+                # be correct
+                remote:                 (options[:uninitialized] ? config.rc_url : (RevisionControl::Git.origin || config.rc_url)),
+                allow_local_adjustment: true
+              )
 
+            end
+          # The rc_url has been defined, but the initial app checkin has not been done yet
+          rescue RevisionControlUninitializedError
+            @revision_controller = nil
           end
         elsif config.vault
           @revision_controller ||= RevisionControl::DesignSync.new(

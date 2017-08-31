@@ -27,10 +27,12 @@ class OrigenCoreApplication < Origen::Application
   }
 
   config.remotes = [
+    # To include the OrigenAppGenerators documentation in the main guides
     {
       dir: "origen_app_generators",
       rc_url: "https://github.com/Origen-SDK/origen_app_generators.git",
-      version: "1006fe8",
+      version: "v1.1.0",
+      development: true
     }
   ]
 

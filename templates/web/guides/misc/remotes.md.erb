@@ -35,9 +35,18 @@ config.remotes = [
     dir: "artwork",
     rc_url: "git@github.com:Origen-SDK/artwork.git",
     version: "master",
+    development: true
   }
 ]
 ~~~
+
+Origen will populate all remotes defined by a top-level application. It will also populate all
+remotes defined by an application's plugins, except for those which have been marked with
+'development: true` as in the 2nd example above.
+
+Setting `development: true`, indicates to Origen that the remote is only required when developing
+the plugin within a standalone workspace, and that it is not required when the plugin is being
+used by a top-level application.
 
 #### Location
 
