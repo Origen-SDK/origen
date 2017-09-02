@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    origen (0.23.0)
+    origen (0.24.0)
       activesupport (~> 4.1)
       bundler (~> 1.7)
       coderay (~> 1.1)
@@ -174,4 +174,4 @@ DEPENDENCIES
   ripper-tags
 
 BUNDLED WITH
-   1.14.6
+   1.15.4

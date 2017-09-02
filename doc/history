@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_24_0"></a>
+<h1><a href="#v0_24_0">Tag: v0.24.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 02-Sep-2017 20:27PM
+
+
+* Remotes can now be optionally declared as private
+* Various bug fixes including fixing compatibility with Ruby 2.4
+
 <a class="anchor release_tag" name="v0_23_0"></a>
 <h1><a href="#v0_23_0">Tag: v0.23.0</a></h1>
 
