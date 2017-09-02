@@ -67,7 +67,7 @@ generators = [['http://rubygems.org', 'origen_app_generators']] + Array(Origen.s
 if update_required
   puts 'Fetching the latest app generators...'
   FileUtils.rm_rf(generators_dir) if File.exist?(generators_dir)
-  FileUtils.mkdir(generators_dir)
+  FileUtils.mkdir_p(generators_dir)
 
   Dir.chdir generators_dir do
     generators.each_with_index do |gen, i|
