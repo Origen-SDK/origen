@@ -10,6 +10,7 @@ module Origen
         @options = options
         @requested_pattern = pattern
         @no_comments = options[:no_comments]
+        @output_opt = options[:output]
       end
 
       # Returns true if the job is a test job, will only be true in a test scenario
@@ -66,7 +67,7 @@ module Origen
 
       def output_pattern_directory
         @output_pattern_directory ||= begin
-          dir = Origen.app.config.pattern_output_directory
+          dir = output_override || Origen.app.config.pattern_output_directory
           if tester.respond_to?(:subdirectory)
             dir = File.join(dir, tester.subdirectory)
           end
@@ -98,6 +99,17 @@ module Origen
 
       def output_extension
         '.' + Origen.tester.pat_extension
+      end
+
+      def output_override
+        if @output_opt
+          if @output_opt =~ /#{Origen.root}/
+            return @output_opt
+          else
+            return "#{Origen.root}/#{@output_opt}"
+          end
+        end
+        nil
       end
 
       def split_number
