@@ -46,7 +46,7 @@ Usage: origen compile [space separated files, lists or directories] [options]
     ao = app_option.include_hash_with_key?(:option)
     if ao
       app_option.delete(ao)
-      opts.on(*app_option) { options[ao[:option]] = true }
+      opts.on(*app_option) { options[ao[:option].to_sym] = true }
     else
       opts.on(*app_option) {}
     end

@@ -16,6 +16,9 @@ To document the new option you can pass the details to Origen via the
 <code>@application_options</code> variable and the new option will appear in the help
 as if it was a built-in part of the command.
 
+Additionally, if you want the option to be registered with Origen's option parser, you can supply an 
+'option name' in the details passed by <code>@application_options</code> (see example below).
+
 #### Example
 
 In one application we added an MD5 checksum to the names of all generated patterns
@@ -39,7 +42,12 @@ attr_accessor :no_md5
 # to exit here to allow the standard Origen command to run afterwards
 when "generate"
   # Option definitions must be pushed into the @application_options array, don't re-assign it!
-  @application_options << ["--no_md5", "Don't apply the MD5 checksum to pattern names"],
+  @application_options << ["--no_md5", "Don't apply the MD5 checksum to pattern names"]
+
+  # To regiser the option with Origen's option parser, include a hash { option: <option_name> }
+  # With the example below, the opt_parser.parse! will register 'myapp_compile: true'
+  @application_options << ["--compile", "Compile the pattern", { option: 'myapp_compile' }]
+
   # Note that it is important not to delete the argument from ARGV, this is necessary to make Origen
   # fully aware of it, so that it can be passed on to any additional jobs invoked from this process
   Origen.app.no_md5 = true if ARGV.include?("--no_md5")
