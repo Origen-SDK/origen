@@ -43,7 +43,13 @@ Usage: origen compile [space separated files, lists or directories] [options]
   opts.on('-r', '--reference DIR', String, 'Override the default reference directory') { |o| options[:reference] = o }
   opts.on('-z', '--zip', 'Gzip all output files (diff checking will be skipped)') { |o| options[:zip] = o }
   app_options.each do |app_option|
-    opts.on(*app_option) {}
+    ao = app_option.include_hash_with_key?(:option)
+    if ao
+      app_option.delete(ao)
+      opts.on(*app_option) { options[ao[:option]] = true }
+    else
+      opts.on(*app_option) {}
+    end
   end
   opts.separator ''
   opts.on('-h', '--help', 'Show this message') { puts opts; exit 0 }

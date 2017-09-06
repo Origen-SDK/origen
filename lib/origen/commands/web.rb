@@ -50,7 +50,13 @@ The following options are available:
     opts.on('--no-serve', "Don't serve the website after compiling without the remote option") { options[:no_serve] = true }
     opts.on('-c', '--comment COMMENT', String, 'Supply a commit comment when deploying to Git') { |o| options[:comment] = o }
     app_options.each do |app_option|
-      opts.on(*app_option) {}
+      ao = app_option.include_hash_with_key?(:option)
+      if ao
+        app_option.delete(ao)
+        opts.on(*app_option) { options[ao[:option]] = true }
+      else
+        opts.on(*app_option) {}
+      end
     end
     opts.separator ''
     opts.on('-h', '--help', 'Show this message') { puts opts; exit }

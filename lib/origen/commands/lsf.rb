@@ -56,7 +56,13 @@ Usage: origen lsf [options]
   opts.on('-m', '--mode MODE', Origen::Mode::MODES, 'Force the Origen operating mode:', '  ' + Origen::Mode::MODES.join(', ')) { |_m| }
   opts.on('-d', '--debugger', 'Enable the debugger') {  options[:debugger] = true }
   app_options.each do |app_option|
-    opts.on(*app_option) {}
+    ao = app_option.include_hash_with_key?(:option)
+    if ao
+      app_option.delete(ao)
+      opts.on(*app_option) { options[ao[:option]] = true }
+    else
+      opts.on(*app_option) {}
+    end
   end
   opts.separator ''
   opts.on('-h', '--help', 'Show this message') { puts opts; exit }
