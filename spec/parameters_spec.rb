@@ -265,5 +265,12 @@ module ParametersSpec
       ip.params.context.should == :ate
       ip.params.a.should == 30
     end
+    
+    it "parameter sets can be converted to a flat hash" do
+      $dut.params.to_flat_hash.include?('erase.time').should == true
+      $dut.params.to_flat_hash['test.ac.period'].should == 1e-08
+      $dut.params.to_flat_hash(delimiter: '_').include?('erase_time').should == true
+      $dut.params.to_flat_hash(delimiter: '_')['test_ac_period'].should == 1e-08
+    end
   end
 end
