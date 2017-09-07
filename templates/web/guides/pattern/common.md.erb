@@ -183,6 +183,88 @@ $tester.store_next_cycle pin(:d0), pin(:d1)
 $tester.cycle  
 ~~~
 
+##### capture_style
+
+Testers support different ways of capturing vector data.  For all tester types the default
+capture style is hram (history ram).  For UltraFlex digcap is additionally supported.  Change
+from the default like this:
+
+~~~ruby
+# change capture style
+# if the digcap isn't support for the current tester, default behavior (hram) is used
+tester.capture_style = :digcap
+
+# change back to hram capture style
+tester.capture_style = :hram
+
+# temporarily change the capture style for this cycle
+tester.store_next_cycle pin(:d0), capture_style: :digcap
+~~~
+
+##### configure capture memory
+
+Origen will create any instrument definitions required when capture memory is used.  However,
+it may be desirable to alter the configuration settings.  Here is an example of how to do this:
+
+~~~ruby
+# configure TDO as a 16-bit instrument (default size is the number of pins - 1 in this case)
+tester.capture_memory :digcap do |mem|
+  mem.pin :tdo, size: 16
+end
+~~~
+
+#### Data Source
+
+##### overlay
+Testers support different ways of modifying vector data during run time.  This practice is referred to
+here as "overlay".  Overlay is requested through an optional argument to cycle:
+
+~~~ruby
+# setup overlay parameters
+overlay_options = {}
+# Required - what pin(s) are being overlayed?
+overlay_options[:pins] = dut.pin(:tdi)
+# Required - what is the overlay string? This will become a label or subroutine name
+overlay_options[:overlay_str] = ovl_reg[i].overlay_str
+
+tester.cycle overlay: overlay_options
+
+# Generate another overlay cycle, holding the same data as the previous cycle
+overlay_options[:change_data] = false
+tester.cycle overlay: overlay_options
+
+# Now a new piece of data needs to be sent
+overlay_options[:change_data] = true
+tester.cycle overlay: overlay_options
+~~~
+
+##### overlay_style
+
+The default overlay style is subroutine (vectors that will be modified are replaced
+by a call to a subroutine).  Change from the default like this:
+
+~~~ruby
+# if requested sytle is not available for the current tester it will default to :subroutine
+tester.overlay_style = :digsrc
+tester.overlay_style = :subroutine
+tester.overlay_style = :label
+
+# change the overlay style for this cycle only by adding :overlay_style to the overlay_options
+overlay_options[:overlay_style] = :label
+tester.cycle overlay: overlay_options
+~~~
+
+##### configure source memory
+
+Origen will create any necessary instruments statements.  Add configuration information to source memory
+like this:
+
+~~~ruby
+tester.source_memory do |mem|
+  mem.pin :tdi, size: 32, format: :binary, data_type: :long
+end
+~~~
+
 #### Subroutines
 
 ##### start_subroutine(name), end_subroutine
