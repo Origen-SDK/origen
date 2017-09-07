@@ -16,8 +16,10 @@ To document the new option you can pass the details to Origen via the
 <code>@application_options</code> variable and the new option will appear in the help
 as if it was a built-in part of the command.
 
-Additionally, if you want the option to be registered with Origen's option parser, you can supply an 
-'option name' in the details passed by <code>@application_options</code> (see example below).
+Additionally, you can provide a block to Origen that will be executed if the option is given. The block should
+be passed as the last element of the array that is pushed to the <code>@application_options</code> variable and
+can be specified using a lambda sytax <code>lambda { |options| options[:some_option] = true }</code> or 
+alternately <code>->(options) { options[:some_option] = true }</code>.
 
 #### Example
 
@@ -44,9 +46,10 @@ when "generate"
   # Option definitions must be pushed into the @application_options array, don't re-assign it!
   @application_options << ["--no_md5", "Don't apply the MD5 checksum to pattern names"]
 
-  # To regiser the option with Origen's option parser, include a hash { option: <option_name> }
-  # With the example below, the opt_parser.parse! will register 'myapp_compile: true'
-  @application_options << ["--compile", "Compile the pattern", { option: 'myapp_compile' }]
+  # To specify a block to be executed by Origen's option parser (when the option is used), include 
+  # a block as the last element
+  @application_options << ["--compile", "Compile the pattern", ->(options) { options[:myapp_compile] = true }]
+  @application_options << ["--compiler NAME", "Compiler to use", ->(options, compiler) { options[:myapp_compiler] = compiler }]
 
   # Note that it is important not to delete the argument from ARGV, this is necessary to make Origen
   # fully aware of it, so that it can be passed on to any additional jobs invoked from this process
