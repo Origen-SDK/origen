@@ -1,4 +1,5 @@
 require 'optparse'
+require 'origen/commands/helpers'
 
 options = {}
 
@@ -42,18 +43,8 @@ Usage: origen compile [space separated files, lists or directories] [options]
   opts.on('-n', '--name NAME', String, 'Override the default output file name') { |o| options[:output_file_name] = o }
   opts.on('-r', '--reference DIR', String, 'Override the default reference directory') { |o| options[:reference] = o }
   opts.on('-z', '--zip', 'Gzip all output files (diff checking will be skipped)') { |o| options[:zip] = o }
-  app_options.each do |app_option|
-    if app_option.last.is_a?(Proc)
-      ao_proc = app_option.pop
-      if ao_proc.arity == 1
-        opts.on(*app_option) { instance_exec(options, &ao_proc) }
-      else
-        opts.on(*app_option) { |arg| instance_exec(options, arg, &ao_proc) }
-      end
-    else
-      opts.on(*app_option) {}
-    end
-  end
+  # Apply any application option extensions to the OptionParser
+  extend_options(opts, app_options, options)
   opts.separator ''
   opts.on('-h', '--help', 'Show this message') { puts opts; exit 0 }
 end
