@@ -1,5 +1,6 @@
 require 'optparse'
 require 'pathname'
+require 'origen/commands/helpers'
 
 module Origen
   options = {}
@@ -49,9 +50,8 @@ The following options are available:
     opts.on('-m', '--mode MODE', Origen::Mode::MODES, 'Force the Origen operating mode:', '  ' + Origen::Mode::MODES.join(', ')) { |_m| }
     opts.on('--no-serve', "Don't serve the website after compiling without the remote option") { options[:no_serve] = true }
     opts.on('-c', '--comment COMMENT', String, 'Supply a commit comment when deploying to Git') { |o| options[:comment] = o }
-    app_options.each do |app_option|
-      opts.on(*app_option) {}
-    end
+    # Apply any application option extensions to the OptionParser
+    Origen::CommandHelpers.extend_options(opts, app_options, options)
     opts.separator ''
     opts.on('-h', '--help', 'Show this message') { puts opts; exit }
   end

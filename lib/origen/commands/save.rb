@@ -1,4 +1,5 @@
 require 'optparse'
+require 'origen/commands/helpers'
 
 options = {}
 
@@ -14,9 +15,8 @@ Usage: origen save TYPE [options]
   opts.on('-f', '--file FILE', String, 'Override the default log file') { |o| options[:log_file] = o }
   opts.on('-d', '--debugger', 'Enable the debugger') {  options[:debugger] = true }
   opts.on('-m', '--mode MODE', Origen::Mode::MODES, 'Force the Origen operating mode:', '  ' + Origen::Mode::MODES.join(', ')) { |_m| }
-  app_options.each do |app_option|
-    opts.on(*app_option) {}
-  end
+  # Apply any application option extensions to the OptionParser
+  Origen::CommandHelpers.extend_options(opts, app_options, options)
   opts.separator ''
   opts.on('-h', '--help', 'Show this message') { puts opts; exit }
 end

@@ -4,6 +4,7 @@ module Origen
     class Job # :nodoc: all
       attr_accessor :output_file_body, :pattern
       attr_reader :split_counter
+      attr_reader :options
 
       def initialize(pattern, options)
         @testing = options[:testing]

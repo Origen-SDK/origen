@@ -368,7 +368,11 @@ module Origen
 
         if Origen.tester.generate?
           Origen.app.listeners_for(:pattern_generated).each do |listener|
-            listener.pattern_generated(Pathname.new(job.output_pattern))
+            if listener.class.instance_method(:pattern_generated).arity == 1
+              listener.pattern_generated(Pathname.new(job.output_pattern))
+            else
+              listener.pattern_generated(Pathname.new(job.output_pattern), job.options)
+            end
           end
         end
       end
