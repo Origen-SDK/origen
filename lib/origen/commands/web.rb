@@ -3,8 +3,6 @@ require 'pathname'
 require 'origen/commands/helpers'
 
 module Origen
-  extend CommandHelpers
-
   options = {}
 
   # App options are options that the application can supply to extend this command
@@ -53,7 +51,7 @@ The following options are available:
     opts.on('--no-serve', "Don't serve the website after compiling without the remote option") { options[:no_serve] = true }
     opts.on('-c', '--comment COMMENT', String, 'Supply a commit comment when deploying to Git') { |o| options[:comment] = o }
     # Apply any application option extensions to the OptionParser
-    extend_options(opts, app_options, options)
+    Origen::CommandHelpers.extend_options(opts, app_options, options)
     opts.separator ''
     opts.on('-h', '--help', 'Show this message') { puts opts; exit }
   end

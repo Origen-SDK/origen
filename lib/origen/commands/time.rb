@@ -2,8 +2,6 @@ require 'optparse'
 require 'pathname'
 require 'origen/commands/helpers'
 
-include CommandHelpers
-
 options = {}
 
 ARGV << '-h' if ARGV.empty?
@@ -32,7 +30,7 @@ Usage: origen time CMD [args] [options]
   opts.on('-m', '--mode MODE', Origen::Mode::MODES, 'Force the Origen operating mode:', '  ' + Origen::Mode::MODES.join(', ')) { |_m| }
   opts.on('-f', '--file FILE', String, 'Override the default log file') { |o| options[:log_file] = o }
   # Apply any application option extensions to the OptionParser
-  extend_options(opts, app_options, options)
+  Origen::CommandHelpers.extend_options(opts, app_options, options)
   opts.separator ''
   opts.on('-h', '--help', 'Show this message') { puts opts; exit }
 end

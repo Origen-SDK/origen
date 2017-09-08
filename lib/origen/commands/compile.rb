@@ -1,8 +1,6 @@
 require 'optparse'
 require 'origen/commands/helpers'
 
-include CommandHelpers
-
 options = {}
 
 # App options are options that the application can supply to extend this command
@@ -46,7 +44,7 @@ Usage: origen compile [space separated files, lists or directories] [options]
   opts.on('-r', '--reference DIR', String, 'Override the default reference directory') { |o| options[:reference] = o }
   opts.on('-z', '--zip', 'Gzip all output files (diff checking will be skipped)') { |o| options[:zip] = o }
   # Apply any application option extensions to the OptionParser
-  extend_options(opts, app_options, options)
+  Origen::CommandHelpers.extend_options(opts, app_options, options)
   opts.separator ''
   opts.on('-h', '--help', 'Show this message') { puts opts; exit 0 }
 end

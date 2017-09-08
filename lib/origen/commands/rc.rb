@@ -2,7 +2,6 @@ require 'optparse'
 require 'origen/commands/helpers'
 
 include Origen::Utility::InputCapture
-include CommandHelpers
 
 def _unmanaged_files
   unmanaged_files = Origen::RevisionControl::IGNORE_FILES
@@ -130,7 +129,7 @@ The following options are available:
   EOT
     opts.on('-h', '--help', 'Show this message') { puts opts; exit }
     # Apply any application option extensions to the OptionParser
-    extend_options(opts, app_options, options)
+    Origen::CommandHelpers.extend_options(opts, app_options, options)
     opts.separator ''
     opts.on('-d', '--debugger', 'Enable the debugger') {  options[:debugger] = true }
     opts.on('-m', '--mode MODE', Origen::Mode::MODES, 'Force the Origen operating mode:', '  ' + Origen::Mode::MODES.join(', ')) { |_m| }

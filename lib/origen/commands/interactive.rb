@@ -9,8 +9,6 @@ end
 require 'origen/commands/helpers'
 
 module Origen
-  extend CommandHelpers
-
   # Methods available to the command line in a console session, split this to a
   # separate file if it gets large over time
   module ConsoleMethods
@@ -43,7 +41,7 @@ Usage: origen i [options]
     opts.on('-d', '--debugger', 'Enable the debugger') {  options[:debugger] = true }
     opts.on('-m', '--mode MODE', Origen::Mode::MODES, 'Force the Origen operating mode:', '  ' + Origen::Mode::MODES.join(', ')) { |_m| }
     # Apply any application option extensions to the OptionParser
-    extend_options(opts, app_options, options)
+    Origen::CommandHelpers.extend_options(opts, app_options, options)
     opts.separator ''
     opts.on('-h', '--help', 'Show this message') { puts opts; exit }
   end
