@@ -2,6 +2,7 @@ require 'optparse'
 require 'origen/commands/helpers'
 
 include Origen::Utility::InputCapture
+include CommandHelpers
 
 def _unmanaged_files
   unmanaged_files = Origen::RevisionControl::IGNORE_FILES

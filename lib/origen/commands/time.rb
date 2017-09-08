@@ -2,6 +2,8 @@ require 'optparse'
 require 'pathname'
 require 'origen/commands/helpers'
 
+include CommandHelpers
+
 options = {}
 
 ARGV << '-h' if ARGV.empty?

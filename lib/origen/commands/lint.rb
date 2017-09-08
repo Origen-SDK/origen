@@ -1,5 +1,7 @@
 require 'origen/commands/helpers'
 
+include CommandHelpers
+
 options = {}
 
 # App options are options that the application can supply to extend this command

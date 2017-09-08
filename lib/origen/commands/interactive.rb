@@ -9,6 +9,8 @@ end
 require 'origen/commands/helpers'
 
 module Origen
+  extend CommandHelpers
+
   # Methods available to the command line in a console session, split this to a
   # separate file if it gets large over time
   module ConsoleMethods

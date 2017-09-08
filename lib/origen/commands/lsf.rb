@@ -1,6 +1,8 @@
 require 'optparse'
 require 'origen/commands/helpers'
 
+include CommandHelpers
+
 options = {}
 
 def require_type_or_id(options)
