@@ -10,7 +10,7 @@ opt_parser = OptionParser.new do |opts|
   opts.banner = <<-END
 Usage: origen gem
        origen gem gem_name [option]
-       origen gem fetch gem_name 
+       origen gem fetch gem_name
        origen gem clean (gem_name|all)
 
 Quickstart Examples:
@@ -21,8 +21,8 @@ Quickstart Examples:
 
 The following options are available:
   END
-  opts.on('--location', 'Display the location of the specified gem'){ options[:gem_location] = true }
-  opts.on('--version', 'Display the version of the specified gem'){ options[:gem_version] = true }
+  opts.on('--location', 'Display the location of the specified gem') { options[:gem_location] = true }
+  opts.on('--version', 'Display the version of the specified gem') { options[:gem_version] = true }
   opts.on('-h', '--help', 'Show this message') { puts opts; exit }
 end
 
@@ -33,22 +33,21 @@ QUIET_ATTRS = %w(
   autorequire cert_chain post_install_message
 )
 
-
 def self._local_gems
   gems = {}
-  Gem::Specification.sort_by{ |g| [g.name.downcase, g.version] }.group_by{ |g| g.name }.map{ |name, specs|
-    gems[name.to_sym] = { 
-      name: name,
-      version: specs.map{ |spec| spec.version }.join(','), 
-      location: specs.map{ |spec| spec.full_gem_path }.join(','),
-      authors: specs.map{ |spec| spec.authors }.join(',')
+  Gem::Specification.sort_by { |g| [g.name.downcase, g.version] }.group_by(&:name).map do |name, specs|
+    gems[name.to_sym] = {
+      name:     name,
+      version:  specs.map(&:version).join(','),
+      location: specs.map(&:full_gem_path).join(','),
+      authors:  specs.map(&:authors).join(',')
     }
-  }
+  end
   gems
 end
 
 def self._local_gems_orig
-  Gem::Specification.sort_by{ |g| [g.name.downcase, g.version] }.group_by{ |g| g.name }
+  Gem::Specification.sort_by { |g| [g.name.downcase, g.version] }.group_by(&:name)
 end
 
 def self._session_gem_path
@@ -64,15 +63,15 @@ def self._gem_basename(gem)
 end
 
 gems = _local_gems
-#puts _session_gem_path
+# puts _session_gem_path
 
 if !ARGV[0]
   longest_key = gems.keys.max_by(&:length)
 
   puts ''
   printf "%-#{longest_key.length}s %-15s %s\n", 'Gem', 'Version', 'Location'
-  puts "--------------------------------------------------------------------------------------------------------------"
-  gems.each do |k,v|
+  puts '--------------------------------------------------------------------------------------------------------------'
+  gems.each do |k, v|
     printf "%-#{longest_key.length}s %-15s %s\n", k, v[:version], v[:location]
   end
   puts ''
@@ -82,26 +81,26 @@ else
     gem = ARGV[0]
     if gem
       if gem == 'all'
-        if Dir.exists? _session_gem_path
+        if Dir.exist? _session_gem_path
           puts ''
-          puts "You are about to delete all local gems (tmp/gems/).  IS THAT CORRECT?"
+          puts 'You are about to delete all local gems (tmp/gems/).  IS THAT CORRECT?'
           puts ''
-          get_text confirm: true  
+          get_text confirm: true
           Origen::Log.console_only do
             Dir.chdir Origen.root do
               system("rm -fr #{_session_gem_path}")
             end
           end
         else
-          puts "There are no local gems present, nothing to clean."
+          puts 'There are no local gems present, nothing to clean.'
         end
       elsif gems.key?(gem.to_sym)
-        if Dir.exists? _local_path_to_gem(gems[gem.to_sym])
+        if Dir.exist? _local_path_to_gem(gems[gem.to_sym])
           # check if already exists, ask for permission to blow away
           puts ''
           puts "You are about to delete the local copy of '#{gem}' (tmp/gems/#{_gem_basename(gems[gem.to_sym])}).  IS THAT CORRECT?"
           puts ''
-          get_text confirm: true  
+          get_text confirm: true
           Origen::Log.console_only do
             Dir.chdir Origen.root do
               system("rm -fr #{_local_path_to_gem(gems[gem.to_sym])}")
@@ -120,15 +119,15 @@ else
     if gem
       if gems.key?(gem.to_sym)
         # Initialize ./tmp/gems/
-        FileUtils.mkdir(_session_gem_path) unless Dir.exists? _session_gem_path
-        
-        if Dir.exists? _local_path_to_gem(gems[gem.to_sym])
+        FileUtils.mkdir(_session_gem_path) unless Dir.exist? _session_gem_path
+
+        if Dir.exist? _local_path_to_gem(gems[gem.to_sym])
           # check if already exists, ask for permission to blow away
           puts ''
           puts "Gem '#{_gem_basename(gems[gem.to_sym])}' already exists locally, would you like to replace?"
           puts "(This will delete and replace the exising copy at #{_local_path_to_gem(gems[gem.to_sym])})"
           puts ''
-          get_text confirm: true  
+          get_text confirm: true
           Origen::Log.console_only do
             Dir.chdir Origen.root do
               # Blow away these temporary files
@@ -162,18 +161,18 @@ else
       skip = true
 
       if options[:gem_location] || options[:gem_version]
-        puts "================================================================================="
+        puts '================================================================================='
         puts "Gem Name: #{gems[gem.to_sym][:name]}"
         puts "Version:  #{gems[gem.to_sym][:version]}" if options[:gem_version]
         puts "Location: #{gems[gem.to_sym][:location]}" if options[:gem_location]
-        puts "================================================================================="
+        puts '================================================================================='
       else
-        puts "================================================================================="
+        puts '================================================================================='
         puts "Gem Name: #{gems[gem.to_sym][:name]}"
         puts "Version:  #{gems[gem.to_sym][:version]}"
         puts "Location: #{gems[gem.to_sym][:location]}"
-        puts "---------------------------------------------------------------------------------"
-        puts "Details:"
+        puts '---------------------------------------------------------------------------------'
+        puts 'Details:'
         a.each do |line|
           if line =~ /^  (\w+):(.*)$/
             topic = Regexp.last_match(1)
@@ -185,8 +184,8 @@ else
           end
           puts "  #{line}" unless skip
         end
-        puts "---------------------------------------------------------------------------------"
-        puts "================================================================================="
+        puts '---------------------------------------------------------------------------------'
+        puts '================================================================================='
       end
     else
       puts "Error: '#{gem}' not a valid command or gem. Use 'origen gem -h' for usage or 'origen gem' for gem list."
