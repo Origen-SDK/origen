@@ -10,7 +10,7 @@ opt_parser = OptionParser.new do |opts|
   opts.banner = <<-END
 Usage: origen gem
        origen gem gem_name [option]
-       origen gem fetch gem_name [option]
+       origen gem fetch gem_name 
        origen gem clean (gem_name|all)
 
 Quickstart Examples:
