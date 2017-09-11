@@ -43,4 +43,14 @@ class Fixnum
       return nil
     end
   end
+
+  def to_spreadsheet_column
+    index_hash = Hash.new { |hash, key| hash[key] = hash[key - 1].next }.merge(0 => 'A')
+    index_hash[self]
+  end
+  alias_method :to_xls_column, :to_spreadsheet_column
+  alias_method :to_xlsx_column, :to_spreadsheet_column
+  alias_method :to_xls_col, :to_spreadsheet_column
+  alias_method :to_xlsx_col, :to_spreadsheet_column
+  alias_method :to_spreadsheet_col, :to_spreadsheet_column
 end

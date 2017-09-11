@@ -23,5 +23,18 @@ describe Fixnum do
   specify "ones complement helper works" do
     0x10.ones_comp(8).should == 0b11101111
   end
+  
+  specify 'integers can be converted to spreadsheet column indicies' do
+    0.to_spreadsheet_column.should == 'A'
+    25.to_spreadsheet_column.should == 'Z'
+    26.to_spreadsheet_column.should == 'AA'
+    26.to_spreadsheet_column.should == 'AA'
+    26.to_spreadsheet_column.should == 'AA'
+    26.to_spreadsheet_col.should == 'AA'
+    26.to_xls_column.should == 'AA'
+    26.to_xlsx_column.should == 'AA'
+    26.to_xls_col.should == 'AA'
+    26.to_xlsx_col.should == 'AA'
+  end
 
 end
