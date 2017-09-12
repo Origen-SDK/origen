@@ -78,4 +78,22 @@ class Hash
       return search_results
     end
   end
+
+  # Pretty print the hash to the console
+  def pp
+    key_length = longest_key.length + 3
+    value_length = longest_value.length + 3
+    console_length =  key_length + value_length + 1
+    console_length.times { print '-' }; puts
+    key_str = '| key '.ljust(key_length)
+    val_str = '| value '.ljust(value_length)
+    puts key_str + val_str + '|'
+    console_length.times { print '-' }; puts
+    sort.each do |k, v|
+      key_str = "| #{k} ".ljust(key_length)
+      val_str = "| #{v} ".ljust(value_length)
+      puts key_str + val_str + '|'
+    end
+    console_length.times { print '-' }; puts
+  end
 end
