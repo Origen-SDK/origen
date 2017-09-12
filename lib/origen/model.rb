@@ -26,6 +26,7 @@ module Origen
       include Origen::Memory
       include Origen::Errata
       include Origen::Fuses
+      include Origen::Tests
     end
 
     module ClassMethods

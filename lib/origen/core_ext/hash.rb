@@ -78,7 +78,7 @@ class Hash
       return search_results
     end
   end
-  
+
   # Pretty print the hash to the console
   def pp
     key_length = longest_key.length + 3
