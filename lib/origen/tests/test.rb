@@ -39,12 +39,12 @@ module Origen
         return_value = true
         [:conditions, :platforms].each do |attr|
           unless instance_variable_get("@#{attr}").is_a? Array
-            Origen.log.error("PPEKit: Test attribute '#{attr}' should be an Array!")
+            Origen.log.error("Test attribute '#{attr}' should be an Array!")
             return_value = false
           end
         end
         unless @description.is_a? String
-          Origen.log.error("PPEKit: Test attribute 'description' must be a String!")
+          Origen.log.error("Test attribute 'description' must be a String!")
           return_value = false
         end
         return_value
