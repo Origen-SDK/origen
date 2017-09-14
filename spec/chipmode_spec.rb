@@ -11,6 +11,10 @@ module ChipModeSpec
         add_mode :reset, brief_description: "Top Level Mode", description: "Configure the device to known state through RCW configuration and pin sampling"
         sub_block :dcfg_dcsr, base_address: 0x100000, class_name: 'DCFG_DCSR', byte_order: 'big_endian', lau: 32
         sub_block :dp_pmu1_dcsr, base_address: 0x134000, class_name: 'DP_PMU1_DCSR', byte_order: 'big_endian', lau: 32
+        add_mode :native do |m|
+          m.core_freq = 1.2.Ghz
+          m.vdd_nom = 0.7.V
+        end
       end
     end
 
@@ -56,13 +60,16 @@ module ChipModeSpec
     it "can manipulate the top level modes" do
       t = Top.new
       t.respond_to?(:dcfg_dcsr).should == true
-      t.modes.should == [:reset]
+      t.modes.should == [:reset, :native]
       t.mode = :reset
       t.mode.brief_description.should == "Top Level Mode"
       t.mode.description.should == "Configure the device to known state through RCW configuration and pin sampling"
       t.add_mode :new_mode, description: "Top mode I just added"
       t.has_mode?(:new_mode).should == true
       t.modes(:new_mode).description.should == "Top mode I just added"
+      t.mode = :native
+      t.mode.core_freq.should == 1200000000.0
+      t.mode.vdd_nom.should == 0.7
     end
 
     it "can manipulate the sub_block modes" do
