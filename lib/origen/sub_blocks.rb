@@ -246,6 +246,10 @@ module Origen
     def has_fuses?
       fuses.empty? ? false : true
     end
+    
+    def has_tests?
+      tests.empty? ? false : true
+    end
 
     def sub_block(name, options = {})
       if i = options.delete(:instances)
