@@ -1,6 +1,7 @@
 require 'optparse'
 require 'fileutils'
 require 'rubygems'
+require 'origen/version_string'
 
 include Origen::Utility::InputCapture
 
@@ -16,8 +17,10 @@ Usage: origen gem
 Quickstart Examples:
   origen gem                           # Displays the list of currently used gems
   origen gem gem_name                  # Displays details of specified gem
-  origen gem fetch gem name            # Copies gem source to a local repo (<application_top_level_path>/tmp/gems)
-  origen gem clean (gem_name|all)      # Removes/deletes the local copy of the gem source
+  origen gem fetch gem name            # Poluates/copies gem source to a local repo (<application_top_level_path>/tmp/gems)
+                                       #  and updates Gemfile to use local copy
+  origen gem clean (gem_name|all)      # Removes/deletes the local copy of the gem source and updated Gemfile to
+                                       #  use originally specified version/path
 
 The following options are available:
   END
@@ -54,6 +57,10 @@ def self._session_gem_path
   "#{Origen.app.root}/tmp/gems"
 end
 
+def self._application_gemfile
+  "#{Origen.app.root}/Gemfile"
+end
+
 def self._local_path_to_gem(gem)
   "#{_session_gem_path}/#{Pathname(gem[:location]).basename}"
 end
@@ -62,12 +69,49 @@ def self._gem_basename(gem)
   "#{Pathname(gem[:location]).basename}"
 end
 
+def self._gem_rc_version(gem)
+  gem[:version]
+end
+
+def self._update_gemfile
+  content = File.read(_application_gemfile)
+
+  search_regexp = "# ORIGEN GEM AUTO-GENERATED.*# /ORIGEN GEM AUTO-GENERATED.*?\n"
+
+  if Origen.app.session.gems.keys.empty?
+    new_contents = content.gsub(/#{search_regexp}/m, '')
+  else
+    replacement_string = "# ORIGEN GEM AUTO-GENERATED---------------DO NOT REMOVE THIS LINE-------------\n"
+    replacement_string += "# -- DO NOT CHECK IN WITH THIS SECTION!\n"
+    replacement_string += "# -- DO NOT HAND MODIFY!\n"
+    replacement_string += "# -- USE 'origen gem clean all' to reset\n"
+    replacement_string += "\n"
+
+    Origen.app.session.gems.keys.sort.each do |g|
+      replacement_string += "gem '#{g}', path: '#{Origen.app.session.gems[g.to_sym]}'\n"
+      replacement_string += "puts \"\\e[1;93;40mWARNING: Using session gem for '#{g}'\\e[0m\"\n"
+    end
+
+    replacement_string += "def gem(*args)\n"
+    replacement_string += "  return if [#{Origen.app.session.gems.keys.sort.map { |e| "'" + e.to_s + "'" }.join(',')}].include? args[0]\n"
+    replacement_string += "  super(*args)\n"
+    replacement_string += "end\n"
+    replacement_string += "#\n"
+    replacement_string += "# /ORIGEN GEM AUTO-GENERATED---------------DO NOT REMOVE THIS LINE------------\n"
+
+    if content =~ /#{search_regexp}/m
+      new_contents = content.gsub(/#{search_regexp}/m, replacement_string)
+    else
+      new_contents = replacement_string + content
+    end
+  end
+  File.open(_application_gemfile, 'w') { |file| file.puts new_contents }
+end
+
 gems = _local_gems
-# puts _session_gem_path
 
 if !ARGV[0]
   longest_key = gems.keys.max_by(&:length)
-
   puts ''
   printf "%-#{longest_key.length}s %-15s %s\n", 'Gem', 'Version', 'Location'
   puts '--------------------------------------------------------------------------------------------------------------'
@@ -91,6 +135,12 @@ else
               system("rm -fr #{_session_gem_path}")
             end
           end
+          unless Origen.app.session.gems.keys.empty?
+            Origen.app.session.gems.keys.sort.each do |g|
+              Origen.app.session.gems.delete_key(g)
+            end
+            _update_gemfile
+          end
         else
           puts 'There are no local gems present, nothing to clean.'
         end
@@ -106,20 +156,21 @@ else
               system("rm -fr #{_local_path_to_gem(gems[gem.to_sym])}")
             end
           end
+          Origen.app.session.gems.delete_key(gem.to_sym)
+          _update_gemfile
         else
           puts "Gem '#{gem}' is not locally present, nothing to clean."
         end
       end
     else
       puts "Error: Must specify gem to be cleaned or 'all'. Use 'origen gem -h' for usage"
-      puts opts
     end
   when 'fetch'
     gem = ARGV[0]
     if gem
       if gems.key?(gem.to_sym)
         # Initialize ./tmp/gems/
-        FileUtils.mkdir(_session_gem_path) unless Dir.exist? _session_gem_path
+        FileUtils.mkdir_p(_session_gem_path) unless Dir.exist? _session_gem_path
 
         if Dir.exist? _local_path_to_gem(gems[gem.to_sym])
           # check if already exists, ask for permission to blow away
@@ -136,14 +187,39 @@ else
           end
         end
 
-        FileUtils.cp_r(gems[gem.to_sym][:location], _session_gem_path)
-        # unless options[:dont_use]
-        #   # point to local copy and save as session
-        # end
+        if Origen.has_plugin?(gem)
+          # Set up the requested plugin workspace
+          rc_url = Origen.app(gem.to_sym).config.rc_url || Origen.app(gem.to_sym).config.vault
+          if rc_url =~ /git/
+            Origen::RevisionControl::Git.git("clone #{rc_url} #{_gem_basename(gems[gem.to_sym])}", local: _session_gem_path, verbose: true)
+          else
+            # Use Origen::RevisionControl for DesignSync
+            rc = Origen::RevisionControl.new remote: rc_url, local: _local_path_to_gem(gems[gem.to_sym])
+            tag = Origen::VersionString.new(_gem_rc_version(gems[gem.to_sym]))
+            tag = tag.prefixed if tag.semantic?
+            rc.build version: tag
+          end
+        else
+          puts 'Not an Origen plugin gem, only COPYING source.'
+          FileUtils.cp_r(gems[gem.to_sym][:location], _session_gem_path)
+        end
+
+        # FileUtils.cp_r(gems[gem.to_sym][:location], _session_gem_path)
+        unless options[:dont_use]
+          Origen.app.session.gems[gem.to_sym] = "#{_local_path_to_gem(gems[gem.to_sym])}"
+        end
+
+        _update_gemfile
+
+        puts "Fetched #{gem} to tmp/gems/#{_gem_basename(gems[gem.to_sym])}"
+        puts ''
+        # puts 'Please add the following to your Gemfile:'
+        # puts ''
+        # puts "gem '#{gem}', path: '#{_local_path_to_gem(gems[gem.to_sym])}'"
+        # puts ''
       else
         puts "Error: '#{gem}' is not a currently used gem.  Use 'origen gem' for gem list."
       end
-      puts "Fetched #{gem} to tmp/gems/#{_gem_basename(gems[gem.to_sym])}"
     else
       puts "Error: Must specify gem to be fetched. Use 'origen gem -h' for usage"
     end

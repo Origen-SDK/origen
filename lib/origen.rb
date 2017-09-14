@@ -159,6 +159,10 @@ unless defined? RGen::ORIGENTRANSITION
       end
       alias_method :application!, :app!
 
+      def has_plugin?(plugin)
+        _applications_lookup[:name][plugin.to_sym].nil? ? false : true
+      end
+
       # @api private
       def with_source_file(file)
         @current_source_dir = Pathname.new(file).dirname
