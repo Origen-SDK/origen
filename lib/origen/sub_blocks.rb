@@ -242,6 +242,10 @@ module Origen
       end
     end
     alias_method :has_regs?, :owns_registers?
+    
+    def has_fuses?
+      fuses.empty? ? false : true
+    end
 
     def sub_block(name, options = {})
       if i = options.delete(:instances)
