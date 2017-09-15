@@ -107,10 +107,21 @@ module Origen
     # next time, this should be faster for repeated lookups of the same method, e.g. reg
     def method_missing(method, *args, &block)
       if model.respond_to?(method)
-        define_singleton_method(method) do |*args, &block|
-          model.send(method, *args, &block)
+        # This method is handled separately since it is important to produce a proxy method
+        # that takes no arguments, otherwise the register address lookup system mistakes it
+        # for a legacy way of calculating the base address whereby the register itself was
+        # given as an argument.
+        if method.to_sym == :base_address
+          define_singleton_method(method) do
+            model.send(method)
+          end
+          base_address
+        else
+          define_singleton_method(method) do |*args, &block|
+            model.send(method, *args, &block)
+          end
+          send(method, *args, &block)
         end
-        send(method, *args, &block)
       else
         super
       end
