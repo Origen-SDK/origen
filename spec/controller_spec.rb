@@ -30,6 +30,12 @@ module Origen
 
   class MyModel4
     include Origen::Model
+    def initialize
+      reg :reg1, 0 do
+        bits 31..0, :data
+      end
+    end
+
     def hello_model
       "yo4"
     end
@@ -58,6 +64,10 @@ module Origen
   class MyModel4Controller
     def hello_controller
       "hi4"
+    end
+
+    # This must be defined to induce a particular bug, don't remove
+    def read_register(reg, options = {})
     end
   end
 
@@ -100,6 +110,7 @@ module Origen
   end
 
   describe "Controller" do
+
     it "wraps instantiated models automagically" do
       m = MyModel.new
       m.hello_controller.should == "hi"
@@ -131,6 +142,13 @@ module Origen
       m = MyModel3.new
       m.hello_model.should == "yo3"
       m.hello_controller.should == "hi"
+    end
+
+    it "accessing the base_address before a register doesn't crash" do
+      m = MyModel4.new
+      m.controller.base_address.should == 0
+      reg = m.controller.reg1
+      reg.address.should == 0
     end
 
     it "can be inferred from the class name" do
