@@ -1,3 +1,19 @@
+<a class="anchor release_tag" name="v0_25_0"></a>
+<h1><a href="#v0_25_0">Tag: v0.25.0</a></h1>
+
+##### Branch: 'gym'
+
+##### by Stephen McGinty on 15-Sep-2017 18:58PM
+
+
+* Added Fixnum#to\_spreadsheet\_column and Origen::Parameters::Set#to\_flat\_hash methods (Brian
+  Caquelin)
+* Improved an application's ability to add additional options to core Origen commands (Ronnie
+  Lajaunie)
+* Bug fix - fixed option (-o) for generate command (Ronnie Lajaunie)
+* Bug fix - Accessing the base\_address of a model/controller pair before later accessing a
+  register does not crash.
+
 <a class="anchor release_tag" name="v0_24_0"></a>
 <h1><a href="#v0_24_0">Tag: v0.24.0</a></h1>
 
