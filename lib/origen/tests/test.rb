@@ -3,11 +3,12 @@ module Origen
     class Test
       attr_accessor :id, :owner, :description, :conditions, :platforms
 
-      def initialize(id, &block)
+      def initialize(id, options = {}, &block)
         @id = id
         @description = ''
         @conditions, @platforms = [], []
         @id = @id.symbolize unless @id.is_a? Symbol
+        options.each { |k, v| instance_variable_set("@#{k}", v) }
         (block.arity < 1 ? (instance_eval(&block)) : block.call(self)) if block_given?
         fail unless attrs_ok?
       end
