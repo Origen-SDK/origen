@@ -22,7 +22,7 @@ module Origen
     def add_test(id, options = {}, &block)
       @_tests ||= {}
       if @_tests.include?(id)
-        Origen.log.error("PPEKit: Cannot create test '#{id}', it already exists!")
+        Origen.log.error("Cannot create test '#{id}', it already exists!")
         fail
       end
       @_tests[id] = Test.new(id, options, &block)
