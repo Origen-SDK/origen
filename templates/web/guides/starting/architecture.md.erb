@@ -1,0 +1,314 @@
+% render "layouts/guides.html" do
+
+When first using Origen to build something for a specific product, you shouldn't
+be overly concerned about how to scale your application to handle a large product family in the
+future.
+
+On the other hand, if you follow a few simple conventions early on, then you will find it easy
+to transition your application from handling a single product to multiple products if you need to
+in the future.
+
+This guide provides some advice on how to organize your early application code, and then provides
+an example of what a complex and mature Origen application eco-system might look like.
+
+#### Monolithic Application Architecture
+
+For anyone starting with Origen for the first time, the recommendation is always to build everything
+you need within a single application, a so-called monolithic application.
+
+Here is a walk-through of how the code should evolve within a single application architecture...
+
+You would typically have a single target, and a single file for your code within `lib`:
+
+~~~text
+App Root (Origen.root)
+|
++---target
+|       device1.rb
+|
+\---lib
+    |   device1.rb         # This file is used to load everything
+    |   
+    \---device1
+            top_level.rb   # The application code lives in here
+~~~
+
+As your device code grows, you might start to split it out in separate modules:
+
+
+~~~text
+App Root (Origen.root)
+|
++---target
+|       device1.rb
+|
+\---lib
+    |   device1.rb         # This file is used to load everything
+    |   
+    \---device1
+            top_level.rb   # Deals with top-level concerns
+            adc.rb         # Everything related to ADC
+            ram.rb         # Everything related to RAM, etc.
+            flash.rb       
+~~~
+
+For complex modules, you might develop another layer of hierarchy:
+
+~~~text
+App Root (Origen.root)
+|
++---target
+|       device1.rb
+|
+\---lib
+    |   device1.rb         # This file is used to load everything
+    |   
+    \---device1
+        |   top_level.rb   # Deals with top-level concerns
+        |   adc.rb         # Everything related to ADC
+        |   ram.rb         # Everything related to RAM, etc.
+        |
+        \---flash
+                model.rb
+                controller.rb
+                bist.rb
+~~~
+
+At this point you should be trying to keep your code namespaced based on where it lives,
+so for example, the `lib/device1/flash/bist.rb` file would contain this:
+
+~~~ruby
+module Device1
+  module Flash
+    # Model for the flash BIST
+    class BIST
+      
+    end
+  end
+end
+~~~
+
+Now let's say that the need to support a 2nd device comes along, we could start that process
+by just copying everything from `lib/device1` to `lib/device2`.
+
+We may also realize that we made a mistake initially by calling our app `device1`, so we'll
+take the opportunity to rename it after the name given to the product family, let's say `family`:
+
+~~~text
+App Root (Origen.root)
+|
++---target
+|       device1.rb
+|       device2.rb
+|
+\---lib
+    |   family.rb         # This file is used to load everything
+    |   
+    \---family
+        +---device1
+        |   |   top_level.rb   # Deals with top-level concerns
+        |   |   adc.rb         # Everything related to ADC
+        |   |   ram.rb         # Everything related to RAM, etc.
+        |   |
+        |   \---flash
+        |           model.rb
+        |           controller.rb
+        |           bist.rb
+        |
+        \---device2
+            |   top_level.rb   # Deals with top-level concerns
+            |   adc.rb         # Everything related to ADC
+            |   ram.rb         # Everything related to RAM, etc.
+            |
+            \---flash
+                    model.rb
+                    controller.rb
+                    bist.rb
+~~~
+
+There is a high chance of duplication here, especially if the devices both instantiate some of the
+same physical IP blocks. Let's say they both use the same flash IP, in that case we can remove some
+of the duplication by popping the flash code up a level:
+
+~~~text
+App Root (Origen.root)
+|
++---target
+|       device1.rb
+|       device2.rb
+|
+\---lib
+    |   family.rb         # This file is used to load everything
+    |   
+    \---family
+        +---device1
+        |       top_level.rb   # Deals with top-level concerns
+        |       adc.rb         # Everything related to ADC
+        |       ram.rb         # Everything related to RAM, etc.
+        |
+        +---device2
+        |       top_level.rb   # Deals with top-level concerns
+        |       adc.rb         # Everything related to ADC
+        |       ram.rb         # Everything related to RAM, etc.
+        |   
+        \---flash              # Common flash module, used by both devices
+                model.rb
+                controller.rb
+                bist.rb
+~~~
+
+For comparison, our flash bist module now looks like this:
+
+~~~ruby
+module Family
+  module Flash
+    # Model for the flash BIST
+    class BIST
+      
+    end
+  end
+end
+~~~
+
+Finally, we might find that since these devices come from the same family, much of the top-level code
+might be the same. For example, if we are creating patterns, perhaps they both use the same code to
+create a mode entry sequence, so we can make that common:
+
+~~~text
+App Root (Origen.root)
+|
++---target
+|       device1.rb
+|       device2.rb
+|
+\---lib
+    |   family.rb         # This file is used to load everything
+    |   
+    \---family
+        |   mode_entry.rb      # Common mode entry logic, shared by both devices
+        |
+        +---device1
+        |       top_level.rb   # Deals with top-level concerns
+        |       adc.rb         # Everything related to ADC
+        |       ram.rb         # Everything related to RAM, etc.
+        |
+        +---device2
+        |       top_level.rb   # Deals with top-level concerns
+        |       adc.rb         # Everything related to ADC
+        |       ram.rb         # Everything related to RAM, etc.
+        |   
+        \---flash              # Common flash module, used by both devices
+                model.rb
+                controller.rb
+                bist.rb
+~~~
+
+By continuing to follow these same principles, this application can be further expanded to support many
+additional devices features, while still being maintainable by minimizing duplication and by keeping
+things organized.
+
+#### Distributed Application Architecture
+
+You can get very far by following the monolithic approach. In fact, the very first Origen application was supporting
+almost 50 devices and had been generating production test IP for years before we decided to start splitting it up into
+a more distributed architecture.
+
+The main reasons you might consider splitting up a monolithic application are as follows:
+
+* All device setups within the monolithic architecture must use the same version of Origen and all of the gems
+  and plugins that you use. Over time, device-specific cases might emerge which mean that a particular device
+  setup must remain on a specific plugin version. That is not possible to implement with the monolithic
+  architecture.
+* If the number of people working on the application grows, then it might be easier to organize them around several
+  discrete applications rather than all contributing to different areas of a single application.
+* If a sub-module area, for example the flash in this example, becomes much larger than the rest and especially if
+  it has a dedicated team supporting it, then it might be easier to manage by making it its own entity.
+* If some of the IP within the application is re-usable within a different product family, then it may be more desirable to
+  split out that IP to enable re-use by a 3rd party, rather than try to add more engineers and un-related product setups
+  into the original monolithic application.
+
+Here then, is a typical approach to how this monolithic application might be split up when making
+the following assumptions:
+
+* The flash is a complex IP with a dedicated team supporting it
+* The RAM code is common to both products, but its pretty simple
+* The ADC (at this point in time) is unique to each product and we are not sure if any of it will be re-used in future
+  
+
+Each device is now defined and managed within a dedicated top-level Origen application. In a test engineering example,
+each application would typically be owned and managed by the lead test engineer for each device.
+The job of this application is to implement anything that is truly device-specific, to decide what plugins are required,
+and to maintain which versions of the plugins to use. i.e. it is a bill of materials describing what components from the Origen
+eco-system (meaning both internal and external to a given company) are required for the given product.
+For that reason, these are commonly referred to as "BOM apps":
+
+~~~text
+App Root (Origen.root)
+|
++---target
+|       device1.rb
+|
+\---lib
+    |   device1.rb         # This file is used to load everything
+    |   
+    \---device1
+            top_level.rb   # Deals with top-level concerns
+            adc.rb         # Everything related to ADC, seems to be product specific for now
+~~~
+
+~~~text
+App Root (Origen.root)
+|
++---target
+|       device2.rb
+|
+\---lib
+    |   device2.rb         # This file is used to load everything
+    |   
+    \---device2
+            top_level.rb   # Deals with top-level concerns
+            adc.rb         # Everything related to ADC, seems to be product specific for now
+~~~
+
+Our flash IP is managed by a dedicated team, so becomes its own [Origen plugin](<%= path 'guides/plugins/introduction/' %>):
+
+~~~text
+App Root (Origen.root)
+|
+\---lib
+    |   flash.rb         # This file is used to load everything
+    |   
+    \---flash
+            model.rb
+            controller.rb
+            bist.rb
+~~~
+
+The product team/community maintains another plugin that provides everything that is common amongst the
+device family, including the RAM module for now:
+
+~~~text
+App Root (Origen.root)
+|
+\---lib
+    |   family.rb         # This file is used to load everything
+    |   
+    \---family
+            mode_entry.rb    # Common mode entry logic, shared by all devices in this family
+            ram.rb           # RAM code shared by all devices in this family, but nowhere else for now
+~~~
+
+With this distributed architecture, all duplication has been aggressively eliminated, making it very easy
+for a central group or person, like the flash team in this example, to roll out an improved module to the
+whole company. i.e. the flash team release a new version of their plugin, then the BOM application owners
+can decide when they are ready to pull it in.
+
+The job of supporting a new device is now easy as well. The footprint of the top-level/BOM apps is usually very
+small, making it easy to create a new one, and this is typically made even easier at this point by
+[creating a custom app generator](<%= path 'guides/advanced/newapps/' %>) to build them.
+
+By following these guidelines, you now have a very scalable eco-system which provides: central ownership and maintenance
+of complex blocks, re-use of IP between otherwise un-related product families, and the ability to maximise
+re-use when bringing up derivative products.
+
+% end
