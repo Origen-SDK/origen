@@ -43,34 +43,42 @@ func :vreg_hvst, softbin: 101, hv: 10.V, vdd: :max, unless_enable: "skip_hvst"
 para :vreg_meas, softbin: 105, lo: 1.12, hi: 1.34V, if_job: "FC"
 ~~~
 
-For an IG-XL based tester this would generate code like this:
+The use of `if/unless_enable` will make use of flow enable words on Teradyne platforms and user
+flow variables on Advantest.
+The `if/unless_job` control will make use of the job column on Teradyne platforms and a user
+flow variable named `@JOB` on Advantest.
 
-~~~text
-# Label           Job        Enable         Test
-                             vreg_cz        Characterize    vreg_meas char    107
-                             skip_hvst      goto            VREG_LABEL_1
-                                            Test            vreg_hvst_max     101
-VREG_LABEL_1                                nop                      
-                  FC                        Test            vreg_meas         105
+Both of these controls support a block form, which allows it to be applied to a group of test
+and, in the case of enable words, it also provides a way to implement AND and OR logic:
+
+~~~ruby
+# OR - Run these tests if either word is set
+if_enable [:word1, :word2] do
+  func: :test1
+  func: :test2
+end
+
+# AND - Run these tests if both words are set
+if_enable :word1 do
+  if_enable :word2 do
+    func: :test1
+    func: :test2
+  end
+end
 ~~~
-
-The unless "skip_hvst" is enabled is a good example of where Origen patches around
-weaknesses in the underlying vendor API - IG-XL doesn't provide a native !enabled
-control, however you can write your flow as if it does and Origen will generate
-the equivalent logic.
 
 #### Execution Based on a Previous Test
 
 The following methods are available to describe these cases:
 
 * **if_ran / unless_ran** - Run only if a previous test did or did not run
-* **if_failed (unless_passed)** - Run only if a previous test failed (site specific)
-* **if_passed (unless_failed)** - Run only if a previous test passed (site specific)
+* **if_failed (unless_passed)** - Run only if a previous test failed
+* **if_passed (unless_failed)** - Run only if a previous test passed
 
 All of these methods require you to provide the ID of the previous test on which
 the conditional execution will depend.
 This ID must be assigned by you in the flow line of the previous test by adding
-and <code>id</code> key like this:
+an `:id` key, like this:
 
 ~~~ruby
 para :vreg_meas, softbin: 105, lo: 1.12, hi: 1.34, id: :vreg_meas_1
@@ -88,7 +96,7 @@ para :vreg_meas, softbin: 105, lo: 1.12, hi: 1.34, id: :vreg_meas_1
 # Automatically characterize the vreg if the measurement fails
 para :vreg_meas, softbin: 107, cz: true, if_failed: :vreg_meas_1
 # Then bin out
-bin_out softbin: 105, if_failed: :vreg_meas_1
+bin 3, softbin: 105, if_failed: :vreg_meas_1
 # Check if the HVST has already been run on this device
 func :rd_vreg_hvst_passcode, softbin: 50, vdd: :nom, id: :vreg_hvst_done
 # If not run it
@@ -97,55 +105,67 @@ func :vreg_hvst, softbin: 101, hv: 10.V, vdd: :max, unless_passed: :vreg_hvst_do
 func :pgm_vreg_hvst_passcode, softbin: 51, vdd: :nom, unless_passed: :vreg_hvst_done
 ~~~
 
-For an IG-XL based tester this would generate code like this:
-
-~~~text
-# Test                                   Result                          Condition
-Test            vreg_meas                None    vreg_meas_1_FAILED      
-Characterize    vreg_meas char           Fail                            flag-true vreg_meas_1_FAILED
-Set-Device      105                                                      flag-true vreg_meas_1_FAILED 
-Test            rd_vreg_hvst_passcode    None    vreg_hvst_done_PASSED  
-Test            vreg_hvst                Fail                            flag-true vreg_hvst_done_PASSED
-Test            pgm_vreg_hvst_passcode   Fail                            flag-true vreg_hvst_done_PASSED
-~~~
-
 Origen automatically takes care of setting up all of the tests in the relationship:
 
 * The parent tests in the relationship are automatically set to continue on fail
 * Flag(s) will be set to indicate whether the parent test passed or failed
 * Conditional execution flags are set on all dependent tests
 
-#### Controlling the Execution of a Group of Tests
+AND and OR conditions can be created by using `if_any/all_failed/passed`
+variations as follows:
+
+~~~ruby
+func :test1, id: :t1
+func :test2, id: :t2
+
+# OR logic - This test will run if either of the referenced tests fail
+func :test3, if_any_failed: [:t1, :t2]
+
+# AND logic - This test will only run if both of the referenced tests fail
+func :test4, if_all_passed: [:t1, :t2]
+
+# Block forms are available as with all condition APIs
+if_any_passed [:t1, :t2] do
+  #...
+end
+~~~
+
+#### References to External Tests
+
+It is possible to generate conditional relationships between tests that span across
+different flow modules, in that case the test ID must be appended with `:extern_`.
+This will indicate to Origen that the reference is external and
+will prevent an error being raised for the ID not being found within the current flow.
+
+Here is an example:
+
+~~~ruby
+# program/flow_1.rb
+Flow.create do
+  # This ID can only be referenced within this flow
+  func :test1, id: :t1
+  # This ID can be referenced outside of this flow
+  func :test2 id: :extern_t2
+end
+
+# program/flow_2.rb
+Flow.create do
+  # This will generate an undefined ID error
+  func :test3, if_failed: :t1
+  # But this will work, since the ID's name indicates that it is an intentional external reference
+  func :test4, if_failed: :extern_t2
+end
+~~~
+
+#### Applying Conditions to Sub-Flows
 
 All of the flow control methods have a block form which will apply the
 condition to all tests within the block.
 
-The previous example could be more clearly written using the block form:
-
-~~~ruby
-para :vreg_meas, softbin: 105, lo: 1.12, hi: 1.34, id: :vreg_meas_1
-if_failed :vreg_meas_1 do
-  # Automatically characterize the vreg if the measurement fails
-  para :vreg_meas, softbin: 107, cz: true
-  # Then bin out
-  bin_out softbin: 105
-end
-# Check if the HVST has already been run on this device
-func :rd_vreg_hvst_passcode, softbin: 50, vdd: :nom, id: :vreg_hvst_done
-unless_passed :vreg_hvst_done do
-  # If not run it
-  func :vreg_hvst, softbin: 101, hv: 10.V, vdd: :max
-  # And program the flag for next time
-  func :pgm_vreg_hvst_passcode, softbin: 51, vdd: :nom
-end
-~~~
-
-This will generate the exact same code as before.
-
 A very useful pattern is to split your code into small re-usable snippets
 and then wrap the import with these flow control methods to apply conditional
 execution.
-For example here the 'FH' job requirement will be applied to all tests
+For example, here the 'FH' job requirement will be applied to all tests
 imported from the vreg component:
 
 ~~~ruby
@@ -155,19 +175,75 @@ if_job "FH" do
 end
 ~~~
 
-#### Skipping a Section
+#### Conditions Based Applied to Groups
 
-An additional method <code>skip</code> is available to skip over a section, this
-would normally be qualified by one of the other flow control methods:
+Groups can also be used to implement AND/OR logic, here is an example of how you
+might implement a speed binning flow:
 
 ~~~ruby
-# Don't bother running the hot vreg flow if the device already received it at probe
-func :rd_hot_sort2_passcode, softbin: 50, vdd: :nom, id: :hot_sort2_done
-skip if_passed: :hot_sort2_done do
-  if_job "FH" do
-    import "components/vreg"
-  end
+group "200Mhz", id: :spec200 do
+  func :test1_200
+  func :test2_200
+end
+
+# Bin out to bin 1 if passed at 200 Mhz, here if_passed will apply to all tests in the group
+pass 1, if_passed: :spec200
+
+group "100Mhz", id: :spec100 do
+  func :test1_100
+  func :test2_100
+end
+
+# Bin out to bin 2 if passed at 100 Mhz, here if_passed will apply to all tests in the group
+pass 2, if_passed: :spec100
+
+# Otherwise we have failed
+bin 3
+~~~
+
+#### Manually Setting and Referencing Flags
+
+It may be sometimes be necessary to react on a flag that is controlled by a 3rd party and
+which will be passed into an Origen-based test block, or to set a flag which a 3rd
+party test block will later reference.
+
+An API exists to manually set and react to flags in these situations:
+
+~~~ruby
+log "Example of manual flag setting upon pass or fail"
+test :test1, on_pass: { set_flag: :my_pass_flag }, on_fail: { set_flag: :my_fail_flag }, continue: true
+
+# Execute only if the above pass flag was set
+test :test2, if_flag: :my_pass_flag
+
+# Execute only if the above pass flag was not set
+unless_flag :my_pass_flag do
+  test :test3
 end
 ~~~
+
+Note that flag names will usually be forced to uppercase, this is to institute a convention that
+flags/flow variables are always uppercased in order to avoid any test program bugs from
+incorrectly referencing a given flag due to case sensitivity.
+
+However, if you need to reference a flag from a 3rd party test module that does not follow this
+convention, then a literal flag can be supplied by prefixing it with `$` as shown below:
+
+~~~ruby
+test :test1, on_fail: { set_flag: :$My_Mixed_Flag }, continue: true
+test :test2, if_flag: "$My_Mixed_Flag"
+unless_flag "$My_Mixed_Flag" do
+  test :test3
+end
+
+test :extra_test, if_enable: :$MCEn_extras
+unless_enable "$MCEn_test" do
+  test :test1
+  test :test2
+end
+~~~
+
+In all cases the `$` will be removed from the final flag name that appears in the test program.
+
 
 % end
