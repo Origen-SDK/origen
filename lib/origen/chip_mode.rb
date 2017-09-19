@@ -17,8 +17,9 @@ module Origen
     alias_method :typ_voltage, :typical_voltage
 
     def initialize(name, options = {})
-      @name = name
       options.each { |k, v| instance_variable_set("@#{k}", v) }
+      (block.arity < 1 ? (instance_eval(&block)) : block.call(self)) if block_given?
+      @name = name
       validate_args
     end
 
@@ -65,12 +66,23 @@ module Origen
     # Implements methods like:
     #
     #     if $dut.mode.rambist?
-    def method_missing(method_name, *arguments)
+    def method_missing(method_name, *arguments, &block)
+      ivar = "@#{method_name.to_s.gsub('=', '')}"
+      ivar_sym = ":#{ivar}"
       if method_name[-1] == '?'
         id == method_name[0..-2].to_sym
+      elsif method_name[-1] == '='
+        define_singleton_method(method_name) do |val|
+          instance_variable_set(ivar, val)
+        end
+      elsif instance_variables.include? ivar_sym
+        instance_variable_get(ivar)
       else
-        super
+        define_singleton_method(method_name) do
+          instance_variable_get(ivar)
+        end
       end
+      send(method_name, *arguments, &block)
     end
 
     def to_s
