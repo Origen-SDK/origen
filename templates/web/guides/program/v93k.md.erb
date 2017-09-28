@@ -399,5 +399,55 @@ For a more advanced integration which gets rid of the need to even call `add_my_
 can refer to how the `origen_std_lib` interface integration works 
 [here](https://github.com/Origen-SDK/origen_std_lib/blob/master/plugin/lib/origen_std_lib.rb).
 
+### Test Name Uniqueness
+
+Test (suite) naming collisions can occur when importing multiple independent test flow modules into a
+V93K master flow file.
+
+To prevent that from ever occurring, Origen will generate and append a unique signature to the end of
+all test names by default, for example:
+
+~~~ruby
+t = test_suites.add("my_test_name", options)
+
+t.name   # => "my_test_name_E32ABE8"
+~~~
+
+Applications can override this default behavior by setting the corresponding test interface attribute,
+`unique_test_names`, to one of the following values:
+
+* `:signature` - this is the default which will generate a unique signature as shown in the above example
+* `nil` - no value will be appended to the test names at all
+* `:flowname` - the name of the current top-level flow will be appended to all test names
+* Setting this attribute to any other value will append that value directly to all test names
+
+This attribute can be set in the [environment file](<%= path 'guides/runtime/environment' %>) when instantiating
+the tester:
+
+~~~ruby
+OrigenTesters::V93K.new unique_test_names: nil
+~~~
+
+This provides a single place to control the behavior within a [monolithic application architecture](<%= path 'guides/starting/architecture/#Monolithic_Application_Architecture' %>).
+
+However, under a [distributed application architecture](<%= path 'guides/starting/architecture/#Distributed_Application_Architecture' %>)
+a given test flow module may be generated under a target/environment that is controlled by a 3rd party.
+
+In that case, it is recommended to either set it at the flow-level, which will override any setting set at the
+environment-level:
+
+~~~ruby
+# program/wt1_start.rb
+Flow.create interface: 'MyApp::Interface', unique_test_names: 'wt1' do
+
+end
+~~~
+
+Or, it can be set directly within your interface logic which will take the highest precedence:
+
+~~~ruby
+# lib/my_app/interface.rb
+self.unique_test_names = :flowname
+~~~
 
 % end
