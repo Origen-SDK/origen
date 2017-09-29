@@ -134,6 +134,9 @@ module Origen
       def run_erb(file, opts = {}, &block)
         # Refresh the target to start all settings from scratch each time
         # This is an easy way to reset all registered values
+        if opts[:preserve_target]
+          options[:preserve_target] = opts.delete(:preserve_target)
+        end
         Origen.app.reload_target! unless options[:preserve_target]
         # Record the current file, this can be used to resolve any relative path
         # references in the file about to be compiled
