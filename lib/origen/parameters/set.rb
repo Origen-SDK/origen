@@ -30,6 +30,11 @@ module Origen
       end
       alias_method :current_context, :context
 
+      def available_contexts
+        owner._parameter_sets.keys
+      end
+      alias_method :contexts, :available_contexts
+
       def copy_defaults_from(set)
         set.each do |name, val|
           if val.is_a?(Set)
