@@ -272,5 +272,10 @@ module ParametersSpec
       $dut.params.to_flat_hash(delimiter: '_').include?('erase_time').should == true
       $dut.params.to_flat_hash(delimiter: '_')['test_ac_period'].should == 1e-08
     end
+    
+    it "all available parameter contexts can be returned as an array" do
+      $dut.params.available_contexts.should == [:default, :ate, :probe, :ft, :set1, :set2, :set3]
+      $dut.params.contexts.should == [:default, :ate, :probe, :ft, :set1, :set2, :set3]
+    end
   end
 end
