@@ -28,14 +28,14 @@ module Origen
       end
       @_power_domains[id] = PowerDomain.new(id, options, &block)
     end
-    
+
     # Prints the power domains to the console
     def show_power_domains(options = {})
       options = {
         fancy_output: true
       }.update(options)
       headers = []
-      output_power_domain_list = []  
+      output_power_domain_list = []
       column_widths = {}.tap do |colhash|
         @_power_domains.each do |domain_name, domain|
           output_attr_list = []
