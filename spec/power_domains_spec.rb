@@ -62,6 +62,12 @@ describe "Power domains" do
     dut.power_domains(:vdd).description.should == 'CPU'
     dut.power_domains(:vdd).nom.should == 1.0.V
     dut.power_domains(:vdd).range.should == (0.7.V..1.1.V)
+    dut.power_domains(:vdd).setpoint.should == nil
+    dut.power_domains(:vdda).setpoint.should == nil
+    dut.power_domains(:vccsoc).setpoint.should == nil
+    dut.power_domains(:vccsoc).nominal_voltage.should == 1.5.V
+    dut.power_domains(:vccsoc).setpoint_to_nominal
+    dut.power_domains(:vccsoc).setpoint.should == 1.5.V
     dut.power_domains(:vdd).setpoint = 1.0.V
     dut.power_domains(:vdd).setpoint_ok?.should == true
     dut.power_domains(:vdd).setpoint = 0.65.V

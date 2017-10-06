@@ -16,6 +16,11 @@ module Origen
         @id
       end
 
+      # Sets setpoint equal to nominal_voltage
+      def setpoint_to_nominal
+        @setpoint = @nominal_voltage
+      end
+
       # Returns an Array of all pins that reference the power domain
       def pins
         signal_pins + ground_pins + power_pins
