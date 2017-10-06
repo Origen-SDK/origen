@@ -51,4 +51,5 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "geminabox", "0.12.4"
   spec.add_runtime_dependency "sinatra", "~>1" # Not required by Origen, but Geminabox. V1 required to avoid Ruby 2.3 requirement.
   spec.add_runtime_dependency "dentaku", "~>2"
+  spec.add_runtime_dependency "colorize", "~> 0.8.1"
 end

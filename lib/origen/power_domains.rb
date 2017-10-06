@@ -1,3 +1,4 @@
+require 'colorize'
 require_relative './power_domains/power_domain'
 module Origen
   module PowerDomains
@@ -26,6 +27,54 @@ module Origen
         fail
       end
       @_power_domains[id] = PowerDomain.new(id, options, &block)
+    end
+
+    # Prints the power domains to the console
+    def show_power_domains(options = {})
+      options = {
+        fancy_output: true
+      }.update(options)
+      headers = []
+      output_power_domain_list = []  # This will hold the array of string-converted elements
+      column_widths = {}.tap do |colhash|   # Create a hash called colhash to work with and everything below operates on that
+        @_power_domains.each do |domain_name, domain|    # Loop over keys/values of @_cloks member. @_power_domains is :power_domainname => ( hash of power_domain parameters )
+          output_attr_list = []
+          domain.instance_variables.each do |attr|  # Loop over all of the instance_variables in the power_domain parameters using attr as the temporary variable
+            attr_getter = attr.to_s[/\@(\S+)/, 1].to_sym  # creates a symbol based on the variable value
+            attr_val = domain.send attr_getter  # Uses the send function to get the value of that symbol
+            headers << attr_getter unless headers.include?(attr_getter)
+            str = case attr_val
+            when Numeric
+              attr_val.as_V
+            when Range
+              start_voltage = attr_val.first
+              end_voltage = attr_val.last
+              "#{start_voltage.as_V}\.\.#{end_voltage.as_V}"
+            else
+              attr_val.to_s
+            end
+            curr_longest = [attr_getter, str].max_by(&:length).size + 2 # Add 3 for the whitespace
+            if colhash[attr].nil? || (colhash[attr] < curr_longest)
+              colhash[attr] = curr_longest
+            end
+            output_attr_list << str
+          end
+          output_power_domain_list << output_attr_list
+        end
+      end
+      if options[:fancy_output]
+        puts '╔' + column_widths.values.each.map { |i| '═' * i }.join('╤') + '╗'
+        puts '║' + headers.each_with_index.map { |col_val, i| " #{col_val} ".ljust(column_widths.values[i]) }.join('│') + '║'
+        puts '╟' + column_widths.values.each.map { |i| '─' * i }.join('┼') + '╢'
+        puts output_power_domain_list.each.map { |attributes| '║' + attributes.each_with_index.map { |value, attr_idx| " #{value} ".ljust(column_widths.values[attr_idx]) }.join('│') + '║' }
+        puts '╚' + column_widths.values.each.map { |i| '═' * i }.join('╧') + '╝'
+      else
+        puts '.' + column_widths.values.each.map { |i| '-' * i }.join('-') + '.'
+        puts '|' + headers.each_with_index.map { |col_val, i| " #{col_val} ".ljust(column_widths.values[i]) }.join('|') + '|'
+        puts '|' + column_widths.values.each.map { |i| '-' * i }.join('+') + '|'
+        puts output_power_domain_list.each.map { |attributes| '|' + attributes.each_with_index.map { |value, attr_idx| " #{value} ".ljust(column_widths.values[attr_idx]) }.join('|') + '|' }
+        puts '`' + column_widths.values.each.map { |i| '-' * i }.join('-') + '\''
+      end
     end
   end
 end
