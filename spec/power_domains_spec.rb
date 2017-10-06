@@ -108,9 +108,9 @@ describe "Power domains" do
     dut.power_domains(:vdda).display_name[:default].to_xml.should == 'AV<sub>DD</sub>'
     dut.power_domains(:vdda).display_name[:input].to_xml.should == 'AV<sub>IN</sub>'
     dut.power_domains(:vdda).display_name[:output].to_xml.should == 'AV<sub>OUT</sub>'
-    dut.power_domains(:vddsoc).display_name[:default].to_xml.should == 'VDD'
-    dut.power_domains(:vddsoc).display_name[:input].to_xml.should == 'VDD'
-    dut.power_domains(:vddsoc).display_name[:output].to_xml.should == 'VDD'    
+    dut.power_domains(:vccsoc).display_name[:default].to_xml.should == 'VDD'
+    dut.power_domains(:vccsoc).display_name[:input].to_xml.should == 'VDD'
+    dut.power_domains(:vccsoc).display_name[:output].to_xml.should == 'VDD'    
   end
 
 end
