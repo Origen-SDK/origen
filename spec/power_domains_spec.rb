@@ -28,16 +28,19 @@ class SoC_With_Domains
       domain.description = 'CPU'
       domain.nominal_voltage = 1.0.V
       domain.voltage_range = 0.7.V..1.1.V
+      domain.display_names(Nokogiri::XML::DocumentFragment.parse 'OV<sub>DD</sub>')
     end
     add_power_domain :vdda do |domain|
       domain.description = 'PLL'
       domain.nominal_voltage = 1.2.V
       domain.voltage_range = 1.08.V..1.32.V
+      domain.display_names(Nokogiri::XML::DocumentFragment.parse 'AV<sub>DD</sub>')
     end
     add_power_domain :vccsoc do |domain|
       domain.description = 'SoC'
       domain.nominal_voltage = 1.5.V
       domain.voltage_range = 1.35.V..1.65.V
+      domain.display_names(Nokogiri::XML::DocumentFragment.parse 'VDD')
     end
   end
   
@@ -96,6 +99,18 @@ describe "Power domains" do
     dut.power_domains(:vdda).power_pins.should == []
     dut.power_domains(:vdda).ground_pins.should == []
     dut.power_domains(:vdda).has_pin?(:vdd1).should == false
+  end
+  
+  it 'Display Names are correct' do
+    dut.power_domains(:vdd).display_names[:default].to_xml.should == 'OV<sub>DD</sub>'
+    dut.power_domains(:vdd).display_names[:input].to_xml.should == 'OV<sub>IN</sub>'
+    dut.power_domains(:vdd).display_names[:output].to_xml.should == 'OV<sub>OUT</sub>'
+    dut.power_domains(:vdda).display_names[:default].to_xml.should == 'AV<sub>DD</sub>'
+    dut.power_domains(:vdda).display_names[:input].to_xml.should == 'AV<sub>IN</sub>'
+    dut.power_domains(:vdda).display_names[:output].to_xml.should == 'AV<sub>OUT</sub>'
+    dut.power_domains(:vddsoc).display_names[:default].to_xml.should == 'VDD'
+    dut.power_domains(:vddsoc).display_names[:input].to_xml.should == 'VDD'
+    dut.power_domains(:vddsoc).display_names[:output].to_xml.should == 'VDD'    
   end
 
 end
