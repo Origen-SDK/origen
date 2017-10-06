@@ -2,10 +2,35 @@ module Origen
   module PowerDomains
     class PowerDomain
       attr_accessor :id, :description, :voltage_range, :nominal_voltage, :setpoint
+      
+      # Generic Power Domain Name
+      # This is the power supply that can be blocked off to multiple power supplies
+      # For example, Power Domain for DDR blocks could be GVDD, then the actual
+      # power supplies can be different for each DDR block.
+      #  DDR1 --> G1VDD
+      #  DDR2 --> G2VDD
+      attr_accessor :generic_name
+      
+      # Actual Power Domain Name
+      attr_accessor :actual_name
+      
+      # Allowed Voltage Points
+      # Some power supplies can be at different levels, e.g. 1.8V or 3.3V
+      # Could be a signal voltage or an array of voltages
+      attr_accessor :voltages
+      
+      # Display Names
+      # Hash of display names
+      # display_name = {
+      #   input:  Input voltage name, e.g. V<sub>IN</sub>
+      #   output:  Output voltage name, e.g. V<sub>OUT</sub>
+      #   default: Regular Voltage name, e.g. V<sub>DD</sub>
+      attr_accessor :display_name
 
       def initialize(id, options = {}, &block)
         @id = id
         @description = ''
+        @display_name = {}
         @id = @id.symbolize unless @id.is_a? Symbol
         options.each { |k, v| instance_variable_set("@#{k}", v) }
         (block.arity < 1 ? (instance_eval(&block)) : block.call(self)) if block_given?
@@ -111,6 +136,12 @@ module Origen
       alias_method :value_ok?, :setpoint_ok?
       alias_method :val_ok?, :setpoint_ok?
 
+      def display_names(default_name)
+        @display_name[:default] = default_name
+        @display_name[:input] = change_subscript('IN')
+        @display_name[:output] = change_subscript('OUT')
+      end
+      
       def method_missing(m, *args, &block)
         ivar = "@#{m.to_s.gsub('=', '')}"
         ivar_sym = ":#{ivar}"
@@ -166,6 +197,14 @@ module Origen
           return_value = false
         end
       end
+      
+      def change_subscript(new_subscript)
+        tmp = @display_name[:default].dup
+        sub_input = tmp.at_css 'sub'
+        sub_input.content = new_subscript unless sub_input.nil?
+        tmp
+      end
+      
     end
   end
 end
