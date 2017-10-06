@@ -3,8 +3,27 @@ require "spec_helper"
 # Some dummy classes to test out the Powerdomains module
 class SoC_With_Domains
   include Origen::TopLevel
+  
+  VDD_SIGNAL_PINS = [:pin1, :pin2, :pin3]
+  VDD_POWER_PINS = [:vdd1, :vdd2, :vdd3]
+  VDD_GND_PINS = [:vss1, :vss2, :vss3]
 
   def initialize
+    VDD_SIGNAL_PINS.each do |p|
+      $dut.add_pin p do |pin|
+        pin.supply = :vdd
+      end
+    end
+    VDD_POWER_PINS.each do |p|
+      $dut.add_power_pin p do |pin|
+        pin.supply = :vdd
+      end
+    end
+    VDD_GND_PINS.each do |p|
+      $dut.add_ground_pin p do |pin|
+        pin.supply = :vdd
+      end
+    end
     add_power_domain :vdd do |domain|
       domain.description = 'CPU'
       domain.nominal_voltage = 1.0.V
@@ -49,6 +68,25 @@ describe "Power domains" do
     dut.power_domains(:vdd).setpoint_ok?.should == false
     dut.power_domains(/^vdd/).class.should == Hash
     dut.power_domains(/^vdd/).keys.should == [:vdd,:vdda]
+  end
+  
+  it "can find pins that reference itself" do
+    dut.power_domains(:vdd).signal_pins.should == [:pin1, :pin2, :pin3]
+    dut.power_domains(:vdd).power_pins.should == [:vdd1, :vdd2, :vdd3]
+    dut.power_domains(:vdd).ground_pins.should == [:vss1, :vss2, :vss3]
+    dut.power_domains(:vdd).has_pin?(:vdd1).should == true
+    dut.power_domains(:vdd).pin_type(:vdd1).should == :power
+    dut.power_domains(:vdd).has_power_pin?(:vdd1).should == true
+    dut.power_domains(:vdd).has_pin?(:pin1).should == true
+    dut.power_domains(:vdd).pin_type(:pin1).should == :signal
+    dut.power_domains(:vdd).has_signal_pin?(:pin1).should == true
+    dut.power_domains(:vdd).has_pin?(:vss1).should == true
+    dut.power_domains(:vdd).pin_type(:vss1).should == :ground
+    dut.power_domains(:vdd).has_ground_pin?(:vss1).should == true
+    dut.power_domains(:vdda).signal_pins.should == []
+    dut.power_domains(:vdda).power_pins.should == []
+    dut.power_domains(:vdda).ground_pins.should == []
+    dut.power_domains(:vdda).has_pin?(:vdd1).should == false
   end
 
 end

@@ -16,23 +16,78 @@ module Origen
         @id
       end
 
+      # Returns an Array of all pins that reference the power domain
+      def pins
+        signal_pins + ground_pins + power_pins
+      end
+
+      # Returns an Array of signal pin IDs that match the power domain ID
+      def signal_pins
+        Origen.top_level.pins.select { |_pin_id, p| p.supply == id }.keys
+      end
+
+      # Returns an Array of ground pin IDs that match the power domain ID
+      def ground_pins
+        Origen.top_level.ground_pins.select { |_pin_id, p| p.supply == id }.keys
+      end
+
+      # Returns an Array of ground pin IDs that match the power domain ID
+      def power_pins
+        Origen.top_level.power_pins.select { |_pin_id, p| p.supply == id }.keys
+      end
+
+      # Checks for the existence of a signal pin that references the power domain
+      def has_signal_pin?(pin)
+        signal_pins.include?(pin) ? true : false
+      end
+
+      # Checks for the existence of a signal pin that references the power domain
+      def has_ground_pin?(pin)
+        ground_pins.include?(pin) ? true : false
+      end
+
+      # Checks for the existence of a signal pin that references the power domain
+      def has_power_pin?(pin)
+        power_pins.include?(pin) ? true : false
+      end
+
+      # Checks if a pin references the power domain, regardless of type
+      def has_pin?(pin)
+        pins.include? pin
+      end
+
+      # Checks for a pin type, returns nil if it is not found
+      def pin_type(pin)
+        if self.has_pin?(pin) == false
+          nil
+        else
+          [:signal, :ground, :power].each do |pintype|
+            return pintype if send("has_#{pintype}_pin?", pin)
+          end
+        end
+      end
+
+      # Nominal voltage
       def nominal_voltage
         @nominal_voltage
       end
       alias_method :nominal, :nominal_voltage
       alias_method :nom, :nominal_voltage
 
+      # Current setpoint, defaults top nil on init
       def setpoint
         @setpoint
       end
       alias_method :curr_value, :setpoint
       alias_method :value, :setpoint
 
+      # Acceptable voltage range
       def voltage_range
         @voltage_range
       end
       alias_method :range, :voltage_range
 
+      # Setter for setpoint
       def setpoint=(val)
         unless setpoint_ok?(val)
           Origen.log.warn("Setpoint (#{setpoint_string(val)}) for power domain '#{name}' is not within the voltage range (#{voltage_range_string})!")
@@ -40,6 +95,7 @@ module Origen
         @setpoint = val
       end
 
+      # Checks if the setpoint is valid
       def setpoint_ok?(val = nil)
         if val.nil?
           voltage_range.include?(setpoint) ? true : false
