@@ -2,7 +2,7 @@ module Origen
   module PowerDomains
     class PowerDomain
       attr_accessor :id, :description, :voltage_range, :nominal_voltage, :setpoint
-      
+
       # Generic Power Domain Name
       # This is the power supply that can be blocked off to multiple power supplies
       # For example, Power Domain for DDR blocks could be GVDD, then the actual
@@ -10,15 +10,15 @@ module Origen
       #  DDR1 --> G1VDD
       #  DDR2 --> G2VDD
       attr_accessor :generic_name
-      
+
       # Actual Power Domain Name
       attr_accessor :actual_name
-      
+
       # Allowed Voltage Points
       # Some power supplies can be at different levels, e.g. 1.8V or 3.3V
       # Could be a signal voltage or an array of voltages
       attr_accessor :voltages
-      
+
       # Display Names
       # Hash of display names
       # display_name = {
@@ -141,7 +141,7 @@ module Origen
         @display_name[:input] = change_subscript('IN')
         @display_name[:output] = change_subscript('OUT')
       end
-      
+
       def method_missing(m, *args, &block)
         ivar = "@#{m.to_s.gsub('=', '')}"
         ivar_sym = ":#{ivar}"
@@ -197,14 +197,14 @@ module Origen
           return_value = false
         end
       end
-      
+
       def change_subscript(new_subscript)
         tmp = @display_name[:default].dup
         sub_input = tmp.at_css 'sub'
         sub_input.content = new_subscript unless sub_input.nil?
         tmp
       end
-      
+
     end
   end
 end
