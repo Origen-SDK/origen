@@ -63,6 +63,7 @@ unless defined? RGen::ORIGENTRANSITION
     autoload :LSFManager,    'origen/application/lsf_manager'
     autoload :Fuses,     'origen/fuses'
     autoload :Tests,     'origen/tests'
+    autoload :PowerDomains, 'origen/power_domains'
 
     attr_reader :switch_user
 
