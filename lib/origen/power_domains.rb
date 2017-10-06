@@ -28,20 +28,20 @@ module Origen
       end
       @_power_domains[id] = PowerDomain.new(id, options, &block)
     end
-
+    
     # Prints the power domains to the console
     def show_power_domains(options = {})
       options = {
         fancy_output: true
       }.update(options)
       headers = []
-      output_power_domain_list = []  # This will hold the array of string-converted elements
-      column_widths = {}.tap do |colhash|   # Create a hash called colhash to work with and everything below operates on that
-        @_power_domains.each do |domain_name, domain|    # Loop over keys/values of @_cloks member. @_power_domains is :power_domainname => ( hash of power_domain parameters )
+      output_power_domain_list = []  
+      column_widths = {}.tap do |colhash|
+        @_power_domains.each do |domain_name, domain|
           output_attr_list = []
-          domain.instance_variables.each do |attr|  # Loop over all of the instance_variables in the power_domain parameters using attr as the temporary variable
-            attr_getter = attr.to_s[/\@(\S+)/, 1].to_sym  # creates a symbol based on the variable value
-            attr_val = domain.send attr_getter  # Uses the send function to get the value of that symbol
+          domain.instance_variables.each do |attr|
+            attr_getter = attr.to_s[/\@(\S+)/, 1].to_sym
+            attr_val = domain.send attr_getter
             headers << attr_getter unless headers.include?(attr_getter)
             str = case attr_val
             when Numeric
