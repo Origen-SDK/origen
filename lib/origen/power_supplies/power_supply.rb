@@ -5,28 +5,6 @@ module Origen
       include Origen::Specs
       attr_accessor :id, :owner, :description, :type
       
-      # Generic power supply number ... Usually will be the main power supply
-      # with different power supplies coming from them.
-      # Example:  GVDD will cover G1VDD, G2VDD, and G3VDD.
-      attr_accessor :generic
-      
-      # More specific name, e.g. G1VDD
-      attr_accessor :actual
-      
-      # Typical voltages for the actual power supply.  Could be multiple voltages
-      # Expected type is Array
-      attr_accessor :typ_voltages
-
-      # Display Names
-      # Should be Hash
-      #  display_names = {
-      #     input:  G1V<sub>IN</sub>
-      #     output: G1V<sub>OUT</sub>
-      #     nil:    G1V<sub>DD</sub>
-      #}
-      attr_accessor :display_names
-      
-     
       LIMITS = {
         min: 'Minimum',
         nom: 'Nominal',
@@ -48,14 +26,6 @@ module Origen
         @id
       end
 
-      def display_names(name)
-        @display_names = {}
-        @display_names[:nil] = name
-        @display_names[:input] = change_subscript('IN')
-        @display_names[:output] = change_subscript('OUT')
-        @display_names
-      end
-      
       def method_missing(m, *args, &block)
         ivar = "@#{m.to_s.gsub('=', '')}"
         ivar_sym = ":#{ivar}"
@@ -83,13 +53,6 @@ module Origen
         end
       end
 
-      def change_subscript(new_subscript)
-        tmp_display_name = @display_name[:nil].dup
-        sub_input = tmp_display_name.at_css 'sub'
-        sub_input.content = new_subscript unless sub_input.nil?
-        tmp_display_name
-      end
-      
       def attrs_ok?
         return_value = true
         unless @description.is_a? String
