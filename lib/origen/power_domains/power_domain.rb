@@ -204,7 +204,6 @@ module Origen
         sub_input.content = new_subscript unless sub_input.nil?
         tmp
       end
-
     end
   end
 end
