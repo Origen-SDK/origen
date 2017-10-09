@@ -8,7 +8,7 @@ module Origen
         headers = []
         output_power_domain_list = []
         column_widths = {}.tap do |colhash|
-          self.each do |domain_name, domain|
+          each do |domain_name, domain|
             output_attr_list = []
             domain.instance_variables.each do |attr|
               attr_getter = attr.to_s[/\@(\S+)/, 1].to_sym
@@ -47,7 +47,7 @@ module Origen
           puts output_power_domain_list.each.map { |attributes| '|' + attributes.each_with_index.map { |value, attr_idx| " #{value} ".ljust(column_widths.values[attr_idx]) }.join('|') + '|' }
           puts '`' + column_widths.values.each.map { |i| '-' * i }.join('-') + '\''
         end
-      end       
+      end
     end
   end
 end
