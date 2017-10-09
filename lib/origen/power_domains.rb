@@ -5,13 +5,7 @@ module Origen
   module PowerDomains
     def power_domains(expr = nil)
       if expr.nil?
-        if @_power_domains.nil?
-          @_power_domains = PowerDomainsCollection.new
-        elsif @_power_domains.is_a? PowerDomainsCollection
-          @_power_domains.keys
-        else
-          @_power_domains = PowerDomainsCollection.new
-        end
+        @_power_domains ||= PowerDomainsCollection.new
       else
         @_power_domains.recursive_find_by_key(expr)
       end
