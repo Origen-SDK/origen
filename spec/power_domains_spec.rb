@@ -59,7 +59,7 @@ describe "Power domains" do
   end
 
   it "can create and interact with power domains" do
-    dut.power_domains.should == [:vdd, :vdda, :vccsoc]
+    dut.power_domains.keys.should == [:vdd, :vdda, :vccsoc]
     dut.power_domains.size.should == 3
     dut.power_domains.size.should == 3
     dut.power_domains(:vdd).description.should == 'CPU'
