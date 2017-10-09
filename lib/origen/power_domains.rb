@@ -8,11 +8,7 @@ module Origen
         if @_power_domains.nil?
           @_power_domains = PowerDomainsCollection.new
         elsif @_power_domains.is_a? PowerDomainsCollection
-          if @_power_domains.empty?
-            @_power_domains.inspect
-          else
-            @_power_domains.inspect
-          end
+          @_power_domains
         else
           @_power_domains = PowerDomainsCollection.new
         end

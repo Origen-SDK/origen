@@ -79,7 +79,7 @@ describe "Power domains" do
     dut.power_domains(/^vdd/).keys.should == [:vdd,:vdda]
     dut.power_domains(:vdda).setpoint = 1.1.V
     dut.power_domains(:vccsoc).setpoint = 1.35.V
-    dut.show_power_domains
+    dut.power_domains.inspect
   end
   
   it "can find pins that reference itself" do
