@@ -35,6 +35,7 @@ module Origen
 
       # Initialize the variables
       def initialize(gen, act)
+        Origen.deprecate 'Origen::Specs::Power_Supply is deprecated, use Origen::PowerDomains::PowerDomain instead'
         @generic = gen
         @actual = act
         @voltages = []
