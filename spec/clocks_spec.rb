@@ -49,6 +49,7 @@ describe "Clocks" do
     dut.clocks(:cclk).nom.should == 2.5.Ghz
     dut.clocks(:cclk).range.should == (0.8.Ghz..3.2.Ghz)
     dut.clocks(:cclk).setpoint.should == nil
+    dut.clocks(:cclk).users.should == [:core_complex]
     dut.clocks(:ddrclk).setpoint.should == nil
     dut.clocks(:socclk).setpoint.should == nil
     dut.clocks(:socclk).nominal_frequency.should == 1.2.Ghz
