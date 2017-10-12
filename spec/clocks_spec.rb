@@ -44,7 +44,6 @@ describe "Clocks" do
     dut.sub_blocks.ids.should == ['core_complex', 'ddr1', 'ddr2', 'data_mesh']
     dut.clocks.keys.should == [:cclk, :ddrclk, :socclk]
     dut.clocks.size.should == 3
-    dut.clocks.size.should == 3
     dut.clocks(:cclk).description.should == 'Core complex clock'
     dut.clocks(:cclk).nom.should == 2.5.Ghz
     dut.clocks(:cclk).range.should == (0.8.Ghz..3.2.Ghz)
