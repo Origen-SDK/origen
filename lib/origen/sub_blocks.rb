@@ -251,10 +251,6 @@ module Origen
       tests.empty? ? false : true
     end
 
-    def has_pins?
-      pins.empty? ? false : true
-    end
-
     def sub_block(name, options = {})
       if i = options.delete(:instances)
         a = []
