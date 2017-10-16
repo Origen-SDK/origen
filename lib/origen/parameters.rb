@@ -65,6 +65,10 @@ module Origen
     end
     alias_method :parameters=, :params=
 
+    def has_params?
+      _parameter_sets.empty? ? false : true
+    end
+
     # @api private
     def _parameter_current
       if path = self.class.parameters_context
