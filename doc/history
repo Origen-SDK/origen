@@ -1,3 +1,17 @@
+<a class="anchor release_tag" name="v0_26_0"></a>
+<h1><a href="#v0_26_0">Tag: v0.26.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Lajaunie Ronald-B01784 on 16-Oct-2017 12:54PM
+
+
+* Added in Origen::Tests module and made add\_mode more flexible PR.136 (Brian Caquelin)
+* Allow target preservation with inline compiler PR.137 (Ronnie Lajaunie)
+* Added in params.contexts method PR.138 (Brian Caquelin)
+* Added in Origen::PowerDomains module PR.140 (Brian Caquelin)
+* Fixed power\_domain inspect output for some cases PR.142 (Adam Kohler)
+
 <a class="anchor release_tag" name="v0_25_1"></a>
 <h1><a href="#v0_25_1">Tag: v0.25.1</a></h1>
 
