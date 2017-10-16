@@ -25,7 +25,7 @@ module Origen
               else
                 attr_val.to_s
               end
-              curr_longest = [attr_getter, str].max_by(&:length).size + 2 # Add 3 for the whitespace
+              curr_longest = [attr_getter, str].max_by(&:length).size + 2 # Add 2 for the whitespace
               if colhash[attr].nil? || (colhash[attr] < curr_longest)
                 colhash[attr] = curr_longest
               end
