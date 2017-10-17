@@ -182,6 +182,8 @@ module Origen
       def voltages_ok?
         if nominal_voltage.nil?
           false
+        elsif voltage_range == :fixed
+          true
         elsif voltage_range.nil?
           Origen.log.error("PPEKit: Missing voltage range for power domain '#{name}'!")
           false
@@ -193,7 +195,7 @@ module Origen
             false
           end
         else
-          Origen.log.error("Power domain attribute 'voltage_range' must be a Range!")
+          Origen.log.error("Power domain attribute 'voltage_range' must be a Range or set to the value of :fixed!")
           return_value = false
         end
       end
