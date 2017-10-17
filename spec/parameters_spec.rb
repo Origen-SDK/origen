@@ -277,5 +277,9 @@ module ParametersSpec
       $dut.params.available_contexts.should == [:default, :ate, :probe, :ft, :set1, :set2, :set3]
       $dut.params.contexts.should == [:default, :ate, :probe, :ft, :set1, :set2, :set3]
     end
+    
+    it "objects that own parameter sets can tell if they do or not" do
+      $dut.has_params?.should == true
+    end
   end
 end

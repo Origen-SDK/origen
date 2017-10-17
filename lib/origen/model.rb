@@ -28,6 +28,7 @@ module Origen
       include Origen::Fuses
       include Origen::Tests
       include Origen::PowerDomains
+      include Origen::Clocks
     end
 
     module ClassMethods

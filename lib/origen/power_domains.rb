@@ -1,4 +1,3 @@
-require 'colorize'
 require_relative './power_domains/power_domain'
 require_relative './power_domains/power_domains_collection'
 module Origen
@@ -19,5 +18,6 @@ module Origen
       end
       power_domains[id] = PowerDomain.new(id, options, &block)
     end
+    alias_method :power_domain, :add_power_domain
   end
 end
