@@ -76,4 +76,13 @@ describe String do
     "0x1234".is_verilog_number?.should == false
     "12".is_verilog_number?.should == false
   end
+  
+  specify 'it does not add adjacent underscores, trailing underscores, or leading underscores (unless they previously existed) when symbolizing' do
+    "Example String".symbolize.should == :example_string
+    "Example  String".symbolize.should == :example_string
+    "Example  String ".symbolize.should == :example_string
+    "_ Example  String ".symbolize.should == :_example_string
+    " Example  String _".symbolize.should == :example_string_
+    "_ Example  String _".symbolize.should == :_example_string_
+  end
 end
