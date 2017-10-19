@@ -1,7 +1,7 @@
 module Origen
   module PowerDomains
     class PowerDomain
-      attr_accessor :id, :description, :nominal_voltage_range, :nominal_voltage, :setpoint
+      attr_accessor :id, :description, :unit_voltage_range, :nominal_voltage, :setpoint
 
       # Generic Power Domain Name
       # This is the power supply that can be blocked off to multiple power supplies
@@ -34,6 +34,7 @@ module Origen
         @id = @id.symbolize unless @id.is_a? Symbol
         options.each { |k, v| instance_variable_set("@#{k}", v) }
         (block.arity < 1 ? (instance_eval(&block)) : block.call(self)) if block_given?
+        @unit_voltage_range = :fixed if @unit_voltage_range.nil?
         fail unless attrs_ok?
       end
 
@@ -112,25 +113,27 @@ module Origen
       alias_method :value, :setpoint
 
       # Acceptable voltage range
-      def nominal_voltage_range
-        @nominal_voltage_range
+      def unit_voltage_range
+        @unit_voltage_range
       end
-      alias_method :nom_range, :nominal_voltage_range
+      alias_method :unit_range, :unit_voltage_range
 
       # Setter for setpoint
       def setpoint=(val)
         unless setpoint_ok?(val)
-          Origen.log.warn("Setpoint (#{setpoint_string(val)}) for power domain '#{name}' is not within the voltage range (#{nominal_voltage_range_string})!")
+          Origen.log.warn("Setpoint (#{setpoint_string(val)}) for power domain '#{name}' is not within the voltage range (#{unit_voltage_range_string})!")
         end
         @setpoint = val
       end
 
       # Checks if the setpoint is valid
+      # This will need rework once the class has spec limits added
       def setpoint_ok?(val = nil)
+        return true if unit_voltage_range == :fixed
         if val.nil?
-          nominal_voltage_range.include?(setpoint) ? true : false
+          unit_voltage_range.include?(setpoint) ? true : false
         else
-          nominal_voltage_range.include?(val) ? true : false
+          unit_voltage_range.include?(val) ? true : false
         end
       end
       alias_method :value_ok?, :setpoint_ok?
@@ -182,20 +185,20 @@ module Origen
       def voltages_ok?
         if nominal_voltage.nil?
           false
-        elsif nominal_voltage_range == :fixed
+        elsif unit_voltage_range == :fixed
           true
-        elsif nominal_voltage_range.nil?
+        elsif unit_voltage_range.nil?
           Origen.log.error("PPEKit: Missing voltage range for power domain '#{name}'!")
           false
-        elsif nominal_voltage_range.is_a? Range
-          if nominal_voltage_range.include?(nominal_voltage)
+        elsif unit_voltage_range.is_a? Range
+          if unit_voltage_range.include?(nominal_voltage)
             true
           else
-            Origen.log.error("PPEKit: Nominal voltage #{nominal_voltage} is not inbetween the voltage range #{nominal_voltage_range} for power domain '#{name}'!")
+            Origen.log.error("PPEKit: Nominal voltage #{nominal_voltage} is not inbetween the voltage range #{unit_voltage_range} for power domain '#{name}'!")
             false
           end
         else
-          Origen.log.error("Power domain attribute 'nominal_voltage_range' must be a Range or set to the value of :fixed!")
+          Origen.log.error("Power domain attribute 'unit_voltage_range' must be a Range or set to the value of :fixed!")
           return_value = false
         end
       end
