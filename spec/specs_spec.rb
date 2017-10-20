@@ -5,11 +5,25 @@ class SoC_With_Specs
   include Origen::TopLevel
 
   def initialize
+    add_power_domain :vmemio do |d|
+      d.description = 'Memory IO Power Domain'
+      d.nominal_voltage = 1.35.V
+    end
     sub_block :ip_with_specs, class_name: "IP_With_Specs", base_address: 0x1000_0000
     sub_block :ip_without_specs, class_name: "IP_WithOut_Specs", base_address: 0xDEAD_BEEF
     add_mode :default, description: "Nominal power/performance binned device"
     add_mode :low_power, description: "Low power binned device"
     add_mode :high_performance, description: "High performance binned device"
+    spec :memio_voh, :dc do |s|
+      s.symbol "Voh"
+      s.description = "Output high voltage"
+      s.max = ":vmemio * 0.8"
+    end
+    spec :direct_ref_spec, :dc do |s|
+      s.symbol "DirectRefSpec"
+      s.description = "Check for the case where a spec formula references a Symbol"
+      s.max = :vmemio
+    end
     modes.each do |mode|
       case mode
       when :default
@@ -210,7 +224,7 @@ describe "Origen Specs Module" do
   end
 
   it "can see top level specs" do
-    @dut.specs.size.should == 8
+    @dut.specs.size.should == 10
     @dut.modes.should == [:default, :low_power, :high_performance, :no_specs_defined]
     @dut.mode = :no_specs_defined
     @dut.specs(:soc_vdd).should == nil # Returns nil because @dut.mode is set to :no_specs_defined
@@ -451,6 +465,14 @@ describe "Origen Specs Module" do
     tmp_vh.external_changes_internal.should == false
     tmp_vh.changes.class.should == Hash
     tmp_vh.changes.should == {internal: 'Change with internal comments', external: 'For external customers'}
+  end
+  
+  it 'can evaluate references to power domains' do
+    @dut.power_domains(:vmemio).nominal_voltage.should == 1.35
+    @dut.specs(:memio_voh).max.exp.should == ":vmemio * 0.8"
+    @dut.specs(:memio_voh).max.value.should == 1.08
+    @dut.specs(:direct_ref_spec).max.exp.should == :vmemio
+    @dut.specs(:direct_ref_spec).max.value.should == 1.35
   end
     
 end
