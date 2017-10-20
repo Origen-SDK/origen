@@ -55,8 +55,17 @@ class String
   # Sanitizes the string for conversion to a symbol and returns a lower
   # cased symbol version of the string
   def symbolize
+    orig_had_leading_underscore = match(/^\_/) ? true : false
+    orig_had_trailing_underscore = match(/\_$/) ? true : false
+    new_str = gsub(/(\?|\!|\-|\/|\\|\n|\s|\(|\)|\.|\[|\]|-|{|})/, '_').downcase
+    # Get rid of adjacent underscores
+    new_str.match(/\_\_/) ? new_str = new_str.squeeze('_') : new_str
+    new_str.chomp!('_') unless orig_had_trailing_underscore
+    unless orig_had_leading_underscore
+      new_str = new_str[1..-1] if new_str.match(/^\_/)
+    end
     @@symbolize ||= {}
-    @@symbolize[self] ||= gsub(/(\?|\!|\-|\/|\\|\n|\s|\(|\)|\.|\[|\]|-|{|})/, '_').downcase.to_sym
+    @@symbolize[self] ||= new_str.to_sym
   end
 
   # acronyms
