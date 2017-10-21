@@ -93,12 +93,16 @@ module Origen
                 if Origen.top_level.respond_to? :power_domains
                   if Origen.top_level.power_domains.include? item.to_sym
                     limit_ary << Origen.top_level.power_domains(item.to_sym).nominal_voltage
-                  else
-                    limit_ary << item
+                    next
                   end
-                else
-                  limit_ary << item
                 end
+                if Origen.top_level.respond_to? :clocks
+                  if Origen.top_level.clocks.include? item.to_sym
+                    limit_ary << Origen.top_level.clocks(item.to_sym).freq_target
+                    next
+                  end
+                end
+                limit_ary << item
               else
                 limit_ary << item
               end
