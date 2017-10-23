@@ -175,6 +175,12 @@ module Origen
       if @current_mode
         return _modes[@current_mode] if _modes[@current_mode]
         fail "The mode #{@current_mode} of #{self.class} has not been defined!"
+      else
+        unless top_level?
+          if parent.current_mode
+            _modes[parent.current_mode.id] if _modes.include? parent.current_mode.id
+          end
+        end
       end
     end
     alias_method :mode, :current_mode
