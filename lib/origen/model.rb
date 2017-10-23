@@ -177,8 +177,10 @@ module Origen
         fail "The mode #{@current_mode} of #{self.class} has not been defined!"
       else
         unless top_level?
-          if parent.current_mode
-            _modes[parent.current_mode.id] if _modes.include? parent.current_mode.id
+          # Need to do this in case a class besides SubBlock includes Origen::Model
+          obj_above_self = parent.nil? ? Origen.top_level : parent
+          if obj_above_self.current_mode
+            _modes[obj_above_self.current_mode.id] if _modes.include? obj_above_self.current_mode.id
           end
         end
       end
