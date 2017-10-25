@@ -175,6 +175,14 @@ module Origen
       if @current_mode
         return _modes[@current_mode] if _modes[@current_mode]
         fail "The mode #{@current_mode} of #{self.class} has not been defined!"
+      else
+        unless top_level?
+          # Need to do this in case a class besides SubBlock includes Origen::Model
+          obj_above_self = parent.nil? ? Origen.top_level : parent
+          if obj_above_self.current_mode
+            _modes[obj_above_self.current_mode.id] if _modes.include? obj_above_self.current_mode.id
+          end
+        end
       end
     end
     alias_method :mode, :current_mode
