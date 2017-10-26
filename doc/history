@@ -1,3 +1,46 @@
+<a class="anchor release_tag" name="v0_27_0"></a>
+<h1><a href="#v0_27_0">Tag: v0.27.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 26-Oct-2017 09:38AM
+
+
+* Added clocks model (Brian Caquelin)
+
+~~~ruby
+add\_clock :cclk do |c|
+  c.description = 'Core complex clock'
+  c.nominal\_frequency = 2.5.Ghz
+  c.frequency\_range = 0.8.Ghz..3.2.Ghz
+  c.users = [:core\_complex]  # The names here refer to the sub-blocks that use it
+end
+~~~
+
+* Spec definitions can now reference 'the current' power domain or clock value via a symbol in
+  an expression (Brian Caquelin)
+
+~~~ruby
+spec :fmin, :ac do |s|
+  s.symbol "Fmin"
+  s.description = "Frequency Min"
+  s.min = ":core\_clk * 0.9"
+end
+spec :memio\_voh, :dc do |s|
+  s.symbol "Voh"
+  s.description = "Output high voltage"
+  s.max = ":vmemio * 0.8"
+end
+~~~
+
+* Renamed `Origen::PowerDomains::PowerDomain#voltage\_range` to `unit\_voltage\_range` to better
+  reflect its usage (Brian Caquelin)
+* Stopped `String#symbolize` method from injecting multiple underscores when faced with multiple
+  spaces in a sting, these are now condensed to a single underscore (Brian Caquelin)
+* Sub blocks now inherit their `current\_mode` attribute from their parent if not otherwise set
+  on the sub-block specifically (Brian Caquelin)
+* Bug fix to regression manager to fix Bundler errors when generating the reference output
+
 <a class="anchor release_tag" name="v0_26_0"></a>
 <h1><a href="#v0_26_0">Tag: v0.26.0</a></h1>
 
