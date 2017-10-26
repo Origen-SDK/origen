@@ -1345,6 +1345,18 @@ module RegTest
       o.respond_to?(:reg2).should == false
     end
 
+    specify "wreg method can set bits" do
+      add_reg :wregtest,   0x00,  4,  :y       => { :pos => 0},
+                                       :x       => { :pos => 1, :bits => 2 },
+                                       :w       => { :pos => 3 }
+      wreg(reg(:wregtest)) do |r|
+      	r.bits(:y).write(1)
+      	r.bits(:x).write(0x2)
+      	r.bits(:w).write(1)
+      end
+      reg(:wregtest).data.should == 0xD
+    end
+
     it "write method can override a read-only register bitfield with :force = true" do
         reg :reg, 0x0, 32, description: 'reg' do
             bits 7..0,   :field1, reset: 0x0, access: :rw
