@@ -1356,6 +1356,13 @@ module RegTest
         r.bits(:w).write(1)
       end
       reg(:blregtest).data.should == 0xD
+
+      reg(:blregtest).write(0)
+      reg(:blregtest).x.write! do |b|
+        b[1].write(1)
+      end
+      reg(:blregtest).data.should == 0b0100
+
       reg(:blregtest).read! do |r|
         r.bits(:y).read
       end      
