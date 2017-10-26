@@ -597,10 +597,6 @@ module Origen
     end
     alias_method :regs, :reg
 
-    def wreg(reg)
-      yield reg
-    end
-
     private
 
     def match_registers(regex)

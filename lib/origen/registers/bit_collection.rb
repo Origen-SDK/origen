@@ -509,6 +509,7 @@ module Origen
       def write!(value = nil, options = {})
         value, options = nil, value if value.is_a?(Hash)
         write(value, options) if value
+        yield @reg if block_given?
         @reg.request(:write_register, options)
         self
       end
@@ -520,8 +521,9 @@ module Origen
       #   reg(:data).read!         # Read register :data, expecting whatever value it currently holds
       #   reg(:data).read!(0x5555) # Read register :data, expecting 0x5555
       def read!(value = nil, options = {})
+        yield @reg if block_given?
         value, options = nil, value if value.is_a?(Hash)
-        read(value, options)
+        read(value, options) if !block_given?
         # launch a read reg
         @reg.request(:read_register, options)
         self
