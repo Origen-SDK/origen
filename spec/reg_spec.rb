@@ -1349,6 +1349,7 @@ module RegTest
       add_reg :wregtest,   0x00,  4,  :y       => { :pos => 0},
                                        :x       => { :pos => 1, :bits => 2 },
                                        :w       => { :pos => 3 }
+      reg(:wregtest).data.should == 0x0
       wreg(reg(:wregtest)) do |r|
       	r.bits(:y).write(1)
       	r.bits(:x).write(0x2)
