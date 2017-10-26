@@ -523,7 +523,7 @@ module Origen
       def read!(value = nil, options = {})
         yield @reg if block_given?
         value, options = nil, value if value.is_a?(Hash)
-        read(value, options) if !block_given?
+        read(value, options) unless block_given?
         # launch a read reg
         @reg.request(:read_register, options)
         self
