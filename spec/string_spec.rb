@@ -85,4 +85,20 @@ describe String do
     " Example  String _".symbolize.should == :example_string_
     "_ Example  String _".symbolize.should == :_example_string_
   end
+  
+  specify 'it can detect upper case' do
+    "A".is_upcase?.should == true
+    "Ab".is_upcase?.should == false
+    "AA".is_upcase?.should == true
+    " AA".is_upcase?.should == true
+    " AA".is_uppercase?.should == true
+  end
+  
+  specify 'it can detect lower case' do
+    "A".is_downcase?.should == false
+    "Ab".is_downcase?.should == false
+    "aa".is_downcase?.should == true
+    " aa".is_downcase?.should == true
+    " aa".is_lowercase?.should == true
+  end
 end

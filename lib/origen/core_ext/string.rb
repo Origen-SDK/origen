@@ -141,6 +141,20 @@ class String
     end
   end
 
+  # Boolean if the string is uppercase
+  # Will not work with odd character sets
+  def is_upcase?
+    self == upcase
+  end
+  alias_method :is_uppercase?, :is_upcase?
+
+  # Boolean if the string is uppercase
+  # Will not work with odd character sets
+  def is_downcase?
+    self == downcase
+  end
+  alias_method :is_lowercase?, :is_downcase?
+
   private
 
   # Convert a verilog number string to an integer
