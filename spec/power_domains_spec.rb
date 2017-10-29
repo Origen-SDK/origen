@@ -27,19 +27,18 @@ class SoC_With_Domains
     add_power_domain :vdd do |domain|
       domain.description = 'CPU'
       domain.nominal_voltage = 1.0.V
-      domain.voltage_range = 0.7.V..1.1.V
+      domain.unit_voltage_range = 0.7.V..1.1.V
       domain.display_names(Nokogiri::XML::DocumentFragment.parse 'OV<sub>DD</sub>')
     end
     add_power_domain :vdda do |domain|
       domain.description = 'PLL'
       domain.nominal_voltage = 1.2.V
-      domain.voltage_range = 1.08.V..1.32.V
+      domain.unit_voltage_range = 1.08.V..1.32.V
       domain.display_names(Nokogiri::XML::DocumentFragment.parse 'AV<sub>DD</sub>')
     end
     add_power_domain :vccsoc do |domain|
       domain.description = 'SoC'
       domain.nominal_voltage = 1.5.V
-      domain.voltage_range = 1.35.V..1.65.V
       domain.display_names(Nokogiri::XML::DocumentFragment.parse 'VDD')
     end
   end
@@ -63,9 +62,10 @@ describe "Power domains" do
     dut.power_domains.size.should == 3
     dut.power_domains(:vdd).description.should == 'CPU'
     dut.power_domains(:vdd).nom.should == 1.0.V
-    dut.power_domains(:vdd).range.should == (0.7.V..1.1.V)
+    dut.power_domains(:vdd).unit_voltage_range.should == (0.7.V..1.1.V)
     dut.power_domains(:vdd).setpoint.should == nil
     dut.power_domains(:vdda).setpoint.should == nil
+    dut.power_domains(:vccsoc).unit_voltage_range.should == :fixed
     dut.power_domains(:vccsoc).setpoint.should == nil
     dut.power_domains(:vccsoc).nominal_voltage.should == 1.5.V
     dut.power_domains(:vccsoc).setpoint_to_nominal

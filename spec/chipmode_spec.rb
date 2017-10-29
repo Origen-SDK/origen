@@ -26,6 +26,10 @@ module ChipModeSpec
         reg :reg1, 0x100 do
           bits 31..0, :data
         end
+        add_mode :native do |m|
+          m.mem_freq = 0.8.Ghz
+          m.myclk = 133.Mhz
+        end
       end
     end
 
@@ -74,7 +78,7 @@ module ChipModeSpec
 
     it "can manipulate the sub_block modes" do
       t = Top.new
-      t.dcfg_dcsr.modes.count.should == 1
+      t.dcfg_dcsr.modes.count.should == 2
       t.dcfg_dcsr.mode = :rcw12
       t.dcfg_dcsr.mode.name.should == :rcw12
       t.dcfg_dcsr.mode.typ_voltage == 1.2
@@ -95,6 +99,18 @@ module ChipModeSpec
       t.dp_pmu1_dcsr.rst_dcsr.mode.data_rate(absolute_number: false).should == 1200
       t.dcfg_dcsr.mode = :rcw12
       t.dcfg_dcsr.mode.data_rate.should == 1.33e6
+    end
+    
+    it 'can pass the DUT mode to child IP by default (if defined)' do
+      t = Top.new
+      t.mode = :native
+      t.dcfg_dcsr.mode.id.should == :native
+      t.dcfg_dcsr.mode.mem_freq.should == 0.8.Ghz
+      t.dcfg_dcsr.mode.myclk.should == 133.Mhz
+      t.dcfg_dcsr.mode = :rcw12
+      t.mode.id.should == :native
+      t.dcfg_dcsr.mode.id.should == :rcw12
+      t.dcfg_dcsr.mode.typ_voltage == 1.2
     end
   end
 end

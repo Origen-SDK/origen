@@ -72,13 +72,50 @@ module Origen
       end
 
       def evaluate_limit(limit)
-        return limit if [Fixnum, Float, Numeric, Symbol].include? limit.class
+        return limit if [Fixnum, Float, Numeric].include? limit.class
         return nil if limit.nil?
         limit = limit.to_s if [Nokogiri::XML::NodeSet, Nokogiri::XML::Text, Nokogiri::XML::Element].include? limit.class
-        limit.gsub!("\n", ' ')
-        limit.scrub!
+        if limit.is_a? Symbol
+          limit = ':' + limit.to_s
+        else
+          limit.gsub!("\n", ' ')
+          limit.scrub!
+        end
         result = false
-        if !!(limit.match(/^\d+\.\d+$/)) || !!(limit.match(/^-\d+\.\d+$/))
+        if limit.match(/\:\S+/)
+          limit_items = limit.split(/\:|\s+/).reject(&:empty?)
+          references = limit.split(/\:|\s+/).select { |var| var.match(/^[a-zA-Z]\S+$/) }
+          new_limit_items = [].tap do |limit_ary|
+            limit_items.each do |item|
+              if references.include? item
+                # See if the limit is referencing a power domain, this should be extended to clocks
+                # TODO: Expand limit references to check Origen::Clocks
+                if Origen.top_level.respond_to? :power_domains
+                  if Origen.top_level.power_domains.include? item.to_sym
+                    limit_ary << Origen.top_level.power_domains(item.to_sym).nominal_voltage
+                    next
+                  end
+                end
+                if Origen.top_level.respond_to? :clocks
+                  if Origen.top_level.clocks.include? item.to_sym
+                    limit_ary << Origen.top_level.clocks(item.to_sym).freq_target
+                    next
+                  end
+                end
+                limit_ary << item
+              else
+                limit_ary << item
+              end
+            end
+          end
+          new_limit = new_limit_items.join(' ')
+          new_limit_references = new_limit.split(/\:|\s+/).select { |var| var.match(/^[a-zA-Z]\S+$/) }
+          if new_limit_references.empty?
+            result = eval(new_limit).round(4)
+          else
+            return limit
+          end
+        elsif !!(limit.match(/^\d+\.\d+$/)) || !!(limit.match(/^-\d+\.\d+$/))
           result = Float(limit).round(4) rescue false # Use the same four digits of accuracy as the Spec model
         elsif !!(limit.match(/\d+\.\d+\s+\d+\.\d+/)) # workaround for multiple specs authoring bug
           Origen.log.debug "Found two numbers without an operator in the limit string '#{limit}', choosing the first..."
