@@ -21,6 +21,9 @@ module Origen
               if line =~ /^\s*gem\s+(("|')\w+("|')),.*(:path\s*=>|path:)/
                 fail "The following gem is defined as a path in your Gemfile, but that is not allowed in production: #{Regexp.last_match[1]}"
               end
+              if line =~ /ORIGEN PLUGIN AUTO-GENERATED/
+                fail 'Fetched gems are currently being used in your Gemfile, but that is not allowed in production!'
+              end
             end
           end
         end
