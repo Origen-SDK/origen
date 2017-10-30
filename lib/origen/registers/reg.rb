@@ -203,7 +203,7 @@ module Origen
                 line += vert_single_line
                 line_complete = true
               else
-                line << ' ' + ''.center(bit_width)
+                line << ' ' + ''.center(bit_width) unless line_complete
               end
             else
               line << vert_single_line + "#{bit_num}".center(bit_width)
