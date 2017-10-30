@@ -155,6 +155,38 @@ class String
   end
   alias_method :is_lowercase?, :is_downcase?
 
+  # Check if the String is a valid DUT path
+  def is_valid_dut_path?
+    unless match(/^top|^dut/)
+      Origen.log.error("DUT paths must start with 'top' or 'dut'!")
+      fail
+    end
+    namespace = split('.')[1..-1]
+    obj = Origen.top_level
+    namespace.each_with_index do |id, i|
+      if obj.respond_to?(id.to_sym)
+        obj = obj.send(id.to_sym)
+      else
+        return false
+      end
+    end
+    true
+  end
+
+  # Return the valid DUT object
+  def return_dut_object
+    if is_valid_dut_path?
+      namespace = split('.')[1..-1]
+      obj = Origen.top_level
+      namespace.each_with_index do |id, i|
+        obj = obj.send(id.to_sym)
+      end
+      obj
+    else
+      nil
+    end
+  end
+
   private
 
   # Convert a verilog number string to an integer

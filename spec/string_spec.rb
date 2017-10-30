@@ -1,6 +1,44 @@
 require 'spec_helper'
 
+class SoC_for_Strings
+  include Origen::TopLevel
+  
+  def initialize
+    sub_block :ddr, class_name: 'DDR', base_address: 0xDEAD_BEEF
+    sub_block :pcie, class_name: 'PCIE', base_address: 0xA5A5_A5A5
+  end
+  
+end
+
+class DDR
+  include Origen::Model
+  
+  def initialize
+    sub_block :memc, class_name: 'MEMC', base_address: 0
+  end
+  
+end
+
+class PCIE
+  include Origen::Model
+end
+
+class MEMC
+  include Origen::Model
+end
+
 describe String do
+
+  before :each do
+    Origen.app.unload_target!
+    Origen.target.temporary = -> { SoC_for_Strings.new }
+    Origen.load_target
+  end
+  
+  after :all do
+    Origen.app.unload_target!
+  end
+
 
   specify "camel case works" do
 
@@ -100,5 +138,31 @@ describe String do
     "aa".is_downcase?.should == true
     " aa".is_downcase?.should == true
     " aa".is_lowercase?.should == true
+  end
+  
+  specify 'it can determine a valid DUT path' do
+    'dut.ddr'.is_valid_dut_path?.should == true
+    'dut.ddc'.is_valid_dut_path?.should == false
+    'dut.pcie'.is_valid_dut_path?.should == true
+    'dut.ddr.memc'.is_valid_dut_path?.should == true
+    'dut.ddr.memd'.is_valid_dut_path?.should == false
+    'top.ddr'.is_valid_dut_path?.should == true
+    'top.ddc'.is_valid_dut_path?.should == false
+    'top.pcie'.is_valid_dut_path?.should == true
+    'top.ddr.memc'.is_valid_dut_path?.should == true
+    'top.ddr.memd'.is_valid_dut_path?.should == false
+  end
+  
+  specify 'it can return a valid DUT object' do
+    'dut'.return_dut_object.class.should == SoC_for_Strings
+    'dut.ddr'.return_dut_object.class.should == SoC_for_Strings::DDR
+    'dut.pcie'.return_dut_object.class.should == SoC_for_Strings::PCIE
+    'dut.ddr.memc'.return_dut_object.class.should == SoC_for_Strings::DDR::MEMC
+    'dut.ddr.memd'.return_dut_object.nil?.should == true
+    'top'.return_dut_object.class.should == SoC_for_Strings
+    'top.ddr'.return_dut_object.class.should == SoC_for_Strings::DDR
+    'top.pcie'.return_dut_object.class.should == SoC_for_Strings::PCIE
+    'top.ddr.memc'.return_dut_object.class.should == SoC_for_Strings::DDR::MEMC
+    'top.ddr.memd'.return_dut_object.nil?.should == true
   end
 end
