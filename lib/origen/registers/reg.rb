@@ -126,11 +126,10 @@ module Origen
         @updating_bound_bits
       end
 
-      def inspect
-        # Theoretically, this fancy_output option should be passed in via option hash or set via some global parameter
-        #  Even better, the output could auto-detect 7-bit vs 8-bit terminal output and adjust the parameter
-        #  For now I just have it hard-coded. 
-        fancy_output = true
+      def inspect(options = {})
+        # This fancy_output option is passed in via option hash
+        #  Even better, the output could auto-detect 7-bit vs 8-bit terminal output and adjust the parameter, but that's for another day
+        fancy_output = options[:fancy_output].nil? ? true : options[:fancy_output]
         if fancy_output
           horiz_double_line = '═'
           horiz_double_tee_down = '╤'
@@ -171,7 +170,7 @@ module Origen
           desc << ('  ' + corner_double_up_left + ((horiz_double_line * bit_width + horiz_double_tee_down) * 8)).chop + corner_double_up_right
         else
           if bit_order == :lsb0
-            desc << ('  ' +  (' ' * (bit_width + 1) * (8 - r)) + corner_double_up_left + ((horiz_double_line * bit_width + horiz_double_tee_down) * r)).chop + corner_double_up_right
+            desc << ('  ' + (' ' * (bit_width + 1) * (8 - r)) + corner_double_up_left + ((horiz_double_line * bit_width + horiz_double_tee_down) * r)).chop + corner_double_up_right
           else
             desc << ('  ' + corner_double_up_left + ((horiz_double_line * bit_width + horiz_double_tee_down) * r)).chop + corner_double_up_right
           end
