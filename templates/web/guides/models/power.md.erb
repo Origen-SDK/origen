@@ -19,17 +19,17 @@ Here is an example of the PowerDomain API:
 add_power_domain :vdd do |domain|
   domain.description = 'CPU Core Complex'
   domain.nominal_voltage = 0.9.V
-  domain.voltage_range = 0.7.V..1.1.V
+  domain.unit_voltage_range = 0.7.V..1.1.V
 end
 add_power_domain :vdda do |domain|
   domain.description = 'PLL'
   domain.nominal_voltage = 1.2.V
-  domain.voltage_range = 1.08.V..1.32.V
+  domain.unit_voltage_range = 1.08.V..1.32.V
 end
 add_power_domain :vccsoc do |domain|
   domain.description = 'SoC'
   domain.nominal_voltage = 1.5.V
-  domain.voltage_range = 1.35.V..1.65.V
+  domain.unit_voltage_range = 1.35.V..1.65.V
 end
 ~~~
 
@@ -104,5 +104,9 @@ for a group of power domain values.  Here are some examples of setting power dom
   $dut.power_domains(:vdda).setpoint = 1.10.V
   $dut.power_domains(:vccsoc).setpoint = 1.37.V
 ~~~
+
+A little about the attribute 'unit_voltage_range'.  If a power domain has this attribute set to :fixed, then it means all units
+will see the eact same voltage when the device is powered up.  If this attribute is set to a Range, then it means each device can 
+power-up to a unique voltage, based on a permanently programmed value stored within the device (e.g. using e-fuses).
 
 % end
