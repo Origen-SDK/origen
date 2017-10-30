@@ -147,7 +147,7 @@ module Origen
         end
       end
 
-      def respond_to?(method)
+      def respond_to?(method, include_private = false)
         super || begin
           if Origen.ldap.available?
             Origen.ldap.lookup(self) && Origen.ldap.lookup(self).attribute_names.include?(method.to_sym)
