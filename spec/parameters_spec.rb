@@ -56,6 +56,7 @@ module ParametersSpec
           bits 7..4, :time, bind: params.live.erase.time
           bits 3..0, :pulses
         end
+        sub_block :ip_with_params, class_name: 'IpWithParams', base_address: 0xDEAD_BEEF
       end
 
       def pulses
@@ -69,7 +70,18 @@ module ParametersSpec
         end
       end
     end
-
+  
+    class IpWithParams
+      include Origen::Model
+      
+      def initialize 
+        define_params :default, inherit: 'dut.default' do |params|
+          params.erase.time = 5
+          params.vdd.xmin = 0.7
+        end
+      end  
+    end
+    
     before :each do
       Origen.app.unload_target!
       $dut = DUT.new
@@ -280,6 +292,19 @@ module ParametersSpec
     
     it "objects that own parameter sets can tell if they do or not" do
       $dut.has_params?.should == true
+    end
+    
+    it 'can pass inheritance between objects' do
+      $dut.params.contexts.should == [:default, :ate, :probe, :ft, :set1, :set2, :set3]
+      $dut.ip_with_params.params.contexts.should == [:default]
+      $dut.params(:default).keys.should == [:tprog, :erase, :test, :vdd]
+      $dut.ip_with_params.params(:default).keys.should == [:tprog, :erase, :test, :vdd]
+      $dut.params(:default).vdd.keys.should == [:nom, :min, :max]
+      $dut.ip_with_params.params(:default).vdd.keys.should == [:nom, :min, :max, :xmin]
+      ($dut.ip_with_params.params(:default).vdd.keys - $dut.params(:default).vdd.keys).should == [:xmin]
+      $dut.ip_with_params.params(:default).vdd.xmin.should == 0.7
+      $dut.params(:default).erase.time.should == 4
+      $dut.ip_with_params.params(:default).erase.time.should == 5
     end
   end
 end
