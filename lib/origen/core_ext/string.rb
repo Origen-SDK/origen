@@ -182,8 +182,6 @@ class String
         obj = obj.send(id.to_sym)
       end
       obj
-    else
-      nil
     end
   end
 
