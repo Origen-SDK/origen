@@ -110,9 +110,10 @@ module Origen
           context_hash[:obj] = self
           context_hash[:context] = expr
         when String
+          # user specified a DUT path
           path = expr.split('.')[0..-2].join('.')
           kontext = expr.split('.')[-1].to_sym
-          context_hash[:obj] = path.return_dut_object
+          context_hash[:obj] = eval(path)
           context_hash[:context] = kontext
         else
           Origen.log.error('Parameter context must be a Symbol (local to self) or a String (reference to another object)!')

@@ -172,18 +172,9 @@ class String
     end
     true
   end
-
-  # Return the valid DUT object
-  def return_dut_object
-    if is_valid_dut_path?
-      namespace = split('.')[1..-1]
-      obj = Origen.top_level
-      namespace.each_with_index do |id, i|
-        obj = obj.send(id.to_sym)
-      end
-      obj
-    end
-  end
+  alias_method :is_valid_top_path?, :is_valid_dut_path?
+  alias_method :is_dut_path?, :is_valid_dut_path?
+  alias_method :is_top_path?, :is_valid_dut_path?
 
   private
 

@@ -151,18 +151,9 @@ describe String do
     'top.pcie'.is_valid_dut_path?.should == true
     'top.ddr.memc'.is_valid_dut_path?.should == true
     'top.ddr.memd'.is_valid_dut_path?.should == false
+    'top.ddr.memc'.is_valid_top_path?.should == true
+    'top.ddr.memc'.is_dut_path?.should == true
+    'top.ddr.memc'.is_top_path?.should == true
   end
   
-  specify 'it can return a valid DUT object' do
-    'dut'.return_dut_object.class.should == SoC_for_Strings
-    'dut.ddr'.return_dut_object.class.should == SoC_for_Strings::DDR
-    'dut.pcie'.return_dut_object.class.should == SoC_for_Strings::PCIE
-    'dut.ddr.memc'.return_dut_object.class.should == SoC_for_Strings::DDR::MEMC
-    'dut.ddr.memd'.return_dut_object.nil?.should == true
-    'top'.return_dut_object.class.should == SoC_for_Strings
-    'top.ddr'.return_dut_object.class.should == SoC_for_Strings::DDR
-    'top.pcie'.return_dut_object.class.should == SoC_for_Strings::PCIE
-    'top.ddr.memc'.return_dut_object.class.should == SoC_for_Strings::DDR::MEMC
-    'top.ddr.memd'.return_dut_object.nil?.should == true
-  end
 end
