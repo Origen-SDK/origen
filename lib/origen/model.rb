@@ -7,6 +7,8 @@ module Origen
   module Model
     extend ActiveSupport::Concern
 
+    autoload :Exporter, 'origen/model/exporter'
+
     included do
       attr_writer :ip_name
       attr_accessor :version
@@ -29,6 +31,7 @@ module Origen
       include Origen::Tests
       include Origen::PowerDomains
       include Origen::Clocks
+      include Origen::Model::Exporter
     end
 
     module ClassMethods
