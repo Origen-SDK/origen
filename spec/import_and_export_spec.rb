@@ -40,6 +40,16 @@ describe "Model import and export" do
       add_ground_pin :gnd3
       add_power_pin_group :vdd, :vdd1, :vdd2
       add_ground_pin_group :gnd, :gnd1, :gnd2, :gnd3
+
+      sub_block :block1, class_name: 'Sub1'
+    end
+  end
+
+  class Sub1
+    include Origen::Model
+
+    def initialize
+      sub_block :x
     end
   end
 
@@ -55,9 +65,9 @@ describe "Model import and export" do
   it "export is alive" do
     load_export_model
     dut.is_a?(ExportModel).should == true
-    File.exist?("#{Origen.root}/vendor/lib/origen/models/export1/top.rb").should == false
+    File.exist?("#{Origen.root}/vendor/lib/models/origen/export1.rb").should == false
     dut.export 'export1'
-    File.exist?("#{Origen.root}/vendor/lib/origen/models/export1/top.rb").should == true
+    File.exist?("#{Origen.root}/vendor/lib/models/origen/export1.rb").should == true
   end
 
   it "import is alive" do
@@ -88,5 +98,10 @@ describe "Model import and export" do
     dut.power_pin(:vdd1).voltage.should == 3
     dut.power_pin(:vdd1).current_limit.should == 50.mA
     dut.power_pin(:vdd1).meta[:min_voltage].should == 1.5
+  end
+
+  it "handles sub-blocks" do
+    load_import_model
+    dut.block1.x.should be
   end
 end

@@ -333,7 +333,13 @@ module Origen
       end
 
       def materialize
-        owner.send(:instantiate_sub_block, name, klass, attributes)
+        file = attributes.delete(:file)
+        block = owner.send(:instantiate_sub_block, name, klass, attributes)
+        if file
+          require File.join(owner.send(:export_dir), file)
+          block.extend owner.send(:export_module_names_from_path, file).join('::').constantize
+        end
+        block
       end
 
       def ==(obj)
@@ -407,6 +413,8 @@ module Origen
     # On first call of a missing method a method is generated to avoid the missing lookup
     # next time, this should be faster for repeated lookups of the same method, e.g. reg
     def method_missing(method, *args, &block)
+      super
+    rescue NoMethodError # you can also add this
       return regs(method) if self.has_reg?(method)
       return ports(method) if self.has_port?(method)
       if method.to_s =~ /=$/
