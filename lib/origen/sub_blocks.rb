@@ -333,7 +333,7 @@ module Origen
 
       # Make it look like a sub-block in the console to avoid confusion
       def inspect
-        materialize.inspect
+        "<SubBlock: #{name}>"
       end
 
       def method_missing(method, *args, &block)

@@ -2,10 +2,6 @@ require "spec_helper"
 
 describe "Model import and export" do
 
-  before :all do
-    FileUtils.rm_rf(File.join(Origen.root, 'vendor', 'lib'))
-  end
-
   before :each do
     Origen.app.unload_target!
   end
@@ -85,6 +81,7 @@ describe "Model import and export" do
   end
 
   it "export is alive" do
+    FileUtils.rm_rf(File.join(Origen.root, 'vendor', 'lib'))
     load_export_model
     dut.is_a?(ExportModel).should == true
     File.exist?("#{Origen.root}/vendor/lib/models/origen/export1.rb").should == false
