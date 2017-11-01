@@ -101,4 +101,10 @@ describe String do
     " aa".is_downcase?.should == true
     " aa".is_lowercase?.should == true
   end
+
+  specify 'acronyms can be registered' do
+    Origen.register_acronym 'PPEKit'
+    'PPEKit'.underscore.should == 'ppekit'
+    'PPEKit'.underscore.camelcase.should == 'PPEKit'
+  end
 end

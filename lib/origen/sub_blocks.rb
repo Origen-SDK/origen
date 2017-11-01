@@ -212,7 +212,7 @@ module Origen
     end
     alias_method :children, :sub_blocks
 
-    # Delete all sub_blocks by emptyig the Hash
+    # Delete all sub_blocks by emptying the Hash
     def delete_sub_blocks
       @sub_blocks = {}
     end
@@ -265,47 +265,22 @@ module Origen
         end
         a
       else
-        class_name = options.delete(:class_name)
-        if class_name
-          if eval("defined? ::#{namespace}::#{class_name}")
-            klass = eval("::#{namespace}::#{class_name}")
-          else
-            if eval("defined? #{class_name}")
-              klass = eval(class_name)
-            else
-              if eval("defined? #{self.class}::#{class_name}")
-                klass = eval("#{self.class}::#{class_name}")
-              else
-                puts "Could not find class: #{class_name}"
-                fail 'Unknown sub block class!'
-              end
-            end
-          end
-        else
-          klass = Origen::SubBlock
-        end
-        unless klass.respond_to?(:includes_origen_model)
-          puts 'Any class which is to be instantiated as a sub_block must include Origen::Model,'
-          puts "add this to #{klass}:"
-          puts ''
-          puts '  include Origen::Model'
-          puts ''
-          fail 'Sub block does not include Origen::Model!'
-        end
-        block = klass.new(options.merge(parent: self, name: name))
+        block = Placeholder.new(self, name, options)
         if sub_blocks[name]
-          fail "You have already defined a sub-block named #{name} within class #{self.class}"
+          # Allow additional attributes to be added to an existing sub-block if it hasn't
+          # been instantiated yet. This is not supported yet for instantiated sub-blocks since
+          # there are probably a lot more corner-cases to consider, and hopefully no one will
+          # really need this anyway.
+          if sub_blocks[name].is_a?(Placeholder)
+            sub_blocks[name].add_attributes(options)
+          else
+            fail "You have already defined a sub-block named #{name} within class #{self.class}"
+          end
         else
           sub_blocks[name] = block
-          if respond_to?(name)
-            # puts "Tried to create a sub-block named #{name} in #{self.class}, but it already has a method with this name!"
-            # puts "To avoid confusion rename one of them and try again!"
-            # raise "Non-unique sub-block name!"
-          else
-            define_singleton_method name do
-              sub_blocks[name]
-            end
-          end
+        end
+        define_singleton_method name do
+          get_sub_block(name)
         end
         block
       end
@@ -313,6 +288,116 @@ module Origen
 
     def namespace
       self.class.to_s.sub(/::[^:]*$/, '')
+    end
+
+    private
+
+    def get_sub_block(name)
+      sub_blocks[name]
+    end
+
+    def instantiate_sub_block(name, klass, options)
+      return sub_blocks[name] unless sub_blocks[name].is_a?(Placeholder)
+      sub_blocks[name] = klass.new(options.merge(parent: self, name: name))
+    end
+
+    class Placeholder
+      attr_reader :name, :owner, :attributes
+
+      def initialize(owner, name, attributes)
+        @owner = owner
+        @name = name
+        @attributes = attributes
+      end
+
+      def add_attributes(attrs)
+        @attributes = @attributes.merge(attrs)
+      end
+
+      # Make this appear like a sub-block to any application code
+      def is_a?(klass)
+        klass == self.klass || klass == self.class
+      end
+
+      # Make it look like a sub-block in the console to avoid confusion
+      def inspect
+        "<SubBlock: #{name}>"
+      end
+
+      def method_missing(method, *args, &block)
+        materialize.send(method, *args, &block)
+      end
+
+      def respond_to?(method, include_private = false)
+        materialize.respond_to?(method, include_private)
+      end
+
+      def materialize
+        file = attributes.delete(:file)
+        block = owner.send(:instantiate_sub_block, name, klass, attributes)
+        if file
+          require File.join(owner.send(:export_dir), file)
+          block.extend owner.send(:export_module_names_from_path, file).join('::').constantize
+        end
+        block
+      end
+
+      def ==(obj)
+        materialize == obj
+      end
+
+      def !=(obj)
+        materialize != obj
+      end
+
+      def freeze
+        materialize.freeze
+      end
+
+      def clone
+        materialize.clone
+      end
+
+      def dup
+        materialize.dup
+      end
+
+      def to_json(*args)
+        materialize.to_json(*args)
+      end
+
+      def klass
+        @klass ||= begin
+          class_name = attributes.delete(:class_name)
+          if class_name
+            if eval("defined? ::#{owner.namespace}::#{class_name}")
+              klass = eval("::#{owner.namespace}::#{class_name}")
+            else
+              if eval("defined? #{class_name}")
+                klass = eval(class_name)
+              else
+                if eval("defined? #{owner.class}::#{class_name}")
+                  klass = eval("#{owner.class}::#{class_name}")
+                else
+                  puts "Could not find class: #{class_name}"
+                  fail 'Unknown sub block class!'
+                end
+              end
+            end
+          else
+            klass = Origen::SubBlock
+          end
+          unless klass.respond_to?(:includes_origen_model)
+            puts 'Any class which is to be instantiated as a sub_block must include Origen::Model,'
+            puts "add this to #{klass}:"
+            puts ''
+            puts '  include Origen::Model'
+            puts ''
+            fail 'Sub block does not include Origen::Model!'
+          end
+          klass
+        end
+      end
     end
   end
 
@@ -328,6 +413,8 @@ module Origen
     # On first call of a missing method a method is generated to avoid the missing lookup
     # next time, this should be faster for repeated lookups of the same method, e.g. reg
     def method_missing(method, *args, &block)
+      super
+    rescue NoMethodError
       return regs(method) if self.has_reg?(method)
       return ports(method) if self.has_port?(method)
       if method.to_s =~ /=$/

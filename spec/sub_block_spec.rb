@@ -117,7 +117,7 @@ module SubBlocksSpec
     it "children should know their parents" do
       c = Top.new
       c.sub1.parent.should == c
-      c.sub2.sub3.parent.should == c.sub2
+      c.sub2.sub3.parent.should == c.children[:sub2]
       c.sub2.sub3.parent.parent.should == c
     end
 
