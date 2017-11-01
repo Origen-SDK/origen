@@ -477,7 +477,7 @@ module Origen
           if line =~ /^\s*#(.*)/
             desc << Regexp.last_match[1].strip
           #              http://rubular.com/r/D8lg2P5kK1                     http://rubular.com/r/XP4ydPV8Fd
-          elsif line =~ /^\s*reg\(?\s*[:"'](\w+)["']?\s*,.*\sdo/ || line =~ /^\s*add_reg\(?\s*[:"'](\w+)["']?\s*,.*/
+          elsif line =~ /^\s*reg\(?\s*[:"'](\w+)["']?\s*,.*\sdo/ || line =~ /^\s*.*add_reg\(?\s*[:"'](\w+)["']?\s*,.*/
             @current_reg_name = Regexp.last_match[1].to_sym
             description_lookup[define_file] ||= {}
             description_lookup[define_file][@current_reg_name] ||= {}

@@ -49,7 +49,28 @@ describe "Model import and export" do
     include Origen::Model
 
     def initialize
-      sub_block :x
+      sub_block :x, class_name: 'Sub2', base_address: 0x4000_0000
+    end
+  end
+
+  class Sub2
+    include Origen::Model
+
+    def initialize
+      # ** Some Control Register **
+      # Blah, blah,
+      # and some more blah
+      reg :ctrl, 0x0024, size: 16 do |reg|
+        reg.bit 7, :coco, access: :ro
+        reg.bit 6, :aien
+        # **Some Diff Bit** - This is a...
+        # blah, blah
+        #
+        # 0 | It's off
+        # 1 | It's on
+        reg.bit 5, :diff
+        reg.bit 4..0, :adch, reset: 0x1F
+      end
     end
   end
 
@@ -60,7 +81,6 @@ describe "Model import and export" do
       import 'export1'
     end
   end
-
 
   it "export is alive" do
     load_export_model
@@ -103,5 +123,18 @@ describe "Model import and export" do
   it "handles sub-blocks" do
     load_import_model
     dut.block1.x.should be
+    dut.block1.x.base_address.should == 0x4000_0000
+  end
+
+  it "handles registers" do
+    load_import_model
+    reg = dut.block1.x.ctrl
+    reg.description[1].should == 'Blah, blah,'
+    reg.size.should == 16
+    reg.coco.access.should == :ro
+    reg.adch.size.should == 5
+    reg.adch.reset_val.should == 0x1F
+    reg.diff.bit_value_descriptions[0].should == "It's off"
+    reg.diff.bit_value_descriptions[1].should == "It's on"
   end
 end
