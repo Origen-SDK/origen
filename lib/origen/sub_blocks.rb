@@ -426,7 +426,7 @@ module Origen
     # next time, this should be faster for repeated lookups of the same method, e.g. reg
     def method_missing(method, *args, &block)
       super
-    rescue NoMethodError # you can also add this
+    rescue NoMethodError
       return regs(method) if self.has_reg?(method)
       return ports(method) if self.has_port?(method)
       if method.to_s =~ /=$/
