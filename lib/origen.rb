@@ -731,6 +731,15 @@ unless defined? RGen::ORIGENTRANSITION
         @lsf ||= Origen::Application::LSF.new
       end
 
+      # Let's Origen know about any domain specific acronyms used with an application, this will cause
+      # them to be translated between underscored and camel-cased versions correctly
+      def register_acronym(name)
+        require 'active_support/core_ext/string/inflections'
+        ActiveSupport::Inflector.inflections(:en) do |inflect|
+          inflect.acronym(name)
+        end
+      end
+
       private
 
       def current_command=(val)
