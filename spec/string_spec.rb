@@ -139,21 +139,4 @@ describe String do
     " aa".is_downcase?.should == true
     " aa".is_lowercase?.should == true
   end
-  
-  specify 'it can determine a valid DUT path' do
-    'dut.ddr'.is_valid_dut_path?.should == true
-    'dut.ddc'.is_valid_dut_path?.should == false
-    'dut.pcie'.is_valid_dut_path?.should == true
-    'dut.ddr.memc'.is_valid_dut_path?.should == true
-    'dut.ddr.memd'.is_valid_dut_path?.should == false
-    'top.ddr'.is_valid_dut_path?.should == true
-    'top.ddc'.is_valid_dut_path?.should == false
-    'top.pcie'.is_valid_dut_path?.should == true
-    'top.ddr.memc'.is_valid_dut_path?.should == true
-    'top.ddr.memd'.is_valid_dut_path?.should == false
-    'top.ddr.memc'.is_valid_top_path?.should == true
-    'top.ddr.memc'.is_dut_path?.should == true
-    'top.ddr.memc'.is_top_path?.should == true
-  end
-  
 end
