@@ -69,7 +69,7 @@ module Origen
       def import(name, options = {})
         path = export_path(name)
         require path
-        extend "#{Origen.app.namespace}::#{name.to_s.camelcase}".constantize
+        extend "#{Origen.app.namespace.underscore.camelcase}::#{name.to_s.camelcase}".constantize
       end
 
       private
