@@ -267,7 +267,15 @@ module Origen
       else
         block = Placeholder.new(self, name, options)
         if sub_blocks[name]
-          fail "You have already defined a sub-block named #{name} within class #{self.class}"
+          # Allow additional attributes to be added to an existing sub-block if it hasn't
+          # been instantiated yet. This is not supported yet for instantiated sub-blocks since
+          # there are probably a lot more corner-cases to consider, and hopefully no one will
+          # really need this anyway.
+          if sub_blocks[name].is_a?(Placeholder)
+            sub_blocks[name].add_attributes(options)
+          else
+            fail "You have already defined a sub-block named #{name} within class #{self.class}"
+          end
         else
           sub_blocks[name] = block
         end
@@ -312,6 +320,10 @@ module Origen
         @owner = owner
         @name = name
         @attributes = attributes
+      end
+
+      def add_attributes(attrs)
+        @attributes = @attributes.merge(attrs)
       end
 
       # Make this appear like a sub-block to any application code

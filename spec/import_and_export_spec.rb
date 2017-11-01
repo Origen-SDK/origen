@@ -78,6 +78,8 @@ describe "Model import and export" do
     include Origen::TopLevel
 
     def initialize(options = {})
+      sub_block :block1
+
       import 'export1'
     end
   end
@@ -86,7 +88,7 @@ describe "Model import and export" do
     load_export_model
     dut.is_a?(ExportModel).should == true
     File.exist?("#{Origen.root}/vendor/lib/models/origen/export1.rb").should == false
-    dut.export 'export1'
+    dut.export 'export1', include_timestamp: false
     File.exist?("#{Origen.root}/vendor/lib/models/origen/export1.rb").should == true
   end
 
@@ -136,5 +138,12 @@ describe "Model import and export" do
     reg.adch.reset_val.should == 0x1F
     reg.diff.bit_value_descriptions[0].should == "It's off"
     reg.diff.bit_value_descriptions[1].should == "It's on"
+  end
+
+  it "gracefully adds to existing sub-blocks without instantiating them" do
+    load_import_model
+    dut.block1.is_a?(Origen::SubBlocks::Placeholder).should == true
+    dut.block1.x.ctrl.should be
+    dut.block1.is_a?(Origen::SubBlocks::Placeholder).should == false
   end
 end
