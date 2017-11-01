@@ -279,27 +279,15 @@ module Origen
         else
           sub_blocks[name] = block
         end
+        define_singleton_method name do
+          get_sub_block(name)
+        end
         block
       end
     end
 
     def namespace
       self.class.to_s.sub(/::[^:]*$/, '')
-    end
-
-    def method_missing(method, *args, &block)
-      if sub_blocks[method]
-        define_singleton_method method do
-          get_sub_block(method)
-        end
-        sub_blocks[method]
-      else
-        super
-      end
-    end
-
-    def respond_to?(name, include_private = false)
-      !!sub_blocks[name] || super
     end
 
     private
