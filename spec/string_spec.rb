@@ -1,44 +1,6 @@
 require 'spec_helper'
 
-class SoC_for_Strings
-  include Origen::TopLevel
-  
-  def initialize
-    sub_block :ddr, class_name: 'DDR', base_address: 0xDEAD_BEEF
-    sub_block :pcie, class_name: 'PCIE', base_address: 0xA5A5_A5A5
-  end
-  
-end
-
-class DDR
-  include Origen::Model
-  
-  def initialize
-    sub_block :memc, class_name: 'MEMC', base_address: 0
-  end
-  
-end
-
-class PCIE
-  include Origen::Model
-end
-
-class MEMC
-  include Origen::Model
-end
-
 describe String do
-
-  before :each do
-    Origen.app.unload_target!
-    Origen.target.temporary = -> { SoC_for_Strings.new }
-    Origen.load_target
-  end
-  
-  after :all do
-    Origen.app.unload_target!
-  end
-
 
   specify "camel case works" do
 
@@ -138,5 +100,11 @@ describe String do
     "aa".is_downcase?.should == true
     " aa".is_downcase?.should == true
     " aa".is_lowercase?.should == true
+  end
+
+  specify 'acronyms can be registered' do
+    Origen.register_acronym 'PPEKit'
+    'PPEKit'.underscore.should == 'ppekit'
+    'PPEKit'.underscore.camelcase.should == 'PPEKit'
   end
 end
