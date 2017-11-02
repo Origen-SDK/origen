@@ -31,8 +31,8 @@ module Origen
       else
         _parameter_sets[name] = Set.new(top_level: true, owner: self)
         if options[:inherit]
-          _validate_parameter_set_name(options[:inherit])
-          parent = _parameter_sets[options[:inherit]]
+          kontext = _validate_parameter_set_name(options[:inherit])
+          parent = kontext[:obj]._parameter_sets[kontext[:context]]
           _parameter_sets[name].copy_defaults_from(parent)
           _parameter_sets[name].define(parent, &block)
         else
@@ -100,10 +100,31 @@ module Origen
 
     private
 
-    def _validate_parameter_set_name(name)
-      unless _parameter_sets.key?(name)
-        puts "Unknown parameter set :#{name} requested for #{self.class}, these are the valid sets:"
-        _parameter_sets.keys.each { |k| puts "  :#{k}" }
+    def _validate_parameter_set_name(expr)
+      # Check if the user specified to inherit from another object
+      # or just passed in a param context
+      param_context = {}.tap do |context_hash|
+        case expr
+        when Symbol
+          # user specified a local context
+          context_hash[:obj] = self
+          context_hash[:context] = expr
+        when String
+          # user specified a DUT path
+          path = expr.split('.')[0..-2].join('.')
+          kontext = expr.split('.')[-1].to_sym
+          context_hash[:obj] = eval(path)
+          context_hash[:context] = kontext
+        else
+          Origen.log.error('Parameter context must be a Symbol (local to self) or a String (reference to another object)!')
+          fail
+        end
+      end
+      if param_context[:obj]._parameter_sets.key?(param_context[:context])
+        return param_context
+      else
+        puts "Unknown parameter set :#{param_context[:context]} requested for #{param_context[:obj].class}, these are the valid sets:"
+        param_context[:obj]._parameter_sets.keys.each { |k| puts "  :#{k}" }
         puts ''
         fail 'Unknown parameter set!'
       end

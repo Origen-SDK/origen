@@ -1,7 +1,9 @@
+require 'origen/specs'
 module Origen
   module PowerDomains
     class PowerDomain
-      attr_accessor :id, :description, :unit_voltage_range, :nominal_voltage, :setpoint
+      include Origen::Specs
+      attr_accessor :id, :description, :unit_voltage_range, :nominal_voltage, :setpoint, :maximum_voltage_rating
 
       # Generic Power Domain Name
       # This is the power supply that can be blocked off to multiple power supplies
@@ -41,6 +43,12 @@ module Origen
       def name
         @id
       end
+
+      # Maximum Voltage Rating
+      def maximum_voltage_rating
+        @maximum_voltage_rating
+      end
+      alias_method :mvr, :maximum_voltage_rating
 
       # Sets setpoint equal to nominal_voltage
       def setpoint_to_nominal
@@ -112,7 +120,8 @@ module Origen
       alias_method :curr_value, :setpoint
       alias_method :value, :setpoint
 
-      # Acceptable voltage range
+      # Power domain can allow either a variable
+      # or fixed unit voltage range (Range or :fixed)
       def unit_voltage_range
         @unit_voltage_range
       end
@@ -129,11 +138,14 @@ module Origen
       # Checks if the setpoint is valid
       # This will need rework once the class has spec limits added
       def setpoint_ok?(val = nil)
-        return true if unit_voltage_range == :fixed
-        if val.nil?
-          unit_voltage_range.include?(setpoint) ? true : false
+        return true if maximum_voltage_rating.nil?
+        compare_val = val.nil? ? setpoint : val
+        if compare_val.nil?
+          false
+        elsif compare_val <= maximum_voltage_rating
+          true
         else
-          unit_voltage_range.include?(val) ? true : false
+          false
         end
       end
       alias_method :value_ok?, :setpoint_ok?
@@ -188,15 +200,20 @@ module Origen
         elsif unit_voltage_range == :fixed
           true
         elsif unit_voltage_range.nil?
-          Origen.log.error("PPEKit: Missing voltage range for power domain '#{name}'!")
+          Origen.log.error("PPEKit: Missing unit voltage range for power domain '#{name}'!")
           false
         elsif unit_voltage_range.is_a? Range
-          if unit_voltage_range.include?(nominal_voltage)
-            true
-          else
-            Origen.log.error("PPEKit: Nominal voltage #{nominal_voltage} is not inbetween the voltage range #{unit_voltage_range} for power domain '#{name}'!")
+          unless unit_voltage_range.include?(nominal_voltage)
+            Origen.log.error("PPEKit: Nominal voltage #{nominal_voltage} is not inbetween the unit voltage range #{unit_voltage_range} for power domain '#{name}'!")
             false
           end
+          unless maximum_voltage_rating.nil?
+            unless unit_voltage_range.last <= maximum_voltage_rating
+              Origen.log.error('PPEKit: Unit voltage range exceeds the maximum voltage range!')
+              fail
+            end
+          end
+          true
         else
           Origen.log.error("Power domain attribute 'unit_voltage_range' must be a Range or set to the value of :fixed!")
           return_value = false
