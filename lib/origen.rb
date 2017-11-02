@@ -739,7 +739,7 @@ unless defined? RGen::ORIGENTRANSITION
           inflect.acronym(name)
         end
       end
-     
+      
       private
 
       def current_command=(val)
