@@ -7,6 +7,7 @@ Should display a list of registers:
 Should display an actual register:
 
 <%= $nvm.regs(:mclkdiv).inspect %>
+<%= $nvm.regs(:mclkdiv).inspect(fancy_output: false) %>
 
 This one had problems in real life:
 
@@ -29,7 +30,9 @@ Test of regs with non byte aligned number of bits
 <%= $nvm.regs(:non_aligned_small).inspect %>
 
 <%= $nvm.regs(:non_aligned_big).inspect %>
+<%= $nvm.regs(:non_aligned_big).inspect(fancy_output: false) %>
 
 <%= $nvm.regs(:non_aligned_small_msb0).inspect %>
 
 <%= $nvm.regs(:non_aligned_big_msb0).inspect %>
+<%= $nvm.regs(:non_aligned_big_msb0).inspect(fancy_output: false) %>

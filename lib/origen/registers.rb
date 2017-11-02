@@ -41,6 +41,7 @@ module Origen
     end
 
     def method_missing(method, *args, &block) # :nodoc:
+      orig_method = method
       if method[-1] == '!'
         bang = true
         method = method.to_s.chop.to_sym
@@ -50,11 +51,11 @@ module Origen
         r.sync if bang
         r
       else
-        super
+        super(orig_method, *args, &block)
       end
     end
 
-    def respond_to?(sym) # :nodoc:
+    def respond_to?(sym, include_private = false) # :nodoc:
       if sym[-1] == '!'
         r = sym.to_s.chop.to_sym
         _registers.key?(r) || super(sym)
@@ -249,8 +250,8 @@ module Origen
         materialize.send(method, *args, &block)
       end
 
-      def respond_to?(method)
-        materialize.respond_to?(method)
+      def respond_to?(method, include_private = false)
+        materialize.respond_to?(method, include_private)
       end
 
       def materialize

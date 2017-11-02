@@ -502,13 +502,16 @@ module Origen
         result.to_s
       end
 
-      # Write the bit value on silicon<br>
+      # Write the bit value on silicon.
       # This method will update the data value of the bits and then call $top.write_register
-      # passing the owngin register as the first argument.<br>
+      # passing the owning register as the first argument.
       # This method is expected to handle writing the current state of the register to silicon.
       def write!(value = nil, options = {})
         value, options = nil, value if value.is_a?(Hash)
         write(value, options) if value
+        if block_given?
+          yield size == @reg.size ? @reg : self
+        end
         @reg.request(:write_register, options)
         self
       end
@@ -521,8 +524,10 @@ module Origen
       #   reg(:data).read!(0x5555) # Read register :data, expecting 0x5555
       def read!(value = nil, options = {})
         value, options = nil, value if value.is_a?(Hash)
-        read(value, options)
-        # launch a read reg
+        read(value, options) unless block_given?
+        if block_given?
+          yield size == @reg.size ? @reg : self
+        end
         @reg.request(:read_register, options)
         self
       end

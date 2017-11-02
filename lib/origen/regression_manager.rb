@@ -73,14 +73,25 @@ module Origen
                     system 'bundle install --gemfile Gemfile --binstubs lbin --path ~/.origen/gems/' # this needs to be executed as 'origen -v' does not seem to handle it on its own.
                     system 'origen -v' # Let origen handle the gems installation and bundler setup.
                   else
-                    system 'bundle exec origen -v'
-                    system 'bundle install' # Make sure bundle updates the necessary config/gems required for Origen.
+                    if Origen.site_config.gem_manage_bundler
+                      system 'origen -v'
+                      system 'bundle install' # Make sure bundle updates the necessary config/gems required for Origen.
+                      system 'origen m debug'
+                    else
+                      system 'bundle install' # Make sure bundle updates the necessary config/gems required for Origen.
+                      system 'bundle exec origen -v'
+                      system 'origen m debug'
+                    end
                   end
                   Origen.log.info '######################################################'
                   Origen.log.info 'running regression command in reference workspace...'
                   Origen.log.info '######################################################'
                   Origen.log.info
-                  system 'bundle exec origen regression'
+                  if Origen.site_config.gem_manage_bundler
+                    system 'origen regression'
+                  else
+                    system 'bundle exec origen regression'
+                  end
                 end
               end
             end
