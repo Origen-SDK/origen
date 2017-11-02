@@ -163,6 +163,21 @@ To make maintenance of such cases efficient the API allows parameter sets to be 
 hierarchy such that a given set can be defined with a parent and if it does not define
 a value for a given parameter then the value from the parent will be returned instead.
 
+Parameter sets can inherit from within the same object scope or from another DUT object
+entirely.  Local inheritance passes the name of another parameter set as a Symbol.  To
+inherit from another object a String must be passed that starts with 'dut' or 'top, and 
+is delimited by periods.  Here is how the string argument is parsed:
+
+~~~ruby
+str_arg = 'dut.ddr.default'
+arg_array = str_arg.split('.')
+['dut',top'].include?(arg_array[0]).should == true
+dut_path_to_object = arg_array[1..-2]    # => 'ddr'
+parameter_context = arg_array[-1].to_sym # => :default
+~~~
+
+##### Local Inheritance
+
 ~~~ruby
 define_params :ate, inherit: :default do |params|
   params.erase.time = 40.mS
@@ -187,6 +202,14 @@ with_params :ft do
   params.program.time        # => 20uS (inherited from :default)
   params.erase.time          # => 40ms (inherited from :ate)
   params.erase.pulse_count   # => 7
+end
+~~~
+
+##### Remote Inheritance
+
+~~~ruby
+define_params :ate, inherit: 'dut.ddr.default' do |params|
+  params.erase.time = 40.mS
 end
 ~~~
 
