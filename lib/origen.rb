@@ -747,6 +747,15 @@ unless defined? RGen::ORIGENTRANSITION
       alias_method :is_valid_top_path?, :is_valid_dut_path?
       alias_method :is_dut_path?, :is_valid_dut_path?
       alias_method :is_top_path?, :is_valid_dut_path?
+      
+      # Let's Origen know about any domain specific acronyms used with an application, this will cause
+      # them to be translated between underscored and camel-cased versions correctly
+      def register_acronym(name)
+        require 'active_support/core_ext/string/inflections'
+        ActiveSupport::Inflector.inflections(:en) do |inflect|
+          inflect.acronym(name)
+        end
+      end
 
       private
 
