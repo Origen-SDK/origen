@@ -1345,6 +1345,32 @@ module RegTest
       o.respond_to?(:reg2).should == false
     end
 
+    specify "block read/write method can set/read bits" do
+      add_reg :blregtest,   0x00,  4,  :y       => { :pos => 0},
+                                       :x       => { :pos => 1, :bits => 2 },
+                                       :w       => { :pos => 3 }
+      reg(:blregtest).data.should == 0x0
+      reg(:blregtest).write! do |r|
+        r.bits(:y).write(1)
+        r.bits(:x).write(0x2)
+        r.bits(:w).write(1)
+      end
+      reg(:blregtest).data.should == 0xD
+
+      reg(:blregtest).write(0)
+      reg(:blregtest).x.write! do |b|
+        b[1].write(1)
+      end
+      reg(:blregtest).data.should == 0b0100
+
+      reg(:blregtest).read! do |r|
+        r.bits(:y).read
+      end      
+      reg(:blregtest).bits(:y).is_to_be_read?.should == true
+      reg(:blregtest).bits(:x).is_to_be_read?.should == false
+      reg(:blregtest).bits(:w).is_to_be_read?.should == false
+    end
+
     it "write method can override a read-only register bitfield with :force = true" do
         reg :reg, 0x0, 32, description: 'reg' do
             bits 7..0,   :field1, reset: 0x0, access: :rw
@@ -1499,11 +1525,11 @@ module RegTest
       expected_output = <<-EOT
 [
 0x0 - :dac_cfg
-   ===============================================================================================================
-  |      7      |      6      |      5      |      4      |      3      |      2      |      1      |      0      |
-  |                                                    d1[7:0]                                                    |
-  |                                                      0x0                                                      |
-   ---------------------------------------------------------------------------------------------------------------]
+  \u2552\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2564\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2564\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2564\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2564\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2564\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2564\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2564\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2555
+  \u2502      7      \u2502      6      \u2502      5      \u2502      4      \u2502      3      \u2502      2      \u2502      1      \u2502      0      \u2502
+  \u2502                                                    d1[7:0]                                                    \u2502
+  \u2502                                                      0x0                                                      \u2502
+  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518]
   EOT
       expect do
         top.regs('/dac/').show

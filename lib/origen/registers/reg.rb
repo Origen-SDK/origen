@@ -126,17 +126,53 @@ module Origen
         @updating_bound_bits
       end
 
-      def inspect
+      def inspect(options = {})
+        # This fancy_output option is passed in via option hash
+        #  Even better, the output could auto-detect 7-bit vs 8-bit terminal output and adjust the parameter, but that's for another day
+        fancy_output = options[:fancy_output].nil? ? true : options[:fancy_output]
+        if fancy_output
+          horiz_double_line = '═'
+          horiz_double_tee_down = '╤'
+          horiz_double_tee_up = '╧'
+          corner_double_up_left = '╒'
+          corner_double_up_right = '╕'
+          horiz_single_line = '─'
+          horiz_single_tee_down = '┬'
+          horiz_single_tee_up = '┴'
+          horiz_single_cross = '┼'
+          horiz_double_cross = '╪'
+          corner_single_down_left = '└'
+          corner_single_down_right = '┘'
+          vert_single_line = '│'
+          vert_single_tee_left = '┤'
+          vert_single_tee_right = '├'
+        else
+          horiz_double_line = '='
+          horiz_double_tee_down = '='
+          horiz_double_tee_up = '='
+          corner_double_up_left = '.'
+          corner_double_up_right = '.'
+          horiz_single_line = '-'
+          horiz_single_tee_down = '-'
+          horiz_single_tee_up = '-'
+          horiz_single_cross = '+'
+          horiz_double_cross = '='
+          corner_single_down_left = '`'
+          corner_single_down_right = '\''
+          vert_single_line = '|'
+          vert_single_tee_left = '<'
+          vert_single_tee_right = '>'
+        end
         bit_width = 13
         desc = ["\n0x%X - :#{name}" % address]
         r = size % 8
         if r == 0 || (size > 8 && bit_order == :msb0)
-          desc << ('   ' + ('=' * (bit_width + 1) * 8)).chop
+          desc << ('  ' + corner_double_up_left + ((horiz_double_line * bit_width + horiz_double_tee_down) * 8)).chop + corner_double_up_right
         else
           if bit_order == :lsb0
-            desc << ('   ' + (' ' * (bit_width + 1) * (8 - r)) + ('=' * (bit_width + 1) * r)).chop
+            desc << ('  ' + (' ' * (bit_width + 1) * (8 - r)) + corner_double_up_left + ((horiz_double_line * bit_width + horiz_double_tee_down) * r)).chop + corner_double_up_right
           else
-            desc << ('   ' + ('=' * (bit_width + 1) * r)).chop
+            desc << ('  ' + corner_double_up_left + ((horiz_double_line * bit_width + horiz_double_tee_down) * r)).chop + corner_double_up_right
           end
         end
 
@@ -164,16 +200,16 @@ module Origen
             end
             if bit_num > size - 1
               if bit_order == :msb0 && bit_num == size
-                line += '|'
+                line += vert_single_line
                 line_complete = true
               else
-                line << ' ' + ''.center(bit_width)
+                line << ' ' + ''.center(bit_width) unless line_complete
               end
             else
-              line << '|' + "#{bit_num}".center(bit_width)
+              line << vert_single_line + "#{bit_num}".center(bit_width)
             end
           end
-          line += '|' unless line_complete
+          line += vert_single_line unless line_complete
           desc << line
 
           # BIT NAME ROW
@@ -213,15 +249,15 @@ module Origen
                   end
                   width = (bit_width * bit_span) + bit_span - 1
                   if bit_name.length > width
-                    line << '|' + "#{bit_name[0..width - 2]}*"
+                    line << vert_single_line + "#{bit_name[0..width - 2]}*"
                   else
-                    line << '|' + bit_name.center(width)
+                    line << vert_single_line + bit_name.center(width)
                   end
 
                 else
                   bit.shift_out_left do |bit|
                     if _index_in_range?(bit.position, max_bit, min_bit)
-                      line << '|' + ''.center(bit_width)
+                      line << vert_single_line + ''.center(bit_width)
                     end
                   end
                 end
@@ -237,12 +273,12 @@ module Origen
                 else
                   txt = ''
                 end
-                line << '|' + txt.center(bit_width)
+                line << vert_single_line + txt.center(bit_width)
               end
             end
             first_done = true
           end
-          line += '|'
+          line += vert_single_line
           desc << line
 
           # BIT STATE ROW
@@ -272,11 +308,11 @@ module Origen
                   value += _state_desc(bit)
                   bit_span = _num_bits_in_range(bit, max_bit, min_bit)
                   width = bit_width * bit_span
-                  line << '|' + value.center(width + bit_span - 1)
+                  line << vert_single_line + value.center(width + bit_span - 1)
                 else
                   bit.shift_out_left do |bit|
                     if _index_in_range?(bit.position, max_bit, min_bit)
-                      line << '|' + ''.center(bit_width)
+                      line << vert_single_line + ''.center(bit_width)
                     end
                   end
                 end
@@ -292,31 +328,37 @@ module Origen
                     end
                   end
                   value = "#{val}" + _state_desc(bit)
-                  line << '|' + value.center(bit_width)
+                  line << vert_single_line + value.center(bit_width)
                 else
-                  line << '|' + ''.center(bit_width)
+                  line << vert_single_line + ''.center(bit_width)
                 end
               end
             end
             first_done = true
           end
-          line += '|'
+          line += vert_single_line
           desc << line
 
           if size >= 8
             r = size % 8
             if byte_index == 0 && r != 0 && bit_order == :lsb0
-              desc << ('   ' + ('=' * (bit_width + 1) * (8 - r)).chop + ' ' + ('-' * (bit_width + 1) * r)).chop
+              desc << ('  ' + corner_double_up_left + ((horiz_double_line * bit_width + horiz_double_tee_down) * (8 - r)).chop + horiz_double_cross + (horiz_single_line * (bit_width + 1) * r)).chop + vert_single_tee_left
             elsif (byte_index == num_bytes - 1) && r != 0 && bit_order == :msb0
-              desc << ('   ' + ('-' * (bit_width + 1) * r)).chop
+              desc << ('  ' + corner_single_down_left + ((horiz_single_line * bit_width + horiz_single_tee_up) * r)).chop + corner_single_down_right
+            elsif (byte_index == num_bytes - 2) && r != 0 && bit_order == :msb0
+              desc << '  ' + vert_single_tee_right + ((horiz_single_line * bit_width + horiz_single_cross) * r) + ((horiz_single_line * bit_width + horiz_single_tee_up) * (8 - r)).chop + corner_single_down_right
             else
-              desc << ('   ' + ('-' * (bit_width + 1) * 8)).chop
+              if byte_index == num_bytes - 1
+                desc << ('  ' + corner_single_down_left + ((horiz_single_line * bit_width + horiz_single_tee_up) * 8)).chop + corner_single_down_right
+              else
+                desc << ('  ' + vert_single_tee_right + ((horiz_single_line * bit_width + horiz_single_cross) * 8)).chop + vert_single_tee_left
+              end
             end
           else
             if bit_order == :lsb0
-              desc << ('   ' + (' ' * (bit_width + 1) * (8 - size)) + ('-' * (bit_width + 1) * size)).chop
+              desc << ('  ' + (' ' * (bit_width + 1) * (8 - size)) + corner_single_down_left + ((horiz_single_line * bit_width + horiz_single_tee_up) * size)).chop + corner_single_down_right
             else
-              desc << ('   ' + ('-' * (bit_width + 1) * size)).chop
+              desc << ('  ' + corner_single_down_left + ((horiz_single_line * bit_width + horiz_single_tee_up) * size)).chop + corner_single_down_right
             end
           end
         end
@@ -435,7 +477,7 @@ module Origen
           if line =~ /^\s*#(.*)/
             desc << Regexp.last_match[1].strip
           #              http://rubular.com/r/D8lg2P5kK1                     http://rubular.com/r/XP4ydPV8Fd
-          elsif line =~ /^\s*reg\(?\s*[:"'](\w+)["']?\s*,.*\sdo/ || line =~ /^\s*add_reg\(?\s*[:"'](\w+)["']?\s*,.*/
+          elsif line =~ /^\s*reg\(?\s*[:"'](\w+)["']?\s*,.*\sdo/ || line =~ /^\s*.*add_reg\(?\s*[:"'](\w+)["']?\s*,.*/
             @current_reg_name = Regexp.last_match[1].to_sym
             description_lookup[define_file] ||= {}
             description_lookup[define_file][@current_reg_name] ||= {}
