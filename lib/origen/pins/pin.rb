@@ -978,6 +978,18 @@ module Origen
         end
       end
 
+      def method_missing(m, *args, &block)
+        if meta.include? m
+          meta[m]
+        else
+          super
+        end
+      end
+
+      def respond_to_missing?(m, include_private = false)
+        meta[m] || super
+      end
+
       private
 
       def primary_group=(group)
