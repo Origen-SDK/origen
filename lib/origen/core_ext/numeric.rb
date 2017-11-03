@@ -57,7 +57,7 @@ class Numeric
     end
   end
 
-  %w(Hz hz Ts ts bps sps ohm Ohm a A v V s S).each do |m|
+  %w(Hz hz Ts ts bps sps ohm Ohm a A v V s S f F).each do |m|
     define_method "as_#{m}" do
       as_units(m)
     end
@@ -134,31 +134,31 @@ class Numeric
     end
   end
 
-  %w(v V s S a A Hz Ts Ohm ohm O o).each do |m|
+  %w(v V s S a A Hz Ts Ohm ohm O o f F).each do |m|
     define_method m do
       self
     end
   end
 
-  %w(mv mV ms mS ma mA mo mO mOhm mohm).each do |m|
+  %w(mv mV ms mS ma mA mo mO mOhm mohm mf mF).each do |m|
     define_method m do
       self / 1_000.0
     end
   end
 
-  %w(uv uV us uS ua uA).each do |m|
+  %w(uv uV us uS ua uA uf uF).each do |m|
     define_method m do
       self / 1_000_000.0
     end
   end
 
-  %w(nv nV ns nS na nA).each do |m|
+  %w(nv nV ns nS na nA nf nF).each do |m|
     define_method m do
       self / 1_000_000_000.0
     end
   end
 
-  %w(pv pV ps pS pa pA).each do |m|
+  %w(pv pV ps pS pa pA pf pF).each do |m|
     define_method m do
       self / 1_000_000_000_000.0
     end
