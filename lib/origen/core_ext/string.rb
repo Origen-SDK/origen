@@ -155,6 +155,16 @@ class String
   end
   alias_method :is_lowercase?, :is_downcase?
 
+  # Convert Excel/Spreadsheet column to integer
+  def excel_col_index
+    str = split('').map(&:upcase).join('')
+    offset = 'A'.ord - 1
+    str.chars.inject(0) { |x, c| x * 26 + c.ord - offset }
+  end
+  alias_method :xls_col_index, :excel_col_index
+  alias_method :xlsx_col_index, :excel_col_index
+  alias_method :spreadsheet_col_index, :excel_col_index
+
   private
 
   # Convert a verilog number string to an integer
