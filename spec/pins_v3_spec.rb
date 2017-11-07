@@ -992,4 +992,10 @@ describe "Origen Pin API v3" do
       $dut.pins(:all2).size.should == 28
     end
   end
+  
+  it "pin meta data can be found via method meissing and respond_to?" do
+    $dut.add_pin :pinx, meta: { a: 2 }
+    $dut.pins(:pinx).meta[:a].should == $dut.pins(:pinx).a
+    $dut.pins(:pinx).respond_to?(:a).should == true
+  end
 end

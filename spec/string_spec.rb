@@ -107,4 +107,13 @@ describe String do
     'PPEKit'.underscore.should == 'ppekit'
     'PPEKit'.underscore.camelcase.should == 'PPEKit'
   end
+  
+  specify 'can be converted to an Excel/Spreadsheet index' do
+    'A'.excel_col_index.should == 1
+    'AA'.excel_col_index.should == 27
+    'Aa'.excel_col_index.should == 27
+    'AA'.spreadsheet_col_index.should == 27
+    'AA'.xls_col_index.should == 27
+    'AA'.xlsx_col_index.should == 27
+  end
 end
