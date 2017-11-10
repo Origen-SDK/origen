@@ -3,7 +3,7 @@ module Origen
   module PowerDomains
     class PowerDomain
       include Origen::Specs
-      attr_accessor :id, :description, :unit_voltage_range, :nominal_voltage, :setpoint, :maximum_voltage_rating
+      attr_accessor :id, :description, :unit_voltage_range, :nominal_voltage, :setpoint, :maximum_voltage_rating, :min, :max
 
       # Generic Power Domain Name
       # This is the power supply that can be blocked off to multiple power supplies
@@ -38,10 +38,23 @@ module Origen
         (block.arity < 1 ? (instance_eval(&block)) : block.call(self)) if block_given?
         @unit_voltage_range = :fixed if @unit_voltage_range.nil?
         fail unless attrs_ok?
+        create_dut_spec unless @min.nil? || @max.nil?
       end
 
       def name
         @id
+      end
+
+      # Create DUT specs for the power supply
+      def create_dut_spec
+        if Origen.top_level.specs.nil?
+          set_specs
+        elsif Origen.top_level.specs.include? name
+          Origen.log.error("Cannot create power domain spec '#{name}', it already exists!")
+          fail
+        else
+          set_specs
+        end
       end
 
       # Maximum Voltage Rating
@@ -175,6 +188,15 @@ module Origen
       end
 
       private
+
+      def set_specs
+        Origen.top_level.spec name, :dc do |s|
+          s.description = "#{name.to_s.upcase} Power Domain"
+          s.min = min
+          s.typ = nominal_voltage
+          s.max = max
+        end
+      end
 
       def attrs_ok?
         return_value = true
