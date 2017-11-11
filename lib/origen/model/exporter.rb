@@ -25,7 +25,7 @@ module Origen
             indent += 2
             # Write out packages if any
             unless Origen.top_level.packages.empty?
-              spaces = '' * indent
+              spaces = ' ' * indent
               Origen.top_level.packages.each { |p| f.puts "#{spaces}model.add_package :#{p}\n" }
             end
             if options[:include_pins]
