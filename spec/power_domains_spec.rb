@@ -29,6 +29,8 @@ class SoC_With_Domains
       domain.nominal_voltage = 1.0.V
       domain.unit_voltage_range = 0.7.V..1.1.V
       domain.maximum_voltage_rating = 1.50.V
+      domain.min = 0.9.V
+      domain.max = 1.1.V
       domain.display_names(Nokogiri::XML::DocumentFragment.parse 'OV<sub>DD</sub>')
     end
     add_power_domain :vdda do |domain|
@@ -112,6 +114,15 @@ describe "Power domains" do
     dut.power_domains(:vccsoc).display_name[:default].to_xml.should == 'VDD'
     dut.power_domains(:vccsoc).display_name[:input].to_xml.should == 'VDD'
     dut.power_domains(:vccsoc).display_name[:output].to_xml.should == 'VDD'    
+  end
+  
+  it 'Properly creates the top level DUT spec for the power supply' do
+    dut.power_domains(:vdd).min.should == 0.9.V
+    dut.power_domains(:vdd).nominal_voltage.should == 1.0.V
+    dut.power_domains(:vdd).max.should == 1.1.V
+    dut.specs(:vdd).min.value.should == 0.9.V
+    dut.specs(:vdd).typ.value.should == 1.0.V
+    dut.specs(:vdd).max.value.should == 1.1.V
   end
 
 end
