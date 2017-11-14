@@ -63,7 +63,12 @@ module Origen
     #
     # This allows different pin configurations to be specified by package.
     def current_package=(val)
-      @current_package_id = val.is_a?(ChipPackage) ? val.id : val
+      @current_package_id = case val
+      when ChipPackage
+        val.id
+      else
+        packages.include?(val) ? val : nil
+      end
     end
     alias_method :package=, :current_package=
 
