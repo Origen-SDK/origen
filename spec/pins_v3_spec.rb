@@ -26,6 +26,19 @@ class PinsV3Sub
 
 end
 
+class IncorrectPackageDut
+  include Origen::TopLevel
+  
+  def initialize
+    add_pin :pinx
+  end
+  
+  def add_packages
+    add_package :pcs
+  end
+  
+end
+
 describe "Origen Pin API v3" do
 
   before :each do
@@ -997,5 +1010,17 @@ describe "Origen Pin API v3" do
     $dut.add_pin :pinx, meta: { a: 2 }
     $dut.pins(:pinx).meta[:a].should == $dut.pins(:pinx).a
     $dut.pins(:pinx).respond_to?(:a).should == true
+  end
+  
+  it 'does not allow user to set the current DUT package unless it is to a known package' do
+    Origen.app.unload_target!
+    @dut = IncorrectPackageDut.new
+    @dut.packages.should == []
+    @dut.package = :bga # This used to be allowed, setting the package to an unknown package ID
+    @dut.has_pin?(:pinx).should == true # and would then raise an exception when trying to access any pin
+    @dut.add_packages
+    @dut.package = :pcs
+    @dut.package.id.should == :pcs
+    @dut.has_pin?(:pinx).should == false
   end
 end

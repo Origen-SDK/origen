@@ -24,8 +24,11 @@ describe "Model import and export" do
     include Origen::TopLevel
 
     def initialize(options = {})
+      add_package :bga
+      add_package :pcs
       add_pin :pinx
       add_pin :piny, reset: :drive_hi, direction: :output, meta: { a: "1", b: 2 }
+      add_pin :tdo, packages: { bga: { location: 'BF32', dib_assignment: [10104] }, pcs: { location: 'BF30', dib_assignment: [31808] } }
       add_pins :porta, size: 32
       add_pins :portb, size: 16, endian: :little
 
@@ -117,6 +120,19 @@ describe "Model import and export" do
     dut.power_pin(:vdd1).voltage.should == 3
     dut.power_pin(:vdd1).current_limit.should == 50.mA
     dut.power_pin(:vdd1).meta[:min_voltage].should == 1.5
+  end
+  
+  it 'handles pins package metadata' do
+    load_import_model
+    dut.has_pin?(:tdo).should == true
+    dut.pin(:tdo).packages.keys.should == [:bga, :pcs]
+    dut.packages.should == [:bga, :pcs]
+    dut.package = :bga
+    dut.pin(:tdo).location.should == 'BF32'
+    dut.pin(:tdo).dib_assignment.should == [10104]
+    dut.package = :pcs
+    dut.pin(:tdo).location.should == 'BF30'
+    dut.pin(:tdo).dib_assignment.should == [31808]
   end
 
   it "handles sub-blocks" do
