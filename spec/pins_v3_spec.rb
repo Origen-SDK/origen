@@ -1012,6 +1012,20 @@ describe "Origen Pin API v3" do
     $dut.pins(:pinx).respond_to?(:a).should == true
   end
   
+  it 'add DIB metadata based on package scope' do
+    $dut.add_package :pcs
+    $dut.add_package :bga
+    $dut.add_pin :tdo, packages: { bga: { location: 'BF32', dib_assignment: [10104] }, pcs: { location: 'BF30', dib_assignment: [31808] } }
+    $dut.pins(:tdo).add_dib_meta :pcs, { :x=>2000, :y=>-15600, :net_name=>"R92/DUT_TDO_TC", :connection=>"PE118.16", :slot=>"PE118", :spring_pin=>"16" }
+    $dut.pins(:tdo).add_dib_meta :bga, { :x=>2000.0, :y=>-15600.0, :net_name=>"TDO", :connection=>"PE117.08", :slot=>"PE117", :spring_pin=>"08" }
+    $dut.package = nil
+    $dut.pins(:tdo).dib_meta.should == {}
+    $dut.package = :bga
+    $dut.pins(:tdo).dib_meta.should == { :x=>2000.0, :y=>-15600.0, :net_name=>"TDO", :connection=>"PE117.08", :slot=>"PE117", :spring_pin=>"08" }
+    $dut.package = :pcs
+    $dut.pins(:tdo).dib_meta.should == { :x=>2000, :y=>-15600, :net_name=>"R92/DUT_TDO_TC", :connection=>"PE118.16", :slot=>"PE118", :spring_pin=>"16" }
+  end
+  
   it 'does not allow user to set the current DUT package unless it is to a known package' do
     Origen.app.unload_target!
     @dut = IncorrectPackageDut.new

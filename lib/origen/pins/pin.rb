@@ -9,7 +9,7 @@ module Origen
 
       # Any attributes listed here will be looked up for the current package context
       # before falling back to a default
-      PACKAGE_SCOPED_ATTRIBUTES = [:location, :dib_assignment]
+      PACKAGE_SCOPED_ATTRIBUTES = [:location, :dib_assignment, :dib_meta]
 
       # Pin Types
       TYPES = [:analog, :digital]
@@ -74,6 +74,7 @@ module Origen
         @value = 0
         @clock = nil
         @meta = options[:meta] || {}
+        @dib_meta = options[:dib_meta] || {}
         on_init(owner, options)
         # Assign the initial state from the method so that any inversion is picked up...
         send(@reset)
@@ -420,6 +421,18 @@ module Origen
       end
       alias_method :add_dib_info, :add_dib_assignment
       alias_method :add_channel, :add_dib_assignment
+
+      def add_dib_meta(pkg, options)
+        unless Origen.top_level.packages.include? pkg
+          Origen.log.error("Cannot add DIB metadata for package '#{pkg}', that package has not been added yet!")
+          fail
+        end
+        options.each do |attr, attr_value|
+          packages[pkg][:dib_meta] ||= {}
+          packages[pkg][:dib_meta][attr] = attr_value
+          add_alias attr_value.to_s.symbolize, package: pkg, mode: :all, configuration: :all
+        end
+      end
 
       # Returns the number of test sites enabled for the pin
       def sites
