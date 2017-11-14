@@ -23,10 +23,12 @@ module Origen
           export_wrap_with_namespaces(f, options) do |indent|
             f.puts((' ' * indent) + 'def self.extended(model)')
             indent += 2
-            # Write out packages if any
-            unless Origen.top_level.packages.empty?
-              spaces = ' ' * indent
-              Origen.top_level.packages.each { |p| f.puts "#{spaces}model.add_package :#{p}\n" }
+            if top_level?
+              # Write out packages if any
+              unless Origen.top_level.packages.empty?
+                spaces = ' ' * indent
+                Origen.top_level.packages.each { |p| f.puts "#{spaces}model.add_package :#{p}\n" }
+              end
             end
             if options[:include_pins]
               if top_level?

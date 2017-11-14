@@ -3,8 +3,11 @@
 module Origen
   module Export1
     def self.extended(model)
+      model.add_package :bga
+      model.add_package :pcs
       model.add_pin :pinx
       model.add_pin :piny, reset: :drive_hi, direction: :output, meta: { a: '1', b: 2 }
+      model.add_pin :tdo, packages: { bga: { location: 'BF32', dib_assignment: [10104] }, pcs: { location: 'BF30', dib_assignment: [31808] } }
       model.add_pin :porta31
       model.add_pin :porta30
       model.add_pin :porta29
