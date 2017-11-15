@@ -195,6 +195,7 @@ module Origen
           s.min = min
           s.typ = nominal_voltage
           s.max = max
+          s.unit = 'V'
         end
       end
 
