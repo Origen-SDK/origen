@@ -34,4 +34,15 @@ describe "Origen.site_config" do
       Origen.site_config.gem_manage_bundler.should == true
     end
   end
+  
+  it "allows user overrides" do
+    with_env_variable("ORIGEN_USER_GEM_DIR", "C:\test\path") do
+      ENV["ORIGEN_USER_GEM_DIR"].should == "C:\test\path"
+      Origen.site_config.gem_install_dir.should == "C:\test\path"
+    end
+    with_env_variable("ORIGEN_USER_INSTALL_DIR", "~/other/path") do
+      ENV["ORIGEN_USER_INSTALL_DIR"].should == "~/other/path"
+      Origen.site_config.user_install_dir.should == "~/other/path"
+    end
+  end
 end
