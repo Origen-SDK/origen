@@ -56,7 +56,7 @@ module Origen
         elsif FALSE_VALUES.include?(val)
           return false
         end
-        config
+        val
       else
         config = configs.find { |c| c.key?(val) }
         config ? config[val] : nil
