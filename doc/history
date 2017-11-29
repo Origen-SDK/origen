@@ -33,18 +33,12 @@
 * Added in String.is\_upcase? and String.is\_lowercase? (PR 158, Brian Caquelin)
 * Updated power domains model guide and fixed ERB file name (PR 160, Brian Caquelin)
 * Added in Parameter inheritance between objects and added optional maximum\_voltage\_rating
-attribute to Origen::PowerDomain
-[Documentation](http://origen-sdk.org/origen/guides/models/parameters/#Local\_Inheritance)(
-PR 161, Brian Caquelin)
-*
-[RFC3](https://github.com/Origen-SDK/rfcs/blob/master/text/0003-model-export-and-import.md
-) - Model import and export (PR 162, Stephen Mcginty)
+attribute to Origen::PowerDomain (PR 161, Brian Caquelin) - [Documentation](http://origen-sdk.org/origen/guides/models/parameters/#Local\_Inheritance)
+* Model import and export (PR 162, Stephen Mcginty) - [RFC3](https://github.com/Origen-SDK/rfcs/blob/master/text/0003-model-export-and-import.md)
 * Fancy register output (PR 163, Adam Kohler)
 * Added a few more numeric unit methods (capacitance) (PR 166, Brian Caquelin)
-* Added in String excel\_col\_index method and added pins method\_missing to hit self.meta
-(PR 167, Brian Caquelin)
-* Added in min, max attributes for Origen::PowerDomains::PowerDomain (PR 171, Brian
-Caquelin)
+* Added in String excel\_col\_index method and added pins method\_missing to hit self.meta(PR 167, Brian Caquelin)
+* Added in min, max attributes for Origen::PowerDomains::PowerDomain (PR 171, Brian Caquelin)
 
 ~~~ruby
     add\_power\_domain :vdd do |domain|
@@ -59,11 +53,8 @@ Caquelin)
 ~~~
 
 * Enhanced model exporter for pins to account for packages (PR 172, Brian Caquelin)
-* Added in package scoped DIB metadata to Origen::Pins::Pin
-[Documentation](http://origen-sdk.org/origen/guides/models/pins/#Package\_Attributes) (PR
-174, Brian Caquelin)
-* Added Symbol.smatch(/blah blah blah/) method as shortcut for Symbol.to\_s.match (PR 176,
-Brian Caquelin)
+* Added in package scoped DIB metadata to Origen::Pins::Pin (PR 174, Brian Caquelin) - [Documentation](http://origen-sdk.org/origen/guides/models/pins/#Package\_Attributes) 
+* Added Symbol.smatch(/blah blah blah/) method as shortcut for Symbol.to\_s.match (PR 176, Brian Caquelin)
 * Bug fix for site\_config environment variable (PR 177, Brian Caquelin)
 
 <a class="anchor release_tag" name="v0_27_0"></a>
