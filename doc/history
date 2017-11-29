@@ -1,3 +1,71 @@
+<a class="anchor release_tag" name="v0_28_0"></a>
+<h1><a href="#v0_28_0">Tag: v0.28.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Lajaunie Ronald-B01784 on 29-Nov-2017 13:55PM
+
+
+* Add block write!/read! ability to allow for better coding style for bit manipulations
+(PR 157, Chris Nappi)
+
+~~~ruby
+  add\_reg :blregtest,   0x00,  4,  :y       => { :pos => 0},
+                                   :x       => { :pos => 1, :bits => 2 },
+                                   :w       => { :pos => 3 }
+
+  reg(:blregtest).write! do |r|
+    r.bits(:y).write(1)
+    r.bits(:x).write(0x2)
+    r.bits(:w).write(1)
+  end
+
+  reg(:blregtest).write(0)
+  reg(:blregtest).x.write! do |b|
+    b[1].write(1)
+  end
+
+  reg(:blregtest).read! do |r|
+    r.bits(:y).read
+  end
+~~~
+
+* Added in String.is\_upcase? and String.is\_lowercase? (PR 158, Brian Caquelin)
+* Updated power domains model guide and fixed ERB file name (PR 160, Brian Caquelin)
+* Added in Parameter inheritance between objects and added optional maximum\_voltage\_rating
+attribute to Origen::PowerDomain
+[Documentation](http://origen-sdk.org/origen/guides/models/parameters/#Local\_Inheritance)(
+PR 161, Brian Caquelin)
+*
+[RFC3](https://github.com/Origen-SDK/rfcs/blob/master/text/0003-model-export-and-import.md
+) - Model import and export (PR 162, Stephen Mcginty)
+* Fancy register output (PR 163, Adam Kohler)
+* Added a few more numeric unit methods (capacitance) (PR 166, Brian Caquelin)
+* Added in String excel\_col\_index method and added pins method\_missing to hit self.meta
+(PR 167, Brian Caquelin)
+* Added in min, max attributes for Origen::PowerDomains::PowerDomain (PR 171, Brian
+Caquelin)
+
+~~~ruby
+    add\_power\_domain :vdd do |domain|
+      domain.description = 'CPU'
+      domain.nominal\_voltage = 1.0.V
+      domain.unit\_voltage\_range = 0.7.V..1.1.V
+      domain.maximum\_voltage\_rating = 1.50.V
+      domain.min = 0.9.V
+      domain.max = 1.1.V
+      domain.display\_names(Nokogiri::XML::DocumentFragment.parse 'OV<sub>DD</sub>')
+    end
+~~~
+
+* Enhanced model exporter for pins to account for packages (PR 172, Brian Caquelin)
+* Added in package scoped DIB metadata to Origen::Pins::Pin
+[Documentation](http://origen-sdk.org/origen/guides/models/pins/#Package\_Attributes) (PR
+174, Brian Caquelin)
+* Added Symbol.smatch(/blah blah blah/) method as shortcut for Symbol.to\_s.match (PR 176,
+Brian Caquelin)
+* Bug fix for site\_config environment variable (PR 177, Brian Caquelin)
+
 <a class="anchor release_tag" name="v0_27_0"></a>
 <h1><a href="#v0_27_0">Tag: v0.27.0</a></h1>
 
