@@ -197,8 +197,10 @@ module Origen
 
       # Returns the ERB buffer name for the given file, something like "@my_file_name"
       def buffer_name_for(file)
-        # Not sure why the final gsub is needed but seems to fail to parse correctly otherwise.
-        @current_buffer = "@_#{file.basename('.*').basename('.*').to_s.gsub('-', '_')}"
+        expected_filename = file.basename.to_s.chomp('.erb')
+        expected_filename.gsub!('-', '_') if expected_filename.match(/-/)
+        expected_filename.gsub!('.', '_') if expected_filename.match(/./)
+        @current_buffer = '@_' + expected_filename
       end
 
       def merge_file(file, _options = {})
