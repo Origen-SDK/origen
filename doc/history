@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_28_1"></a>
+<h1><a href="#v0_28_1">Tag: v0.28.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 01-Dec-2017 09:19AM
+
+
+Reinstated Origen.site\_config.gem\_install\_dir ($ORIGEN\_GEM\_INSTALL\_DIR) as a means of
+changing the location of where a user's gems are installed.
+
 <a class="anchor release_tag" name="v0_28_0"></a>
 <h1><a href="#v0_28_0">Tag: v0.28.0</a></h1>
 
