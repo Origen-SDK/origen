@@ -11,20 +11,12 @@ module Origen
     # Gets the gem_intall_dir. This is either site_config.home_dir/gems or the site configs gem_install_dir
     def gem_install_dir
       return "#{tool_repo_install_dir}/gems" if gems_use_tool_repo && tool_repo_install_dir && !user_install_enable
-      dir = find_val('user_gem_dir')
-      unless dir
-        dir = "#{find_val('home_dir')}/gems"
-      end
-      dir
+      find_val('user_gem_dir') || find_val('gem_install_dir') || "#{find_val('home_dir')}/gems"
     end
 
     # Gets the user_install_dir. Like gem_install_dir, this default to somewhere home_dir, unless overridden
     def user_install_dir
-      dir = find_val('user_install_dir')
-      unless dir
-        dir = find_val('home_dir')
-      end
-      dir
+      find_val('user_install_dir') || find_val('home_dir')
     end
 
     def method_missing(method, *args, &block)
