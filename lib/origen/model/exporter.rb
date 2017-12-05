@@ -73,8 +73,11 @@ module Origen
       end
 
       def import(name, options = {})
-        path = export_path(name)
-        require path
+        options = {
+          file_path: nil
+        }.update(options)
+        file = Pathname.new(options[:file_path] ? File.join(options[:file_path], name) : export_path(name))
+        require file.to_s
         extend "#{Origen.app.namespace.underscore.camelcase}::#{name.to_s.camelcase}".constantize
       end
 
