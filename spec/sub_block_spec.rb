@@ -359,11 +359,26 @@ module SubBlocksSpec
           end
         end
 
+        class Sub1Controller
+          include Origen::Controller
+          attr_reader :controller_on_create_called
+
+          def wrapped?
+            true
+          end
+
+          def on_create
+            @controller_on_create_called = true
+          end
+        end
+
         Origen.app.unload_target!
         Origen.target.temporary = -> { TopLevel.new }
         Origen.load_target
 
         dut.sub1.on_create_called.should == true
+        dut.sub1.wrapped?.should == true
+        dut.sub1.controller_on_create_called.should == true
       end
     end
   end
