@@ -340,6 +340,31 @@ module SubBlocksSpec
         $dut.sub1.x.should == 5
         $dut.sub1.y.should == 10
       end
+
+      it 'on_create callbacks in sub_block models get called' do
+        class TopLevel
+          include Origen::TopLevel
+
+          def initialize
+            sub_block :sub1, class_name: "Sub1"
+          end
+        end
+
+        class Sub1
+          include Origen::Model
+          attr_reader :on_create_called
+
+          def on_create
+            on_create_called = true
+          end
+        end
+
+        Origen.app.unload_target!
+        Origen.target.temporary = -> { TopLevel.new }
+        Origen.load_target
+
+        dut.sub1.on_create_called.should == true
+      end
     end
   end
 end
