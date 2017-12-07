@@ -46,6 +46,18 @@ registered when the application creates a new instance of <code>CallbackHandlers
 If an instance is never created then the callbacks implemented in that class will never be
 called.
 
+This is particularly true of any objects that are defined [as sub-blocks](<%= path "guides/models/defining/#Adding_Sub_Blocks" %>)
+since the sub-block is not actually instantiated until the point where it is first referenced
+by an application.
+
+<div class="alert alert-warning">
+  <strong>Note!</strong> One exception to the above rule is the <code>on_create</code> callback.
+  Since this is commonly used as a delayed version of initialize, Origen will invoke that method
+  at the point when the listener object is instantiated if the <code>on_create</code> callbacks
+  have already been called.
+</div>
+
+
 #### Persistent Listeners
 
 By default the pool of listeners is cleared out before a target load and they will be replaced

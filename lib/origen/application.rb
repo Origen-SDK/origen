@@ -755,6 +755,7 @@ END
       options = {
         force_debug: false
       }.merge(options)
+      @on_create_called = false
       if options[:reload]
         @target_load_count = 0
       else
@@ -785,6 +786,7 @@ END
         @target_instantiated = true
         Origen.mode = :debug if options[:force_debug]
         listeners_for(:on_create).each(&:on_create)
+        @on_create_called = true
         # Keep this within the load_event to ensure any objects that are further instantiated objects
         # will be associated with (and cleared out upon reload of) the current target
         listeners_for(:on_load_target).each(&:on_load_target)
@@ -792,6 +794,11 @@ END
       listeners_for(:after_load_target).each(&:after_load_target)
       Origen.app.plugins.validate_production_status
       # @target_instantiated = true
+    end
+
+    # Returns true if the on_create callback has already been called during a target load
+    def on_create_called?
+      !!@on_create_called
     end
 
     # Not a clean unload, but allows objects to be re-instantiated for testing
