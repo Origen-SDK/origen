@@ -355,7 +355,7 @@ module SubBlocksSpec
           attr_reader :on_create_called
 
           def on_create
-            on_create_called = true
+            @on_create_called = true
           end
         end
 
