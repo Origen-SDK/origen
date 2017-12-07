@@ -16,7 +16,7 @@ PATH
       log4r (~> 1.1.10, ~> 1.1)
       nanoc (~> 3.7)
       net-ldap (~> 0.13)
-      nokogiri (= 1.7.2)
+      nokogiri (>= 1.7.2)
       pry (~> 0.10)
       rake (~> 10)
       rspec (~> 3)
@@ -176,4 +176,4 @@ DEPENDENCIES
   ripper-tags
 
 BUNDLED WITH
-   1.15.4
+   1.16.0
