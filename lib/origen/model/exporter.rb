@@ -80,7 +80,8 @@ module Origen
         }.update(options)
         file = Pathname.new(options[:file_path] ? File.join(options[:file_path], name) : export_path(name, options))
         require file.to_s
-        extend "#{Origen.app.namespace.underscore.camelcase}::#{name.to_s.camelcase}".constantize
+        module_name = options[:exclude_app_in_namespace] ? "#{name.to_s.camelcase}".constantize : "#{Origen.app.namespace.underscore.camelcase}::#{name.to_s.camelcase}".constantize
+        extend module_name
       end
 
       private
