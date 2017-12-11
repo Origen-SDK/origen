@@ -78,7 +78,6 @@ module Origen
         }.update(options)
         file = Pathname.new(options[:file_path] ? File.join(options[:file_path], name) : export_path(name))
         require file.to_s
-        binding.pry
         extend "#{Origen.app.namespace.underscore.camelcase}::#{name.to_s.camelcase}".constantize
       end
 
