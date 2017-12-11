@@ -336,7 +336,8 @@ module Origen
         file = attributes.delete(:file)
         block = owner.send(:instantiate_sub_block, name, klass, attributes)
         if file
-          require File.join(owner.send(:export_dir), file)
+          require_file_name = Origen.app.config.model_import_dir ? File.join(Origen.app.config.model_import_dir, file) : File.join(owner.send(:export_dir), file)
+          require require_file_name
           block.extend owner.send(:export_module_names_from_path, file).join('::').constantize
         end
         block
