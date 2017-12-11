@@ -31,20 +31,26 @@ module Origen
         # Somehow using the old import system and version file format we can get in here when
         # loading the version, this can be removed in future when the imports API is retired
         unless caller[0] =~ /version.rb.*/
-          root = Pathname.new(caller[0].sub(/(\\|\/)?config(\\|\/)application.rb.*/, '')).realpath
-          app = base.instance
-          app.root = root.to_s
-          if Origen.plugins_loaded? && !Origen.loading_top_level?
-            # This situation of a plugin being loaded after the top-level app could occur if the app
-            # doesn't require the plugin until later, in that case there is nothing the plugin owner
-            # can do and we just need to accept that this can happen.
-            # Origen.log.warning "The #{app.name} plugin is using a non-standard loading mechanism, upgrade to a newer version of it to get rid of this warning (please report a bug to its owner if this warning persists)"
+          if base.to_s == 'OrigenGlobalApplication'
+            app = base.instance
+            app.root = Origen.root
             Origen.register_application(app)
-            # Origen.app.plugins << app
           else
-            Origen.register_application(app)
+            root = Pathname.new(caller[0].sub(/(\\|\/)?config(\\|\/)application.rb.*/, '')).realpath
+            app = base.instance
+            app.root = root.to_s
+            if Origen.plugins_loaded? && !Origen.loading_top_level?
+              # This situation of a plugin being loaded after the top-level app could occur if the app
+              # doesn't require the plugin until later, in that case there is nothing the plugin owner
+              # can do and we just need to accept that this can happen.
+              # Origen.log.warning "The #{app.name} plugin is using a non-standard loading mechanism, upgrade to a newer version of it to get rid of this warning (please report a bug to its owner if this warning persists)"
+              Origen.register_application(app)
+              # Origen.app.plugins << app
+            else
+              Origen.register_application(app)
+            end
+            app.add_lib_to_load_path!
           end
-          app.add_lib_to_load_path!
         end
       end
 
@@ -372,15 +378,19 @@ END
     def version(options = {})
       @version = nil if options[:refresh]
       return @version if @version
-      load File.join(root, 'config', 'version.rb')
-      if defined? eval(namespace)::VERSION
-        @version = Origen::VersionString.new(eval(namespace)::VERSION)
+      if Origen.running_globally?
+        @version = Origen.version
       else
-        # The eval of the class is required here as somehow when plugins are imported under the old
-        # imports system and with the old version file format we can end up with two copies of the
-        # same class constant. Don't understand it, but it is fixed with the move to gems and the
-        # namespace-based version file format.
-        @version = Origen::VersionString.new(eval(self.class.to_s)::VERSION)
+        load File.join(root, 'config', 'version.rb')
+        if defined? eval(namespace)::VERSION
+          @version = Origen::VersionString.new(eval(namespace)::VERSION)
+        else
+          # The eval of the class is required here as somehow when plugins are imported under the old
+          # imports system and with the old version file format we can end up with two copies of the
+          # same class constant. Don't understand it, but it is fixed with the move to gems and the
+          # namespace-based version file format.
+          @version = Origen::VersionString.new(eval(self.class.to_s)::VERSION)
+        end
       end
       @version
     end
