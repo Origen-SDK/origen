@@ -47,6 +47,11 @@ module Origen
         is_top_level = x.respond_to?(:includes_origen_top_level?)
         if x.respond_to?(:wrap_in_controller)
           x = x.wrap_in_controller
+          # If this object has been instantiated after on_create has already been called,
+          # then invoke it now
+          if Origen.application_loaded? && Origen.app.on_create_called?
+            x.controller.on_create if x.controller.respond_to?(:on_create)
+          end
         end
         if is_top_level
           Origen.app.listeners_for(:on_top_level_instantiated, top_level: false).each do |listener|
