@@ -25,6 +25,12 @@ if ENV['BUNDLE_GEMFILE']
   Bundler.require(:default)
 end
 
+# Load the global app and an empty target, this helps to ensure that all of Origen's functionality
+# is available to global commands, since many features implicitly assume the presence of an app
+Origen.app
+Origen.target.temporary = -> {}
+Origen.load_target
+
 # Get a list of registered plugins and get the global launcher
 @global_launcher = Origen._applications_lookup[:name].map do |plugin_name, plugin|
   shared = plugin.config.shared || {}

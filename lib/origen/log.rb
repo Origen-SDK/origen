@@ -35,7 +35,7 @@ module Origen
     end
 
     def console_only?
-      self.class.console_only? || !Origen.app
+      self.class.console_only? || !Origen.app || Origen.running_globally?
     end
 
     # Anything executed within the given block will log to the console only
