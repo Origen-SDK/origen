@@ -19,7 +19,7 @@ module Origen
                     :web_domain,
                     :strict_errors, :unmanaged_dirs, :unmanaged_files, :remotes,
                     :external_app_dirs, :lint_test, :shared, :yammer_group, :rc_url, :rc_workflow,
-                    :user_aliases, :release_externally, :gem_name, :disqus_shortname
+                    :user_aliases, :release_externally, :gem_name, :disqus_shortname, :model_export_dir, :model_import_dir
 
       # Mark any attributes that are likely to depend on properties of the target here,
       # this will raise an error if they are ever accessed before the target has been
@@ -32,7 +32,7 @@ module Origen
         :pattern_header, :release_directory, :pattern_name_translator, :pattern_directory, :pattern_output_directory,
         :proceed_with_pattern, :test_program_output_directory, :test_program_source_directory,
         :test_program_template_directory, :referenced_pattern_list, :program_prefix, :web_directory,
-        :web_domain
+        :web_domain, :model_import_dir, :model_export_dir
       ]
 
       # Any attributes that want to accept a block, but not necessarily require the target

@@ -3,16 +3,17 @@ module Origen
     module Exporter
       def export(name, options = {})
         options = {
-          include_pins:       true,
-          include_registers:  true,
-          include_sub_blocks: true,
-          include_timestamp:  true,
-          file_path:          nil
+          include_pins:             true,
+          include_registers:        true,
+          include_sub_blocks:       true,
+          include_timestamp:        true,
+          file_path:                nil,
+          exclude_app_in_namespace: false
         }.merge(options)
         if options[:file_path]
           file = File.join(options[:file_path], "#{name}.rb")
         else
-          file = export_path(name)
+          file = export_path(name, options)
         end
         file += '.rb' unless file =~ /.rb$/
         file = Pathname.new(file)
@@ -73,9 +74,14 @@ module Origen
       end
 
       def import(name, options = {})
-        path = export_path(name)
-        require path
-        extend "#{Origen.app.namespace.underscore.camelcase}::#{name.to_s.camelcase}".constantize
+        options = {
+          file_path:                nil,
+          exclude_app_in_namespace: false
+        }.update(options)
+        file = Pathname.new(options[:file_path] ? File.join(options[:file_path], name) : export_path(name, options))
+        require file.to_s
+        module_name = options[:exclude_app_in_namespace] ? "#{name.to_s.camelcase}".constantize : "#{Origen.app.namespace.underscore.camelcase}::#{name.to_s.camelcase}".constantize
+        extend module_name
       end
 
       private
@@ -138,8 +144,11 @@ module Origen
         end.compact
       end
 
-      def export_path(name)
-        File.join(export_dir, Origen.app.namespace.to_s.underscore, name.to_s.underscore)
+      def export_path(name, options = {})
+        options = {
+          exclude_app_in_namespace: false
+        }.update(options)
+        options[:exclude_app_in_namespace] ? File.join(export_dir, name.to_s.underscore) : File.join(export_dir, Origen.app.namespace.to_s.underscore, name.to_s.underscore)
       end
 
       def export_dir
