@@ -65,13 +65,13 @@ class Numeric
 
   # Msps ==> Mega samples per second
 
-  %w(GHz Ghz GTs Gts Gsps).each do |m|
+  %w(GHz Ghz GTs Gts Gsps Gbps).each do |m|
     define_method m do
       self * 1_000_000_000
     end
   end
 
-  %w(MHz Mhz MTs Mts Msps).each do |m|
+  %w(MHz Mhz MTs Mts Msps Mbps).each do |m|
     define_method m do
       self * 1_000_000
     end
