@@ -32,7 +32,7 @@ Origen.target.temporary = -> {}
 Origen.load_target
 
 # Get a list of registered plugins and get the global launcher
-@global_launcher = Origen._applications_lookup[:name].map do |plugin_name, plugin|
+@global_launcher = Origen._applications_lookup[:name].dup.map do |plugin_name, plugin|
   shared = plugin.config.shared || {}
   if shared[:global_launcher]
     file = "#{plugin.root}/#{shared[:global_launcher]}"
