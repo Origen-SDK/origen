@@ -291,8 +291,8 @@ module ParametersSpec
     
     it "retains proper hierarchy when converting to a flat hash" do
       $dut.params.to_flat_hash['measurement0.force_spec_val'].should == "0.5A"
-      $dut.params.to_flat_hash['measurement0.force_spec_val'].should == "1.5A"
-      $dut.params.to_flat_hash['measurement1.force_type'].should == "SpecValue"
+      $dut.params.to_flat_hash['measurement1.force_spec_val'].should == "1.5A"
+      $dut.params.to_flat_hash['measurement0.force_type'].should == "SpecValue"
       $dut.params.to_flat_hash['measurement1.force_type'].should == "SpecValue"
     end
     
@@ -308,8 +308,8 @@ module ParametersSpec
     it 'can pass inheritance between objects' do
       $dut.params.contexts.should == [:default, :ate, :probe, :ft, :set1, :set2, :set3]
       $dut.ip_with_params.params.contexts.should == [:default]
-      $dut.params(:default).keys.should == [:tprog, :erase, :test, :vdd]
-      $dut.ip_with_params.params(:default).keys.should == [:tprog, :erase, :test, :vdd]
+      $dut.params(:default).keys.should == [:tprog, :erase, :test, :vdd, :measurement0, :measurement1]
+      $dut.ip_with_params.params(:default).keys.should == [:tprog, :erase, :test, :vdd, :measurement0, :measurement1]
       $dut.params(:default).vdd.keys.should == [:nom, :min, :max]
       $dut.ip_with_params.params(:default).vdd.keys.should == [:nom, :min, :max, :xmin]
       ($dut.ip_with_params.params(:default).vdd.keys - $dut.params(:default).vdd.keys).should == [:xmin]
