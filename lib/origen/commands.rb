@@ -275,11 +275,9 @@ The core origen commands are:
   cmds.split(/\n/).each do |line|
     puts Origen.clean_help_line(line)
   end
+  puts
   if @application_commands && !@application_commands.empty?
-    puts <<-EOT
-
-In addition to these the application has added:
-EOT
+    puts 'In addition to these the application has added:'
     @application_commands.split(/\n/).each do |line|
       puts Origen.clean_help_line(line)
     end
@@ -295,15 +293,14 @@ EOT
   end
 
   if @global_launcher && !@global_launcher.empty?
-    puts ''
     puts 'The following global commands are provided by plugins:'
     @global_commands.each do |str|
       puts Origen.clean_help_line(str)
     end
+    puts
   end
 
   puts <<-EOT
-
 All commands can be run with -d (or --debugger) to enable the debugger.
 All commands can be run with --coverage to enable code coverage.
 Many commands can be run with -h (or --help) for more information.

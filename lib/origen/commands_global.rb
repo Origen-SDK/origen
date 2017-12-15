@@ -106,20 +106,18 @@ The following commands are available:
   cmds.split(/\n/).each do |line|
     puts Origen.clean_help_line(line)
   end
-
+  puts
   if @global_launcher && !@global_launcher.empty?
-    puts ''
     puts 'The following global commands are provided by plugins:'
     @global_commands.each do |str|
       puts Origen.clean_help_line(str)
     end
+    puts
   end
 
   puts <<-EOT
-
 Many commands can be run with -h (or --help) for more information.
+
   EOT
-  # fetch        Automatically creates the workspace for the requested plugin and
-  #              populates the latest version of the plugin (short-cut alias: "f")
   exit 0
 end
