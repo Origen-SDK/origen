@@ -96,17 +96,22 @@ else
 Usage: origen COMMAND [ARGS]
 
 The following commands are available:
+  EOT
+  cmds = <<-EOT
  new          Create a new Origen application or plugin. "origen new my_app" creates a
               new origen application workspace in "./my_app"
  interactive  Start an interactive Origen console (short-cut alias: "i"), this is just
               IRB with the 'origen' lib loaded automatically
   EOT
+  cmds.split(/\n/).each do |line|
+    puts Origen.clean_help_line(line)
+  end
 
   if @global_launcher && !@global_launcher.empty?
     puts ''
     puts 'The following global commands are provided by plugins:'
     @global_commands.each do |str|
-      puts str
+      puts Origen.clean_help_line(str)
     end
   end
 

@@ -253,6 +253,8 @@ else
 Usage: origen COMMAND [ARGS]
 
 The core origen commands are:
+  EOT
+  cmds = <<-EOT
  environment  Display or set the environment (short-cut alias: "e")
  target       Display or set the target (short-cut alias: "t")
  mode         Display or set the mode (short-cut alias: "m")
@@ -269,27 +271,34 @@ The core origen commands are:
  web          Web page tools, see -h for details
  time         Tools for test time analysis and forecasting
  lint         Lint and style check (and correct) your application code
-
   EOT
+  cmds.split(/\n/).each do |line|
+    puts Origen.clean_help_line(line)
+  end
   if @application_commands && !@application_commands.empty?
     puts <<-EOT
+
 In addition to these the application has added:
-#{@application_commands}
 EOT
+    @application_commands.split(/\n/).each do |line|
+      puts Origen.clean_help_line(line)
+    end
+    puts
   end
 
   if @plugin_commands && !@plugin_commands.empty?
     puts 'The following commands are provided by plugins:'
     @plugin_commands.each do |str|
-      puts str
+      puts Origen.clean_help_line(str)
     end
+    puts
   end
 
   if @global_launcher && !@global_launcher.empty?
     puts ''
     puts 'The following global commands are provided by plugins:'
     @global_commands.each do |str|
-      puts str
+      puts Origen.clean_help_line(str)
     end
   end
 
