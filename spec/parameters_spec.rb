@@ -17,6 +17,10 @@ module ParametersSpec
           params.vdd.nom = 1
           params.vdd.min = 0.8
           params.vdd.max = 1.2
+          params.measurement0.force_spec_val = "0.5A"
+          params.measurement0.force_type = "SpecValue"
+          params.measurement1.force_spec_val = "1.5A"
+          params.measurement1.force_type = "SpecValue"
         end
 
         define_params :ate, inherit: :default do |params|
@@ -285,6 +289,13 @@ module ParametersSpec
       $dut.params.to_flat_hash(delimiter: '_')['test_ac_period'].should == 1e-08
     end
     
+    it "retains proper hierarchy when converting to a flat hash" do
+      $dut.params.to_flat_hash['measurement0.force_spec_val'].should == "0.5A"
+      $dut.params.to_flat_hash['measurement1.force_spec_val'].should == "1.5A"
+      $dut.params.to_flat_hash['measurement0.force_type'].should == "SpecValue"
+      $dut.params.to_flat_hash['measurement1.force_type'].should == "SpecValue"
+    end
+    
     it "all available parameter contexts can be returned as an array" do
       $dut.params.available_contexts.should == [:default, :ate, :probe, :ft, :set1, :set2, :set3]
       $dut.params.contexts.should == [:default, :ate, :probe, :ft, :set1, :set2, :set3]
@@ -297,8 +308,8 @@ module ParametersSpec
     it 'can pass inheritance between objects' do
       $dut.params.contexts.should == [:default, :ate, :probe, :ft, :set1, :set2, :set3]
       $dut.ip_with_params.params.contexts.should == [:default]
-      $dut.params(:default).keys.should == [:tprog, :erase, :test, :vdd]
-      $dut.ip_with_params.params(:default).keys.should == [:tprog, :erase, :test, :vdd]
+      $dut.params(:default).keys.should == [:tprog, :erase, :test, :vdd, :measurement0, :measurement1]
+      $dut.ip_with_params.params(:default).keys.should == [:tprog, :erase, :test, :vdd, :measurement0, :measurement1]
       $dut.params(:default).vdd.keys.should == [:nom, :min, :max]
       $dut.ip_with_params.params(:default).vdd.keys.should == [:nom, :min, :max, :xmin]
       ($dut.ip_with_params.params(:default).vdd.keys - $dut.params(:default).vdd.keys).should == [:xmin]

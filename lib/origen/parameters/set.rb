@@ -179,7 +179,7 @@ module Origen
             else
               results_hash["#{name}#{delimiter}#{k}"] = v
               if k == param_hash.keys.last
-                name = nil
+                name = name.include?(delimiter) ? name.split(delimiter)[0..-2].join(delimiter) : nil
               end
             end
           end
