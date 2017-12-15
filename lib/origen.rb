@@ -86,7 +86,7 @@ unless defined? RGen::ORIGENTRANSITION
       # Uniformly justifies the given help command line for display in a command line help output
       def clean_help_line(str)
         if str =~ /^\s\s\s\s\s\s\s*(.*)/
-          puts((' ' * 20) + Regexp.last_match(1))
+          (' ' * 20) + Regexp.last_match(1)
         # http://rubular.com/r/MKmU4xZgO2
         elsif str =~ /^\s*([^\s]+)\s+*(.*)/
           ' ' + Regexp.last_match(1).ljust(19) + Regexp.last_match(2)

@@ -278,24 +278,30 @@ The core origen commands are:
   puts
   if @application_commands && !@application_commands.empty?
     puts 'In addition to these the application has added:'
-    @application_commands.split(/\n/).each do |line|
-      puts Origen.clean_help_line(line)
+    @application_commands.split(/\n/).each do |cmds|
+      cmds.split(/\n/).each do |line|
+        puts Origen.clean_help_line(line)
+      end
     end
     puts
   end
 
   if @plugin_commands && !@plugin_commands.empty?
     puts 'The following commands are provided by plugins:'
-    @plugin_commands.each do |str|
-      puts Origen.clean_help_line(str)
+    @plugin_commands.each do |cmds|
+      cmds.split(/\n/).each do |line|
+        puts Origen.clean_help_line(line)
+      end
     end
     puts
   end
 
   if @global_launcher && !@global_launcher.empty?
     puts 'The following global commands are provided by plugins:'
-    @global_commands.each do |str|
-      puts Origen.clean_help_line(str)
+    @global_commands.each do |cmds|
+      cmds.split(/\n/).each do |line|
+        puts Origen.clean_help_line(line)
+      end
     end
     puts
   end

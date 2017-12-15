@@ -109,8 +109,10 @@ The following commands are available:
   puts
   if @global_launcher && !@global_launcher.empty?
     puts 'The following global commands are provided by plugins:'
-    @global_commands.each do |str|
-      puts Origen.clean_help_line(str)
+    @global_commands.each do |cmds|
+      cmds.split(/\n/).each do |line|
+        puts Origen.clean_help_line(line)
+      end
     end
     puts
   end
