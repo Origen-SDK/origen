@@ -63,8 +63,7 @@ module Origen
         @git_repo ||= begin
           local_path = "#{Origen.config.web_directory.gsub('/', '-').symbolize}"
           local_path.gsub!(':', '-') if Origen.os.windows?
-          local_path = "#{Origen.app.workspace_manager.imports_directory}/git/#{local_path}"
-          local = Pathname.new(local_path)
+          local = Pathname.new("#{Origen.app.workspace_manager.imports_directory}/git/#{local_path}")
           if git_sub_dir
             remote = Origen.config.web_directory.sub("\/#{git_sub_dir}", '')
           else
