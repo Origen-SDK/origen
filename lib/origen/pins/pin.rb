@@ -37,8 +37,10 @@ module Origen
       attr_accessor :ext_pulldown
       # Pin type, either :analog or :digital
       attr_accessor :type
-      # Pin RTL name, short term solution for products that do not get full HDL path for pins
+      # Pin RTL name
       attr_accessor :rtl_name
+      # Value to be forced on the pin, e.g. during simulation
+      attr_accessor :force
 
       attr_accessor :description
       attr_accessor :notes
@@ -59,6 +61,7 @@ module Origen
         @direction = sanitize_direction(options[:direction])
         @invert = options[:invert]
         @reset = options[:reset]
+        @force = options[:force] & 1
         @id = id
         @name = options[:name]
         @rtl_name = options[:rtl_name]
@@ -105,6 +108,14 @@ module Origen
           @compare_waves ||= {}
           @compare_waves[t.id] ||= {}
           @compare_waves[t.id][code] ||= dut.current_timeset.send(:wave_for, self, type: :compare, code: code)
+        end
+      end
+
+      def rtl_name
+        if primary_group
+          (@rtl_name || "#{primary_group.id}#{primary_group_index}").to_s
+        else
+          (@rtl_name || id).to_s
         end
       end
 

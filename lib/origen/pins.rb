@@ -227,8 +227,12 @@ module Origen
           name: ''
         }.merge(options)
 
+        rtl_name = options[:rtl_name]
+        force = options[:force]
         options.delete(:size).times do |i|
           options[:name] = "#{id}#{i}".to_sym
+          options[:rtl_name] = "#{rtl_name}#{i}".to_sym if rtl_name
+          options[:force] = force[i] if force
 
           if power_pin
             group[i] = PowerPin.new(i, self, options)
