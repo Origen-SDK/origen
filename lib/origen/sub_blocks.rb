@@ -252,6 +252,9 @@ module Origen
     end
 
     def sub_block(name, options = {})
+      options = {
+        lazy: false
+      }.merge(options)
       if i = options.delete(:instances)
         a = []
         options[:_instance] = i
@@ -282,7 +285,7 @@ module Origen
         define_singleton_method name do
           get_sub_block(name)
         end
-        block
+        options[:lazy] ? block : block.materialize
       end
     end
 

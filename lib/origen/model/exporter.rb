@@ -7,7 +7,8 @@ module Origen
           include_registers:  true,
           include_sub_blocks: true,
           include_timestamp:  true,
-          file_path:          nil
+          file_path:          nil,
+          lazy:               false
         }.merge(options)
         if options[:file_path]
           file = File.join(options[:file_path], "#{name}.rb")
@@ -197,6 +198,7 @@ module Origen
         file = File.join(options[:file_path].sub_ext(''), "#{id}.rb")
         local_file = file.to_s.sub("#{export_dir}/", '')
         line = indent + "model.sub_block :#{id}, file: '#{local_file}'"
+        line += options[:lazy] ? ', lazy: true' : ', lazy: false'
         unless block.base_address == 0
           line << ", base_address: #{block.base_address.to_hex}"
         end
