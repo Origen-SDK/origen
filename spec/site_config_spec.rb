@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'etc'
 
-fdescribe "Origen.site_config" do
+describe "Origen.site_config" do
 
   # Make sure that cached site config values don't affect these or the
   # next tests
