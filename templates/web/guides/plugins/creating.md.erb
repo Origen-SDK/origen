@@ -233,9 +233,30 @@ end
 
 ~~~
 
-<b>Please note though that this requires the plugin to be added as a dependency to non-application Origen 
-invocations. Please see the</b> [Invocation Considerations](<%= path "guides/starting/invoking" %>) <b>page 
-for an explanation or refresher on what this means.</b>
+<div class="alert alert-danger">
+  <strong>Danger!</strong> Global commands are a bit more involved and require some extra setup outside of the
+  plugin itself. When inside an application, these commands will behave as <code>Shared</code> commands,
+  but outside of an application, the plugin must be brought in as a dependency either through <code>User Installs</code>
+  or <code>Tool Repo Installs</code>, or must be added to the system gems. For a refresher on what this means,
+  please see the <a href="<%= path 'guides/starting/invoking' %>">Invocation Considerations Guide</a>. For even more
+  details please see the <a href="<%= path 'guides/advanced/invocations' %>">Advanced Topic On Invocations</a>.
+</div>
+
+<div class="alert alert-danger">
+  <strong>Danger!</strong> <code>Global</code> commands behave slightly differently when run from an application
+  versus running without one. Origen does provide a 'standalone' application which gives all the functionality,
+  but this application cannot be customized. If you find yourself requiring application-specific behavior, your command
+  is better suited to be a <code>Shared</code> command.
+</div>
+
+<div class="alert alert-danger">
+  <strong>Danger!</strong> Although <code>Global</code> and <code>Shared</code> commands may have differences
+  in the application behavior, they do not have any differences, from an Origen perspective, when invoked
+  either by a <code>Tool Repo Install</code> or <code>User Install</code> setup versus a <code>System Level</code>
+  setup. Bundler makes it easier to develop Global commands than using Gem natively, so it is recommended
+  that you use a <code>User Install</code> when developing Global commands. You can read up on this is and
+  how to set it up in the <a href="<%= path 'guides/advanced/invocations' %>">Advanced Topic On Invocations</a>.
+</div>
 
 #### Command Sharing Considerations
 

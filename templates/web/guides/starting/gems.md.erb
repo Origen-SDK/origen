@@ -205,4 +205,15 @@ update the system Ruby installation in order to achieve the required runtime env
 They simply checkout the version of the given application that they want, and then Origen/Bundler
 takes care of guaranteeing that the runtime environment is the correct one.
 
+<div class="alert alert-warning">
+  <strong>Warning!</strong> Although the above note is true for most cases, there are two corner cases. The first is
+  any changes to the boot process will that version of Origen. For example, some of the following guides will discuss moving
+  around install directories, but this requires later versions of Origen to accomplish. You can check the release notes
+  for when features were added.
+  
+  The second case is for running plugins from system gems. However, the <code>gem install</code> process will update
+  the Origen version for you, so this is more of an FYI in case you see your Origen version change after installing
+  a plugin in the system Ruby.
+</div>
+
 % end
