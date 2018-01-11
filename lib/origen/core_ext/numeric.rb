@@ -1,3 +1,4 @@
+# The base class of all numbers, i.e. integers and floats
 class Numeric
   def undefined?
     false

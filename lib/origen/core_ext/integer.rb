@@ -1,5 +1,6 @@
-class Fixnum
-  # Extend Fixnum to enable 10.cycles
+# The base class of ALL integers, i.e. including Fixum and Bignum
+class Integer
+  # Implements 10.cycles
   def cycles
     if block_given?
       times do

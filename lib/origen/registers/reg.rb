@@ -1095,7 +1095,7 @@ module Origen
           args.flatten!
           args.sort!
           args.each do |arg_item|
-            if arg_item.is_a?(Fixnum)
+            if arg_item.is_a?(Integer)
               b = get_bits_with_constraint(arg_item, constraint)
               collection << b if b
             elsif arg_item.is_a?(Range)

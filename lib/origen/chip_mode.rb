@@ -46,7 +46,7 @@ module Origen
           # The data rate unit was validated on init so it is good to go
           # in theory but should still check if it returns a numeric
           value = @data_rate.send(@data_rate_unit.to_sym)
-          if [Fixnum, Bignum, Float, Integer, Numeric].include? value.class
+          if value.is_a?(Numeric)
             return value
           else
             Origen.log.error "@data_rate '#{@data_rate}' conversion using @data_rate_unit '#{@data_rate_unit}' did not product a Numeric, exiting..."
