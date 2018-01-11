@@ -1,6 +1,8 @@
 language: ruby
 rvm:
   - 2.2.2
+  - 2.4.0
+  - 2.5.0
 script:
   - bundle exec origen -v
   - bundle exec origen test -c
