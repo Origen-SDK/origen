@@ -64,7 +64,7 @@ module Origen
         if val =~ /^[01_xXzZ]+$/
           true
         else
-          fail Origen::SyntaxError, 'Bin string values can only contain: 0, 1, _, x, X, z, Z'
+          fail Origen::SyntaxError, 'Binary string values can only contain: 0, 1, _, x, X, z, Z'
         end
       end
     end
