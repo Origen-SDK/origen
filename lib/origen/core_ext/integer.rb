@@ -35,6 +35,14 @@ class Integer
   alias_method :ones_complement, :ones_comp
   alias_method :ones_compliment, :ones_comp
 
+  # Returns a bit mask for the given number of bits:
+  #
+  #   4.to_bit_mask  # => 0x1111
+  def to_bit_mask
+    (1 << self) - 1
+  end
+  alias_method :bit_mask, :to_bit_mask
+
   def to_bool
     if self == 1
       return true

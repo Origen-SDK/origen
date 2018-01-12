@@ -13,10 +13,17 @@ module Origen
       def z?
         false
       end
+      alias_method :hi_z?, :z?
 
       def x?
         true
       end
+      alias_method :undefined?, :x?
+
+      def x_or_z?
+        true
+      end
+      alias_method :z_or_x?, :x_or_z?
     end
 
     # Represents a single bit value of 'Y'
@@ -24,10 +31,17 @@ module Origen
       def z?
         true
       end
+      alias_method :hi_z?, :z?
 
       def x?
         false
       end
+      alias_method :undefined?, :x?
+
+      def x_or_z?
+        true
+      end
+      alias_method :z_or_x?, :x_or_z?
     end
 
     def initialize(val, options = {})
@@ -68,6 +82,13 @@ module Origen
       val.is_a?(HexStrVal)
     end
     alias_method :hex_str_value?, :hex_str_val?
+
+    def [](index)
+      if index.is_a?(Range)
+        fail 'Currently, only single bit extraction from a Value object is supported'
+      end
+      val[index]
+    end
 
     private
 

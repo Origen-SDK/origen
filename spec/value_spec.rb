@@ -30,8 +30,24 @@ describe Origen::Value do
       Origen::Value.new(:hA2_x4).to_i.should == nil
       Origen::Value.new(:hA2_x4).to_s.should == "a2x4"
       Origen::Value.new(:hA2_X4).to_s.should == "a2X4"
+    end
 
+    it "discards bits that are out of range" do
+      Origen::Value.new(:hA2_34, size: 8).to_i.should == 0x34
+      Origen::Value.new(:hA2_FF, size: 6).to_s.should == 'ff'
+      Origen::Value.new(:hA2_FF, size: 6).to_i.should == 0x3F
+    end
 
+    it "can extract bit values" do
+      Origen::Value.new(:hf, size: 3)[0].should == 1
+      Origen::Value.new(:hf, size: 3)[2].should == 1
+      Origen::Value.new(:hf, size: 3)[3].should == nil
+      Origen::Value.new(:hf, size: 3)[4].should == nil
+      
+      Origen::Value.new(:h1x)[0].x?.should == true
+      Origen::Value.new(:h1x)[4].x?.should == false
+      Origen::Value.new(:h1x)[4].should == 1
+      Origen::Value.new(:h1x)[5].should == 0
     end
   end
 end

@@ -1,7 +1,30 @@
 # The base class of all numbers, i.e. integers and floats
 class Numeric
-  def undefined?
-    false
+  # Helpers for cases where a method may return a 0, 1 or an instance
+  # of Origen::Value::X or Origen::Value::Z
+
+  def z?;
+    false;
+  end
+
+  def hi_z?;
+    false;
+  end
+
+  def x?;
+    false;
+  end
+
+  def undefined?;
+    false;
+  end
+
+  def x_or_z?;
+    false;
+  end
+
+  def z_or_x?;
+    false;
   end
 
   def to_hex
