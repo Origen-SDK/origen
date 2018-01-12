@@ -7,6 +7,7 @@ module Origen
   # representation and handling of the value
   class Value
     autoload :HexStrVal, 'origen/value/hex_str_val'
+    autoload :BinStrVal, 'origen/value/bin_str_val'
 
     # Represents a single bit value of 'X'
     class X
@@ -47,6 +48,8 @@ module Origen
     def initialize(val, options = {})
       if val.to_s =~ /^h/
         @val = HexStrVal.new(val, options)
+      elsif val.to_s =~ /^b/
+        @val = BinStrVal.new(val, options)
       else
         fail 'Unsupported value syntax'
       end
@@ -82,6 +85,11 @@ module Origen
       val.is_a?(HexStrVal)
     end
     alias_method :hex_str_value?, :hex_str_val?
+
+    def bin_str_val?
+      val.is_a?(BinStrVal)
+    end
+    alias_method :bin_str_value?, :bin_str_val?
 
     def [](index)
       if index.is_a?(Range)

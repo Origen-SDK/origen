@@ -50,4 +50,53 @@ describe Origen::Value do
       Origen::Value.new(:h1x)[5].should == 0
     end
   end
+
+  describe "Bin string values" do
+    it "can be created" do
+      v = Origen::Value.new(:b1010)
+      v.value?.should == true
+      v.bin_str_value?.should == true
+    end
+
+    it "will infer the size if not supplied" do
+      v = Origen::Value.new(:b0101)
+      v.size.should == 4
+      v = Origen::Value.new(:b0101, size: 32)
+      v.size.should == 32
+      v = Origen::Value.new(:b1xx0_1101)
+      v.size.should == 8
+    end
+
+    it "will reject invalid formatted values" do
+      expect { Origen::Value.new(:b10yx) }.to raise_error(Origen::SyntaxError)
+    end
+
+    it "converts to an integer and a string" do
+      Origen::Value.new(:b10_11).numeric?.should == true
+      Origen::Value.new(:b10_11).to_i.should == 0b1011
+      Origen::Value.new(:b10_11).to_s.should == "1011"
+
+      Origen::Value.new(:b10_x1).numeric?.should == false
+      Origen::Value.new(:b10_x1).to_i.should == nil
+      Origen::Value.new(:b10_x1).to_s.should == "10x1"
+      Origen::Value.new(:b10_X1).to_s.should == "10x1"
+    end
+
+    it "discards bits that are out of range" do
+      Origen::Value.new(:b10_11, size: 2).to_i.should == 0b11
+      Origen::Value.new(:b10_11, size: 3).to_s.should == '011'
+    end
+
+    it "can extract bit values" do
+      Origen::Value.new(:b10_11, size: 3)[0].should == 1
+      Origen::Value.new(:b10_11, size: 3)[2].should == 0
+      Origen::Value.new(:b10_11, size: 3)[3].should == nil
+      Origen::Value.new(:b10_11, size: 3)[4].should == nil
+      
+      Origen::Value.new(:b1x0)[0].x?.should == false
+      Origen::Value.new(:b1x0)[1].x?.should == true
+      Origen::Value.new(:b1x0)[0].should == 0
+      Origen::Value.new(:b1x0)[2].should == 1
+    end
+  end
 end

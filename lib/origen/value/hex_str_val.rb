@@ -92,7 +92,7 @@ module Origen
         if val =~ /^[0-9a-fA-F_xXzZ]+$/
           true
         else
-          fail Origen::SyntaxError, 'Hex string values can only contain: 0-9, a-f, A-F, _, x, X, y, Y'
+          fail Origen::SyntaxError, 'Hex string values can only contain: 0-9, a-f, A-F, _, x, X, z, Z'
         end
       end
     end
