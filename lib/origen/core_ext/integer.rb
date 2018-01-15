@@ -1,5 +1,31 @@
 # The base class of ALL integers, i.e. including Fixum and Bignum
+
+# Shim to handle Ruby < 2.4.0, where [] is implemented in Fixnum/Bignum instead
+# of Integer
+module Origen
+  module IntegerExtension
+    def [](*args)
+      if args.length == 1 && !args.first.is_a?(Range)
+        super
+      else
+        if args.first.is_a?(Range)
+          msb = args.first.first
+          lsb = args.first.last
+        else
+          msb = args.first
+          lsb = args.last
+        end
+        (self >> lsb) & 0.ones_comp(msb - lsb + 1)
+      end
+    end
+  end
+end
+
 class Integer
+  if RUBY_VERSION >= "2.4.0"
+    prepend Origen::IntegerExtension  
+  end
+
   # Implements 10.cycles
   def cycles
     if block_given?
@@ -12,22 +38,6 @@ class Integer
     end
   end
   alias_method :cycle, :cycles
-
-  alias_method :old_bit_select, :[]
-  def [](*args)
-    if args.length == 1 && !args.first.is_a?(Range)
-      old_bit_select(args.first)
-    else
-      if args.first.is_a?(Range)
-        msb = args.first.first
-        lsb = args.first.last
-      else
-        msb = args.first
-        lsb = args.last
-      end
-      (self >> lsb) & 0.ones_comp(msb - lsb + 1)
-    end
-  end
 
   def ones_comp(num_bits)
     self ^ ((1 << num_bits) - 1)
@@ -62,4 +72,14 @@ class Integer
   alias_method :to_xls_col, :to_spreadsheet_column
   alias_method :to_xlsx_col, :to_spreadsheet_column
   alias_method :to_spreadsheet_col, :to_spreadsheet_column
+end
+
+if RUBY_VERSION <= "2.4.0"
+  class Fixnum
+    prepend Origen::IntegerExtension  
+  end
+
+  class Bignum
+    prepend Origen::IntegerExtension  
+  end
 end
