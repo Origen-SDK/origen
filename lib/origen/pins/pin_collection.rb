@@ -325,8 +325,16 @@ module Origen
       alias_method :store!, :capture!
 
       def restore_state
-        each(&:save)
+        save
         yield
+        restore
+      end
+
+      def save
+        each(&:save)
+      end
+
+      def restore
         each(&:restore)
       end
 

@@ -46,12 +46,24 @@ module Origen
     end
 
     def initialize(val, options = {})
-      if val.to_s =~ /^h/
-        @val = HexStrVal.new(val, options)
-      elsif val.to_s =~ /^b/
-        @val = BinStrVal.new(val, options)
+      if val.is_a?(Integer)
+        @val = val
       else
-        fail 'Unsupported value syntax'
+        val = val.to_s
+        case val[0].downcase
+        when 'b'
+          @val = BinStrVal.new(val, options)
+        when 'h'
+          @val = HexStrVal.new(val, options)
+        when 'd'
+          @val = val.to_s[1..-1].to_i
+        else
+          if  val =~ /^[0-9]+$/
+            @val = val.to_i
+          else
+            fail 'Unsupported value syntax'
+          end
+        end
       end
     end
 
