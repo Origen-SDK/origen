@@ -22,8 +22,8 @@ module Origen
 end
 
 class Integer
-  if RUBY_VERSION >= "2.4.0"
-    prepend Origen::IntegerExtension  
+  if RUBY_VERSION >= '2.4.0'
+    prepend Origen::IntegerExtension
   end
 
   # Implements 10.cycles
@@ -74,12 +74,12 @@ class Integer
   alias_method :to_spreadsheet_col, :to_spreadsheet_column
 end
 
-if RUBY_VERSION <= "2.4.0"
+if RUBY_VERSION <= '2.4.0'
   class Fixnum
-    prepend Origen::IntegerExtension  
+    prepend Origen::IntegerExtension
   end
 
   class Bignum
-    prepend Origen::IntegerExtension  
+    prepend Origen::IntegerExtension
   end
 end
