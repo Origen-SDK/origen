@@ -62,4 +62,90 @@ Origen.site_config.gem_server          # => nil
 Origen.site_config.gem_manage_bundler  # => true
 ~~~
 
+#### Dynamic Configurations
+
+The Origen site config has some basic methods to dynamically get, set, and remove values.
+
+##### Getting Values
+
+~~~ruby
+Origen.site_config.get(var) 
+  #=> gets the current value of a site config variable 'name'
+  #=> if var doesn't exist, nil is returned
+
+Origen.site_config.get_all(var) 
+  #=> gets all values of a site config variable 'name'
+  #=> returns an array of values, where the higher priority values are earlier in the array
+  #=> i.e., get_all(var).first is the current value and highest priority
+  #=> get_all(var).last is the lowest priority value
+  #=> same as Origen.site_config.add_as_highest(var, value)
+  
+Origen.site_config[var]
+  #=> same as Origen.site_config.get(var)
+~~~
+
+<div class="alert alert-info">
+  <strong>Info!</strong> You can also get a value using the method name corresponding to the site config variable, 
+  as described in the aforementioned section.
+</div>
+
+##### Setting Values
+
+~~~ruby
+Origen.site_config.add_as_highest(var, value)
+  #=> add a new site variable at the highest priority
+
+Origen.site_config.add_as_lowest(var, value)
+  #=> add a new site variable at the lowest priority
+  #=> essentially, this sets a new default value
+
+Origen.site_config[var] = value
+  #=> same as Origen.site_config.add_as_highest(var, value)
+~~~
+
+##### Removing Values
+
+~~~ruby
+remove_highest(var)
+  #=> remove the highest instance of var
+  #=> returns the value of the variable removed
+  #=> if var doesn't exist, nil is returned
+
+remove_all_instances(var)
+  #=> remove all the instances of var
+  #=> returns an array of the values, from highest priority to lowest
+  #=> if var doesn't exist, the an empty array is returned
+
+purge(var)
+  #=> aliase to remove_all_instances
+
+clear
+  #=> clears the site config completely
+~~~
+
+##### Adding New Configuration Files
+
+You can also add a new configuration file that is not in the default paths using the methods below:
+
+~~~ruby
+# Adds a new site config file as the highest priority
+add_site_config_as_highest(site_config_file)
+
+# Adds a new site config file as the lowest priority
+add_site_config_as_lowest(site_config_file)
+~~~
+
+<div class="alert alert-warning">
+  <strong>Warning</strong> Using the site config is this way requires that Origen has already booted. So, using these
+  methods to dynamically change site config variables like <code>user_gem_dir</code>, or 
+  <code>user_install_dir</code> won't have the desired
+  effect.
+</div>
+
+<div class="alert alert-warning">
+  <strong>Warning</strong> For <code>append_dot_origen</code> and <code>append_gems</code>, <code>nil</code> and
+  <code>false</code> are not the same. If either of those are undefined (<code>nil</code>) they will resolve to true. To
+  disable, they must be explicity set to <code>false</code>.
+</div>
+
 % end

@@ -21,12 +21,22 @@
 # user (recommended)
 gem_manage_bundler: true
 
-# Define where a typical user's home directory will be, with a hidden directory for Origen.
-home_dir: ~/.origen
+# WORKSPACE DIRECTORY SETUP
 
-# Define where the gems should be installed
-# By default, this will be at <home_dir>/gems but can be overridden here.
-#gem_install_dir: ~/.origen/gems
+# Defines where the home directory is
+#home_dir: ~/
+
+# Defines where the user customization directory is
+#user_install_dir:
+
+# Defines the gems are to be installed
+#user_gem_dir:
+
+# Indicates whether '.origen' should be appended to home_dir
+append_dot_origen: true
+
+# Indicates whether 'gems' should be appended to the user_gem_dir
+append_gems: true
 
 # ORIGEN STARTUP OPTIONS
 # These options define how and where Origen should boot.
@@ -35,9 +45,6 @@ home_dir: ~/.origen
 # By default, don't allow user install. This is more for power users to utilize for debug or those who want absolute 
 # control over their environment.
 user_install_enable: false
-
-# Default to the user's install dir being the .origen in their home directory but allow it to be overridden
-#user_install_dir: ~/.origen
 
 # Default 'tool_repo_install_dir' to nil, meaning no 'tool_repo_install_dir' is present. If neither this nor 
 # 'user_install_enable' is present, the universal install will be used.

@@ -1,22 +1,107 @@
 % render "layouts/guides.html" do
 
 As you may have noticed, running <code>origen</code> or <code>origen -h</code> gives you a different set of commands
-depending on where you run. When you run Origen from outside of an application, you are getting the Origen
-<code>global</code> commands. When you run Origen inside of an application's workspace, you are getting
-the <code>application & shared</code> commands. This division of the commands gives only what is relevant for wherever
-Origen was invoked. For example, it does not make sense to create a new application when you are in one. Nor does make
-sense to try and generate a pattern or compile a website if the application doesn't exist.
+depending on where you run. When you <code>invoke</code> Origen, one of the first things it will do is figure out what
+type of <code>invocation</code> you've issued. The type of invocation isn't something you need to control neccessarily, 
+but its important to understand why Origen's behavior seems to arbitrarily change.
 
-Plugins can add [Shared Commands](<%= path "guides/plugins/creating/#Sharing_Application_Commands" %>) and 
-[Global Commands](<%= path "guides/plugins/creating/#Sharing_Global_Commands" %>). In order to use these commands 
-though, the plugin must be added as a [dependency](<%= path "guides/starting/gems" %>). Inside an application, this is 
-easy, just add it to the Gemfile. To add commands to your global commands is a bit more involved and is out of scope 
-for a beginner's guide.
+### Application Invocations
 
-Normally, advanced users will handle setting up 
-[Tool Repo Installs](<%= path "guides/advanced/invocations/#Site_Config_For_Toolset_Installations" %>) for others
-to use. Please see the topic on this for setting this up. You can also 
-[Enable Your User-Directory Install](<%= path "guides/advanced/invocations/#Site_Config_For_User_Installations" %>) 
-if you wish to add global dependencies yourself.
+When you invoke Origen from within an application (or a plugin), you're using Origen's <code>application invocation</code>.
+This will most likely be the invocation used for any test or product engineer that is not creating a new application. 
+You'll notice that when you first run
+Origen from an application, you'll see Bundler start to do some stuff... but what's it doing? Bundler is building
+up a custom <code>bin</code> folder (<code>lbin</code>, to be exact) which it will channel future invocation within the
+application through. This ties this particular application to the gems specified in the <code>Gemfile</code> and gives
+you the <code>application invocation</code>.
+
+So, what does that mean? Application invocations begin by booting up the application and all needed plugins. The
+best way to see that will be to just run <code>origen -h</code> from inside and outside an appication. When running
+from within an application, you'll get the <code>core application</code> commands, 
+any [Shared Commands](<%= path "guides/plugins/creating/#Sharing_Application_Commands" %>) from plugins, and any 
+[Global Commands](<%= path "guides/plugins/creating/#Sharing_Global_Commands" %>) from plugins.
+
+### Global Invocations
+
+<code>Global Invocations</code> are the opposite of the aforermentioned <code>Application Invocations</code>. These
+invocations are obviously for when origen is run without any application.
+
+The default core global commands are just <code>new</code> and <code>interactive</code>. This makes sense, since its not
+appropriate to create a new application if you're already running from one, and when there is no application you'll
+most likely want to create a new one. You can see 
+[here for creating a new application](<%= path "guides/starting/app" %>).
+
+However, global invocations can also run other <code>global commands</code>. This allows Origen to become a platform
+for tool distribution, allowing for developers who use Origen to use all that Origen offers to build and distribute
+other tools or scripts.
+
+Using <code>global commands</code> may require a bit of additional setup. The commands that are available depend on
+how exactly the <code>global invocation</code> was induced. There are multiple ways to do this, as described in
+the next section.
+
+Note that this section only covers invocations. For a guide on how to actually create global commands, please see the
+[section on global commands](<%= path "guides/plugins/creating/#Sharing_Global_Commands" %>).
+
+#### System Invocations
+
+For new Origen users, this will be the most likely way of globally invoking Origen. This runs Origen straight from
+the system installed gem (i.e., what was installed when you ran <code>gem install origen</code>).
+Origen invocations stemming from the this are known as <code>system invocations</code>.
+
+When these occur, Origen will search through all of the dependencies of each gem that is currently installed on the
+system. If any of these gems have <code>origen</code> as a dependency, then Origen will assume that it is a plugin and
+boot that gem during Origen's own booting process. Thus, it is possible to install plugins that have 
+<code>global commands</code> and also have them active by just running <code>gem install</code>.
+
+Since these are available at the system level, if this is done on a shared system or on a server, all users will
+see those commands become available.
+
+#### User Invocations
+
+<code>System invocations</code> have the potential problem of requiring administrative access rights. When running on your own
+system, this is not an issue, but when run on corporate accounts, most users won't have these permissions.
+
+User installations are more involved. These require using the 
+[site config](<%= path "guides/starting/company/#How_The_Configuration_System_Works" %>)
+to indicate to Origen that you have a global <code>Gemfile</code> setup somewhere. The full details are beyond a
+startup guide, so this is marked as an 
+[advanced topic and can be found here](<%= path "guides/advanced/invocations/#Site_Config_For_User_Installations" %>)
+
+Please don't let that scare you away. However, a tool distribution platform is not Origen's primary purpose,
+so unless you know you'll need it, you can skip the advanced topic until you have more familiarity with Origen.
+
+The basic procedure is:
+
+1. Create a custom site config in your Origen home directory.
+2. Enable users installs.
+3. Add dependencies to your user <code>Gemfile</code>.
+
+Not that bad, right? If this seems like something you'd like to tackle now, go ahead and check out the
+[topic here](<%= path "guides/advanced/invocations/#Site_Config_For_User_Installations" %>).
+
+Once this is setup, invoking Origen through this <code>Gemfile</code> is known as <code>User Invocation</code>.
+
+#### Tool-Repo Invocations
+
+<code>Tool Repo</code> invocations look very similar to user invocations. However, the usage for these is different.
+These installations are built and maintained by an experience user and has the purpose of giving a set of users, or
+users running from a particular directory, access to a pre-built dependency set.
+
+At this point, you will most likely be a user of such an invocation. If so, you would have received some instructions
+from the installation manager on how to use it.
+
+Setting these up is an involved process. An advanced topic on this is also
+available [in the advanced topics](<%= path "guides/advanced/invocations/#Site_Config_For_Toolset_Installations" %>). 
+For now, that is all that will be said on <code>Tool Repo</code> invocations.
+
+<div class="alert alert-info">
+  <strong>Info!</strong> Each one of these cases above, and the <code>application invocations</code>, are handled independently.
+  That is, installing a gem in the system ruby, or installing it in your <code>user install</code> will NOT enable
+  that gem to be used in all your applications. Likewise, installing a gem in the system ruby will not make it
+  attainable automatically in all tool repo installs or in your user install. This is so the <code>Gemfile</code>
+  remains the master dependency list, with the only exception being the system install which has no
+  <code>Gemfile</code>. So, if you want to use a specific gem for all your applications, tool repo installs, and
+  your own user install, you will have to add it to the <code>Gemfile</code> of each.
+</div>
 
 % end

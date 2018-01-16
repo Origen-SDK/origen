@@ -16,7 +16,7 @@ When you install the <code>origen</code> gem, the origen executable will be regi
 the origen repository can be downloaded directly to your system, then the executable sourced from the <code>bin/origen</code>
 directory. It is also possible to create your own script to source Origen any way you want. However you choose to do so,
 that Origen executable becomes your <code>Universal Origen Install</code>. Origen invocations stemming from this location are
-invoked <code>universally</code>.
+invoked <code>universally</code>. This generally uses the <code>System Install</code> and the <code>System Gems</code>.
 
 Universal invocations provide a common, site-wide means to start up Origen or allow for an experienced user or IT department 
 to setup an Origen install in a project or tools workspace. However, normal users lose the ability to customize their 
@@ -26,6 +26,34 @@ For example, in order to add global commands to Origen, you must add additional 
 However, if Origen is living in some tool directory, changing the <code>Gemfile</code> will affect everyone's installation
 (for better or worse) and individual users lose control over their global installation. The 
 [Site Config](<%= path "guides/starting/company/" %>) can help us with this.
+
+#### Dependencies Using The System Gems
+
+The simplest and quickest way to add dependencies to Origen is to just use <code>gem install</code> and install any gems
+you want. Dependencies brought in this way will be able to register <code>global commands</code> to Origen, even
+when brought in as seperate gems.
+
+Under the hood, all this doing is going through the system installed gems and seeing which have a dependency
+on <code>Origen</code>. If the gem does, it is loaded as if it were a plugin, registering all global
+commands it may have.
+
+Some drawbacks of this are:
+
+* You (or someone) must be able to install gems on the system. For most Windows users who control their own
+PCs, this is not an issue. But for more locked-down PCs, or the most likely scenerio of using a centralized Linux server,
+you will need advanced permissions to add system gems.
+* You are stuck with whatever version of the gem you pull. Newer ones will need to be updated as above.
+* Developing these are clumsier than using Bundler.
+
+But, to this last note, using <code>User Installations</code> (the next section) boots global commands the
+same way. So, you can develop the plugin using <code>User Installations</code> and still install it
+as a system gem and get the same affect.
+
+This methodology is better suited for managing a global installation (obvisouly). All users using
+this installation will be able to see these plugins when running <code>universally</code>.
+
+Note that if a <code>user install</code>, <code>tool repo install</code>, or if running from
+within an application, these plugins will be bypassed, and must be added to the <code>Gemfile</code>.
 
 #### Site Config For User Installations
 
