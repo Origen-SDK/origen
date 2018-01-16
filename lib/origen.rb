@@ -65,6 +65,7 @@ unless defined? RGen::ORIGENTRANSITION
     autoload :Tests,             'origen/tests'
     autoload :PowerDomains,      'origen/power_domains'
     autoload :Clocks,            'origen/clocks'
+    autoload :Value,             'origen/value'
 
     attr_reader :switch_user
 
@@ -79,6 +80,7 @@ unless defined? RGen::ORIGENTRANSITION
     class GitError < OrigenError; status_code(11); end
     class DesignSyncError < OrigenError; status_code(12); end
     class RevisionControlUninitializedError < OrigenError; status_code(13); end
+    class SyntaxError < OrigenError; status_code(14); end
 
     class << self
       include Origen::Utility::TimeAndDate

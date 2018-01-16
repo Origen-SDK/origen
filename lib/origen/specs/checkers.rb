@@ -72,7 +72,7 @@ module Origen
       end
 
       def evaluate_limit(limit)
-        return limit if [Fixnum, Float, Numeric].include? limit.class
+        return limit if limit.is_a?(Numeric)
         return nil if limit.nil?
         limit = limit.to_s if [Nokogiri::XML::NodeSet, Nokogiri::XML::Text, Nokogiri::XML::Element].include? limit.class
         if limit.is_a? Symbol
@@ -132,7 +132,7 @@ module Origen
           begin
             result = eval(limit)
             return result.round(4) if result.is_a? Numeric
-            rescue SyntaxError, NameError, TypeError
+            rescue ::SyntaxError, ::NameError, ::TypeError
               Origen.log.debug "Limit '#{limit}' had to be rescued, storing it as a #{limit.class}"
               if limit.is_a? Symbol
                 return limit

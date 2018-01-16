@@ -1,7 +1,6 @@
 require 'origen/core_ext/object'
 require 'origen/core_ext/string'
-require 'origen/core_ext/fixnum'
-require 'origen/core_ext/bignum'
+require 'origen/core_ext/integer'
 require 'origen/core_ext/numeric'
 require 'origen/core_ext/module'
 require 'origen/core_ext/hash'

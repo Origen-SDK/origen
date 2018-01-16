@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{The Semiconductor Developer's Kit}
   spec.homepage      = "http://origen-sdk.org"
   spec.license       = 'MIT'
-  spec.required_ruby_version     = '>= 1.9.3'
+  spec.required_ruby_version     = '>= 2'
   spec.required_rubygems_version = '>= 1.8.11'
 
   spec.files         = Dir["lib/**/*.rb", "lib/**/*.erb", "templates/code_generators/**/*", 

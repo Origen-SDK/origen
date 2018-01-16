@@ -37,8 +37,10 @@ module Origen
       attr_accessor :ext_pulldown
       # Pin type, either :analog or :digital
       attr_accessor :type
-      # Pin RTL name, short term solution for products that do not get full HDL path for pins
+      # Pin RTL name
       attr_accessor :rtl_name
+      # Value to be forced on the pin, e.g. during simulation
+      attr_accessor :force
 
       attr_accessor :description
       attr_accessor :notes
@@ -59,6 +61,7 @@ module Origen
         @direction = sanitize_direction(options[:direction])
         @invert = options[:invert]
         @reset = options[:reset]
+        @force = options[:force] & 1
         @id = id
         @name = options[:name]
         @rtl_name = options[:rtl_name]
@@ -75,6 +78,11 @@ module Origen
         @clock = nil
         @meta = options[:meta] || {}
         @dib_meta = options[:dib_meta] || {}
+        @_saved_state = []
+        @_saved_value = []
+        @_saved_suspend = []
+        @_saved_invert = []
+        @_saved_repeat_previous = []
         on_init(owner, options)
         # Assign the initial state from the method so that any inversion is picked up...
         send(@reset)
@@ -105,6 +113,14 @@ module Origen
           @compare_waves ||= {}
           @compare_waves[t.id] ||= {}
           @compare_waves[t.id][code] ||= dut.current_timeset.send(:wave_for, self, type: :compare, code: code)
+        end
+      end
+
+      def rtl_name
+        if primary_group
+          (@rtl_name || "#{primary_group.id}#{primary_group_index}").to_s
+        else
+          (@rtl_name || id).to_s
         end
       end
 
@@ -614,18 +630,26 @@ module Origen
         if val.is_a?(String) || val.is_a?(Symbol)
           @vector_formatted_value = val.to_s
         else
-          # If val is a data bit extract the value of it
-          val = val.respond_to?(:data) ? val.data : val
-          # Assume driving/asserting a nil value means 0
-          val = 0 unless val
-          if val > 1
-            fail "Attempt to set a value of #{val} on pin #{name}"
+          if val.is_a?(Origen::Value)
+            val = val[0]
+          else
+            # If val is a data bit extract the value of it
+            val = val.respond_to?(:data) ? val.data : val
+            # Assume driving/asserting a nil value means 0
+            val = 0 unless val
+            if !val.x_or_z? && val > 1
+              fail "Attempt to set a value of #{val} on pin #{name}"
+            end
           end
           @repeat_previous = false
-          if inverted?
-            @value = val == 0 ? 1 : 0
+          if val.x_or_z?
+            dont_care
           else
-            @value = val
+            if inverted?
+              @value = val == 0 ? 1 : 0
+            else
+              @value = val
+            end
           end
         end
       end
@@ -881,21 +905,24 @@ module Origen
         restore
       end
 
-      def save # :nodoc:
-        @_saved_state = @state
-        @_saved_value = @value
-        @_saved_suspend = @suspend
-        @_saved_invert = @invert
-        @_saved_repeat_previous = @repeat_previous
+      # Saves the current state of the pin, allowing it to be restored to the
+      # current state by calling the restore method
+      def save
+        @_saved_state << @state
+        @_saved_value << @value
+        @_saved_suspend << @suspend
+        @_saved_invert << @invert
+        @_saved_repeat_previous << @repeat_previous
       end
 
-      def restore # :nodoc:
+      # Restores the state of the pin to the last time save was called
+      def restore
         invalidate_vector_cache
-        @state = @_saved_state
-        @value = @_saved_value
-        @suspend = @_saved_suspend
-        @invert = @_saved_invert
-        @repeat_previous = @_saved_repeat_previous
+        @state = @_saved_state.pop
+        @value = @_saved_value.pop
+        @suspend = @_saved_suspend.pop
+        @invert = @_saved_invert.pop
+        @repeat_previous = @_saved_repeat_previous.pop
       end
 
       def is_not_a_clock?

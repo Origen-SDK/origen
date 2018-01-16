@@ -22,6 +22,7 @@ module Origen
         @virtual_pins = options.delete(:virtual_pin) || options.delete(:virtual_pins)
         @other_pins = options.delete(:other_pin) || options.delete(:other_pins)
         @endian = options[:endian]
+        @rtl_name = options[:rtl_name]
         @description = options[:description] || options[:desc]
         @options = options
         @store = []
@@ -29,6 +30,10 @@ module Origen
           @store[i] = pin
         end
         on_init(owner, options)
+      end
+
+      def rtl_name
+        (@rtl_name || id).to_s
       end
 
       # Returns the value held by the pin group as a string formatted to the current tester's pattern syntax
@@ -320,8 +325,16 @@ module Origen
       alias_method :store!, :capture!
 
       def restore_state
-        each(&:save)
+        save
         yield
+        restore
+      end
+
+      def save
+        each(&:save)
+      end
+
+      def restore
         each(&:restore)
       end
 
