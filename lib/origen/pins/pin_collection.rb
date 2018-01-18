@@ -5,6 +5,7 @@ module Origen
     class PinCollection
       include PinCommon
       include Enumerable
+      include OrgFile::Interceptable
 
       attr_accessor :endian
       attr_accessor :description
@@ -34,6 +35,10 @@ module Origen
 
       def rtl_name
         (@rtl_name || id).to_s
+      end
+
+      def global_path_to
+        "dut.pins(:#{id})"
       end
 
       # Returns the value held by the pin group as a string formatted to the current tester's pattern syntax
@@ -75,7 +80,7 @@ module Origen
             fail 'When setting vector_formatted_value on a pin group you must supply values for all pins!'
           end
           val.split(//).reverse.each_with_index do |val, i|
-            self[i].vector_formatted_value = val
+            myself[i].vector_formatted_value = val
           end
           @vector_formatted_value = val
         end
@@ -145,12 +150,12 @@ module Origen
 
       def sort!(&block)
         @store = sort(&block)
-        self
+        myself
       end
 
       def sort_by!
         @store = sort_by
-        self
+        myself
       end
 
       def []=(index, pin)
@@ -216,7 +221,7 @@ module Origen
         each_with_index do |pin, i|
           pin.drive(val[size - i - 1])
         end
-        self
+        myself
       end
 
       def drive!(val)
@@ -227,7 +232,7 @@ module Origen
       # Set all pins in pin group to drive 1's on future cycles
       def drive_hi
         each(&:drive_hi)
-        self
+        myself
       end
 
       def drive_hi!
@@ -238,7 +243,7 @@ module Origen
       # Set all pins in pin group to drive 0's on future cycles
       def drive_lo
         each(&:drive_lo)
-        self
+        myself
       end
 
       def drive_lo!
@@ -250,7 +255,7 @@ module Origen
       # For example on a J750 high-voltage channel the pin state would be set to "2"
       def drive_very_hi
         each(&:drive_very_hi)
-        self
+        myself
       end
 
       def drive_very_hi!
@@ -260,7 +265,7 @@ module Origen
 
       def drive_mem
         each(&:drive_mem)
-        self
+        myself
       end
 
       def drive_mem!
@@ -270,7 +275,7 @@ module Origen
 
       def expect_mem
         each(&:expect_mem)
-        self
+        myself
       end
 
       def expect_mem!
@@ -298,7 +303,7 @@ module Origen
 
       def toggle
         each(&:toggle)
-        self
+        myself
       end
 
       def toggle!
@@ -308,13 +313,13 @@ module Origen
 
       def repeat_previous=(bool)
         each { |pin| pin.repeat_previous = bool }
-        self
+        myself
       end
 
       # Mark the (data) from all the pins in the pin group to be captured
       def capture
         each(&:capture)
-        self
+        myself
       end
       alias_method :store, :capture
 
@@ -356,7 +361,7 @@ module Origen
             pin.dont_care
           end
         end
-        self
+        myself
       end
       alias_method :compare, :assert
       alias_method :expect, :assert
@@ -371,7 +376,7 @@ module Origen
       # Set all pins in the pin group to expect 1's on future cycles
       def assert_hi(options = {})
         each { |pin| pin.assert_hi(options) }
-        self
+        myself
       end
       alias_method :expect_hi, :assert_hi
       alias_method :compare_hi, :assert_hi
@@ -386,7 +391,7 @@ module Origen
       # Set all pins in the pin group to expect 0's on future cycles
       def assert_lo(options = {})
         each { |pin| pin.assert_lo(options) }
-        self
+        myself
       end
       alias_method :expect_lo, :assert_lo
       alias_method :compare_lo, :assert_lo
@@ -401,7 +406,7 @@ module Origen
       # Set all pins in the pin group to X on future cycles
       def dont_care
         each(&:dont_care)
-        self
+        myself
       end
 
       def dont_care!
@@ -469,9 +474,9 @@ pins(:some_group).map(&:id).sort
         end
       end
 
-      # Delete this pingroup (self)
+      # Delete this pingroup (myself)
       def delete!
-        owner.delete_pin(self)
+        owner.delete_pin(myself)
       end
 
       private
@@ -514,7 +519,7 @@ pins(:some_group).map(&:id).sort
           else
             # Allow getters if all pins are the same
             ref = first.send(method, *args)
-            if self.all? { |pin| pin.send(method, *args) == ref }
+            if myself.all? { |pin| pin.send(method, *args) == ref }
               ref
             else
               fail "The pins held by pin collection #{id} have different values for #{method}"
