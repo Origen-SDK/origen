@@ -2,6 +2,7 @@ require 'set'
 module Origen
   class OrgFile
     # @api private
+    #
     # Helper for the Interceptor where block_given? doesn't work internally
     def self._block_given_?(&block)
       block_given?
@@ -10,6 +11,7 @@ module Origen
     class Interceptor < ::BasicObject
       def initialize(object, options = {})
         @object = object
+        @@locked = false unless defined? @@locked
       end
 
       def inspect(*args)
@@ -52,10 +54,18 @@ module Origen
       end
 
       def method_missing(method, *args, &block)
-        if @org_file && @org_file_methods_to_intercept.include?(method)
+        if !@@locked && @org_file && @org_file_methods_to_intercept.include?(method)
           @org_file.record(@object.global_path_to, method, *args)
+          # Locking prevents an operation on an intercepted container object trigger from generating multiple
+          # org file entries if its contained objects are also intercepted. e.g. Imagine this is a pin group, we
+          # want the org file to reflect the operation called on the pin group, but not the many subsequent internal
+          # operations as the group proxies the operation to its contained pins
+          @@locked = true
+          @object.send(method, *args, &block)
+          @@locked = false
+        else
+          @object.send(method, *args, &block)
         end
-        @object.send(method, *args, &block)
       end
 
       def respond_to?(method, include_private = false)
@@ -83,7 +93,7 @@ module Origen
       end
 
       def default_org_file_captures
-        @default_captures ||= Array(@object.try(:org_file_methods)).to_set
+        @default_captures ||= Array(@object.try(:org_file_intercepted_methods)).to_set
       end
     end
   end

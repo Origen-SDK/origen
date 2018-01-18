@@ -7,6 +7,13 @@ module Origen
       include Enumerable
       include OrgFile::Interceptable
 
+      ORG_FILE_INTERCEPTED_METHODS = [
+        :drive, :drive_hi, :drive_lo, :drive_very_hi, :drive_mem, :expect_mem, :toggle,
+        :repeat_previous=, :capture, :assert, :compare, :expect,
+        :assert_hi, :expect_hi, :compare_hi, :assert_lo, :expect_lo, :compare_lo,
+        :dont_care
+      ]
+
       attr_accessor :endian
       attr_accessor :description
       attr_accessor :group
@@ -39,6 +46,10 @@ module Origen
 
       def global_path_to
         "dut.pins(:#{id})"
+      end
+
+      def org_file_intercepted_methods
+        ORG_FILE_INTERCEPTED_METHODS
       end
 
       # Returns the value held by the pin group as a string formatted to the current tester's pattern syntax
@@ -217,7 +228,7 @@ module Origen
       alias_method :<<, :add_pin
 
       def drive(val)
-        val = val.data if val.respond_to?('data')
+        value = clean_value(value)
         each_with_index do |pin, i|
           pin.drive(val[size - i - 1])
         end
@@ -352,6 +363,7 @@ module Origen
       end
 
       def assert(value, options = {})
+        value = clean_value(value)
         each_with_index do |pin, i|
           if !value.respond_to?('data')
             pin.assert(value[size - i - 1], options)
@@ -480,6 +492,15 @@ pins(:some_group).map(&:id).sort
       end
 
       private
+
+      def clean_value(val)
+        val = val.data if val.respond_to?('data')
+        if val.is_a?(String) || val.is_a?(Symbol)
+          Origen::Value.new(val)
+        else
+          val
+        end
+      end
 
       # Cleans up indexed references to pins, e.g. makes these equal:
       #

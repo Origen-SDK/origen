@@ -4,6 +4,16 @@ module Origen
       include PinCommon
       include OrgFile::Interceptable
 
+      # Don't include the ! method in here, the cycle will be captured at the tester level and
+      # it would cause a double cycle in the org file if also captured at the pin
+      ORG_FILE_INTERCEPTED_METHODS = [
+        :suspend, :resume, :repeat_previous=,
+        :drive_hi, :drive_hi, :drive_very_hi, :drive_lo, :drive_lo, :drive_mem, :expect_mem,
+        :assert_hi, :expect_hi, :compare_hi, :assert_lo, :expect_lo, :compare_lo, :dont_care,
+        :drive, :assert, :compare, :expect, :assert_midband, :compare_midband, :expect_midband,
+        :toggle, :capture, :store
+      ]
+
       # Any attributes listed here will be looked up for the current function defined
       # by the current mode and configuration context before falling back to a default
       FUNCTION_SCOPED_ATTRIBUTES = [:name, :direction, :option, :group, :ip_block, :meta]
@@ -91,6 +101,10 @@ module Origen
 
       def global_path_to
         "dut.pins(:#{id})"
+      end
+
+      def org_file_intercepted_methods
+        ORG_FILE_INTERCEPTED_METHODS
       end
 
       # Returns the drive cycle wave assigned to the pin based on the currently enabled timeset,
@@ -631,30 +645,36 @@ module Origen
       end
 
       def set_value(val)
+        orig = val
         invalidate_vector_cache
         if val.is_a?(String) || val.is_a?(Symbol)
-          @vector_formatted_value = val.to_s
-        else
-          if val.is_a?(Origen::Value)
-            val = val[0]
+          val = val.to_s
+          if val =~ /^(b|h).+/
+            val = Origen::Value.new(val)
           else
-            # If val is a data bit extract the value of it
-            val = val.respond_to?(:data) ? val.data : val
-            # Assume driving/asserting a nil value means 0
-            val = 0 unless val
-            if !val.x_or_z? && val > 1
-              fail "Attempt to set a value of #{val} on pin #{name}"
-            end
+            @vector_formatted_value = val
+            return
           end
-          @repeat_previous = false
-          if val.x_or_z?
-            dont_care
+        end
+        if val.is_a?(Origen::Value)
+          val = val[0]
+        else
+          # If val is a data bit extract the value of it
+          val = val.respond_to?(:data) ? val.data : val
+          # Assume driving/asserting a nil value means 0
+          val = 0 unless val
+          if !val.x_or_z? && val > 1
+            fail "Attempt to set a value of #{val} on pin #{name}"
+          end
+        end
+        @repeat_previous = false
+        if val.x_or_z?
+          dont_care
+        else
+          if inverted?
+            @value = val == 0 ? 1 : 0
           else
-            if inverted?
-              @value = val == 0 ? 1 : 0
-            else
-              @value = val
-            end
+            @value = val
           end
         end
       end
