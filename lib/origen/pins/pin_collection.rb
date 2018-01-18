@@ -494,6 +494,7 @@ pins(:some_group).map(&:id).sort
       private
 
       def clean_value(val)
+        return val if val.respond_to?(:contains_bits?)
         val = val.data if val.respond_to?('data')
         if val.is_a?(String) || val.is_a?(Symbol)
           Origen::Value.new(val)

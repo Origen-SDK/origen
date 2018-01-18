@@ -28,7 +28,7 @@ module Origen
 
       def close(id, options = {})
         fail "An org_file with this ID has not been opened id: #{id}" unless open_files[id]
-        open_files[id].close
+        open_files[id].close unless options[:_internal_org_file_call_]
         open_files[id] = nil
       end
 
@@ -82,6 +82,8 @@ module Origen
         file.puts "#{@buffer}#{@buffer_cycles}" if @buffer
         file.close
       end
+      self.class.close(id, _internal_org_file_call_: true)
+      nil
     end
 
     def read_line
@@ -89,7 +91,11 @@ module Origen
       operations = file.readline.strip.split(';')
       cycles = operations.pop.to_i
       operations = operations.map { |op| op.split(',') }.map { |op| op[0] = eval(op[0]); op }
-      yield operations, cycles
+      if block_given?
+        yield operations, cycles
+      else
+        [operations, cycles]
+      end
     end
 
     def record(path_to_object, method, *args)
