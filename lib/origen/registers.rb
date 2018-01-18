@@ -504,7 +504,7 @@ module Origen
     # Can also be used to define a new register if a block is supplied in which case
     # it is equivalent to calling add_reg with a block.
     def reg(*args, &block)
-      if block_given? || (args[1].is_a?(Fixnum) && !try(:_initialized?))
+      if block_given? || (args[1].is_a?(Integer) && !try(:_initialized?))
         @reg_define_file = define_file(caller[0])
         add_reg(*args, &block)
       else

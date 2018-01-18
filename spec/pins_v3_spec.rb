@@ -68,7 +68,7 @@ describe "Origen Pin API v3" do
       $dut.pin[:pinx].direction.should == :io
       $dut.pin[:piny].direction.should == :input
       $dut.pin[:pinz].direction.should == :io
-      $dut.pin[:pinz].rtl_name.should == nil
+      $dut.pin[:pinz].rtl_name.should == "pinz"
       $dut.pin[:piny].rtl_name.should == "piny[0]"
     end
 

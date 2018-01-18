@@ -321,6 +321,11 @@ describe 'Origen PinCollection API v3' do
       $tester.current_pin_vals.should == '0 1 LLLLLLLL X'
     end
 
+    it 'rtl_name can be assigned and extracted at collection level' do
+      $dut.add_pins :rtl_pins_a, size: 8
+      $dut.add_pins :rtl_pins_b, size: 8, rtl_name: :pins_b
+      $dut.pins(:rtl_pins_a).rtl_name.should == "rtl_pins_a"
+      $dut.pins(:rtl_pins_b).rtl_name.should == "pins_b"
+    end
   end
-
 end

@@ -23,6 +23,19 @@ if ENV['BUNDLE_GEMFILE']
   Bundler.require(:development)
   Bundler.require(:runtime)
   Bundler.require(:default)
+else
+  # If we're not running from a Bundler build, which we aren't here,
+  # get a list of installed system gems. Go through this list finding and get any that has a dependency
+  # on Origen. If so, assume that gem is a plugin.
+  # For all plugins, require it to register as a plugin.
+  # The global handler below will take it from there.
+  Gem::Specification.each do |gem|
+    gem.dependencies.each do |d|
+      if d.name == 'origen'
+        require gem.name
+      end
+    end
+  end
 end
 
 # Load the global app and an empty target, this helps to ensure that all of Origen's functionality

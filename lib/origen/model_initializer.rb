@@ -14,7 +14,7 @@ module Origen
         x.send(:init_sub_blocks, *args) if x.respond_to?(:init_sub_blocks)
         if x.respond_to?(:version=)
           version = options[:version]
-          version ||= args.first if args.first.is_a?(Fixnum)
+          version ||= args.first if args.first.is_a?(Integer)
           x.version = version
         end
         if x.respond_to?(:parent=)

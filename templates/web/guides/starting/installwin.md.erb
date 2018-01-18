@@ -82,8 +82,10 @@ choco install consoleZ -y --force
 
 ### 3. Install Ruby
 
+#### 3.1 Install the Ruby Executable
+
 ~~~text
-choco install ruby -y --version=2.2.4 --force
+choco install ruby -y --version=2.3 --force
 choco install ruby2.devkit -y --force
 ~~~
 
@@ -91,15 +93,32 @@ choco install ruby2.devkit -y --force
 
 Execute the following command from the console:
 
+#### 3.2 Install RubyGems
+
 ~~~text
-@powershell (new-object System.Net.WebClient).DownloadFile('https://rubygems.org/downloads/rubygems-update-2.6.7.gem’,'C:\rubygems-update-2.6.7.gem') && gem install --local C:\rubygems-update-2.6.7.gem && update_rubygems --no-ri --no-rdoc && gem uninstall rubygems-update -x
+@powershell (new-object System.Net.WebClient).DownloadFile('https://rubygems.org/downloads/rubygems-update-2.7.3.gem’,'C:\rubygems-update-2.7.3.gem') && gem install --local C:\rubygems-update-2.7.3.gem && update_rubygems --no-ri --no-rdoc && gem uninstall rubygems-update -x
 ~~~
+
+<div class="alert alert-danger">
+  The version of Ruby is just a recommendation from the Origen development team. Origen has proven to
+  work on several versions of Ruby. However, changing the version of Ruby may also require you to reevaluate
+  the version of RubyGems used. For example, we've found that Ruby 2.2.4, is not fully compatible RubyGems 2.6.7,
+  for all gems (we run into issues with Symlinks on Windows that are resolved by updating RubyGems) but
+  it works with RubyGems 2.2.3. Also, the version of RubyGems that ships with your installation of Ruby may be
+  fine. See the <a href="http://guides.rubygems.org/rubygems-basics/">RubyGems website</a> for additional details.
+  <br>
+  <br>
+  The conclusion of this alert box is don't stress too much about the exact versions you're using and if you
+  run into issues installing gems, consider possible incompatabilities between the versions of Ruby, RubyGems,
+  or the gem that you are trying to install. You can also use RubyGems to manually install the gems yourself,
+  to bypass any installation options Origen may try to set.
+</div>
 
 Open <code>C:\tools\DevKit2\config.yml</code> in your favorite editor and write this at the
 bottom:
 
 ~~~text
-- C:/tools/ruby22
+- C:/tools/ruby23
 ~~~
 
 Save it, and then execute the following commands from the console:

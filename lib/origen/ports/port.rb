@@ -71,7 +71,7 @@ module Origen
       def drive(value = nil, options = {})
         value, options = nil, value if value.is_a?(Hash)
         if options[:index]
-          if options[:index].is_a?(Fixnum)
+          if options[:index].is_a?(Integer)
             drive_values[options[:index]] = value ? value[0] : nil
           else
             options[:index].to_a.each do |i|

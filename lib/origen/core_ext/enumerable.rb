@@ -1,5 +1,5 @@
 module Enumerable
-  PRIMATIVES = [TrueClass, FalseClass, NilClass, Integer, Float, String, Symbol, Regexp, Complex, Rational, Fixnum, Bignum]
+  PRIMATIVES = [TrueClass, FalseClass, NilClass, String, Symbol, Regexp, Numeric]
 
   def debug(msg)
     Origen.log.debug(msg)
@@ -48,7 +48,7 @@ module Enumerable
           end
           next
         else
-          next unless options[:select].empty? || options[:select].include?(item.class) || PRIMATIVES.include?(item.class)
+          next unless options[:select].empty? || options[:select].include?(item.class) || PRIMATIVES.any? { |klass| item.is_a?(klass) }
           next if options[:ignore].include?(item.class)
           case item
           when NilClass
