@@ -54,8 +54,11 @@ module Origen
       append = find_val('append_dot_origen')
       append = '.origen' if append == true || append.nil?
 
+      gem_append = find_val('append_dot_origen')
+      gem_append = 'gems' if gem_append == true || gem_append.nil?
+
       if append
-        unless path.end_with?(append)
+        unless path.end_with?(append) || path.end_with?(File.join(append, gem_append))
           path = File.join(path, append)
         end
       end
@@ -202,7 +205,7 @@ module Origen
           configs << YAML.load_file(file) if File.exist?(file) && YAML.load_file(file)
           path = path.parent
         end
-        
+
         # Add and any site_configs from the directory hierarchy where Ruby is installed
         path = Pathname.new($LOAD_PATH.last)
         until path.root?
@@ -210,13 +213,13 @@ module Origen
           configs << YAML.load_file(file) if File.exist?(file) && YAML.load_file(file)
           path = path.parent
         end
-        
+
         # Add the one from the Origen core as the lowest priority, this one defines
         # the default values
         configs << YAML.load_file(File.expand_path('../../../origen_site_config.yml', __FILE__))
         configs
       end
-      
+
       # Add the site_config from the user's home directory as highest priority, if it exists
       # But, make sure we take the site installation's setup into account.
       # That is, if user's home directories are somewhere else, make sure we use that directory to the find
@@ -225,7 +228,7 @@ module Origen
       if File.exist?(user_config)
         @configs.unshift(YAML.load_file(user_config)) if YAML.load_file(user_config)
       end
-      
+
       @configs
     end
   end
