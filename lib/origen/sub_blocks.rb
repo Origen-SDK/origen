@@ -315,8 +315,13 @@ module Origen
       end
 
       # Make this appear like a sub-block to any application code
+      def class
+        klass
+      end
+
+      # Make this appear like a sub-block to any application code
       def is_a?(klass)
-        klass == self.klass || klass == self.class
+        klass == self.klass || klass == Placeholder
       end
 
       # Make it look like a sub-block in the console to avoid confusion

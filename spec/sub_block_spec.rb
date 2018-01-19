@@ -62,6 +62,17 @@ module SubBlocksSpec
       end
     end
 
+    it "sub-block placeholders should look like the underlying sub-block to users" do
+      c = Top.new
+      c.sub1.is_a?(Origen::SubBlocks::Placeholder).should == true
+      c.sub1.is_a?(Sub1).should == true
+      c.sub1.class.should == Sub1
+      c.sub1.is_a?(Origen::SubBlocks::Placeholder).should == true
+      c.sub1.reg1
+      c.sub1.is_a?(Origen::SubBlocks::Placeholder).should == false
+      c.sub1.is_a?(Sub1).should == true
+    end
+
     it "multiple instances can be declared" do
       class Top2
         include Origen::Model
