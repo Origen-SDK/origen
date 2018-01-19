@@ -1,3 +1,18 @@
+<a class="anchor release_tag" name="v0_29_0"></a>
+<h1><a href="#v0_29_0">Tag: v0.29.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 19-Jan-2018 10:23AM
+
+
+* Various improvements and bug fixes to enable plugins to add global commands (i.e. available
+  outside of an Origen application workspace).
+* Officially only support Ruby 2 now (though probably has effectively been the case for a long
+  time).
+* Added internal infrastructure to enable the generation of org files (Origen native pattern
+  vector format).
+
 <a class="anchor release_tag" name="v0_28_2"></a>
 <h1><a href="#v0_28_2">Tag: v0.28.2</a></h1>
 
