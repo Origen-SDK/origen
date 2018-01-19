@@ -54,11 +54,11 @@ module Origen
       append = find_val('append_dot_origen')
       append = '.origen' if append == true || append.nil?
 
-      gem_append = find_val('append_dot_origen')
+      gem_append = find_val('append_gems')
       gem_append = 'gems' if gem_append == true || gem_append.nil?
 
       if append
-        unless path.end_with?(append) || path.end_with?(File.join(append, gem_append))
+        unless path.end_with?(append) || (path.end_with?(File.join(append, gem_append)) if gem_append)
           path = File.join(path, append)
         end
       end
