@@ -10,6 +10,8 @@ module Origen
     class Component
       include Origen::Componentable
       
+      COMPONENTABLE_ADDS_ACCESSORS = true
+      
       # Kind of ironic really, but since we're auto-including this when Origen::Model is included,
       # we can't include Origen::Model here or else we'll get a circular dependency.
       # Note that the parent will still initialize correctly, but we need to initialize Components manually.

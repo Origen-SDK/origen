@@ -9,7 +9,7 @@ module ComponentsSpec
   end
 end
 
-fdescribe 'Components Spec' do
+describe 'Components Spec' do
   context 'with dummy class including Origen::Model' do
     before :context do
       @test = ComponentsSpec::ComponentsTest.new
@@ -48,6 +48,12 @@ fdescribe 'Components Spec' do
     
     it 'can list components' do
       expect(@test.list_components).to eql ["item1", "item2"]
+    end
+    
+    it 'adds accessor methods' do
+      expect(@test).to_not respond_to(:item_accessor)
+      @test.components(:item_accessor)
+      expect(@test).to respond_to(:item_accessor)
     end
     
     it 'can delete all components' do

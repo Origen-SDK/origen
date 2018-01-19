@@ -41,7 +41,7 @@ module ComponentableSpec
     end
   end
 
-  fdescribe 'Componentable' do
+  describe 'Componentable' do
     include_examples :componentable_namer_spec
     include_examples :componentable_bootup_spec
     include_examples :componentable_includer_spec

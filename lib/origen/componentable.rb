@@ -55,6 +55,22 @@ module Origen
       end
     end
     
+    def self.parent_class_evaled?(parent_class, includer_singleton_name)
+      evaled = parent_class.instance_variable_get("@_#{includer_singleton_name}_evaled")
+      if evaled.nil?
+        # Check that this class isn't inheriting from another class that uses Componentable things.
+        # If so, the API is inherited and is fine, so set the evaled value for that class to true.
+        parent_class.ancestors.each do |ancestor|
+          if ancestor.instance_variable_get("@_#{includer_singleton_name}_evaled")
+            parent_class.instance_variable_set("@_#{includer_singleton_name}_evaled", true)
+            evaled = true
+            break
+          end
+        end
+      end
+      evaled
+    end
+    
     def self.init_parent_class(parent_class, includer_class)
       #includer_single_name = begin
       #  if includer_class.name.include?('::')
@@ -73,6 +89,66 @@ module Origen
         inc = parent_class.instance_variable_set("@_#{includer_single_name}".to_sym, includer_class.new)
         inc.parent = parent_class
         parent_class = parent_class.class
+      end
+      
+      # If the includer's singleton name is taken (i.e., the parent already has a method <includer_single_name>),
+      # raise an error since the 'proper' way to interact with the includer directly is from this method.
+      if !Origen::Componentable.parent_class_evaled?(parent_class, includer_single_name) && parent_class.method_defined?(includer_single_name.to_sym)
+        raise Origen::Componentable::Error, "Class #{parent_class.name} provides a method :#{includer_single_name} already. Cannot include Componentable class #{includer_class.name} in this object!"
+      end
+      
+      # for everything that's not the singleton name method or the @_<singleton_name> instance variable, having the method
+      # already exists is a warning, not an error.
+      methods_to_add = [
+        includer_plural_name.to_sym,
+        
+        # Add methods
+        "add_#{includer_single_name}".to_sym,
+        "add_#{includer_plural_name}".to_sym,
+        
+        # Listing/Querying methods
+        "list_#{includer_plural_name}".to_sym,
+        "#{includer_plural_name}_of_class".to_sym,
+        "#{includer_plural_name}_instances_of".to_sym,
+        "#{includer_plural_name}_of_type".to_sym,
+        "#{includer_single_name}?".to_sym,
+        "has_#{includer_single_name}?".to_sym,
+
+
+        # Enumeration methods
+        "each_#{includer_single_name}".to_sym,
+        "all_#{includer_plural_name}".to_sym,
+        "select_#{includer_plural_name}".to_sym,
+        "select_#{includer_single_name}".to_sym,
+        
+        # Copying/Moving methods
+        "copy_#{includer_single_name}".to_sym,
+        "copy_#{includer_plural_name}".to_sym,
+        "move_#{includer_single_name}".to_sym,
+        "move_#{includer_plural_name}".to_sym,
+
+        # Deleting individual item methods
+        "delete_#{includer_single_name}".to_sym,
+        "delete_#{includer_plural_name}".to_sym,
+        "remove_#{includer_single_name}".to_sym,
+        "remove_#{includer_plural_name}".to_sym,
+        "delete_#{includer_single_name}!".to_sym,
+        "delete_#{includer_plural_name}!".to_sym,
+        "remove_#{includer_single_name}!".to_sym,
+        "remove_#{includer_plural_name}!".to_sym,
+        
+        # Deleting all items methods
+        "delete_all_#{includer_plural_name}".to_sym,
+        "clear_#{includer_plural_name}".to_sym,
+        "remove_all_#{includer_plural_name}".to_sym,
+      ]
+      unless Origen::Componentable.parent_class_evaled?(parent_class, includer_single_name)
+        methods_to_add.each do |m|
+          if parent_class.method_defined?(m)
+            Origen.log.warning "Componentable: Parent class #{parent_class.name} already defines a method #{m}. This method will not be used by Componentable"
+          end
+        end
+        parent_class.instance_variable_set("@_#{includer_single_name}_evaled".to_sym, true)
       end
       
       parent_class.class_eval do
@@ -342,7 +418,6 @@ module Origen
           # set the instance's name and add it and its options to the list to be added
           instances["#{name}#{i}".to_sym] = opts
         end
-        puts instances
         instances
       else
         if block_given?
@@ -415,8 +490,7 @@ module Origen
       if parent
         def push_accessor(name)
           if parent.respond_to?(name.to_sym)
-            raise Origen::Componentable::NameInUseError,
-                  "Method :#{name} already exists on object #{parent.class}!"
+            Origen.log.warn("Componentable: #{_singleton_name} is trying to add an accessor for item :#{name} to parent #{parent.class.name} but that method already exist! No accessor will be added.")
           else
             parent.send(:eval, "define_singleton_method :#{name.to_sym} do; #{_singleton_name}[:#{name}]; end")
           end

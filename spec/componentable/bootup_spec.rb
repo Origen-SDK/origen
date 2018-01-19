@@ -48,6 +48,35 @@ RSpec.shared_examples :componentable_bootup_spec do
         include Origen::Model
         include TestComponent
       end
+      
+      # Instantiating this class should result in a Origen::Componentable::Error exception
+      class InitParentWithSingletonMethodDefined
+        include Origen::Model
+        include TestComponent
+        
+        def test_component
+          "hi"
+        end
+      end
+      
+      # Instantiating this class should result in three warnings.
+      class InitParentWithParentMethodsDefined
+        include Origen::Model
+        include TestComponent
+        
+        def test_components
+          "hi"
+        end
+        
+        def add_test_component
+          "hi"
+        end
+        
+        def each_test_component
+          "hi"
+        end
+      end
+      
     end
   end
 
@@ -257,6 +286,24 @@ RSpec.shared_examples :componentable_bootup_spec do
         end
       end
     end
-
+    
+    context 'with some methods defined by the parent already' do
+      
+      it 'fails if the singleton name is alredy taken' do
+        expect {
+          ComponentableSpec::InitTests::InitParentWithSingletonMethodDefined.new
+        }.to raise_error Origen::Componentable::Error, 'Class ComponentableSpec::InitTests::InitParentWithSingletonMethodDefined provides a method :test_component already. Cannot include Componentable class ComponentableSpec::TestComponent::TestComponent in this object!'
+      end
+      
+      it 'warns if any of the other generic methods already exists' do
+        ComponentableSpec::InitTests::InitParentWithParentMethodsDefined.new
+        
+        # Check that the logger's last three warnings were the expected warnings.
+        expect(Origen.log.msg_hash[:warn][nil][-3]).to include('Componentable: Parent class ComponentableSpec::InitTests::InitParentWithParentMethodsDefined already defines a method test_components. This method will not be used by Componentable')
+        expect(Origen.log.msg_hash[:warn][nil][-2]).to include('Componentable: Parent class ComponentableSpec::InitTests::InitParentWithParentMethodsDefined already defines a method add_test_component. This method will not be used by Componentable')
+        expect(Origen.log.msg_hash[:warn][nil][-1]).to include('Componentable: Parent class ComponentableSpec::InitTests::InitParentWithParentMethodsDefined already defines a method each_test_component. This method will not be used by Componentable')
+      end
+    end
+    
   end
 end
