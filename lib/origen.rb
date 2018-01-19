@@ -66,6 +66,7 @@ unless defined? RGen::ORIGENTRANSITION
     autoload :PowerDomains,      'origen/power_domains'
     autoload :Clocks,            'origen/clocks'
     autoload :Value,             'origen/value'
+    autoload :OrgFile,           'origen/org_file'
 
     attr_reader :switch_user
 

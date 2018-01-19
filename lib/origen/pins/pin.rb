@@ -2,6 +2,17 @@ module Origen
   module Pins
     class Pin
       include PinCommon
+      include OrgFile::Interceptable
+
+      # Don't include the ! method in here, the cycle will be captured at the tester level and
+      # it would cause a double cycle in the org file if also captured at the pin
+      ORG_FILE_INTERCEPTED_METHODS = [
+        :suspend, :resume, :repeat_previous=,
+        :drive_hi, :drive_hi, :drive_very_hi, :drive_lo, :drive_lo, :drive_mem, :expect_mem,
+        :assert_hi, :expect_hi, :compare_hi, :assert_lo, :expect_lo, :compare_lo, :dont_care,
+        :drive, :assert, :compare, :expect, :assert_midband, :compare_midband, :expect_midband,
+        :toggle, :capture, :store
+      ]
 
       # Any attributes listed here will be looked up for the current function defined
       # by the current mode and configuration context before falling back to a default
@@ -88,6 +99,14 @@ module Origen
         send(@reset)
       end
 
+      def global_path_to
+        "dut.pins(:#{id})"
+      end
+
+      def org_file_intercepted_methods
+        ORG_FILE_INTERCEPTED_METHODS
+      end
+
       # Returns the drive cycle wave assigned to the pin based on the currently enabled timeset,
       # or nil if none is set.
       # Note that if a timeset is set then all pins will always return a wave as they will pick
@@ -98,7 +117,7 @@ module Origen
           # every cycle in some applications
           @drive_waves ||= {}
           @drive_waves[t.id] ||= {}
-          @drive_waves[t.id][code] ||= dut.current_timeset.send(:wave_for, self, type: :drive, code: code)
+          @drive_waves[t.id][code] ||= dut.current_timeset.send(:wave_for, myself, type: :drive, code: code)
         end
       end
 
@@ -112,7 +131,7 @@ module Origen
           # every cycle in some applications
           @compare_waves ||= {}
           @compare_waves[t.id] ||= {}
-          @compare_waves[t.id][code] ||= dut.current_timeset.send(:wave_for, self, type: :compare, code: code)
+          @compare_waves[t.id][code] ||= dut.current_timeset.send(:wave_for, myself, type: :compare, code: code)
         end
       end
 
@@ -139,7 +158,7 @@ module Origen
       def hello
         drive_hi
         @@hello_pins ||= []
-        @@hello_pins << self unless @@hello_pins.include?(self)
+        @@hello_pins << myself unless @@hello_pins.include?(myself)
         @@hello_loop ||= Thread.new do
           loop do
             @@hello_pins.each(&:toggle)
@@ -157,7 +176,7 @@ module Origen
 
       # See Pin#hello
       def goodbye
-        @@hello_pins.delete(self)
+        @@hello_pins.delete(myself)
         puts "Pin #{name} has stopped toggling"
       end
 
@@ -260,7 +279,7 @@ module Origen
       #   pin.expect_lo
       #   pin.to_vector   # => "L"
       def to_vector
-        @vector_formatted_value ||= Origen.tester.format_pin_state(self)
+        @vector_formatted_value ||= Origen.tester.format_pin_state(myself)
       end
 
       # @api private
@@ -282,13 +301,13 @@ module Origen
       #   pin.value                         # => 1
       def vector_formatted_value=(val)
         unless @vector_formatted_value == val
-          Origen.tester.update_pin_from_formatted_state(self, val)
+          Origen.tester.update_pin_from_formatted_state(myself, val)
           @vector_formatted_value = val
         end
       end
 
       def inspect
-        "<#{self.class}:#{object_id}>"
+        "<#{myself.class}:#{object_id}>"
       end
 
       def describe(options = {})
@@ -384,7 +403,7 @@ module Origen
       def groups
         # Origen.pin_bank.all_pin_groups.select do |name, group|
         @groups ||= Origen.pin_bank.pin_groups.select do |_name, group|
-          group.include?(self)
+          group.include?(myself)
         end
       end
       alias_method :pin_groups, :groups
@@ -407,8 +426,8 @@ module Origen
         else
           packages.each do |package_id|
             package_id = package_id.respond_to?(:id) ? package_id.id : package_id
-            self.packages[package_id] ||= {}
-            self.packages[package_id][:location] = str
+            myself.packages[package_id] ||= {}
+            myself.packages[package_id][:location] = str
             add_alias str.to_s.symbolize, package: package_id, mode: :all, configuration: :all
           end
         end
@@ -428,9 +447,9 @@ module Origen
         else
           packages.each do |package_id|
             package_id = package_id.respond_to?(:id) ? package_id.id : package_id
-            self.packages[package_id] ||= {}
-            self.packages[package_id][:dib_assignment] ||= []
-            self.packages[package_id][:dib_assignment][options[:site]] = str
+            myself.packages[package_id] ||= {}
+            myself.packages[package_id][:dib_assignment] ||= []
+            myself.packages[package_id][:dib_assignment][options[:site]] = str
             add_alias str.to_s.symbolize, package: package_id, mode: :all, configuration: :all
           end
         end
@@ -484,7 +503,7 @@ module Origen
       def add_function(id, options = {})
         id = id.to_sym
         add_function_attributes(options.merge(name: id, id: id.to_sym))
-        f = FunctionProxy.new(id, self)
+        f = FunctionProxy.new(id, myself)
         add_alias id, packages: :all, obj: f
       end
 
@@ -526,7 +545,7 @@ module Origen
       # If the options contain a package, mode or configuration reference then the alias
       # will only work under that context.
       def add_alias(id, options = {})
-        obj = options.delete(:obj) || self
+        obj = options.delete(:obj) || myself
         if aliases[id]
           aliases[id][:packages] += resolve_packages(options)
           aliases[id][:modes] += resolve_modes(options)
@@ -572,7 +591,7 @@ module Origen
       # Returns true if the pin is an alias of the given pin name
       def is_alias_of?(name)
         if Origen.pin_bank.find(name)
-          Origen.pin_bank.find(name).id == Origen.pin_bank.find(self).id
+          Origen.pin_bank.find(name).id == Origen.pin_bank.find(myself).id
         else
           false
         end
@@ -626,30 +645,36 @@ module Origen
       end
 
       def set_value(val)
+        orig = val
         invalidate_vector_cache
         if val.is_a?(String) || val.is_a?(Symbol)
-          @vector_formatted_value = val.to_s
-        else
-          if val.is_a?(Origen::Value)
-            val = val[0]
+          val = val.to_s
+          if val =~ /^(b|h).+/
+            val = Origen::Value.new(val)
           else
-            # If val is a data bit extract the value of it
-            val = val.respond_to?(:data) ? val.data : val
-            # Assume driving/asserting a nil value means 0
-            val = 0 unless val
-            if !val.x_or_z? && val > 1
-              fail "Attempt to set a value of #{val} on pin #{name}"
-            end
+            @vector_formatted_value = val
+            return
           end
-          @repeat_previous = false
-          if val.x_or_z?
-            dont_care
+        end
+        if val.is_a?(Origen::Value)
+          val = val[0]
+        else
+          # If val is a data bit extract the value of it
+          val = val.respond_to?(:data) ? val.data : val
+          # Assume driving/asserting a nil value means 0
+          val = 0 unless val
+          if !val.x_or_z? && val > 1
+            fail "Attempt to set a value of #{val} on pin #{name}"
+          end
+        end
+        @repeat_previous = false
+        if val.x_or_z?
+          dont_care
+        else
+          if inverted?
+            @value = val == 0 ? 1 : 0
           else
-            if inverted?
-              @value = val == 0 ? 1 : 0
-            else
-              @value = val
-            end
+            @value = val
           end
         end
       end
@@ -743,9 +768,9 @@ module Origen
         # options = { :active => false    #if active true means to take tester active load capability into account
         #          }.merge(options)
         # unless state_to_be_inverted?
-        #  self.state = ($tester.active_loads || !options[:active]) ? $tester.pin_state(:expect_lo) : $tester.pin_state(:dont_care)
+        #  myself.state = ($tester.active_loads || !options[:active]) ? $tester.pin_state(:expect_lo) : $tester.pin_state(:dont_care)
         # else
-        #  self.state = ($tester.active_loads || !options[:active]) ? $tester.pin_state(:expect_hi) : $tester.pin_state(:dont_care)
+        #  myself.state = ($tester.active_loads || !options[:active]) ? $tester.pin_state(:expect_hi) : $tester.pin_state(:dont_care)
         # end
       end
       alias_method :expect_lo, :assert_lo
@@ -938,7 +963,7 @@ module Origen
       end
 
       def enable_clock(options = {})
-        @clock = PinClock.new(self, options)
+        @clock = PinClock.new(myself, options)
       end
 
       def disable_clock(options = {})
@@ -951,7 +976,7 @@ module Origen
       end
 
       def start_clock(options = {})
-        enable_clock(options) if self.is_not_a_clock?
+        enable_clock(options) if myself.is_not_a_clock?
         @clock.start_clock(options)
       end
       alias_method :resume_clock, :start_clock
@@ -978,12 +1003,12 @@ module Origen
         @clock.toggle
       end
 
-      # Delete this pin (self).  Used bang in method name to keep same for pins and
+      # Delete this pin (myself).  Used bang in method name to keep same for pins and
       # pin collections.  Pin collections already had a delete method which deletes
       # a pin from the collection.  Needed delete! to indicate it is deleting the
       # actual pin or pin group calling the method.
       def delete!
-        owner.delete_pin(self)
+        owner.delete_pin(myself)
       end
 
       def type=(value)

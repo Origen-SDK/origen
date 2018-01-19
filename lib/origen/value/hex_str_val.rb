@@ -36,7 +36,7 @@ module Origen
       end
 
       def to_s
-        val
+        "h#{val}"
       end
 
       # Returns the value of the given bit.
