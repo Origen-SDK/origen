@@ -182,6 +182,8 @@ module Origen
     end
 
     # Forces a reparse of the site configs.
+    # This will set the @configs along the current path first,
+    # then, using those values, will add a site config at the home directory.
     def configs!
       @configs = begin
         # This global is set when Origen is first required, it generally means that what is considered
@@ -200,6 +202,7 @@ module Origen
           configs << YAML.load_file(file) if File.exist?(file) && YAML.load_file(file)
           path = path.parent
         end
+        
         # Add and any site_configs from the directory hierarchy where Ruby is installed
         path = Pathname.new($LOAD_PATH.last)
         until path.root?
@@ -207,21 +210,23 @@ module Origen
           configs << YAML.load_file(file) if File.exist?(file) && YAML.load_file(file)
           path = path.parent
         end
+        
         # Add the one from the Origen core as the lowest priority, this one defines
         # the default values
         configs << YAML.load_file(File.expand_path('../../../origen_site_config.yml', __FILE__))
-        # Add the site_config from the user's home directory as highest priority, if it exists
-        # But, make sure we take the site installation's setup into account.
-        # That is, if user's home directories are somewhere else, make sure we use that directory to the find
-        # the user's overwrite file. The user can then override that if they want."
-        install_path = configs.find { |c| c.key?('home_dir') }
-        install_path = install_path ? install_path['home_dir'] : nil
-        install_path.nil? ? user_config = nil : user_config =  File.join(File.expand_path(install_path), 'origen_site_config.yml')
-        if user_config && File.exist?(user_config)
-          configs.unshift(YAML.load_file(user_config)) if YAML.load_file(user_config)
-        end
         configs
       end
+      
+      # Add the site_config from the user's home directory as highest priority, if it exists
+      # But, make sure we take the site installation's setup into account.
+      # That is, if user's home directories are somewhere else, make sure we use that directory to the find
+      # the user's overwrite file. The user can then override that if they want."
+      user_config = File.join(File.expand_path(user_install_dir), 'origen_site_config.yml')
+      if File.exist?(user_config)
+        @configs.unshift(YAML.load_file(user_config)) if YAML.load_file(user_config)
+      end
+      
+      @configs
     end
   end
 
