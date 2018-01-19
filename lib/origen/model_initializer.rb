@@ -21,7 +21,7 @@ module Origen
           parent = options.delete(:parent)
           x.parent = parent if parent
         end
-        
+
         x.class.included_modules.each do |mod|
           mod.send(:origen_model_init, x) if mod.respond_to?(:origen_model_init)
           mod.constants.each do |constant|
@@ -30,7 +30,7 @@ module Origen
             end
           end
         end
-        
+
         options.each do |k, v|
           x.send(:instance_variable_set, "@#{k}", v) if x.respond_to?(k)
         end

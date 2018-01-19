@@ -789,6 +789,6 @@ unless defined? RGen::ORIGENTRANSITION
   # outside the scope of an Origen command
   require 'origen/global_methods'
   include Origen::GlobalMethods
-  
+
   require 'origen/components'
 end
