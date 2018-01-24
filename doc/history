@@ -1,3 +1,15 @@
+<a class="anchor release_tag" name="v0_30_0"></a>
+<h1><a href="#v0_30_0">Tag: v0.30.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Engelken Corey-B50956 on 24-Jan-2018 09:49AM
+
+
+Restored site config's user\_gem\_dir to previous behavior (enabled backwards compatability
+if a user\_gem\_dir already exist and points to /.origen/gems). Bug fix to site config
+wherein it wasn't finding a user's site config.
+
 <a class="anchor release_tag" name="v0_29_0"></a>
 <h1><a href="#v0_29_0">Tag: v0.29.0</a></h1>
 
