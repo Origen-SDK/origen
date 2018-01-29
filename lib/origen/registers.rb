@@ -91,7 +91,7 @@ module Origen
       def default_reg_metadata
         Origen::Registers.reg_metadata[:global] ||= {}
         if block_given?
-          collector = Collector.new
+          collector = Origen::Utility::Collector.new
           yield collector
           Origen::Registers.reg_metadata[:global].merge!(collector.store)
         end
@@ -107,7 +107,7 @@ module Origen
       def default_bit_metadata
         Origen::Registers.bit_metadata[:global] ||= {}
         if block_given?
-          collector = Collector.new
+          collector = Origen::Utility::Collector.new
           yield collector
           Origen::Registers.bit_metadata[:global].merge!(collector.store)
         end
@@ -275,18 +275,6 @@ module Origen
       end
     end
 
-    class Collector
-      attr_reader :store
-
-      def initialize
-        @store = {}
-      end
-
-      def method_missing(method, *args, &_block)
-        @store[method.to_s.sub('=', '').to_sym] = args.first
-      end
-    end
-
     # Returns true if the given object is one of the recognized Origen
     # bit containers (bit collection, reg or container).
     def contains_bits?(obj)
@@ -434,7 +422,7 @@ module Origen
     def default_reg_metadata
       Origen::Registers.reg_metadata[self.class] ||= {}
       if block_given?
-        collector = Collector.new
+        collector = Origen::Utility::Collector.new
         yield collector
         Origen::Registers.reg_metadata[self.class].merge!(collector.store)
       end
@@ -445,7 +433,7 @@ module Origen
     def default_bit_metadata
       Origen::Registers.bit_metadata[self.class] ||= {}
       if block_given?
-        collector = Collector.new
+        collector = Origen::Utility::Collector.new
         yield collector
         Origen::Registers.bit_metadata[self.class].merge!(collector.store)
       end

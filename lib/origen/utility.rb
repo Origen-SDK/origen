@@ -7,6 +7,7 @@ module Origen
     autoload :InputCapture, 'origen/utility/input_capture'
     autoload :BlockArgs, 'origen/utility/block_args'
     autoload :FileDiff,  'origen/utility/file_diff.rb'
+    autoload :Collector, 'origen/utility/collector.rb'
 
     # Creates a hex-like representation of a register read value, where bits within
     # a nibble have different flags set the nibble will be expanded to bits
