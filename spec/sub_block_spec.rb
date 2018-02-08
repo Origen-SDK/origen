@@ -73,6 +73,17 @@ module SubBlocksSpec
       c.sub1.is_a?(Sub1).should == true
     end
 
+    it "sub-block placeholders should pass equality comparison with their materialized self (and vice versa)" do
+      c = Top.new
+      placeholder = c.sub1
+      c.sub1.reg1
+      materialized = c.sub1
+      placeholder.is_a?(Origen::SubBlocks::Placeholder).should == true
+      materialized.is_a?(Origen::SubBlocks::Placeholder).should == false
+      (placeholder == materialized).should == true
+      (materialized == placeholder).should == true
+    end
+
     it "multiple instances can be declared" do
       class Top2
         include Origen::Model

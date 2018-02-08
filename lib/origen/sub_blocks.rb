@@ -348,12 +348,13 @@ module Origen
       end
 
       def ==(obj)
-        materialize == obj
+        if obj.is_a?(Placeholder)
+          materialize == obj.materialize
+        else
+          materialize == obj
+        end
       end
-
-      def !=(obj)
-        materialize != obj
-      end
+      alias_method :equal?, :==
 
       def freeze
         materialize.freeze

@@ -68,6 +68,14 @@ module Origen
       self
     end
 
+    def ==(obj)
+      if obj.is_a?(Origen::SubBlocks::Placeholder)
+        obj = obj.materialize
+      end
+      super(obj)
+    end
+    alias_method :equal?, :==
+
     def log
       Origen.log
     end
