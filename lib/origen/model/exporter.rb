@@ -9,10 +9,12 @@ module Origen
           include_timestamp:  true,
           file_path:          nil
         }.merge(options)
+        # file_path is for internal use, don't pass it from the application, use the :dir option if you
+        # want to change where the exported files are
         if options[:file_path]
           file = File.join(options[:file_path], "#{name}.rb")
         else
-          file = export_path(name)
+          file = export_path(name, options)
         end
         file = Pathname.new(file)
         FileUtils.rm_rf(file.sub_ext('').to_s) if File.exist?(file.sub_ext('').to_s)
@@ -72,7 +74,7 @@ module Origen
       end
 
       def import(name, options = {})
-        path = export_path(name)
+        path = export_path(name, options)
         if File.exist?(path)
           require path
           extend "#{Origen.app.namespace.underscore.camelcase}::#{name.to_s.camelcase}".constantize
@@ -123,20 +125,20 @@ module Origen
         end
         file.puts '# rubocop:disable all'
         indent = 0
-        export_module_names_from_path(file.path).each do |name|
+        export_module_names_from_path(file.path, options).each do |name|
           file.puts((' ' * indent) + "module #{name}")
           indent += 2
         end
         yield indent
-        export_module_names_from_path(file.path).each do |name|
+        export_module_names_from_path(file.path, options).each do |name|
           indent -= 2
           file.puts((' ' * indent) + 'end')
         end
         file.puts '# rubocop:enable all'
       end
 
-      def export_module_names_from_path(name)
-        name = name.sub("#{export_dir}/", '').sub('.rb', '')
+      def export_module_names_from_path(name, options = {})
+        name = name.sub("#{export_dir(options)}/", '').sub('.rb', '')
         name.split(/[\/\\]/).map do |n|
           if n == ''
             nil
@@ -146,12 +148,16 @@ module Origen
         end.compact
       end
 
-      def export_path(name)
-        File.join(export_dir, Origen.app.namespace.to_s.underscore, "#{name.to_s.underscore}.rb")
+      def export_path(name, options = {})
+        if options.key?(:namespace) && !options[:namespace]
+          File.join(export_dir(options), "#{name.to_s.underscore}.rb")
+        else
+          File.join(export_dir(options), (options[:namespace] || Origen.app.namespace).to_s.underscore, "#{name.to_s.underscore}.rb")
+        end
       end
 
-      def export_dir
-        File.join(Origen.root, 'vendor', 'lib', 'models')
+      def export_dir(options = {})
+        options[:dir] || File.join(Origen.root, 'vendor', 'lib', 'models')
       end
 
       def export_pin(id, pin, options = {})
