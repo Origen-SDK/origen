@@ -14,7 +14,6 @@ module Origen
         else
           file = export_path(name)
         end
-        file += '.rb' unless file =~ /.rb$/
         file = Pathname.new(file)
         FileUtils.rm_rf(file.sub_ext('').to_s) if File.exist?(file.sub_ext('').to_s)
         FileUtils.rm_rf(file.to_s) if File.exist?(file.to_s)
@@ -74,8 +73,17 @@ module Origen
 
       def import(name, options = {})
         path = export_path(name)
-        require path
-        extend "#{Origen.app.namespace.underscore.camelcase}::#{name.to_s.camelcase}".constantize
+        if File.exist?(path)
+          require path
+          extend "#{Origen.app.namespace.underscore.camelcase}::#{name.to_s.camelcase}".constantize
+          true
+        else
+          if options[:allow_missing]
+            false
+          else
+            fail "The import for #{name} could not be found at #{path}"
+          end
+        end
       end
 
       private
@@ -139,7 +147,7 @@ module Origen
       end
 
       def export_path(name)
-        File.join(export_dir, Origen.app.namespace.to_s.underscore, name.to_s.underscore)
+        File.join(export_dir, Origen.app.namespace.to_s.underscore, "#{name.to_s.underscore}.rb")
       end
 
       def export_dir
@@ -196,9 +204,18 @@ module Origen
         indent = ' ' * (options[:indent] || 0)
         file = File.join(options[:file_path].sub_ext(''), "#{id}.rb")
         local_file = file.to_s.sub("#{export_dir}/", '')
-        line = indent + "model.sub_block :#{id}, file: '#{local_file}'"
+        line = indent + "model.sub_block :#{id}, file: '#{local_file}', lazy: true"
         unless block.base_address == 0
           line << ", base_address: #{block.base_address.to_hex}"
+        end
+        block.custom_attrs.each do |key, value|
+          if value.is_a?(Symbol)
+            line << ", #{key}: :#{value}"
+          elsif value.is_a?(String)
+            line << ", #{key}: '#{value}'"
+          else
+            line << ", #{key}: #{value}"
+          end
         end
         block.export(id, options.merge(file_path: options[:file_path].sub_ext('').to_s))
         line

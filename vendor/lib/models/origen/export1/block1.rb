@@ -4,7 +4,7 @@ module Origen
   module Export1
     module Block1
       def self.extended(model)
-        model.sub_block :x, file: 'origen/export1/block1/x.rb', base_address: 0x40000000
+        model.sub_block :x, file: 'origen/export1/block1/x.rb', lazy: true, base_address: 0x40000000
 
       end
     end

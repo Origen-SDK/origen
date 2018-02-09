@@ -77,7 +77,7 @@ describe "Model import and export" do
     include Origen::TopLevel
 
     def initialize(options = {})
-      sub_block :block1
+      sub_block :block1, lazy: true
 
       import 'export1'
     end

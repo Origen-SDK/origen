@@ -6,10 +6,16 @@ module Origen
     # @api private
     def init_sub_blocks(*args)
       options = args.find { |a| a.is_a?(Hash) }
+      @custom_attrs = (options ? options.dup : {}).with_indifferent_access
+      # Delete these keys which are either meta data added by Origen or are already covered by
+      # dedicated methods
+      %w(parent name base_address reg_base_address base).each do |key|
+        @custom_attrs.delete(key)
+      end
       if options
         # Using reg_base_address for storage to avoid class with the original Origen base
         # address API, but will accept any of these
-        @reg_base_address = options.delete(:reg_base_address) || options.delete(:reg_base_address) ||
+        @reg_base_address = options.delete(:reg_base_address) ||
                             options.delete(:base_address) || options.delete(:base) || 0
         if options[:_instance]
           if @reg_base_address.is_a?(Array)
@@ -28,6 +34,20 @@ module Origen
           send("#{k}=", v)
         end
       end
+    end
+
+    # Returns the default
+    def self.lazy?
+      @lazy || false
+    end
+
+    def self.lazy=(value)
+      @lazy = value
+    end
+
+    # Returns a hash containing all options that were passed to the sub_block definition
+    def custom_attrs
+      @custom_attrs
     end
 
     module Domains
@@ -282,7 +302,12 @@ module Origen
         define_singleton_method name do
           get_sub_block(name)
         end
-        block
+        if options.key?(:lazy)
+          lazy = options[:lazy]
+        else
+          lazy = Origen::SubBlocks.lazy?
+        end
+        lazy ? block : block.materialize
       end
     end
 
