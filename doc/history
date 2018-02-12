@@ -1,3 +1,64 @@
+<a class="anchor release_tag" name="v0_31_0"></a>
+<h1><a href="#v0_31_0">Tag: v0.31.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 12-Feb-2018 07:00AM
+
+
+* Sub-blocks return to being immediately instantiated by default, but with the option
+  of making them lazy by supplying `lazy: true` to the sub\_block definition
+
+  Note that this means that any large amount of imported/exported data will go back to
+  taking 10 seconds or whatever to load the target again.
+  That can be fixed by doing one of the following:
+
+  * Re-import/export the data under this new version of Origen, the exporter will now
+    add the lazy: true attribute to everything that it exports.
+  * Set `Origen::SubBlocks.lazy = true` in your target before instantiating the DUT and
+    it will go back to the previous behavior of lazy-loading by default.
+
+
+* Model data can now be exported/imported to a custom directory and not just vendor
+  the API is as follows:
+
+  ~~~ruby
+    my\_model.export 'some\_id', dir: "/any/dir/of/my/choosing"
+  ~~~~
+
+  Then to import that data:
+
+  ~~ruby
+  my\_model.import 'some\_id', dir: "/any/dir/of/my/choosing"
+  ~~~
+
+  As before, the exported code is wrapped in the current application's namespace and if you
+  are exporting and importing back and forth within the same app you don't need to worry about it.
+  However, if you are exporting from one app and importing into another, then the importing app
+  needs to know about the namespace that was used to do the exporting.
+  The namespace can now be selected (or even set to nil if you want) via the following API:
+
+  ~~~ruby
+  my\_model.import 'some\_id', namespace: 'NameOfExportingApp'
+  ~~~
+
+  You can also specify the namespace at the point of export if you want to use something other
+  than the app's name:
+
+  ~~~ruby
+  my\_model.export 'some\_id', namespace: "design\_data"
+  ~~~
+
+  Then to import that data:
+
+  ~~~ruby
+  my\_model.import 'some\_id', namespace: "design\_data"
+  ~~~
+
+  The `:dir` and `:namespace` options are independent of each other and can be used together if desired.
+
+* Fix for bug #218 (erroneous OrgFile::Interceptable integration error)
+
 <a class="anchor release_tag" name="v0_30_0"></a>
 <h1><a href="#v0_30_0">Tag: v0.30.0</a></h1>
 
