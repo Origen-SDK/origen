@@ -78,6 +78,20 @@ module Origen
       end
     end
 
+    # When compared to another object, a controller will consider itself equal if either the controller
+    # or its model match the given object
+    def ==(obj, options = {})
+      if obj.is_a?(Origen::SubBlocks::Placeholder)
+        obj = obj.materialize
+      end
+      if options[:called_from_model]
+        super(obj)
+      else
+        super(obj) || model == obj
+      end
+    end
+    alias_method :equal?, :==
+
     # Means that when dealing with a controller/model pair, you can
     # always call obj.model and obj.controller to get the one you want,
     # regardless of the one you currently have.

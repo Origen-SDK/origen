@@ -67,7 +67,7 @@ module Origen
       model.add_ground_pin :gnd3
       model.add_ground_pin_group :gnd, :gnd1, :gnd2, :gnd3
 
-      model.sub_block :block1, file: 'origen/export1/block1.rb'
+      model.sub_block :block1, file: 'origen/export1/block1.rb', lazy: true
 
     end
   end

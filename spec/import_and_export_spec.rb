@@ -10,13 +10,13 @@ describe "Model import and export" do
     Origen.app.unload_target!
   end
 
-  def load_import_model
-    Origen.target.temporary = -> { ImportModel.new }
+  def load_import_model(options = {})
+    Origen.target.temporary = -> { ImportModel.new(options) }
     Origen.target.load!
   end
 
-  def load_export_model
-    Origen.target.temporary = -> { ExportModel.new }
+  def load_export_model(options = {})
+    Origen.target.temporary = -> { ExportModel.new(options) }
     Origen.target.load!
   end
 
@@ -77,9 +77,9 @@ describe "Model import and export" do
     include Origen::TopLevel
 
     def initialize(options = {})
-      sub_block :block1
+      sub_block :block1, lazy: true
 
-      import 'export1'
+      import 'export1', options
     end
   end
 
@@ -95,6 +95,19 @@ describe "Model import and export" do
   it "import is alive" do
     load_import_model
     dut.is_a?(ImportModel).should == true
+  end
+
+  it "export and import from a custom dir and namespace works" do
+    dir = "#{Origen.root}/tmp/my_exports"
+    FileUtils.rm_rf(dir)
+    load_export_model(dir: dir, namespace: :blah)
+    File.exist?("#{dir}/blah/export1.rb").should == false
+    dut.export 'export1', dir: dir, namespace: :blah
+    File.exist?("#{dir}/blah/export1.rb").should == true
+    load_import_model(dir: dir, namespace: :blah)
+    dut.is_a?(ImportModel).should == true
+    dut.has_pin?(:pinx).should == true
+    dut.block1.x.base_address.should == 0x4000_0000
   end
 
   it "handles pins" do

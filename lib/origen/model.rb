@@ -54,6 +54,12 @@ module Origen
       true
     end
 
+    # Returns true if the instance is an Origen::Model that is wrapped
+    # in a controller
+    def is_a_model_and_controller?
+      !!controller
+    end
+
     # Returns true if the model is the current DUT/top-level model
     def is_top_level?
       Origen.top_level == self
@@ -67,6 +73,18 @@ module Origen
     def model
       self
     end
+
+    def ==(obj)
+      if obj.is_a?(Origen::SubBlocks::Placeholder)
+        obj = obj.materialize
+      end
+      if controller
+        super(obj) || controller.send(:==, obj, called_from_model: true)
+      else
+        super(obj)
+      end
+    end
+    alias_method :equal?, :==
 
     def log
       Origen.log

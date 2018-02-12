@@ -795,7 +795,18 @@ END
         end
         @target_instantiated = true
         Origen.mode = :debug if options[:force_debug]
-        listeners_for(:on_create).each(&:on_create)
+        listeners_for(:on_create).each do |obj|
+          unless obj.is_a?(Origen::SubBlocks::Placeholder)
+            if obj.try(:is_a_model_and_controller?)
+              m = obj.model
+              c = obj.controller
+              m.on_create if m.respond_to_directly?(:on_create)
+              c.on_create if c.respond_to_directly?(:on_create)
+            else
+              obj.on_create
+            end
+          end
+        end
         @on_create_called = true
         # Keep this within the load_event to ensure any objects that are further instantiated objects
         # will be associated with (and cleared out upon reload of) the current target
