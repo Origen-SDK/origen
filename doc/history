@@ -24,11 +24,11 @@
 
   ~~~ruby
     my\_model.export 'some\_id', dir: "/any/dir/of/my/choosing"
-  ~~~~
+  ~~~
 
   Then to import that data:
 
-  ~~ruby
+  ~~~ruby
   my\_model.import 'some\_id', dir: "/any/dir/of/my/choosing"
   ~~~
 
