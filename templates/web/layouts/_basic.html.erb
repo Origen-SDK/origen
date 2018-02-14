@@ -2,7 +2,7 @@
 title: <%= options[:title] || Origen.app.namespace %>
 <%= origen_core_frontmatter(options) %>
 ---
-<%= render "templates/web/partials/navbar.html", tab: options[:tab] %>
+<%= render "partials/navbar.html", tab: options[:tab] %>
 
 <div class="row">
 %# The markdown attribute is important if you are going to include content written
