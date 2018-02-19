@@ -6,21 +6,22 @@ class SoC_With_Clocks
   def initialize_clocks
     add_clock :cclk do |c|
       c.description = 'Core complex clock'
-      c.nominal_frequency = 2.5.Ghz
-      c.frequency_range = 0.8.Ghz..3.2.Ghz
+      c.freq_target = 2.5.Ghz
+      c.freq_range = 0.8.Ghz..3.2.Ghz
       c.users = [:core_complex]
     end
     add_clock :ddrclk do |c|
       c.description = 'DDR clock'
-      c.nominal_frequency = 2.0.Ghz
-      c.frequency_range = 1.2.Ghz..2.8.Ghz
+      c.freq_target = 2.0.Ghz
+      c.freq_range = 1.2.Ghz..2.8.Ghz
       c.users = [:ddr1, :ddr2]
     end
     add_clock :socclk do |c|
       c.description = 'SoC clock'
-      c.nominal_frequency = 1.2.Ghz
-      c.frequency_range = :fixed
+      c.freq_target = 1.2.Ghz
+      c.freq_range = :fixed
       c.users = [:data_mesh]
+      c.instantiate_users = false
     end
   end
   
@@ -41,18 +42,16 @@ describe "Clocks" do
   it "can create and interact with clocks" do
     dut.sub_blocks.should == {}
     dut.initialize_clocks
-    dut.sub_blocks.ids.should == ['core_complex', 'ddr1', 'ddr2', 'data_mesh']
+    dut.sub_blocks.ids.should == ['core_complex', 'ddr1', 'ddr2']
     dut.clocks.keys.should == [:cclk, :ddrclk, :socclk]
     dut.clocks.size.should == 3
     dut.clocks(:cclk).description.should == 'Core complex clock'
-    dut.clocks(:cclk).nom.should == 2.5.Ghz
     dut.clocks(:cclk).range.should == (0.8.Ghz..3.2.Ghz)
-    dut.clocks(:cclk).setpoint.should == nil
+    dut.clocks(:cclk).setpoint.should == 2.5.Ghz
     dut.clocks(:cclk).users.should == [:core_complex]
-    dut.clocks(:ddrclk).setpoint.should == nil
-    dut.clocks(:socclk).setpoint.should == nil
-    dut.clocks(:socclk).nominal_frequency.should == 1.2.Ghz
-    dut.clocks(:socclk).setpoint_to_nominal
+    dut.clocks(:ddrclk).setpoint.should == 2.0.Ghz
+    dut.clocks(:socclk).setpoint.should == 1.2.Ghz
+    dut.clocks(:socclk).setpoint_to_target
     dut.clocks(:socclk).setpoint.should == 1.2.Ghz
     dut.clocks(:cclk).setpoint = 2.7.Ghz
     dut.clocks(:cclk).setpoint_ok?.should == true
@@ -61,6 +60,7 @@ describe "Clocks" do
     dut.clocks(/clk/).class.should == Hash
     dut.clocks(:ddrclk).setpoint = 1.6.Ghz
     dut.clocks(:socclk).setpoint = 800.Mhz
+    dut.clocks(:socclk).setpoint.should == 800.Mhz
     dut.clocks.inspect
   end
 

@@ -1,16 +1,18 @@
 module Origen
   module Clocks
     class Clock
-      attr_accessor :id, :owner, :users, :startup_freq, :nominal_freq, :frequency_range, :setpoint
+      attr_accessor :id, :owner, :users, :freq_target, :freq_range, :setpoint, :instantiate_users
 
       def initialize(id, owner, options = {}, &block)
         @id = id
         @owner = owner
         @id = @id.symbolize unless id.is_a? Symbol
+        @instantiate_users = true
         options.each { |k, v| instance_variable_set("@#{k}", v) }
         (block.arity < 1 ? (instance_eval(&block)) : block.call(self)) if block_given?
         @users = [@users] unless @users.is_a? Array
-        instantiate_users
+        add_users_sub_blocks if @instantiate_users
+        @setpoint = @freq_target
       end
 
       def name
@@ -21,29 +23,30 @@ module Origen
       def users
         @users
       end
-      alias_method :ips, :users
-      alias_method :sub_blocks, :users
 
       def setpoint=(val)
-        setpoint_ok?
-        @setpoint = val
+        if val == :gated || val == 'gated'
+          @setpoint = :gated
+        else
+          setpoint_ok?(val) # This just warns if the clock is set out of range
+          @setpoint = val
+        end
       end
 
       def setpoint_ok?(val = nil)
-        return nil if val.nil? && setpoint.nil?
-        if freq_range == :fixed
-          if val.nil? || val == nominal_frequency
+        val = @setpoint if val.nil?
+        if @freq_range == :fixed
+          if val == @freq_target
             return true
           else
-            Origen.log.warn("Clock '#{id}' is a fixed clock with a nominal frequency of #{nominal_frequency.as_Hz}, setting it to #{val.as_Hz}")
+            Origen.log.warn("Clock '#{id}' is a fixed clock with a target frequency of #{@freq_target.as_Hz}")
             return false
           end
         else
-          val = setpoint if val.nil?
-          if freq_range.include?(val)
+          if @freq_range.include?(val)
             return true
           else
-            Origen.log.warn("Setpoint (#{setpoint_string(val)}) for clock '#{id}' is not within the frequency range (#{freq_range_string}), setting it to #{val.as_Hz}")
+            Origen.log.warn("Setpoint (#{setpoint_string(val)}) for clock '#{id}' is not within the frequency range (#{freq_range_string})")
             return false
           end
         end
@@ -51,17 +54,10 @@ module Origen
       alias_method :value_ok?, :setpoint_ok?
       alias_method :val_ok?, :setpoint_ok?
 
-      # Set the clock to the nominal frequency
-      def setpoint_to_nominal
-        @setpoint = nominal_frequency
+      # Set the clock to the target frequency
+      def setpoint_to_target
+        @setpoint = @freq_target
       end
-
-      # Nominal frequency
-      def nominal_frequency
-        @nominal_frequency
-      end
-      alias_method :nominal, :nominal_frequency
-      alias_method :nom, :nominal_frequency
 
       # Current setpoint, defaults top nil on init
       def setpoint
@@ -71,11 +67,16 @@ module Origen
       alias_method :value, :setpoint
 
       # Acceptable frequency range
-      def frequency_range
-        @frequency_range
+      def freq_range
+        @freq_range
       end
-      alias_method :freq_range, :frequency_range
-      alias_method :range, :frequency_range
+      alias_method :range, :freq_range
+
+      # Acceptable frequency range
+      def freq_target
+        @freq_target
+      end
+      alias_method :target, :freq_target
 
       # Check if the clock users are defined anywhere in the DUT
       def users_defined?
@@ -108,12 +109,12 @@ module Origen
       private
 
       # Instantiate and IP/users that use/access the clock
-      def instantiate_users
-        users.each do |ip|
-          if owner.respond_to? ip
+      def add_users_sub_blocks
+        @users.each do |ip|
+          if @owner.respond_to? ip
             next
           else
-            owner.sub_block ip
+            @owner.sub_block ip
           end
         end
       end
@@ -130,20 +131,20 @@ module Origen
       end
 
       def frequencies_ok?
-        if nominal_frequency.nil?
+        if @freq_target.nil?
           false
-        elsif frequency_range.nil?
+        elsif @freq_range.nil?
           Origen.log.error("Missing frequency range for clock '#{name}'!")
           false
-        elsif frequency_range.is_a? Range
-          if frequency_range.include?(nominal_frequency)
+        elsif freq_range.is_a? Range
+          if freq_range.include?(@freq_target)
             true
           else
-            Origen.log.error("PPEKit: Nominal frequency #{nominal_frequency} is not inbetween the frequency range #{frequency_range} for clock '#{name}'!")
+            Origen.log.error("PPEKit: Frequency target #{@freq_target} is not inbetween the frequency range #{freq_range} for clock '#{name}'!")
             false
           end
         else
-          Origen.log.error("Clock attribute 'frequency_range' must be a Range!")
+          Origen.log.error("Clock attribute 'freq_range' must be a Range!")
           return_value = false
         end
       end
@@ -157,24 +158,24 @@ module Origen
       end
 
       def freq_range_string
-        start_freq = freq_range.first
-        end_freq = freq_range.last
+        start_freq = @freq_range.first
+        end_freq = @freq_range.last
         "#{start_freq.as_Hz}\.\.#{end_freq.as_Hz}"
       end
 
       def clock_freqs_ok?
-        if nominal_freq.nil?
+        if @freq_target.nil?
           false
-        elsif freq_range == :fixed
+        elsif @freq_range == :fixed
           true
         else
-          if freq_range.nil?
+          if @freq_range.nil?
             Origen.log.error("PPEKit: Missing frequency target or range for clock '#{id}'!")
             false
-          elsif freq_range.include?(nominal_freq)
+          elsif @freq_range.include?(@freq_target)
             true
           else
-            Origen.log.error("PPEKit: Frequency target #{nominal_freq} is not inbetween the freq range #{freq_range} for clock '#{id}'!")
+            Origen.log.error("PPEKit: Frequency target #{@freq_target} is not inbetween the freq range #{@freq_range} for clock '#{id}'!")
             false
           end
         end
