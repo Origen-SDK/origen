@@ -93,9 +93,9 @@ The following options are available:
     # Start the server
     puts ''
     if host.include? domain
-     puts "Point your browser to this address:  http://#{host}:#{port}"
-    else 
-     puts "Point your browser to this address:  http://#{host}#{domain.empty? ? '' : '.' + domain}:#{port}"
+      puts "Point your browser to this address:  http://#{host}:#{port}"
+    else
+      puts "Point your browser to this address:  http://#{host}#{domain.empty? ? '' : '.' + domain}:#{port}"
     end
     puts ''
     puts 'To shut down the server use CTRL-C'
