@@ -78,6 +78,24 @@ module Origen
       end
       alias_method :target, :freq_target
 
+      # min method
+      def min
+        if @freq_range == :fixed
+          @freq_target
+        else
+          @freq_range.first
+        end
+      end
+
+      # max method
+      def max
+        if @freq_range == :fixed
+          @freq_target
+        else
+          @freq_range.last
+        end
+      end
+
       # Check if the clock users are defined anywhere in the DUT
       def users_defined?
         undefined_ips = ips - Origen.all_sub_blocks

@@ -34,6 +34,7 @@ module Origen
       include Origen::Clocks
       include Origen::Model::Exporter
       include Origen::Component
+      include Origen::Limits
     end
 
     module ClassMethods
