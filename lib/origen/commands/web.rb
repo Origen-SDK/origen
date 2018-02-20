@@ -92,7 +92,11 @@ The following options are available:
     server.close
     # Start the server
     puts ''
-    puts "Point your browser to this address:  http://#{host}#{domain.empty? ? '' : '.' + domain}:#{port}"
+    if host.include? domain
+      puts "Point your browser to this address:  http://#{host}:#{port}"
+    else
+      puts "Point your browser to this address:  http://#{host}#{domain.empty? ? '' : '.' + domain}:#{port}"
+    end
     puts ''
     puts 'To shut down the server use CTRL-C'
     puts ''
