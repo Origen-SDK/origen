@@ -93,6 +93,13 @@ module SubBlocksSpec
         
       end
 
+      it "owner and parent methods work" do
+        c = Top.new
+        b = c.sub1
+        b.owner.should == c
+        b.parent.should == c
+      end
+
       it "multiple instances can be declared" do
         class Top2
           include Origen::Model

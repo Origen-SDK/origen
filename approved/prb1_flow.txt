@@ -87,13 +87,21 @@ DFF 1.1	Flow Table
 						Test	margin_read1_all1_v1	margin_read1_all1						Fail									flag-true	erase_failed_3_4ECF79E_PASSED				
 						Test	margin_read1_all1_v1	margin_read1_all1						Fail									flag-true	erase_failed_4_4ECF79E_PASSED				
 						logprint	Test_if_ran																					
-						Test	erase_all_v1	erase_all						Fail	erase_ran_1_4ECF79E_RAN													
-						Test	erase_all_v1	erase_all						Fail	erase_ran_2_4ECF79E_RAN													
+						Test	erase_all_v1	erase_all						Fail														
+						defaults										erase_ran_1_4ECF79E_RAN												
+						flag-true	erase_ran_1_4ECF79E_RAN																					
+						Test	erase_all_v1	erase_all						Fail														
+						defaults										erase_ran_2_4ECF79E_RAN												
+						flag-true	erase_ran_2_4ECF79E_RAN																					
 						Test	margin_read1_all1_v1	margin_read1_all1						Fail									flag-true	erase_ran_1_4ECF79E_RAN				
 						Test	margin_read1_all1_v1	margin_read1_all1						Fail									flag-true	erase_ran_2_4ECF79E_RAN				
 						logprint	Test_unless_ran																					
-						Test	erase_all_v1	erase_all						Fail	erase_ran_3_4ECF79E_RAN													
-						Test	erase_all_v1	erase_all						Fail	erase_ran_4_4ECF79E_RAN													
+						Test	erase_all_v1	erase_all						Fail														
+						defaults										erase_ran_3_4ECF79E_RAN												
+						flag-true	erase_ran_3_4ECF79E_RAN																					
+						Test	erase_all_v1	erase_all						Fail														
+						defaults										erase_ran_4_4ECF79E_RAN												
+						flag-true	erase_ran_4_4ECF79E_RAN																					
 						Test	margin_read1_all1_v1	margin_read1_all1						Fail								not	flag-true	erase_ran_3_4ECF79E_RAN				
 						Test	margin_read1_all1_v1	margin_read1_all1						Fail								not	flag-true	erase_ran_4_4ECF79E_RAN				
 						logprint	Verify_that_job_context_wraps_import																					

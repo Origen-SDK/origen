@@ -144,4 +144,35 @@ describe "Callbacks" do
     end
     $_load_count.should == 2
   end
+
+  # This test doesn't work in CI, not sure why exactly, can't write to local disk maybe?
+  unless ENV['TRAVIS']
+    it "test of generating program documentation from on_flow_end callback" do
+      files = ["#{Origen.root}/web/content/flows/probe_2_flow.md",
+               "#{Origen.root}/web/content/flows.md"]
+
+      files.each { |f| FileUtils.rm(f) if File.exist?(f) }
+
+      class MyCallbackDUT
+        include Origen::TopLevel
+
+        def on_flow_end(options)
+          OrigenDocHelpers.generate_flow_docs layout: "#{Origen.root}/templates/web/layouts/_basic.html.erb", tab: :flows do |d|
+            d.page  flow: :prb2,
+                    name: "Probe 2 Flow",
+                    target: "callback_test"  
+          end
+        end
+      end
+
+      Origen.target.temporary = "callback_test"
+
+      ARGV = %w(program/prb2.rb)
+
+      load "origen/commands/program.rb"
+
+      files.each { |f| File.exist?(f).should == true }
+      files.each { |f| FileUtils.rm(f) }
+    end
+  end
 end

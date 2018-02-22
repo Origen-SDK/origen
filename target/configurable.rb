@@ -1,5 +1,4 @@
 $tester = (options[:tester] || OrigenTesters::J750).new
-$tester.set_timeset('func', 40)
 if options[:version]
   # $top is used here instead of $dut to test that Origen will provide
   # the $dut alias automatically
@@ -7,4 +6,5 @@ if options[:version]
 else
   $top    = options[:dut].new
 end
+$tester.set_timeset('func', 40)
 Origen.mode = :debug

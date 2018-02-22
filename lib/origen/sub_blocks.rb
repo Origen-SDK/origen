@@ -369,6 +369,7 @@ module Origen
           require File.join(owner.send(:export_dir), file)
           block.extend owner.send(:export_module_names_from_path, file).join('::').constantize
         end
+        block.owner = owner
         block
       end
 
