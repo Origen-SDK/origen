@@ -1,6 +1,9 @@
+require 'origen/limits'
 module Origen
   module Tests
     class Test
+      include Limits
+
       attr_accessor :id, :owner, :description, :conditions, :platforms
 
       def initialize(id, options = {}, &block)

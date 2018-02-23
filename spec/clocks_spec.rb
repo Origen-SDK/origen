@@ -47,6 +47,8 @@ describe "Clocks" do
     dut.clocks.size.should == 3
     dut.clocks(:cclk).description.should == 'Core complex clock'
     dut.clocks(:cclk).range.should == (0.8.Ghz..3.2.Ghz)
+    dut.clocks(:cclk).min.should == 0.8.Ghz
+    dut.clocks(:cclk).max.should == 3.2.Ghz
     dut.clocks(:cclk).setpoint.should == 2.5.Ghz
     dut.clocks(:cclk).users.should == [:core_complex]
     dut.clocks(:ddrclk).setpoint.should == 2.0.Ghz
@@ -61,6 +63,8 @@ describe "Clocks" do
     dut.clocks(:ddrclk).setpoint = 1.6.Ghz
     dut.clocks(:socclk).setpoint = 800.Mhz
     dut.clocks(:socclk).setpoint.should == 800.Mhz
+    dut.clocks(:socclk).min.should == 1.2.Ghz
+    dut.clocks(:socclk).min.should == dut.clocks(:socclk).max
     dut.clocks.inspect
   end
 

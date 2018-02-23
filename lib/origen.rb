@@ -68,6 +68,7 @@ unless defined? RGen::ORIGENTRANSITION
     autoload :Clocks,            'origen/clocks'
     autoload :Value,             'origen/value'
     autoload :OrgFile,           'origen/org_file'
+    autoload :Limits,            'origen/limits'
 
     attr_reader :switch_user
 
