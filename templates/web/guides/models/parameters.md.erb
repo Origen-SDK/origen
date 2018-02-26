@@ -89,6 +89,20 @@ print_erase_parameters   # => time: 0.1
                          # => pulse_count: 10
 ~~~
 
+In some cases, it is useful to have one object access another's parameters (e.g. a sub-block can
+reference the top-level parameters sets).  However, in this case the calling object may not necessarily
+be aware of which parameters have been created.  The <code>param?</code> method provides a quick 
+way to combine an existence test while attempting to retrieve the value of a specific parameter.
+
+~~~ruby
+param?('test.dc.vdd.min')   # => 1.5
+param?('test.dc.vdd.nom')   # => nil
+
+# Example to set bin using a top-level parameter or default to 12
+#   if the top-level parameter has not been set (i.e. does not exist)
+my_block_bin = dut.param?('testprogram.bin.my_block') || 12
+~~~
+
 The current parameter context is set as follows:
 
 ~~~ruby
