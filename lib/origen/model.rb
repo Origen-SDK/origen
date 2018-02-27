@@ -206,6 +206,7 @@ module Origen
         unless top_level?
           # Need to do this in case a class besides SubBlock includes Origen::Model
           obj_above_self = parent.nil? ? Origen.top_level : parent
+          return nil if obj_above_self.nil?
           if obj_above_self.current_mode
             _modes[obj_above_self.current_mode.id] if _modes.include? obj_above_self.current_mode.id
           end
@@ -217,6 +218,10 @@ module Origen
     # Set the current mode configuration of the current model
     def current_mode=(id)
       @current_mode = id.is_a?(ChipMode) ? id.id : id
+      Origen.app.listeners_for(:on_mode_changed).each do |listener|
+        listener.on_mode_changed(mode: @current_mode)
+      end
+      @current_mode
     end
     alias_method :mode=, :current_mode=
 

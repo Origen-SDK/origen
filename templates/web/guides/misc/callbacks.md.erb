@@ -144,13 +144,13 @@ There now follows a listing of all available callbacks, these have been split up
 
 * [Environment Setup](#environment_setup)
 * [Environment Teardown](#environment_teardown)
+* [Mode Changed](#mode_changed)
 * [Generation](#generation)
 * [Reset](#reset)
 * [Pattern Generation](#pattern_generation)
 * [Program Generation](#program_generation)
 * [Web Compiler](#web_compiler)
 * [Release Process](#release_process)
-* [Intializing Models](#initializing_models)
 
 <a class="anchor" name="environment_setup"></a>
 
@@ -265,7 +265,14 @@ guaranteed to be called even if the thread crashes.
 
 An example use cases is to ensure that any temporary files are deleted.
 
+<a class="anchor" name="mode_changed"></a>
 
+### Mode Changed
+
+#### on_mode_changed
+
+This callback is triggered whenever an object [changes its current mode](http://origen-sdk.org/origen/api/Origen/Model.html#current_mode=-instance_method).
+It can be used to change other DUT objects, such as clocks and register settings.
 
 <a class="anchor" name="generation"></a>
 
@@ -678,79 +685,5 @@ def before_deploy_site
   end
 end
 ~~~  
-
-<a class="anchor" name="initializing_models"></a>
-
-### Initializing Models
-
-#### origen_model_init
-
-Called only when a <code>class</code> or <code>module</code> has a <code>class method</code> called
-<code>origen_model_init</code> <u>AND</u> when said class mixes in <code>Origen::Model</code>.
-
-This will be called during the class' instantiation process, when the class has been allocated but before
-it has been initialized using its own <code>initialize</code> method. This can be used to boot modules or
-classes using Origen and leaving a module's <code>included?</code> method alone.
-
-This differs from the <code>pre_initialize</code> callback in that <code>origen_model_init</code> will recurse
-into the inherited modules and classes.
-
-This method should accept a single argument, which is the allocated class instance that called <code>origen_model_init</code>.
-
-For example:
-
-~~~ruby
-module A
-  def self.origen_model_init(instance_of_caller)
-    puts "init module A - called by #{instance_of_caller.class}"
-  end
-  
-  class B
-    def self.origen_model_init(instance_of_caller)
-      puts "init class B in module A - called by #{instance_of_caller.class}"
-    end
-  end
-end
-
-class Parent
-  include Origen::Model
-  include A
-end
-
-Parent.new
-  #=> "init module A - called by Parent"
-  #=> "init class B in module A - called by Parent" <= this is called prior to any A::B initialization.
-#=> Instance of Parent class
-
-~~~
-
-Note that included modules and classes do not need to mix in <code>Origen::Model</code>. Only the class including
-said modules and classes.
-
-Again, this is for use in booting included classes and modules, not in booting the parent. <code>origen_model_init</code>
-will NOT be called in following and <code>pre_initialize</code> should be used:
-
-~~~ruby
-
-class Parent
-  include Origen::Model
-  include A
-  
-  def self.origen_model_init(instance_of_caller)
-    puts "origen_model_init in Parent"
-  end
-  
-  def self.pre_initialize
-    puts "pre_initialize in Parent"
-  end
-end
-
-Parent.new
-  #=> "init module A - called by Parent"
-  #=> "init class B in module A - called by Parent"
-  #=> "pre_initialize in Parent"
-#=> Instance of Parent class
-
-~~~
 
 % end
