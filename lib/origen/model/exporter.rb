@@ -188,11 +188,11 @@ module Origen
           line << pin.meta.map do |k, v|
             case v
             when Numeric, Array, Hash
-              ", #{attr}: #{v}"
+              "#{k}: #{v}"
             when Symbol
-              ", #{attr}: :#{v}"
+              "#{k}: :#{v}"
             else
-              ", #{attr}: '#{v}'"
+              "#{k}: '#{v}'"
             end
           end.join(', ')
           line << ' }'
