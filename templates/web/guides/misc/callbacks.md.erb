@@ -274,8 +274,21 @@ An example use cases is to ensure that any temporary files are deleted.
 #### on_mode_changed
 
 This callback is triggered whenever an object [changes its current mode](http://origen-sdk.org/origen/api/Origen/Model.html#current_mode=-instance_method).
-It can be used to change other DUT objects, such as clocks and register settings.
+It takes an options hash as an arguement with the recently changed mode being passed.  It can be used to change other DUT objects, 
+such as clocks and register settings.  
 
+~~~ruby
+def on_mode_changed(options)
+  case options[:mode]
+  when :mode1
+    clocks(:coreclk).setpoint = 1.2.Ghz
+    clocks(:memclk).setpoint = 600.Mhz
+  when :mode2
+    clocks(:coreclk).setpoint = 1.0.Ghz
+    clocks(:memclk).setpoint = 500.Mhz
+  end
+end
+~~~
 
 <a class="anchor" name="generation"></a>
 
