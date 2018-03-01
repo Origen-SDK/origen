@@ -53,10 +53,8 @@ module Origen
       end
 
       def change_subscript(new_subscript)
-        temp_display_name = @display_name.dup
-        sub_input = temp_display_name.at_css 'sub'
-        sub_input.content = new_subscript unless sub_input.nil?
-        temp_display_name
+        sub_input = @display_name.dup
+        sub_input.gsub!('DD', new_subscript)
       end
     end
   end
