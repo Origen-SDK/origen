@@ -31,19 +31,19 @@ class SoC_With_Domains
       domain.maximum_voltage_rating = 1.50.V
       domain.min = 0.9.V
       domain.max = 1.1.V
-#      domain.display_names(Nokogiri::XML::DocumentFragment.parse 'OV<sub>DD</sub>')
+      domain.display_names(Nokogiri::XML::DocumentFragment.parse 'OV<sub>DD</sub>')
     end
     add_power_domain :vdda do |domain|
       domain.description = 'PLL'
       domain.nominal_voltage = 1.2.V
       domain.unit_voltage_range = 1.08.V..1.32.V
       domain.maximum_voltage_rating = 1.80.V
-#      domain.display_names(Nokogiri::XML::DocumentFragment.parse 'AV<sub>DD</sub>')
+      domain.display_names(Nokogiri::XML::DocumentFragment.parse 'AV<sub>DD</sub>')
     end
     add_power_domain :vccsoc do |domain|
       domain.description = 'SoC'
       domain.nominal_voltage = 1.5.V
-#      domain.display_names(Nokogiri::XML::DocumentFragment.parse 'VDD')
+      domain.display_names(Nokogiri::XML::DocumentFragment.parse 'VDD')
     end
   end
   
@@ -102,6 +102,18 @@ describe "Power domains" do
     dut.power_domains(:vdda).power_pins.should == []
     dut.power_domains(:vdda).ground_pins.should == []
     dut.power_domains(:vdda).has_pin?(:vdd1).should == false
+  end
+  
+  it 'Display Nmes are correct' do
+    dut.power_domains(:vdd).display_name[:default].to_xml.should == 'OV<sub>DD</sub>'
+    dut.power_domains(:vdd).display_name[:input].to_xml.should == 'OV<sub>IN</sub>'
+    dut.power_domains(:vdd).display_name[:output].to_xml.should == 'OV<sub>OUT</sub>'
+    dut.power_domains(:vdda).display_name[:default].to_xml.should == 'AV<sub>DD</sub>'
+    dut.power_domains(:vdda).display_name[:input].to_xml.should == 'AV<sub>IN</sub>'
+    dut.power_domains(:vdda).display_name[:output].to_xml.should == 'AV<sub>OUT</sub>'
+    dut.power_domains(:vccsoc).display_name[:default].to_xml.should == 'VDD'
+    dut.power_domains(:vccsoc).display_name[:input].to_xml.should == 'VDD'
+    dut.power_domains(:vccsoc).display_name[:output].to_xml.should == 'VDD'    
   end
   
   it 'Properly creates the top level DUT spec for the power supply' do

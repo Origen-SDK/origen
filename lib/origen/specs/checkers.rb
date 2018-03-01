@@ -1,6 +1,8 @@
 module Origen
   module Specs
     module Checkers
+      require 'nokogiri'
+
       # rubocop:disable Style/RescueModifier:
       def name_audit(name)
         return name if name.nil?
