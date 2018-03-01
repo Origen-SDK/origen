@@ -317,5 +317,12 @@ module ParametersSpec
       $dut.params(:default).erase.time.should == 4
       $dut.ip_with_params.params(:default).erase.time.should == 5
     end
+
+    it "params? can return value if exists, otherwise nil" do 
+      $dut.param?('tprog').should == 20
+      $dut.param?(:tprog).should == 20
+      $dut.param?('tprog_does_not_exist').should == nil
+      $dut.param?(:tprog_does_not_exist).should == nil
+    end
   end
 end

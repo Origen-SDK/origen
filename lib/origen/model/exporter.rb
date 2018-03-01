@@ -173,8 +173,11 @@ module Origen
         line << ", #{pkg_meta}" unless pkg_meta == ''
         Array(options[:attributes]).each do |attr|
           unless (v = pin.send(attr)).nil?
-            if v.is_a?(Numeric)
+            case v
+            when Numeric, Array, Hash
               line << ", #{attr}: #{v}"
+            when Symbol
+              line << ", #{attr}: :#{v}"
             else
               line << ", #{attr}: '#{v}'"
             end
@@ -183,8 +186,11 @@ module Origen
         unless pin.meta.empty?
           line << ', meta: { '
           line << pin.meta.map do |k, v|
-            if v.is_a?(Numeric)
+            case v
+            when Numeric, Array, Hash
               "#{k}: #{v}"
+            when Symbol
+              "#{k}: :#{v}"
             else
               "#{k}: '#{v}'"
             end

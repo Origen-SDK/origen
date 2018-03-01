@@ -69,6 +69,18 @@ module Origen
       _parameter_sets.empty? ? false : true
     end
 
+    # Return value of param if it exists, nil otherwise.
+    def param?(name)
+      _param = name.to_s =~ /^params./ ? name.to_s : 'params.' + name.to_s
+      begin
+        val = eval("self.#{_param}")
+      rescue
+        nil
+      else
+        val
+      end
+    end
+
     # @api private
     def _parameter_current
       if path = self.class.parameters_context
