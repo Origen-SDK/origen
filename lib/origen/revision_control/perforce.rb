@@ -19,7 +19,6 @@ module Origen
           Origen.log.error("Could not connect to port #{@p4.port} on client #{@p4.client}!")
           fail
         end
-        @p4.password = '@wsx-pl,0830'
         @p4.run_login
       end
 

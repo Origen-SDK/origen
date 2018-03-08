@@ -131,19 +131,19 @@ module Origen
       remotes.each do |_name, remote|
         dir = workspace_of(remote)
         rc_url = remote[:rc_url] || remote[:vault]
-        tag = tag_or_version?(remote)
+        tag = remote[:tag].nil? ? Origen::VersionString.new(remote[:version]) : Origen::VersionString.new(remote[:tag])
         version_file = dir.to_s + '/.current_version'
         begin
           if File.exist?("#{dir}/.initial_populate_successful")
             FileUtils.rm_f(version_file) if File.exist?(version_file)
             rc = RevisionControl.new remote: rc_url, local: dir
-            rc.send rc.remotes_method, version: tag, force: true
+            rc.send rc.remotes_method, version: prefix_tag(tag), force: true
             File.open(version_file, 'w') do |f|
               f.write tag
             end
           else
             rc = RevisionControl.new remote: rc_url, local: dir
-            rc.send rc.remotes_method, version: tag, force: true
+            rc.send rc.remotes_method, version: prefix_tag(tag), force: true
             FileUtils.touch "#{dir}/.initial_populate_successful"
             File.open(version_file, 'w') do |f|
               f.write tag
@@ -334,19 +334,19 @@ module Origen
           create_symlink(remote[:path], dir)
         else
           rc_url = remote[:rc_url] || remote[:vault]
-          tag = tag_or_version?(remote)
+          tag = remote[:tag].nil? ? Origen::VersionString.new(remote[:version]) : Origen::VersionString.new(remote[:tag])
           version_file = dir.to_s + '/.current_version'
           begin
             if File.exist?("#{dir}/.initial_populate_successful")
               FileUtils.rm_f(version_file) if File.exist?(version_file)
               rc = RevisionControl.new remote: rc_url, local: dir
-              rc.send rc.remotes_method, version: tag, force: true
+              rc.send rc.remotes_method, version: prefix_tag(tag), force: true
               File.open(version_file, 'w') do |f|
                 f.write tag
               end
             else
               rc = RevisionControl.new remote: rc_url, local: dir
-              rc.send rc.remotes_method, version: tag, force: true
+              rc.send rc.remotes_method, version: prefix_tag(tag), force: true
               FileUtils.touch "#{dir}/.initial_populate_successful"
               File.open(version_file, 'w') do |f|
                 f.write tag
@@ -382,17 +382,12 @@ module Origen
     # If the supplied tag looks like a semantic version number, then make sure it has the
     # 'v' prefix
     def prefix_tag(tag)
-      tag = Origen::VersionString.new(tag) unless tag.is_a?(Origen::VersionString)
+      tag = Origen::VersionString.new(tag)
       if tag.semantic?
         tag.prefixed
       else
         tag
       end
-    end
-
-    # Return the version string based for a remote
-    def tag_or_version?(remote)
-      remote[:tag].nil? ? prefix_tag(remote[:version]) : Origen::VersionString.new(remote[:tag])
     end
   end
 end

@@ -79,7 +79,7 @@ unless defined? RGen::ORIGENTRANSITION
         define_method(:status_code) { code }
       end
     end
-   
+
     class PerforceError < OrigenError;  status_code(11); end
     class GitError < OrigenError; status_code(11); end
     class DesignSyncError < OrigenError; status_code(12); end
