@@ -35,39 +35,39 @@ module Origen
       end
 
       def checkout(path = nil, options = {})
-        not_yet_supported
+        not_yet_supported(__method__)
       end
 
       def root
-        not_yet_supported
+        not_yet_supported(__method__)
       end
 
       def current_branch
-        not_yet_supported
+        not_yet_supported(__method__)
       end
 
       def diff_cmd
-        not_yet_supported
+        not_yet_supported(__method__)
       end
 
       def unmanaged
-        not_yet_supported
+        not_yet_supported(__method__)
       end
 
       def local_modifications
-        not_yet_supported
+        not_yet_supported(__method__)
       end
 
       def changes
-        not_yet_supported
+        not_yet_supported(__method__)
       end
 
       def checkin
-        not_yet_supported
+        not_yet_supported(__method__)
       end
 
       def build
-        not_yet_supported
+        not_yet_supported(__method__)
       end
 
       private
@@ -78,8 +78,8 @@ module Origen
         p4.run cmd
       end
 
-      def not_yet_supported
-        Origen.log.warn("The method #{__method__} is not currently supported by the Perforce API")
+      def not_yet_supported(m)
+        Origen.log.warn("The method #{m} is not currently supported by the Perforce API")
         nil
       end
 
