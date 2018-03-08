@@ -77,7 +77,11 @@ module Origen
         path = export_path(name, options)
         if File.exist?(path)
           require path
-          extend "#{Origen.app.namespace.underscore.camelcase}::#{name.to_s.camelcase}".constantize
+          if options.key?(:namespace) && !options[:namespace]
+            extend name.to_s.gsub('.', '_').camelcase.constantize
+          else
+            extend "#{options[:namespace] || Origen.app.namespace}::#{name.to_s.gsub('.', '_').camelcase}".constantize
+          end
           true
         else
           if options[:allow_missing]
@@ -143,7 +147,7 @@ module Origen
           if n == ''
             nil
           else
-            n.camelcase
+            n.to_s.gsub('.', '_').camelcase
           end
         end.compact
       end
