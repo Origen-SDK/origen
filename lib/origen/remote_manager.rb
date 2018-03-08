@@ -119,7 +119,45 @@ module Origen
       end
     end
 
+    def resolve_remotes!
+      resolve_remotes
+      process_remotes
+    end
+
     private
+
+    # Process each remote
+    def process_remotes
+      remotes.each do |_name, remote|
+        dir = workspace_of(remote)
+        rc_url = remote[:rc_url] || remote[:vault]
+        tag = tag_or_version?(remote)
+        version_file = dir.to_s + '/.current_version'
+        begin
+          if File.exist?("#{dir}/.initial_populate_successful")
+            FileUtils.rm_f(version_file) if File.exist?(version_file)
+            rc = RevisionControl.new remote: rc_url, local: dir
+            rc.send rc.remotes_method, version: tag, force: true
+            File.open(version_file, 'w') do |f|
+              f.write tag
+            end
+          else
+            rc = RevisionControl.new remote: rc_url, local: dir
+            rc.send rc.remotes_method, version: tag, force: true
+            FileUtils.touch "#{dir}/.initial_populate_successful"
+            File.open(version_file, 'w') do |f|
+              f.write tag
+            end
+          end
+        rescue Origen::GitError, Origen::DesignSyncError, Origen::PerforceError => e
+          # If Git failed in the remote, its usually easy to see what the problem is, but now *where* it is.
+          # This will prepend the failing remote along with the error from the revision control system,
+          # then rethrow the error
+          e.message.prepend "When updating remotes for #{remote[:importer].name}: "
+          raise e
+        end
+      end
+    end
 
     # Returns the name of the given import (a lower cased symbol)
     def name_of(remote)
@@ -243,6 +281,11 @@ module Origen
     #   * If multiple versions of the same remote are found the most
     #     recent one wins.
     def add_remote(new)
+      # Cannot have both a tag and a version defined for a remote
+      if ([:tag, :version] - new.keys).empty?
+        Origen.log.error('Cannot define both a tag and a version for a remote!')
+        fail
+      end
       name = name_of(new)
       # If the current remote has been imported by one of it's dev dependencies
       # then always use the local workspace
@@ -289,28 +332,27 @@ module Origen
         end
         if remote[:path]
           create_symlink(remote[:path], dir)
-
         else
           rc_url = remote[:rc_url] || remote[:vault]
-          tag = Origen::VersionString.new(remote[:version])
+          tag = tag_or_version?(remote)
           version_file = dir.to_s + '/.current_version'
           begin
             if File.exist?("#{dir}/.initial_populate_successful")
               FileUtils.rm_f(version_file) if File.exist?(version_file)
               rc = RevisionControl.new remote: rc_url, local: dir
-              rc.checkout version: prefix_tag(tag), force: true
+              rc.send rc.remotes_method, version: tag, force: true
               File.open(version_file, 'w') do |f|
                 f.write tag
               end
             else
               rc = RevisionControl.new remote: rc_url, local: dir
-              rc.checkout version: prefix_tag(tag), force: true
+              rc.send rc.remotes_method, version: tag, force: true
               FileUtils.touch "#{dir}/.initial_populate_successful"
               File.open(version_file, 'w') do |f|
                 f.write tag
               end
             end
-          rescue Origen::GitError, Origen::DesignSyncError => e
+          rescue Origen::GitError, Origen::DesignSyncError, Origen::PerforceError  => e
             # If Git failed in the remote, its usually easy to see what the problem is, but now *where* it is.
             # This will prepend the failing remote along with the error from the revision control system,
             # then rethrow the error
@@ -340,12 +382,17 @@ module Origen
     # If the supplied tag looks like a semantic version number, then make sure it has the
     # 'v' prefix
     def prefix_tag(tag)
-      tag = Origen::VersionString.new(tag)
+      tag = Origen::VersionString.new(tag) unless tag.is_a?(Origen::VersionString)
       if tag.semantic?
         tag.prefixed
       else
         tag
       end
+    end
+
+    # Return the version string based for a remote
+    def tag_or_version?(remote)
+      remote[:tag].nil? ? prefix_tag(remote[:version]) : Origen::VersionString.new(remote[:tag])
     end
   end
 end

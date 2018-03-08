@@ -4,6 +4,7 @@ module Origen
     autoload :DesignSync, 'origen/revision_control/design_sync'
     autoload :Git,        'origen/revision_control/git'
     autoload :Subversion, 'origen/revision_control/subversion'
+    autoload :Perforce,   'origen/revision_control/perforce'
 
     IGNORE_DIRS =  %w(
       .ws .lsf log output web coverage .ref .yardoc .collection .bin
@@ -36,6 +37,8 @@ module Origen
         DesignSync.new(options)
       when options[:remote] =~ /git/
         Git.new(options)
+      when options[:remote] =~ /^p4/
+        Perforce.new(options)
       else
         fail "Could not work out the revision control system for: #{options[:remote]}"
       end
