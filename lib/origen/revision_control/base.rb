@@ -197,7 +197,7 @@ module Origen
 
       # Returns true if the revision controller object uses Perforce
       def p4?
-        is_a?(Perforce) # :-)
+        is_a?(Perforce)
       end
       alias_method :perforce?, :p4?
 
