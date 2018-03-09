@@ -118,7 +118,8 @@ module Origen
         File.symlink?(path)
       end
     end
-
+    
+    # Fetches any defined remotes, regardless of whether they are dirty or not
     def resolve_remotes!
       resolve_remotes
       process_remotes
