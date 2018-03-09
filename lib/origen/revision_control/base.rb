@@ -195,10 +195,11 @@ module Origen
         is_a?(Git) # :-)
       end
 
-      # Returns true if the revision controller object uses Git
+      # Returns true if the revision controller object uses Perforce
       def p4?
         is_a?(Perforce) # :-)
       end
+      alias_method :p4?, :perforce?
 
       # Returns true if the revision controller object uses Subversion
       def svn?
