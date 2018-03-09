@@ -199,7 +199,7 @@ module Origen
       def p4?
         is_a?(Perforce) # :-)
       end
-      alias_method :p4?, :perforce?
+      alias_method :perforce?, :p4?
 
       # Returns true if the revision controller object uses Subversion
       def svn?
