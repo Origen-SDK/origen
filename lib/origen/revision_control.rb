@@ -28,7 +28,7 @@ module Origen
     #
     #   # I know that the remote refers to DesignSync
     #   rc = Origen::RevisionControl::DesignSync.new remote: "sync//....", local: "my/path"
-    # 
+    #
     #   # The remote is a variable and I don't know the type
     #   rc = Origen::RevisionControl.new remote: rc_url, local: "my/path"
     def self.new(options = {})
