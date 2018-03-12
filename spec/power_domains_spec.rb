@@ -104,7 +104,7 @@ describe "Power domains" do
     dut.power_domains(:vdda).has_pin?(:vdd1).should == false
   end
   
-  it 'Display Names are correct' do
+  it 'Display Nmes are correct' do
     dut.power_domains(:vdd).display_name[:default].to_xml.should == 'OV<sub>DD</sub>'
     dut.power_domains(:vdd).display_name[:input].to_xml.should == 'OV<sub>IN</sub>'
     dut.power_domains(:vdd).display_name[:output].to_xml.should == 'OV<sub>OUT</sub>'

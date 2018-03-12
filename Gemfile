@@ -11,6 +11,7 @@ gem "origen_testers", "~> 0.7"
 gem 'origen_debuggers', '~> 0'
 gem 'ripper-tags'
 gem 'origen_updater'
+gem 'nokogiri', '>= 1.7.2'
 
 # Specify all runtime dependencies in origen.gemspec
 gemspec
