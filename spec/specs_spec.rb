@@ -487,7 +487,6 @@ describe "Origen Specs Module" do
   end
   
   it 'can evaluate references to power domains'  do
-    pending('Direct Reference Specification is not working as expected for')
     @dut.power_domains(:vmemio).nominal_voltage.should == 1.35
     @dut.specs(:memio_voh).max.exp.should == ":vmemio * 0.8"
     @dut.specs(:memio_voh).max.value.should == 1.08
