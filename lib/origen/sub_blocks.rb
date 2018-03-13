@@ -364,9 +364,10 @@ module Origen
 
       def materialize
         file = attributes.delete(:file)
+        dir = attributes.delete(:dir) || owner.send(:export_dir)
         block = owner.send(:instantiate_sub_block, name, klass, attributes)
         if file
-          require File.join(owner.send(:export_dir), file)
+          require File.join(dir, file)
           block.extend owner.send(:export_module_names_from_path, file).join('::').constantize
         end
         block.owner = owner

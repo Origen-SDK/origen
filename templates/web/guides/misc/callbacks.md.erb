@@ -564,6 +564,15 @@ level is a Resource.create block instead of a Flow.create block.
 Logically equivalent to on_flow_end, except this one will be called when the top
 level is a Resource.create block instead of a Flow.create block.
 
+#### program_generated
+
+This callback is triggered after a test program has been completely generated and all files have been
+written.
+No particular arguments are passed in, however the `Origen.interface` instance for the program that was
+just generated is still live and the application should be able to retrieve any meta data it might want
+about the program from there.
+
+No return value is expected.
 
 
 <a class="anchor" name="web_compiler"></a>

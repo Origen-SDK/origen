@@ -11,16 +11,13 @@ module Origen
         }.merge(options)
         # file_path is for internal use, don't pass it from the application, use the :dir option if you
         # want to change where the exported files are
-        if options[:file_path]
-          file = File.join(options[:file_path], "#{name}.rb")
-        else
-          file = export_path(name, options)
-        end
-        file = Pathname.new(file)
-        FileUtils.rm_rf(file.sub_ext('').to_s) if File.exist?(file.sub_ext('').to_s)
-        FileUtils.rm_rf(file.to_s) if File.exist?(file.to_s)
-        FileUtils.mkdir_p(file.dirname)
-        File.open(file, 'w') do |f|
+        file = options[:file_path] || export_path(name, options)
+        dir = options[:dir_path] || export_dir(options)
+        path_to_file = Pathname.new(File.join(dir, file))
+        FileUtils.rm_rf(path_to_file.sub_ext('').to_s) if File.exist?(path_to_file.sub_ext('').to_s)
+        FileUtils.rm_rf(path_to_file.to_s) if File.exist?(path_to_file.to_s)
+        FileUtils.mkdir_p(path_to_file.dirname)
+        File.open(path_to_file, 'w') do |f|
           export_wrap_with_namespaces(f, options) do |indent|
             f.puts((' ' * indent) + 'def self.extended(model)')
             indent += 2
@@ -56,7 +53,7 @@ module Origen
             end
             if options[:include_sub_blocks]
               sub_blocks.each do |name, block|
-                f.puts export_sub_block(name, block, options.merge(indent: indent, file_path: file))
+                f.puts export_sub_block(name, block, options.merge(indent: indent, file_path: file, dir_path: dir))
               end
               f.puts unless sub_blocks.empty?
             end
@@ -74,13 +71,17 @@ module Origen
       end
 
       def import(name, options = {})
-        path = export_path(name, options)
+        path = File.join(export_dir(options), export_path(name, options))
         if File.exist?(path)
           require path
           if options.key?(:namespace) && !options[:namespace]
             extend name.to_s.gsub('.', '_').camelcase.constantize
           else
-            extend "#{options[:namespace] || Origen.app.namespace}::#{name.to_s.gsub('.', '_').camelcase}".constantize
+            if options[:namespace]
+              extend "#{options[:namespace].to_s.gsub('.', '_').camelcase}::#{name.to_s.gsub('.', '_').camelcase}".constantize
+            else
+              extend "#{Origen.app.namespace}::#{name.to_s.gsub('.', '_').camelcase}".constantize
+            end
           end
           true
         else
@@ -154,9 +155,9 @@ module Origen
 
       def export_path(name, options = {})
         if options.key?(:namespace) && !options[:namespace]
-          File.join(export_dir(options), "#{name.to_s.underscore}.rb")
+          "#{name.to_s.underscore}.rb"
         else
-          File.join(export_dir(options), (options[:namespace] || Origen.app.namespace).to_s.underscore, "#{name.to_s.underscore}.rb")
+          File.join((options[:namespace] || Origen.app.namespace).to_s.underscore, "#{name.to_s.underscore}.rb")
         end
       end
 
@@ -218,9 +219,9 @@ module Origen
 
       def export_sub_block(id, block, options = {})
         indent = ' ' * (options[:indent] || 0)
-        file = File.join(options[:file_path].sub_ext(''), "#{id}.rb")
-        local_file = file.to_s.sub("#{export_dir}/", '')
-        line = indent + "model.sub_block :#{id}, file: '#{local_file}', lazy: true"
+        file_path = File.join(Pathname.new(options[:file_path]).sub_ext(''), "#{id}.rb")
+        dir_path = options[:dir_path]
+        line = indent + "model.sub_block :#{id}, file: '#{file_path}', dir: '#{dir_path}', lazy: true"
         unless block.base_address == 0
           line << ", base_address: #{block.base_address.to_hex}"
         end
@@ -233,7 +234,7 @@ module Origen
             line << ", #{key}: #{value}"
           end
         end
-        block.export(id, options.merge(file_path: options[:file_path].sub_ext('').to_s))
+        block.export(id, options.merge(file_path: file_path, dir_path: dir_path))
         line
       end
 
