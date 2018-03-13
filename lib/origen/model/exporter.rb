@@ -48,6 +48,9 @@ module Origen
                 ground_pin_groups.each do |id, pins|
                   f.puts export_pin_group(id, pins, indent: indent, method: :add_ground_pin_group)
                 end
+                virtual_pins.each do |id, pin|
+                  f.puts export_pin(id, pin, indent: indent, method: :add_virtual_pin)
+                end
                 f.puts
               end
             end
@@ -168,6 +171,7 @@ module Origen
       def export_pin(id, pin, options = {})
         indent = ' ' * (options[:indent] || 0)
         line = indent + "model.#{options[:method] || 'add_pin'} :#{id}"
+        # binding.pry if options[:method] == :add_virtual_pin
         if (r = pin.instance_variable_get('@reset')) != :dont_care
           line << ", reset: :#{r}"
         end
