@@ -16,6 +16,8 @@ module Origen
       attr_reader :remote
       # Returns a pointer to the local location (a Pathname object)
       attr_reader :local
+      # Method to use by Origen::RemoteManager to handle fetching a remote file
+      attr_reader :remotes_method
 
       # rubocop:disable Lint/UnusedMethodArgument
 
@@ -27,6 +29,7 @@ module Origen
         end
         @remote = Pathname.new(options[:remote])
         @local = Pathname.new(options[:local]).expand_path
+        @remotes_method = :checkout
         initialize_local_dir(options)
       end
 
@@ -191,6 +194,12 @@ module Origen
       def git?
         is_a?(Git) # :-)
       end
+
+      # Returns true if the revision controller object uses Perforce
+      def p4?
+        is_a?(Perforce)
+      end
+      alias_method :perforce?, :p4?
 
       # Returns true if the revision controller object uses Subversion
       def svn?

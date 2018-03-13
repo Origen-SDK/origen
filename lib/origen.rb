@@ -80,6 +80,7 @@ unless defined? RGen::ORIGENTRANSITION
       end
     end
 
+    class PerforceError < OrigenError;  status_code(11); end
     class GitError < OrigenError; status_code(11); end
     class DesignSyncError < OrigenError; status_code(12); end
     class RevisionControlUninitializedError < OrigenError; status_code(13); end
