@@ -66,6 +66,8 @@ module Origen
       model.add_ground_pin :gnd2
       model.add_ground_pin :gnd3
       model.add_ground_pin_group :gnd, :gnd1, :gnd2, :gnd3
+      model.add_virtual_pin :relay1
+      model.add_virtual_pin :relay2, packages: { bga: {} }
 
       model.sub_block :block1, file: 'origen/export1/block1.rb', dir: '/scratch/nxa21353/Code/github/origen/vendor/lib/models', lazy: true
 

@@ -48,6 +48,9 @@ module Origen
                 ground_pin_groups.each do |id, pins|
                   f.puts export_pin_group(id, pins, indent: indent, method: :add_ground_pin_group)
                 end
+                virtual_pins.each do |id, pin|
+                  f.puts export_pin(id, pin, indent: indent, method: :add_virtual_pin)
+                end
                 f.puts
               end
             end

@@ -39,6 +39,8 @@ describe "Model import and export" do
       add_ground_pin :gnd3
       add_power_pin_group :vdd, :vdd1, :vdd2
       add_ground_pin_group :gnd, :gnd1, :gnd2, :gnd3
+      add_virtual_pin :relay1
+      add_virtual_pin :relay2, packages: [:bga]
 
       sub_block :block1, class_name: 'Sub1'
     end
@@ -133,6 +135,9 @@ describe "Model import and export" do
     dut.power_pin(:vdd1).voltage.should == 3
     dut.power_pin(:vdd1).current_limit.should == 50.mA
     dut.power_pin(:vdd1).meta[:min_voltage].should == 1.5
+    dut.virtual_pins.size.should == 2
+    dut.virtual_pins.include?(:relay1).should == true
+    dut.virtual_pins.include?(:relay2).should == true
   end
   
   it 'handles pins package metadata' do
@@ -140,9 +145,15 @@ describe "Model import and export" do
     dut.has_pin?(:tdo).should == true
     dut.pin(:tdo).packages.keys.should == [:bga, :pcs]
     dut.packages.should == [:bga, :pcs]
+    dut.virtual_pins.size.should == 2
+    dut.virtual_pins.include?(:relay1).should == true
+    dut.virtual_pins.include?(:relay2).should == true
     dut.package = :bga
     dut.pin(:tdo).location.should == 'BF32'
     dut.pin(:tdo).dib_assignment.should == [10104]
+    dut.virtual_pins.size.should == 1
+    dut.virtual_pins.include?(:relay1).should == false
+    dut.virtual_pins.include?(:relay2).should == true
     dut.package = :pcs
     dut.pin(:tdo).location.should == 'BF30'
     dut.pin(:tdo).dib_assignment.should == [31808]
