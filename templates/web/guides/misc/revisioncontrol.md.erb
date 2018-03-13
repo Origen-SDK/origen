@@ -10,8 +10,9 @@ control environments.
 
 Currently the following systems are supported by the abstract API:
 
-* Git
-* Enovia Synchronicity Design Sync
+* [Git](https://git-scm.com/)
+* [Enovia Synchronicity Design Sync](https://www.3ds.com/products-services/enovia/products/v6/synchronicity-designsync/)
+* [Perforce](https://www.perforce.com/)
 
 If you would like to see another system supported and you are willing
 to help us develop and pilot the driver for it, then please get in touch via
@@ -32,6 +33,9 @@ rc.git?   # => true
 
 rc = Origen::RevisionControl.new remote: "sync://sync-15000:15000/myaccount/myproj", local: "my/path"
 rc.dssc?   # => true
+
+rc = Origen::RevisionControl.new remote: "p4://server:port//myaccount/myproj", local: "my/path"
+rc.p4?   # => true
 ~~~
 
 In the case of an Origen application, a short cut is available (assuming the application has
@@ -94,5 +98,11 @@ origen rc tag           # Tag and release the application
 ~~~
 
 See <code>origen rc -h</code> for an up to date list of supported commands.
+
+** Note on Perforce **
+
+The Perforce revision control implementation currently only supports the 'print' command, 
+which just downloads a file to a local path.  This was developed to support Origen remotes using
+Perforce.  None of the standard commands listed above are implemnted currently.
 
 % end
