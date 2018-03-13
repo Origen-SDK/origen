@@ -145,34 +145,36 @@ describe "Callbacks" do
     $_load_count.should == 2
   end
 
-  # This test doesn't work in CI, not sure why exactly, can't write to local disk maybe?
-  unless ENV['TRAVIS']
-    it "test of generating program documentation from on_flow_end callback" do
-      files = ["#{Origen.root}/web/content/flows/probe_2_flow.md",
-               "#{Origen.root}/web/content/flows.md"]
+  it "test of generating program documentation from on_flow_end callback" do
+    # Make sure this test always runs from a state where the program model has not
+    # been generated yet, otherwise can get different behavior when running locally vs CI
+    f = "#{Origen.root}/tmp/program_models/callback_test"
+    FileUtils.rm_f(f) if File.exist?(f)
 
-      files.each { |f| FileUtils.rm(f) if File.exist?(f) }
+    files = ["#{Origen.root}/web/content/flows/probe_2_flow.md",
+             "#{Origen.root}/web/content/flows.md"]
 
-      class MyCallbackDUT
-        include Origen::TopLevel
+    files.each { |f| FileUtils.rm(f) if File.exist?(f) }
 
-        def on_flow_end(options)
-          OrigenDocHelpers.generate_flow_docs layout: "#{Origen.root}/templates/web/layouts/_basic.html.erb", tab: :flows do |d|
-            d.page  flow: :prb2,
-                    name: "Probe 2 Flow",
-                    target: "callback_test"  
-          end
+    class MyCallbackDUT
+      include Origen::TopLevel
+
+      def program_generated
+        OrigenDocHelpers.generate_flow_docs layout: "#{Origen.root}/templates/web/layouts/_basic.html.erb", tab: :flows do |d|
+          d.page  flow: :prb2,
+                  name: "Probe 2 Flow",
+                  target: "callback_test"  
         end
       end
-
-      Origen.target.temporary = "callback_test"
-
-      ARGV = %w(program/prb2.rb)
-
-      load "origen/commands/program.rb"
-
-      files.each { |f| File.exist?(f).should == true }
-      files.each { |f| FileUtils.rm(f) }
     end
+
+    Origen.target.temporary = "callback_test"
+
+    ARGV = %w(program/prb2.rb)
+
+    load "origen/commands/program.rb"
+
+    files.each { |f| File.exist?(f).should == true }
+    files.each { |f| FileUtils.rm(f) }
   end
 end

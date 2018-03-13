@@ -79,6 +79,7 @@ module Origen
               else
                 if options[:action] == :program
                   Origen.generator.generate_program(expand_lists_and_directories(options[:files], options), options)
+                  Origen.app.listeners_for(:program_generated).each(&:program_generated)
                 else
                   temporary_plugin_from_options = options[:current_plugin]
                   expand_lists_and_directories(options[:files], options).each do |file|
