@@ -1,3 +1,83 @@
+<a class="anchor release_tag" name="v0_32_0"></a>
+<h1><a href="#v0_32_0">Tag: v0.32.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 14-Mar-2018 15:14PM
+
+
+* Removed nokogiri as a dependency of Origen (Welguisz)
+* Fix for sub\_block.owner anomaly (McGinty)
+* Updated dev env to latest OrigenTesters (McGinty)
+* Cleaned up Origen::Clocks::Clock and added in feature to disable sub\_block creation for clock users (info-rchitect)
+
+~~~ruby
+add\_clock :socclk do |c|
+  c.description = 'SoC clock'
+  c.nominal\_frequency = 1.2.Ghz
+  c.frequency\_range = :fixed
+  c.users = [:data\_mesh]
+  c.instantiate\_users = false
+end
+~~~
+
+* Updated Origen::Clocks::Clock to have min, max methods based on frequency range (info-rchitect)
+* Fix for improper web url for web server (Priyavadan)
+* New param? method (rlaj)
+
+~~~ruby
+dut.param?('tprog').should == 20
+dut.param?(:tprog).should == 20
+dut.param?('tprog\_does\_not\_exist').should == nil
+dut.param?(:tprog\_does\_not\_exist).should == nil
+~~~
+
+* Add on\_mode\_changed callback (info-rchitect)
+
+~~~ruby
+def initialize
+  @my\_version = version
+    add\_mode :mode1
+  @mode\_changed\_count = 0
+end
+
+def on\_mode\_changed(options)
+  @mode\_changed\_count += 1
+end
+
+it 'on\_mode\_changed callback works' do
+  m = MyModel.new
+  m.modes.should == [:mode1]
+  m.mode.should == nil
+  m.mode\_changed\_count.should == 0
+  m.mode = :mode1
+  m.mode\_changed\_count.should == 1
+end
+~~~
+
+* Fixed bug in current\_mode method (info-rchitect)
+* Fixed bug where exported pins metadata was being forced to be a number or a string (info-rchitect)
+* Added support for tag configuration in Origen remotes that does not get prepended with a 'v'.
+  Also added remotes support for the Perforce revision control software
+
+~~~ruby
+Origen.config.remotes do
+  [
+    {
+      dir: "mydir",
+      vault: "p4://myserver:myport//path/to/my/remote/file/myfile.xlsx",
+      tag: '0.1.0'
+    }    
+  ]
+end
+~~~
+
+* Model exporter fix (McGinty)
+* Added resolve\_remotes! method that enables remotes defined outside the application.rb file to be donwloaded
+  sometime during DUT init (info-rchitect)
+* Fixed SPI plugin link (McGinty)
+* Added hook to support testers where a pattern is multiple files for SmarTest8 (McGinty)
+
 <a class="anchor release_tag" name="v0_31_0"></a>
 <h1><a href="#v0_31_0">Tag: v0.31.0</a></h1>
 
