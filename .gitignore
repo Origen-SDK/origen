@@ -1,6 +1,7 @@
 # Misc
 .irb_history
 .byebug_history
+/vendor/lib/models/origen
 
 # Editor cruft
 *.swp

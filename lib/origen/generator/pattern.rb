@@ -349,10 +349,21 @@ module Origen
 
         unless options[:inhibit] || !Origen.tester.generate? || job.test?
           stats.collect_for_pattern(job.output_pattern) do
-            File.open(job.output_pattern, 'w') do |f|
-              [:header, :body, :footer].each do |section|
-                Origen.tester.format(stage.bank(section), section) do |line|
-                  f.puts line
+            # If the tester is going to deal with writing out the final pattern. The use case for this is when
+            # the pattern is comprised of multiple files instead of the more conventional case here which each
+            # pattern is one file.
+            if tester.respond_to?(:open_and_write_pattern)
+              tester.open_and_write_pattern(job.output_pattern) do
+                [:header, :body, :footer].each do |section|
+                  Origen.tester.format(stage.bank(section), section)
+                end
+              end
+            else
+              File.open(job.output_pattern, 'w') do |f|
+                [:header, :body, :footer].each do |section|
+                  Origen.tester.format(stage.bank(section), section) do |line|
+                    f.puts line
+                  end
                 end
               end
             end
