@@ -373,7 +373,7 @@ module Origen
           log.info "Pattern vectors: #{stats.number_of_vectors_for(job.output_pattern).to_s.ljust(10)}"
           log.info 'Execution time'.ljust(15) + ': %.6f' % stats.execution_time_for(job.output_pattern)
           log.info '----------------------------------------------------------------------'
-          check_for_changes(job.output_pattern, job.reference_pattern)
+          check_for_changes(job.output_pattern, job.reference_pattern) unless tester.try(:disable_pattern_diffs)
           stats.record_pattern_completion(job.output_pattern)
         end
 
