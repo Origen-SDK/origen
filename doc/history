@@ -1,3 +1,13 @@
+<a class="anchor release_tag" name="v0_32_1"></a>
+<h1><a href="#v0_32_1">Tag: v0.32.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 19-Mar-2018 14:05PM
+
+
+Moved Perforce driver to a plugin to remove dependency on p4ruby gem
+
 <a class="anchor release_tag" name="v0_32_0"></a>
 <h1><a href="#v0_32_0">Tag: v0.32.0</a></h1>
 
