@@ -16,7 +16,6 @@ PATH
       log4r (~> 1.1.10, ~> 1.1)
       nanoc (~> 3.7)
       net-ldap (~> 0.13)
-      p4ruby (~> 2015.2, >= 2015.2.1313860)
       pry (~> 0.10)
       rake (~> 10)
       rspec (~> 3)
@@ -103,8 +102,7 @@ GEM
       require_all (~> 1)
     origen_updater (0.7.0)
       origen
-    p4ruby (2015.2.1313860)
-    parser (2.5.0.3)
+    parser (2.5.0.4)
       ast (~> 2.4.0)
     powerpack (0.1.1)
     pry (0.11.3)
