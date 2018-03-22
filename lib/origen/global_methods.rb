@@ -6,12 +6,7 @@ module Origen
     end
 
     def c1(msg, options = {})
-      if Origen.tester.generating == :program
-        # Test Flow cc call must be on the line directly before test method
-        Origen.app.tester.c3(msg, options, caller_locations(1, 1)[0].lineno + 1)
-      else
-        Origen.app.tester.c1(msg, options)
-      end
+      Origen.app.tester.c1(msg, options)
     end
     alias_method :cc, :c1
 
