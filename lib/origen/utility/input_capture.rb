@@ -5,13 +5,14 @@ module Origen
       # Gets text input from the user
       # Supply an optional default value in the event that the user enters nothing
       def get_text(options = {})
-        options = { default:        false,
-                    single:         false,     # Set if only a single line entry is expected
-                    confirm:        false,
-                    accept:         false,         # Supply and array of entries you are willing to accept
-                    case_sensitive: false, # If accept values are supplied they will be treated as case
+        options = { default:          false,
+                    single:           false,     # Set if only a single line entry is expected
+                    confirm:          false,
+                    accept:           false,         # Supply and array of entries you are willing to accept
+                    case_sensitive:   false, # If accept values are supplied they will be treated as case
                     # in-sensitive by default
-                    wrap:           true,   # Automatically split long lines
+                    wrap:             true,   # Automatically split long lines
+                    suggested_values: false, # Provide a list of suggested values to input
         }.merge(options)
         if options[:confirm]
           puts "Type 'yes' or 'no' to confirm or 'quit' to abort."
@@ -26,6 +27,8 @@ module Origen
         line = ''
         if options[:confirm]
           print "(#{options[:default]}): " if options[:default]
+        elsif options[:suggested_values]
+          print "Suggested Values are (#{options[:suggested_values]}):" if options[:suggested_values]
         else
           print "Hit return to accept the default (#{options[:default]}): " if options[:default]
         end
