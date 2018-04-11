@@ -26,6 +26,9 @@ ORIGEN_COMMAND_ALIASES = {
 @command = ORIGEN_COMMAND_ALIASES[@command] || @command
 @global_commands = []
 
+# Moved here so boot.rb file can know the current command
+Origen.send :current_command=, @command
+
 # Don't log to file during the save command since we need to preserve the last log,
 # this is done as early in the process as possible so any deprecation warnings during
 # load don't trigger a new log
@@ -91,7 +94,6 @@ require 'origen/global_methods'
 include Origen::GlobalMethods
 
 Origen.lsf.current_command = @command
-Origen.send :current_command=, @command
 
 if ARGV.delete('-d') || ARGV.delete('--debug')
   begin
