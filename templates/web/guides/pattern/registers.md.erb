@@ -172,6 +172,35 @@ vref.level.overlay("vref_setting")
 vref.write!
 ~~~
 
+#### Combining Multiple Bit Level Accesses Into A Single Transaction
+
+Multiple individual bits within a register can be accessed/manipulated within a single
+transaction by making multiple bit-level calls to `read` (or `write`), followed by a single
+register-level `read!` (or `write!`) operation:
+
+~~~ruby
+my_reg.my_bits_x.read(1)
+my_reg.my_bits_z.read(0b101)
+my_reg.read!
+~~~
+
+Sometimes you will see application code that combines the final transaction request with the
+final bit-level operation, this will do the same thing as the above example:
+
+~~~ruby
+my_reg.my_bits_x.read(1)
+my_reg.my_bits_z.read!(0b101)
+~~~
+
+If you prefer, an equivalent block form API is also available, this is equivalent to the above example:
+
+~~~ruby
+my_reg.read! do |reg|
+  reg.my_bits_x.read(1)
+  reg.my_bits_z.read(0b101)
+end
+~~~
+
 #### Writing a Driver
 
 Generally the code for an existing driver should be reviewed to see how to go about this,
