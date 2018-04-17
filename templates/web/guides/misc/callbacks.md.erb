@@ -279,13 +279,15 @@ such as clocks and register settings.
 
 ~~~ruby
 def on_mode_changed(options)
-  case options[:mode]
-  when :mode1
-    clocks(:coreclk).setpoint = 1.2.Ghz
-    clocks(:memclk).setpoint = 600.Mhz
-  when :mode2
-    clocks(:coreclk).setpoint = 1.0.Ghz
-    clocks(:memclk).setpoint = 500.Mhz
+  if options[:klass] == self
+    case options[:mode]
+    when :mode1
+      clocks(:coreclk).setpoint = 1.2.Ghz
+      clocks(:memclk).setpoint = 600.Mhz
+    when :mode2
+      clocks(:coreclk).setpoint = 1.0.Ghz
+      clocks(:memclk).setpoint = 500.Mhz
+    end
   end
 end
 ~~~
