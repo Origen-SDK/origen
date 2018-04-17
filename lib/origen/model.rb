@@ -219,7 +219,7 @@ module Origen
     def current_mode=(id)
       @current_mode = id.is_a?(ChipMode) ? id.id : id
       Origen.app.listeners_for(:on_mode_changed).each do |listener|
-        listener.on_mode_changed(mode: @current_mode, klass: self)
+        listener.on_mode_changed(mode: @current_mode, instance: self)
       end
       @current_mode
     end
