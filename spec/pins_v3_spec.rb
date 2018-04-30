@@ -39,6 +39,36 @@ class IncorrectPackageDut
   
 end
 
+class PinGroupsCreatorDut
+  include Origen::TopLevel
+  
+  def initialize 
+    add_package :bga
+    add_package :pcs
+    add_pin :tdo
+    add_pin :tdi
+    add_pin :tms
+    add_pin :tck
+    add_pin :trst
+    add_pin :therm1, package: :bga
+    add_pin :therm2, package: :bga
+    add_pin :therm3, package: :bga
+    add_pin :therm4, package: :bga
+    add_pin :therm5, package: :bga
+    add_pin :poreset, package: :bga
+    add_pin :ddr_bus1, packages: [:bga, :pcs]
+    add_pin :ddr_bus2, packages: [:bga, :pcs]
+    add_pin :ddr_bus3, packages: [:bga, :pcs]
+    add_pin :ddr_bus4, packages: [:bga, :pcs]
+    add_pin :ddr_bus5, packages: [:bga, :pcs]
+    add_pin :ddr_addr1, packages: [:bga, :pcs]
+    add_pin :ddr_addr2, packages: [:bga, :pcs]
+    add_pin :ddr_addr3, packages: [:bga, :pcs]
+    add_pin :ddr_addr4, packages: [:bga, :pcs]
+    add_pin :ddr_addr5, packages: [:bga, :pcs]
+  end
+end
+
 describe "Origen Pin API v3" do
 
   before :each do
@@ -1036,5 +1066,39 @@ describe "Origen Pin API v3" do
     @dut.package = :pcs
     @dut.package.id.should == :pcs
     @dut.has_pin?(:pinx).should == false
+  end
+  
+  it 'can create pin groups using lists of Arrays, Regexp, and Symbols' do
+    Origen.app.unload_target!
+    Origen.target.temporary = -> { PinGroupsCreatorDut.new }
+    Origen.load_target
+    dut.add_pin_groups do 
+      add_group :jtag, [:tdo, :tdi, :tms, :tck, :trst]
+      add_group :jtag_wo_trst do
+        with :jtag
+        without :trst
+      end   
+    end
+    dut.pin_groups.ids.should == [:jtag, :jtag_wo_trst]
+    dut.pin_groups(:jtag).map(&:id).should ==  [:tdo, :tdi, :tms, :tck, :trst]
+    dut.pin_groups(:jtag_wo_trst).map(&:id).should ==  [:tdo, :tdi, :tms, :tck]
+    dut.add_pin_groups :bga do 
+      add_group :thermal, /^therm/
+    end
+    dut.pin_groups.ids.grep(:thermal).empty?.should == true
+    dut.package = :bga
+    dut.pin_groups.ids.grep(:thermal).empty?.should == false
+    dut.pin_groups.ids.should == [:thermal]
+    dut.pin_groups.ids.grep(:jtag).empty?.should == true
+    dut.pin_groups(:thermal).map(&:id).should == [:therm1, :therm2, :therm3, :therm4, :therm5]
+    dut.add_pin_groups [:bga, :pcs] do 
+      add_group :ddr_by_regexp, /^ddr_bus/, /^ddr_addr/
+      add_group :ddr_by_mixed_expr, /^ddr_bus/, [:ddr_addr1, :ddr_addr2, :ddr_addr3, :ddr_addr4, :ddr_addr5]
+    end
+    dut.pin_groups.ids.should == [:thermal, :ddr_by_regexp, :ddr_by_mixed_expr]
+    dut.package = :pcs
+    dut.pin_groups.ids.should == [:ddr_by_regexp, :ddr_by_mixed_expr]
+    dut.pin_groups(:ddr_by_regexp).map(&:id).should == dut.pin_groups(:ddr_by_mixed_expr).map(&:id)
+    dut.pin_groups(:ddr_by_regexp).size.should == 10
   end
 end

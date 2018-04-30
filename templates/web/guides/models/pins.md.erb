@@ -396,6 +396,55 @@ pins(:g1).size      # => 3
 pin_groups.size     # => 1
 ~~~
 
+Pin groups can be created using a block format that allows a mix of Symbols, Arrays, and Regexp.
+
+~~~ruby
+add_pin(:ddr_bus1)
+add_pin(:ddr_bus2)
+add_pin(:ddr_bus3)
+add_pin(:ddr_clk)
+add_pin(:tdi)
+add_pin(:tdo)
+add_pin(:tms)
+add_pin(:tck)
+add_pin(:trst)
+add_pin_groups do
+  add_group :ddr_data_and_clk, /^ddr_bus/, :ddr_clk
+  add_group :jtag, [:tdo, :tdi, :tms, :tck, :trst]
+  add_group :jtag_wo_trst do
+    with :jtag
+    without :trst
+  end
+end
+
+pin_groups.ids                          # [:ddr_data_and_clk, :jtag, :jtag_wo_trst]
+pin_groups(:jtag).map(&:id)             # [:tdo, :tdi, :tms, :tck, :trst]
+pin_groups(:jtag_wo_trst).map(&:id)     # [:tdo, :tdi, :tms, :tck]      
+pin_groups(:ddr_data_and_clk).map(&:id) # [:ddr_bus1, :ddr_bus2, :ddr_bus3, :ddr_clk]     
+~~~
+
+By not passing in a package argument (as shown above), the pin group is created at the die level.  A single package can be passed as a Symbol or multipe packages can be passed as an Array, such that the pin groups are cteaed with package scope.
+
+~~~ruby
+add_pin(:uart1)
+add_pin(:uart2)
+add_pin(:uart3)
+add_pin(:rgmii1)
+add_pin(:rgmii2)
+add_pin(:rgmii3)
+add_pin_groups :bga do
+  add_group :uart, /^uart/
+  add_group :rgmii, /^rgmii/
+  add_group :all_bga_pins, [:uart, :rgmii]
+end
+
+package = :bga
+pin_groups                          # [:uart, :rgmii, :all_bga_pins]
+pin_groups(:uart).map(&:id)         # [:uart1, :uart2, :uart3]
+pin_groups(:rgmii).map(&:id)        # [:rgmii1, :rgmii2, :rgmii3]
+pin_groups(:all_bga_pins).map(&:id) # [:uart1, :uart2, :uart3, :rgmii1, :rgmii2, :rgmii3]
+~~~ruby
+
 #### Package Attributes
 
 The attributes listed in the constant <code>PACKAGE_SCOPED_ATTRIBUTES</code> in the [Pin API](<%= path "api/Origen/Pins/Pin.html" %>)

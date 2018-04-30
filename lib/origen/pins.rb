@@ -179,6 +179,7 @@ module Origen
     autoload :OtherPin,      'origen/pins/other_pin'
     autoload :VirtualPin,    'origen/pins/virtual_pin'
     autoload :FunctionProxy, 'origen/pins/function_proxy'
+    autoload :PinGroupsCreator,    'origen/pins/pin_groups_creator'
     require 'origen/pins/timing'
 
     include Timing
@@ -483,6 +484,13 @@ module Origen
       group = Origen.pin_bank.find_or_create_pin_group(id, self, options) if group.nil?
       group
       # Origen.pin_bank.add_pin_group(group, self, {:pins_exist => true}.merge(options))
+    end
+
+    def add_pin_groups(package = nil, &block)
+      current_package = self.package
+      requested_package = package.nil? ? current_package : package
+      PinGroupsCreator.new(requested_package, &block)
+      self.package = current_package
     end
 
     def add_power_pin_group(id, *pins, &block)
