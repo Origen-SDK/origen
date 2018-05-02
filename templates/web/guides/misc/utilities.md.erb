@@ -1,0 +1,311 @@
+% render "layouts/guides.html" do
+
+Origen provides some general-purpose utlity classes and modules that can help you to better develop your applications,
+plugins, and other features. The following is a list of the utilities currently implemented by Origen:
+
+<div class="list-group">
+  <li class="list-group-item"><a href="#Block_Args">Block Args</a></li>
+  <li class="list-group-item"><a href="#Collector">Collector</a></li>
+  <li class="list-group-item"><a href="#CSV_Data">CSV Data</a></li>
+  <li class="list-group-item"><a href="#Diff">Diff</a></li>
+  <li class="list-group-item"><a href="#File_Diff">File Diff</a></li>
+  <li class="list-group-item"><a href="#Input_Capture">Input Capture</a></li>
+  <li class="list-group-item"><a href="#Mailer">Mailer</a></li>
+  <li class="list-group-item"><a href="#Time_And_Date">Time And Date</a></li>
+</div>
+
+### Block Args
+
+<%= render "partials/placeholder.md" %>
+
+### Collector
+
+You may notice some features within Origen, such as <code>registers</code>, <code>bits</code>, or anything
+that uses <code>componentable</code> to instantiate, are able to take either an <code>options hash</code> or an
+<code>options block</code> and merge the two, allowing users to work with whichever is preferred. Under the
+hood of these features, is the <code>Collector</code>, which allows for a block to be transformed
+into a <code>hash</code> and can then be used as options for the given feature.
+
+The collector is available at <code>Origen::Utility::Collector</code>, but shortcut method to create a new instance is
+available as <code>Origen::Utility.collector</code>. The collector isn't really meant to be used throughout, rather
+it is an intermediary step to join hashes and blocks. An example of using the collector is:
+
+~~~ruby
+block = Proc.new do |collector|
+  collector.arg1 'argument 1'
+  collector.arg2 'argument 2'
+end
+
+collector = Origen::Utility.collector
+block.call(collector)
+
+collector.to_h
+#=> {arg1: 'argument 1', arg2: 'argument 2'}
+~~~
+
+The result of using the collector is each argument given as a method is transformed into a hash key/value pair.
+
+#### Using An Anonymous Collector
+
+The most common use (at the time of this writing) is to transform an <code>option block</code> into an <code>option hash</code>
+and/or merge an existing<code>option hash</code> and the resulting <code>option hash</code>. This allows for options
+to be given either as a hash or as a block or both, depending on the nature of the options and the preference of the user. In
+these cases, it is common to just instantiate the collector, convert it to a hash, then throw it away. This can
+be done in a single line as:
+
+~~~ruby
+collector = Origen::Utility.collector(&block).to_h
+~~~
+
+<div class="alert alert-danger">
+<strong>Danger!</strong> This syntax will always work, but other syntaxes have some hidden dangers. See
+<a href="#Caveats_of_Anonymous_Collectors">later in this page for details</a>
+</div>
+
+#### Merging Options
+
+The collector allows for automatic <code>hash merging</code>. The intent is to easily allow for an <code>options hash</code>
+and an <code>options block</code> to merge into a single <code>combined hash</code>. This can be achieved by passing in
+two options during collector initialization: <code>hash</code> and <code>merge_method</code>.
+
+~~~ruby
+# Combining a hash and block with no clashes
+options = {argA: 'arg A', argB: 'arg B'}
+block = Proc.new do |collector|
+  collector.arg1 'arg 1'
+  collector.arg2 'arg 2'
+end
+Origen::Utility.collector(hash: options, &block).to_h
+  #=> {argA: 'arg A', argB: 'arg B', arg1: 'arg 1', arg2: 'arg 2'}
+
+# Combining a hash and block with some keys clashing (default merging)
+options = {arg1: 'has arg 1', arg2: 'hash arg 2'}
+block = Proc.new do |collector|
+  collector.arg2 'block arg 2'
+  collector.arg3 'block arg 3'
+end
+Origen::Utility.collector(hash: options, &block).to_h
+  #=> {arg1: 'has arg 1', arg2: 'hash arg 2', arg3: 'block arg 3'}
+
+# Combining a hash and block with explicit merge method :keep_hash (default)
+options = {arg1: 'has arg 1', arg2: 'hash arg 2'}
+block = Proc.new do |collector|
+  collector.arg2 'block arg 2'
+  collector.arg3 'block arg 3'
+end
+Origen::Utility.collector(hash: options, merge_method: :keep_hash, &block).to_h
+  #=> {arg1: 'has arg 1', arg2: 'hash arg 2', arg3: 'block arg 3'}
+~~~
+
+As shown, of the options that were given to both the hash and block, the options in the hash were kept. This is the
+default behavior, or can be explicitly defined by providing <code>merge_method: :keep_hash</code> to avoid confusion.
+
+<div class="alert alert-info">
+<strong>Info!</strong> Running the collector without a block will always be just the input hash.
+</div>
+
+Two other merge method exists: <code>:keep_block</code> and <code>:fail</code>. <code>:keep_block</code> is just the
+opposite of <code>:keep_hash</code> and <code>:fail</code> will raise an error if the same option is provided by
+both the hash and the block. Trying to set the <code>merge_method</code> to anything else will raise an error.
+
+~~~ruby
+options = {arg1: 'has arg 1', arg2: 'hash arg 2'}
+block = Proc.new do |collector|
+  collector.arg2 'block arg 2'
+  collector.arg3 'block arg 3'
+end
+Origen::Utility.collector(hash: options, merge_method: :keep_block, &block).to_h
+  #=> {arg1: 'has arg 1', arg2: 'block arg 2', arg3: 'block arg 3'}
+~~~
+
+~~~ruby
+options = {arg1: 'has arg 1', arg2: 'hash arg 2'}
+block = Proc.new do |collector|
+  collector.arg3 'block arg 3'
+end
+Origen::Utility.collector(hash: options, merge_method: :fail, &block).to_h
+  #=> {arg1: 'has arg 1', arg2: 'hash arg 2', arg3: 'block arg 3'}
+
+options = {arg1: 'has arg 1', arg2: 'hash arg 2'}
+block = Proc.new do |collector|
+  collector.arg2 'block arg 2'
+  collector.arg3 'block arg 3'
+end
+Origen::Utility.collector(hash: options, merge_method: :fail, &block).to_h
+  #=> Origen::OrigenError
+  #=> 'Origen::Utility::Collector detected both the hash and block attempting to set :arg2 (merge_method set to :fail)'
+~~~
+
+#### Failure Conditions
+
+As shown above, trying to merge the same key in the hash and block when <code>merge_method: :fail</code>
+will cause an exception. There are a few other conditions that will cause the collector to complain.
+
+Since the collector tries to transform an <code>options block</code> into a hash, some of the syntactic rules of 
+hashes are enforced on blocks.
+
+##### Multiple Sets
+
+The collector will fail if the same method is set after multiple times. For example:
+
+~~~ruby
+block = Proc.new do |collector|
+  collector.arg1 'hi'
+  collector.arg1 = 'hello'
+end
+Origen::Utility.collector(&block)
+  #=> ArgumentError
+~~~
+
+Even though this is technically allowed in Ruby, its the equalivent of a hash formatted
+<code>{arg1: 1, arg1: 2}</code>, which just overrides values. There is no reason for this usage and it just
+causes confusion (especially in large hashes or blocks), so the collector disallows this.
+
+##### Multiple Values In A Single Set
+
+Each method can only set one value. As such, providing any number of arguments greater than one will fail, as
+will attempting to use both an argument and a block.
+
+For example:
+
+~~~ruby
+block = Proc.new do |collector|
+  collector.arg1 'arg1', 'arg2', 'arg3'
+end
+  #=> ArgumentError
+~~~
+
+This would be the hash equalivent of <code>{arg1: 'arg1', 'arg2', 'arg3'}</code> which is a syntax error.
+
+##### No Value Defined
+
+Deprecation Warning: For legacy and backwards compatability, defining a method without a value will set the value to
+nil and not raise an error, but will print a deprecation warning. This will fail as described below starting in
+Origen 1.0.0.
+
+The method must also have a value defined. An empty defined method, such as:
+
+~~~ruby
+block = Proc.new do |collector|
+  collector.arg1
+end
+  #=> ArgumentError
+~~~
+
+is the hash equivalent of <code>{arg1: }</code> or <code>{arg1}</code>, which is not allowed.
+
+<div class="alert alert-info">
+<strong>Info!</strong> You can enforce this behavior pre-Origen 1.0.0 by passing in the option <code>fail_on_empty_args: true</code>
+</div>
+
+#### Caveats of Anonymous Collectors
+
+For the collector, <code>method_missing</code> actually returns <code>self</code>, instead of the value set. This
+means that blocks that only use the <code>collector.arg value</code> notation will always return the collector. The
+advertised means of using an anonymous collector is:
+
+~~~ruby
+Origen::Utility.collector(options, &block)
+~~~
+
+However, the following may work, depending on the block:
+
+~~~ruby
+block.call(Origen::Utility.collector)
+~~~
+
+For the above case, in order to get a collector instance, the block must return the collector. If
+just using <code>collector.arg val</code> syntax, this will work, but <code>collector.arg = val</code> syntax will not.
+This is due to Ruby's rules that <code>collector.arg = val</code> will return <code>val</code>. Likewise, adding
+other stuff at the end of the block will also change its return value:
+
+~~~ruby
+block = Proc.new do |collector|
+  collector.arg1 'arg1'
+end
+block.call(Origen::utility.collector)
+  #=> Collector Instance
+
+block = Proc.new do |collector|
+  collector.arg1 = 'arg1'
+end
+block.call(Origen::utility.collector)
+  #=> 'arg1'
+
+block = Proc.new do |collector|
+  collector.arg1 'arg1'
+  'random stuff'
+end
+block.call(Origen::utility.collector)
+  #=> 'random stuff'
+~~~
+
+However, if the block returns the collector itself, as below:
+
+~~~ruby
+block = Proc.new do |collector|
+  collector.arg1 'arg1'
+  'random stuff'
+  collector
+end
+block.call(Origen::utility.collector)
+  #=> Collector Instance
+~~~
+
+then this will work as expected. But, this relies on the block being written in a way that is impossible to detect
+from the collector itself.
+
+The correct way to work around this is to use the advertised means of initializing an anonymous collector. This will
+give you the desired result regardless of the block's return value.
+
+~~~ruby
+block = Proc.new do |collector|
+  collector.arg1 'arg1'
+end
+Origen::utility.collector(&block)
+  #=> Collector Instance
+
+block = Proc.new do |collector|
+  collector.arg1 = 'arg1'
+end
+Origen::utility.collector(&block)
+  #=> Collector Instance
+
+block = Proc.new do |collector|
+  collector.arg1 'arg1'
+  'random stuff'
+end
+Origen::utility.collector(&block)
+  #=> Collector Instance
+~~~
+
+### CSV Data
+
+<%= render "partials/placeholder.md" %>
+
+### Diff
+
+<%= render "partials/placeholder.md" %>
+
+### File Diff
+
+<%= render "partials/placeholder.md" %>
+
+### Input Capture
+
+<%= render "partials/placeholder.md" %>
+
+### Mailer
+
+Usage of the mailer in applications or plugins is described at
+[sending_emails](<%= path "guides/misc/users/#Sending_Emails" %>) and [maillist](<%= path "guides/misc/users/#Maillist" %>).
+
+However, with respect to the developer's usage:
+
+<%= render "partials/placeholder.md" %>
+
+### Time And Date
+
+<%= render "partials/placeholder.md" %>
+
+% end

@@ -52,4 +52,5 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "dentaku", "~>2"
   spec.add_runtime_dependency "colorize", "~> 0.8.1"
   spec.add_runtime_dependency 'p4ruby', '~> 2015.2', '>= 2015.2.1313860'
+  spec.add_runtime_dependency 'nokogiri', '>= 1.7.2'
 end

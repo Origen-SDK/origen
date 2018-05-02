@@ -16,7 +16,7 @@ when "tags"
 
 when "specs"
   require "rspec"
-  exit RSpec::Core::Runner.run(['spec'])
+  exit RSpec::Core::Runner.run(['spec/utility/collector_spec.rb', 'spec/utility_spec.rb'])
 
 when "examples", "test"  
   Origen.load_application

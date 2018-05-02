@@ -96,5 +96,10 @@ module Origen
         end
       end
     end
+    
+    def self.collector(options={}, &block)
+      Origen::Utility::Collector.new(options, &block)
+    end
+    
   end
 end
