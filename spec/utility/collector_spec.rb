@@ -1,16 +1,22 @@
 RSpec.shared_examples :utility_collector_spec do
   
   describe 'Collector' do
-    it 'can be initialized with an empty store' do
+    it 'can be initialized with an empty to_h' do
       collector = Origen::Utility::Collector.new
       expect(collector).to be_a(Origen::Utility::Collector)
-      expect(collector.store).to eql({})
+      expect(collector.to_h).to eql({})
+    end
+    
+    it 'implements ::to_h and aliases it to ::to_hash' do
+      collector = Origen::Utility::Collector.new
+      expect(collector).to respond_to(:to_h)
+      expect(collector.method(:to_h)).to eql(collector.method(:to_hash))
     end
     
     it 'has a shortcut method Origen::Utility.collector' do
       collector = Origen::Utility.collector
       expect(collector).to be_a(Origen::Utility::Collector)
-      expect(collector.store).to eql({})
+      expect(collector.to_h).to eql({})
     end
     
     it 'collects given method/argument pairs from a block and returns them as a hash' do
@@ -20,7 +26,7 @@ RSpec.shared_examples :utility_collector_spec do
         collector.arg3 'hi'
         collector.arg4 'hello'
       end
-      collector = Origen::Utility.collector(&block).store
+      collector = Origen::Utility.collector(&block).to_h
       expect(collector).to eql({arg1: 'hi', arg2: 'hello', arg3: 'hi', arg4: 'hello'})
     end
     
@@ -31,7 +37,7 @@ RSpec.shared_examples :utility_collector_spec do
         collector.arg3 'hi'
         collector.arg4 = 'hello'
       end
-      collector = Origen::Utility.collector(&block).store
+      collector = Origen::Utility.collector(&block).to_h
       expect(collector).to eql({arg1: 'hi', arg2: 'hello', arg3: 'hi', arg4: 'hello'})
     end
     
@@ -45,7 +51,7 @@ RSpec.shared_examples :utility_collector_spec do
           'also nothing'
         end
       end
-      collector = Origen::Utility.collector(&block).store
+      collector = Origen::Utility.collector(&block).to_h
       expect(collector.keys).to eql([:arg1, :arg2, :arg3])
       expect(collector[:arg1]).to eql('hi')
       expect(collector[:arg2]).to be_a(Proc)
@@ -61,7 +67,7 @@ RSpec.shared_examples :utility_collector_spec do
           collector.arg1 'arg 1'
           collector.arg2 'arg 2'
         end
-        collector = Origen::Utility.collector(hash: options, &block).store
+        collector = Origen::Utility.collector(hash: options, &block).to_h
         expect(collector).to eql({argA: 'arg A', argB: 'arg B', arg1: 'arg 1', arg2: 'arg 2'})
         expect(options).to eql({argA: 'arg A', argB: 'arg B'})
       end
@@ -93,7 +99,7 @@ RSpec.shared_examples :utility_collector_spec do
           collector.arg2 'block arg 2'
           collector.arg3 'block arg 3'
         end
-        collector = Origen::Utility.collector(hash: options, merge_method: :keep_hash, &block).store
+        collector = Origen::Utility.collector(hash: options, merge_method: :keep_hash, &block).to_h
         expect(collector).to eql({arg1: 'has arg 1', arg2: 'hash arg 2', arg3: 'block arg 3'})
       end
       
@@ -103,7 +109,7 @@ RSpec.shared_examples :utility_collector_spec do
           collector.arg2 'block arg 2'
           collector.arg3 'block arg 3'
         end
-        collector = Origen::Utility.collector(hash: options, merge_method: :keep_block, &block).store
+        collector = Origen::Utility.collector(hash: options, merge_method: :keep_block, &block).to_h
         expect(collector).to eql({arg1: 'has arg 1', arg2: 'block arg 2', arg3: 'block arg 3'})
       end
       

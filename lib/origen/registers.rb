@@ -93,7 +93,7 @@ module Origen
         if block_given?
           collector = Origen::Utility::Collector.new
           yield collector
-          Origen::Registers.reg_metadata[:global].merge!(collector.store)
+          Origen::Registers.reg_metadata[:global].merge!(collector.to_h)
         end
         Origen::Registers.reg_metadata[:global]
       end
@@ -109,7 +109,7 @@ module Origen
         if block_given?
           collector = Origen::Utility::Collector.new
           yield collector
-          Origen::Registers.bit_metadata[:global].merge!(collector.store)
+          Origen::Registers.bit_metadata[:global].merge!(collector.to_h)
         end
         Origen::Registers.bit_metadata[:global]
       end
@@ -424,7 +424,7 @@ module Origen
       if block_given?
         collector = Origen::Utility::Collector.new
         yield collector
-        Origen::Registers.reg_metadata[self.class].merge!(collector.store)
+        Origen::Registers.reg_metadata[self.class].merge!(collector.to_h)
       end
       Origen::Registers.reg_metadata[self.class]
     end
@@ -435,7 +435,7 @@ module Origen
       if block_given?
         collector = Origen::Utility::Collector.new
         yield collector
-        Origen::Registers.bit_metadata[self.class].merge!(collector.store)
+        Origen::Registers.bit_metadata[self.class].merge!(collector.to_h)
       end
       Origen::Registers.bit_metadata[self.class]
     end

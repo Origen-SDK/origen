@@ -384,11 +384,7 @@ module Origen
           opts = {}
 
           # merge the given options with any that are overriden with the block.
-          if block_given?
-            collector = Origen::Utility::Collector.new
-            yield collector
-            options.merge!(collector.store)
-          end
+          options = Origen::Utility.collector(hash: options, merge_method: :keep_hash, &block).to_h
 
           # go through the options one by one now and make sure that each element is either an array to be split
           # by the instances, or is a single object. If not one of these two, complain.
@@ -417,11 +413,7 @@ module Origen
         end
         instances
       else
-        if block_given?
-          collector = Origen::Utility::Collector.new
-          yield collector
-          options.merge!(collector.store)
-        end
+        options = Origen::Utility.collector(hash: options, merge_method: :keep_hash, &block).to_h
         { name => options }
       end
     end
@@ -443,11 +435,7 @@ module Origen
         parent: parent
       }.merge(options)
 
-      if block_given?
-        collector = Origen::Utility::Collector.new
-        yield collector
-        options.merge!(collector.store)
-      end
+      options = Origen::Utility.collector(hash: options, merge_method: :keep_hash, &block).to_h
 
       # Instantiate the class. This will place the object in the @_componentable_container at the indicated name
       _instantiate_class(name, options)

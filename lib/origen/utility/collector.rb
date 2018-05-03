@@ -1,8 +1,7 @@
 module Origen
   module Utility
     class Collector
-      attr_reader :store
-      attr_reader :_options_
+      attr_reader :_hash_
       attr_reader :merge_method
       
       # Need to keep a seperate methods list so we know what's been added by method missing instead of what's
@@ -18,13 +17,25 @@ module Origen
           raise Origen::OrigenError, "Origen::Utility::Collector cannot merge with method :#{@merge_method} (of class #{@merge_method.class}). Known merge methods are :keep_hash (default), :keep_block, or :fail"
         end
         
-        @store = options.key?(:hash) ? options[:hash].clone : {}
+        @_hash_ = options.key?(:hash) ? options[:hash].clone : {}
         @_methods_ = []
         
         if block_given?
           yield self
         end
       end
+      
+      # Legacy store method.
+      def store
+        Origen.log.deprecate "Collector::store method was used. Please use the Ruby-centric Collector::to_h or Collector::to_hash method instead" +
+                             " Called from: #{caller[0]}"
+        @_hash_
+      end
+      
+      def to_hash
+        @_hash_
+      end
+      alias_method :to_h, :to_hash
 
       def method_missing(method, *args, &_block)
         key = method.to_s.sub('=', '').to_sym
@@ -42,7 +53,8 @@ module Origen
           if @fail_on_empty_args
             raise ArgumentError, "Origen::Utility::Collector does not allow method :#{key} to have no arguments. A single argument must be provided"
           else
-            Origen.log.deprecate "Future Origen::Utility::Collector will not allow method :#{key} to have no arguments. For now, :#{key} will be set to nil"
+            Origen.log.deprecate "Future Origen::Utility::Collector will not allow method :#{key} to have no arguments. For now, :#{key} will be set to nil" +
+                                 " Called from: #{caller[0]}"
           end
         elsif args.size > 1
           raise ArgumentError, "Origen::Utility::Collector does not allow method :#{key} more than 1 argument. Received 3 arguments."
@@ -52,15 +64,15 @@ module Origen
 
         # Check if we've already added this key via a method
         if _methods_.include?(key)
-          raise Origen::OrigenError, "Origen::Utility::Collector does not allow method :#{key} to be set more than a single time. :#{key} is set to #{store[key]}, tried to set it again to #{val}"
+          raise Origen::OrigenError, "Origen::Utility::Collector does not allow method :#{key} to be set more than a single time. :#{key} is set to #{_hash_[key]}, tried to set it again to #{val}"
         end
 
         # indicate that we've seen this method, and decide whether or not to add the new value
         _methods_ << key
         
         # Merge the value (or don't, depending on what is set)
-        if merge_method == :keep_block || !store.key?(key)
-          store[key] = val
+        if merge_method == :keep_block || !_hash_.key?(key)
+          _hash_[key] = val
         elsif merge_method == :fail
           raise Origen::OrigenError, "Origen::Utility::Collector detected both the hash and block attempting to set :#{key} (merge_method set to :fail)"
         end
