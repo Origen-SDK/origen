@@ -245,6 +245,9 @@ module Vreg
           samples: [:integer, 1],
           precharge_voltage: [:voltage, 0],
           settling_time: [:time, 0],
+          # An optional parameter that sets the limits name in the 'testmethodlimits' section
+          # of the generated .tf file.  Defaults to 'Functional' if not provided.
+          test_name: [:string, 'SpecSearch']
           # An optional 3rd parameter can be supplied to provide an array of allowed values. If supplied,
           # Origen will raise an error upon an attempt to set it to an unlisted value.
           tester_state: [:string, 'CONNECTED', %w(CONNECTED UNCHANGED DISCONNECTED)],

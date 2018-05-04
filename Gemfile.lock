@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    origen (0.32.0)
+    origen (0.33.0)
       activesupport (~> 4.1)
       bundler (~> 1.7)
       coderay (~> 1.1)
@@ -17,7 +17,6 @@ PATH
       nanoc (~> 3.7)
       net-ldap (~> 0.13)
       nokogiri (>= 1.7.2)
-      p4ruby (~> 2015.2, >= 2015.2.1313860)
       pry (~> 0.10)
       rake (~> 10)
       rspec (~> 3)
@@ -104,8 +103,7 @@ GEM
       require_all (~> 1)
     origen_updater (0.7.0)
       origen
-    p4ruby (2015.2.1313860)
-    parser (2.5.1.0)
+    parser (2.5.0.5)
       ast (~> 2.4.0)
     powerpack (0.1.1)
     pry (0.11.3)
