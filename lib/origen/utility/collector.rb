@@ -47,15 +47,8 @@ module Origen
         elsif block_given?
           val = _block
         elsif args.size == 0
-          # For backwards compatibility, an empty setter method will default to nil.
-          # From a hash perspective, this doesn't make any sense, (can't do {my_var: }), so future collector releases
-          # won't support it. But for now, default behavior is to print a deprecation warning.
-          if @fail_on_empty_args
-            raise ArgumentError, "Origen::Utility::Collector does not allow method :#{key} to have no arguments. A single argument must be provided"
-          else
-            Origen.log.deprecate "Future Origen::Utility::Collector will not allow method :#{key} to have no arguments. For now, :#{key} will be set to nil" +
-                                 " Called from: #{caller[0]}"
-          end
+          # Set any empty argument to nil
+          val = nil
         elsif args.size > 1
           raise ArgumentError, "Origen::Utility::Collector does not allow method :#{key} more than 1 argument. Received 3 arguments."
         else

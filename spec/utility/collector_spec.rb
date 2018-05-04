@@ -60,6 +60,16 @@ RSpec.shared_examples :utility_collector_spec do
       expect(collector[:arg3].call).to eql('also nothing')
     end
     
+    it 'sets methods with no argument to nil' do
+      block = Proc.new do |collector|
+        collector.arg1
+        collector.arg2
+        collector.arg3 = 'arg3'
+      end
+      collector = Origen::Utility.collector(&block).to_h
+      expect(collector).to eql({arg1: nil, arg2: nil, arg3: 'arg3'})
+    end
+    
     describe 'Auto-Merging' do
       it 'can auto-merge with a given options hash, preserving the original options' do
         options = {argA: 'arg A', argB: 'arg B'}
@@ -134,16 +144,6 @@ RSpec.shared_examples :utility_collector_spec do
         expect {
           Origen::Utility.collector(&block)
         }.to raise_error(Origen::OrigenError, 'Origen::Utility::Collector does not allow method :arg1 to be set more than a single time. :arg1 is set to hi, tried to set it again to hello')
-      end
-      
-      it 'complains if no arguments are given (sets fail on empty args)' do
-        block = Proc.new do |collector|
-          collector.arg1
-        end
-        Origen.log.deprecate "This test should be edited for Origen 1.0.0 release"
-        expect {
-          Origen::Utility.collector(fail_on_empty_args: true, &block)
-        }.to raise_error(ArgumentError, 'Origen::Utility::Collector does not allow method :arg1 to have no arguments. A single argument must be provided')
       end
       
       it 'complains if more than one argument is given' do

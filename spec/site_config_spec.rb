@@ -10,7 +10,14 @@ describe "Origen.site_config" do
   end
 
   def clear_site_config
+    # Reset the site config
     Origen.site_config.instance_variable_set('@configs', Array.new)
+    
+    # Also, reset the relevant environment variables
+    ENV['ORIGEN_GEM_INSTALL_DIR'] = nil
+    ENV['ORIGEN_USER_GEM_DIR'] = nil
+    ENV['ORIGEN_HOME_DIR'] = nil
+    ENV['ORIGEN_USER_INSTALL_DIR'] = nil
   end
 
   def username
@@ -233,7 +240,7 @@ describe "Origen.site_config" do
     # underlying find_val.
     context 'with ORIGEN_GEM_INSTALL_DIR set' do
       before :context do
-        # Need to clear in the event that :user_gem_dir is actually set
+        # Need to clear the site config and environment variables in the event that :user_gem_dir is actually set
         clear_site_config
         
         ENV['ORIGEN_GEM_INSTALL_DIR'] = '/env/gem/'
