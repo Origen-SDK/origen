@@ -1,3 +1,17 @@
+<a class="anchor release_tag" name="v0_33_1"></a>
+<h1><a href="#v0_33_1">Tag: v0.33.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Corey Engelken on 04-May-2018 10:10AM
+
+
+Spec-ed and documented Origen's <code>Collector</code> utility. Docs are available [on the
+utilities page.](http://origen-sdk.org/origen/guides/misc/utilities/)
+
+Fixes for [issue #261](https://github.com/Origen-SDK/origen/issues/261) and [issue
+#259](https://github.com/Origen-SDK/origen/issues/259)
+
 <a class="anchor release_tag" name="v0_33_0"></a>
 <h1><a href="#v0_33_0">Tag: v0.33.0</a></h1>
 
