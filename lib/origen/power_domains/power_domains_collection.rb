@@ -16,12 +16,10 @@ module Origen
               next unless [String, Numeric, Float, Integer, Symbol, Range].include? attr_val.class
               headers << attr_getter unless headers.include?(attr_getter)
               str = case attr_val
-              when Numeric
-                attr_val.as_V
               when Range
                 start_voltage = attr_val.first
                 end_voltage = attr_val.last
-                "#{start_voltage.as_V}\.\.#{end_voltage.as_V}"
+                "#{start_voltage.to_s}\.\.#{end_voltage.to_s}"
               else
                 attr_val.to_s
               end
