@@ -19,7 +19,7 @@ module Origen
               when Range
                 start_voltage = attr_val.first
                 end_voltage = attr_val.last
-                "#{start_voltage.to_s}\.\.#{end_voltage.to_s}"
+                "#{start_voltage}\.\.#{end_voltage}"
               else
                 attr_val.to_s
               end
