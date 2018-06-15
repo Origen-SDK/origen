@@ -70,7 +70,7 @@ module Origen
       ivar = "@#{method_name.to_s.gsub('=', '')}"
       ivar_sym = ":#{ivar}"
       if method_name[-1] == '?'
-        id == method_name[0..-2].to_sym
+        return id == method_name[0..-2].to_sym
       elsif method_name[-1] == '='
         define_singleton_method(method_name) do |val|
           instance_variable_set(ivar, val)
