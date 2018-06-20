@@ -1,3 +1,17 @@
+<a class="anchor release_tag" name="v0_33_3"></a>
+<h1><a href="#v0_33_3">Tag: v0.33.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 20-Jun-2018 12:16PM
+
+
+* Removed OrigenTesters deprecation warning since the corresponding OrigenTesters release
+  has been delayed
+* Fixed usage of regular comparison operators (<, >=, ==, etc) when comparing
+  Origen::VersionString instances
+* Fixed a regex bug that has been causing runtime warnings
+
 <a class="anchor release_tag" name="v0_33_2"></a>
 <h1><a href="#v0_33_2">Tag: v0.33.2</a></h1>
 
