@@ -139,7 +139,7 @@ module Origen
         @owner = owner
         @name = name
         @attributes = attributes
-        @feature = attributes[:feature] if attributes.key?(:feature)
+        @feature = attributes[:_feature] if attributes.key?(:_feature)
       end
 
       # Make this appear like a reg to any application code

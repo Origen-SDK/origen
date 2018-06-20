@@ -69,7 +69,13 @@ module Origen
         @init_as_writable = options.delete(:init_as_writable)
         @define_file = options.delete(:define_file)
         REG_LEVEL_ATTRIBUTES.each do |attribute, _meta|
-          instance_variable_set("@#{attribute[1..-1]}", options.delete(attribute))
+          if options[attribute[1..-1].to_sym]
+            # If register creation is coming directly from Reg.new, instead of Placeholder,
+            #   it may not have attributes with '_' prefix
+            instance_variable_set("@#{attribute[1..-1]}", options.delete(attribute[1..-1].to_sym))
+          else
+            instance_variable_set("@#{attribute[1..-1]}", options.delete(attribute))
+          end
         end
         @description_from_api = {}
         description = options.delete(:description)
