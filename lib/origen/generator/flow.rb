@@ -4,7 +4,7 @@ module Origen
       attr_accessor :top_level
 
       def create(options = {}, &block)
-        Origen.deprecated 'Origen core will no longer support program generation in v1, add the origen_testers plugin to your application to fix this warning'
+        # Origen.deprecated 'Origen core will no longer support program generation in v1, add the origen_testers plugin to your application to fix this warning'
         # Refresh the target to start all settings from scratch each time
         # This is an easy way to reset all registered values
         Origen.app.reload_target!
