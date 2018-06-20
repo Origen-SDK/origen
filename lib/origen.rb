@@ -94,7 +94,7 @@ unless defined? RGen::ORIGENTRANSITION
         if str =~ /^\s\s\s\s\s\s\s*(.*)/
           (' ' * 20) + Regexp.last_match(1)
         # http://rubular.com/r/MKmU4xZgO2
-        elsif str =~ /^\s*([^\s]+)\s+*(.*)/
+        elsif str =~ /^\s*([^\s]+)\s+(.*)/
           ' ' + Regexp.last_match(1).ljust(19) + Regexp.last_match(2)
         else
           str
