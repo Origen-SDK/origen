@@ -313,12 +313,12 @@ module Origen
       local_vars = {}
 
       Reg::REG_LEVEL_ATTRIBUTES.each do |attribute, meta|
-        aliases = [attribute]
+        aliases = [attribute[1..-1].to_sym]
         aliases += meta[:aliases] if meta[:aliases]
-        aliases.each { |_a| local_vars[attribute] = bit_info.delete(attribute) if bit_info.key?(attribute) }
+        aliases.each { |_a| local_vars[attribute] = bit_info.delete(_a) if bit_info.key?(_a) }
       end
 
-      local_vars[:reset] ||= :memory if local_vars[:memory]
+      local_vars[:_reset] ||= :memory if local_vars[:_memory]
       @min_reg_address ||= address
       @max_reg_address ||= address
       # Must set an initial value, otherwise max_address_reg_size will be nil if a sub_block contains only
