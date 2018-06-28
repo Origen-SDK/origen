@@ -8,9 +8,9 @@ module Origen
       # it would cause a double cycle in the org file if also captured at the pin
       ORG_FILE_INTERCEPTED_METHODS = [
         :suspend, :resume, :repeat_previous=,
-        :drive_hi, :drive_hi, :drive_very_hi, :drive_lo, :drive_lo, :drive_mem, :expect_mem,
-        :assert_hi, :expect_hi, :compare_hi, :assert_lo, :expect_lo, :compare_lo, :dont_care,
-        :drive, :assert, :compare, :expect, :assert_midband, :compare_midband, :expect_midband,
+        :drive_hi, :write_hi, :drive_very_hi, :drive_lo, :write_lo, :drive_mem, :expect_mem,
+        :assert_hi, :expect_hi, :compare_hi, :read_hi, :assert_lo, :expect_lo, :compare_lo, :read_lo, :dont_care,
+        :drive, :write, :assert, :compare, :expect, :read, :assert_midband, :compare_midband, :expect_midband, :read_midband,
         :toggle, :capture, :store
       ]
 
@@ -698,11 +698,13 @@ module Origen
         set_state(:drive)
         set_value(1)
       end
+      alias_method :write_hi, :drive_hi
 
       def drive_hi!
         drive_hi
         cycle
       end
+      alias_method :write_hi!, :drive_hi!
 
       # Set the pin to drive a high voltage on future cycles (if the tester supports it).
       # For example on a J750 high-voltage channel the pin state would be set to "2"
@@ -721,11 +723,13 @@ module Origen
         set_state(:drive)
         set_value(0)
       end
+      alias_method :write_lo, :drive_lo
 
       def drive_lo!
         drive_lo
         cycle
       end
+      alias_method :write_lo!, :drive_lo!
 
       def drive_mem
         set_state(:drive_mem)
@@ -752,6 +756,7 @@ module Origen
       end
       alias_method :expect_hi, :assert_hi
       alias_method :compare_hi, :assert_hi
+      alias_method :read_hi, :assert_hi
 
       def assert_hi!
         assert_hi
@@ -759,6 +764,7 @@ module Origen
       end
       alias_method :expect_hi!, :assert_hi!
       alias_method :compare_hi!, :assert_hi!
+      alias_method :read_hi!, :assert_hi!
 
       # Set the pin to expect a 0 on future cycles
       def assert_lo(_options = {})
@@ -775,6 +781,7 @@ module Origen
       end
       alias_method :expect_lo, :assert_lo
       alias_method :compare_lo, :assert_lo
+      alias_method :read_lo, :assert_lo
 
       def assert_lo!
         assert_lo
@@ -782,6 +789,7 @@ module Origen
       end
       alias_method :expect_lo!, :assert_lo!
       alias_method :compare_lo!, :assert_lo!
+      alias_method :read_lo!, :assert_lo!
 
       # Set the pin to X on future cycles
       def dont_care
@@ -803,11 +811,13 @@ module Origen
         set_state(:drive)
         set_value(value)
       end
+      alias_method :write, :drive
 
       def drive!(value)
         drive(value)
         cycle
       end
+      alias_method :write!, :drive!
 
       # Pass in 0 or 1 to have the pin expect_lo or expect_hi respectively.
       # This is useful when programatically setting the pin state.
@@ -821,6 +831,7 @@ module Origen
       end
       alias_method :compare, :assert
       alias_method :expect, :assert
+      alias_method :read, :assert
 
       def assert!(*args)
         assert(*args)
@@ -828,12 +839,14 @@ module Origen
       end
       alias_method :compare!, :assert!
       alias_method :expect!, :assert!
+      alias_method :read!, :assert!
 
       def assert_midband
         set_state(:compare_midband)
       end
       alias_method :compare_midband, :assert_midband
       alias_method :expect_midband, :assert_midband
+      alias_method :read_midband, :assert_midband
 
       def assert_midband!
         assert_midband
@@ -841,6 +854,7 @@ module Origen
       end
       alias_method :compare_midband!, :assert_midband!
       alias_method :expect_midband!, :assert_midband!
+      alias_method :read_midband!, :assert_midband!
 
       # Returns the state of invert
       def inverted?
