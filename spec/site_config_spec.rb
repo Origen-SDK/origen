@@ -20,6 +20,19 @@ describe "Origen.site_config" do
     ENV['ORIGEN_USER_INSTALL_DIR'] = nil
   end
 
+  # formulates the path for the OS.
+  # e.g. '/example/path'
+  # => '/example/path' (Linux/Mac)
+  # => 'C:/example/path' (Windows)
+  def to_os_path(path, options={})
+    if Origen.running_on_windows?
+      drive = home.split(File::SEPARATOR)[0]
+      "#{drive}#{path}"
+    else
+      path
+    end
+  end
+
   def username
     Etc.getlogin
   end
@@ -122,7 +135,7 @@ describe "Origen.site_config" do
       end
       
       it 'changes the user_gem_dir' do
-        expect(Origen.site_config.user_gem_dir).to eql("/gem_location/.origen/gems")
+        expect(Origen.site_config.user_gem_dir).to eql(to_os_path("/gem_location/.origen/gems"))
       end
     end
     
@@ -146,7 +159,7 @@ describe "Origen.site_config" do
       end
       
       it 'uses :user_gem_dir over :gem_install_dir' do
-        expect(Origen.site_config.user_gem_dir).to eql("/user_location/.origen/gems")
+        expect(Origen.site_config.user_gem_dir).to eql(to_os_path("/user_location/.origen/gems"))
       end
     end
     
@@ -162,7 +175,7 @@ describe "Origen.site_config" do
       
       it 'uses ORIGEN_USER_GEM_DIR over :user_gem_dir' do
         with_env_variable 'ORIGEN_USER_GEM_DIR', '/user_env_location' do
-          expect(Origen.site_config.user_gem_dir).to eql("/user_env_location/.origen/gems")
+          expect(Origen.site_config.user_gem_dir).to eql(to_os_path("/user_env_location/.origen/gems"))
         end
       end
     end
@@ -180,7 +193,7 @@ describe "Origen.site_config" do
       end
       
       it 'moves the home_dir as well' do
-        expect(Origen.site_config.user_install_dir).to eql('/user/install/dir/.origen')
+        expect(Origen.site_config.user_install_dir).to eql(to_os_path('/user/install/dir/.origen'))
       end
       
       it 'leaves the :user_gem_install alone' do
@@ -196,16 +209,16 @@ describe "Origen.site_config" do
       end
       
       it 'moves the home_dir' do
-        expect(Origen.site_config.home_dir).to eql("/home/dir/.origen")
-        expect(Origen.home).to eql("/home/dir/.origen")
+        expect(Origen.site_config.home_dir).to eql(to_os_path("/home/dir/.origen"))
+        expect(Origen.home).to eql(to_os_path("/home/dir/.origen"))
       end
       
       it 'moves the :user_install_dir as well' do
-        expect(Origen.site_config.user_install_dir).to eql('/home/dir/.origen')
+        expect(Origen.site_config.user_install_dir).to eql(to_os_path('/home/dir/.origen'))
       end
       
       it 'also moves the :user_gem_install' do
-        expect(Origen.site_config.user_gem_dir).to eql('/home/dir/.origen/gems')
+        expect(Origen.site_config.user_gem_dir).to eql(to_os_path('/home/dir/.origen/gems'))
       end
     end
     
@@ -220,16 +233,16 @@ describe "Origen.site_config" do
       end
       
       it 'moves the home_dir' do
-        expect(Origen.site_config.home_dir).to eql("/home/location/.origen")
-        expect(Origen.home).to eql("/home/location/.origen")
+        expect(Origen.site_config.home_dir).to eql(to_os_path("/home/location/.origen"))
+        expect(Origen.home).to eql(to_os_path("/home/location/.origen"))
       end
       
       it 'moves the :user_install_dir as well' do
-        expect(Origen.site_config.user_install_dir).to eql('/user/install/.origen')
+        expect(Origen.site_config.user_install_dir).to eql(to_os_path('/user/install/.origen'))
       end
       
       it 'also moves :user_gem_dir' do
-        expect(Origen.site_config.user_gem_dir).to eql('/user/location/.origen/gems')
+        expect(Origen.site_config.user_gem_dir).to eql(to_os_path('/user/location/.origen/gems'))
       end
     end
   end
@@ -247,12 +260,12 @@ describe "Origen.site_config" do
       end
       
       it 'uses the value in ORIGEN_GEM_INSTALL_DIR instead of :gem_install_dir' do
-        expect(Origen.site_config.user_gem_dir).to eql("/env/gem/.origen/gems")
+        expect(Origen.site_config.user_gem_dir).to eql(to_os_path("/env/gem/.origen/gems"))
       end
       
       it 'uses the value in :user_gem_dir instead of ORIGEN_GEM_INSTALL_DIR since :user_gem_dir takes precedenece' do
         ENV['ORIGEN_USER_GEM_DIR'] = '/env/user/gem/'
-        expect(Origen.site_config.user_gem_dir).to eql("/env/user/gem/.origen/gems")
+        expect(Origen.site_config.user_gem_dir).to eql(to_os_path("/env/user/gem/.origen/gems"))
       end
       
       after :context do
@@ -268,10 +281,10 @@ describe "Origen.site_config" do
       
       it 'uses the value in ORIGEN_HOME_DIR instead of :home_dir' do
         with_env_variable('ORIGEN_HOME_DIR', '/proj/env/~') do
-          expect(Origen.site_config.home_dir).to eql("/proj/env/#{username}/.origen")
-          expect(Origen.home).to eql("/proj/env/#{username}/.origen")
-          expect(Origen.site_config.user_install_dir).to eql("/proj/env/#{username}/.origen")
-          expect(Origen.site_config.user_gem_dir).to eql("/proj/env/#{username}/.origen/gems")
+          expect(Origen.site_config.home_dir).to eql(to_os_path("/proj/env/#{username}/.origen"))
+          expect(Origen.home).to eql(to_os_path("/proj/env/#{username}/.origen"))
+          expect(Origen.site_config.user_install_dir).to eql(to_os_path("/proj/env/#{username}/.origen"))
+          expect(Origen.site_config.user_gem_dir).to eql(to_os_path("/proj/env/#{username}/.origen/gems"))
         end
       end
     end
@@ -286,16 +299,16 @@ describe "Origen.site_config" do
       end
       
       it 'uses the home_dir in ORIGEN_HOME_DIR' do
-        expect(Origen.site_config.home_dir).to eql("/env/home/#{username}/.origen")
-        expect(Origen.home).to eql("/env/home/#{username}/.origen")
+        expect(Origen.site_config.home_dir).to eql(to_os_path("/env/home/#{username}/.origen"))
+        expect(Origen.home).to eql(to_os_path("/env/home/#{username}/.origen"))
       end
       
       it 'uses the user_install_dir in ORIGEN_USER_INSTALL_DIR' do
-        expect(Origen.site_config.user_install_dir).to eql("/env/install/#{username}/.origen")
+        expect(Origen.site_config.user_install_dir).to eql(to_os_path("/env/install/#{username}/.origen"))
       end
       
       it 'uses the user_gem_dir in ORIGEN_USER_GEM_DIR' do
-        expect(Origen.site_config.user_gem_dir).to eql("/env/gem/#{username}/.origen/gems")
+        expect(Origen.site_config.user_gem_dir).to eql(to_os_path("/env/gem/#{username}/.origen/gems"))
       end
             
       after :context do
@@ -309,11 +322,11 @@ describe "Origen.site_config" do
   describe 'Evaluating paths for directories' do
     context 'with basic values' do
       it 'uses the path given as is, and appends .origen to it' do
-        expect(Origen.site_config.eval_path('/my/path')).to eql('/my/path/.origen')
+        expect(Origen.site_config.eval_path('/my/path')).to eql(to_os_path('/my/path/.origen'))
       end
       
       it 'does not append .origen if .origen is already provided in the path' do
-        expect(Origen.site_config.eval_path('/my/path/.origen')).to eql('/my/path/.origen')
+        expect(Origen.site_config.eval_path('/my/path/.origen')).to eql(to_os_path('/my/path/.origen'))
       end
       
       it 'evaluates the path ~/ (default) to the home directory (or C: for Windows)' do
@@ -323,20 +336,19 @@ describe "Origen.site_config" do
     
     context 'using ~ in paths' do
       it 'replaces ~ with <username> and appending .origen' do
-        expect(Origen.site_config.eval_path('/proj/origen/~')).to eql("/proj/origen/#{username}/.origen")
+        expect(Origen.site_config.eval_path('/proj/origen/~')).to eql(to_os_path("/proj/origen/#{username}/.origen"))
       end
       
       it 'replace all ~ with <username> and appending .origen' do
-        expect(Origen.site_config.eval_path('/proj/~/origens/~')).to eql("/proj/#{username}/origens/#{username}/.origen")
+        expect(Origen.site_config.eval_path('/proj/~/origens/~')).to eql(to_os_path("/proj/#{username}/origens/#{username}/.origen"))
       end
       
-      it 'replaces all but leading ~ with <username> and appending .origen' do
-        expect(Origen.site_config.eval_path('~/origens/~')).to eql("/home/#{username}/origens/#{username}/.origen")
+      it 'replaces leading ~ with <username> and appending .origen' do
+        expect(Origen.site_config.eval_path('~/origens/~')).to eql("#{home}/origens/#{username}/.origen")
       end
       
       it 'allows ~ to be esacped' do
-        expect(Origen.site_config.eval_path('~/\~/~')).to eql("/home/#{username}/~/#{username}/.origen")
-        #expect(Origen.site_config.eval_path("~/\\~/~")).to eql("/home/#{username}/~/#{username}/.origen")
+        expect(Origen.site_config.eval_path('~/\~/~')).to eql("#{home}/~/#{username}/.origen")
       end
       
       it 'allows leading ~ to be escaped' do
@@ -360,18 +372,18 @@ describe "Origen.site_config" do
         add_config_variable('append_dot_origen', 'false')
         
         expect(Origen.site_config.append_dot_origen).to be false
-        expect(Origen.site_config.home_dir).to eql("/home/#{username}")
+        expect(Origen.site_config.home_dir).to eql("#{home}")
       end
       
       it 'appends whatever append_dot_origen is when it does not equal true or false (TRUE/FALSE/0/1)' do
         add_config_variable('append_dot_origen', '.test')
 
         expect(Origen.site_config.append_dot_origen).to eql('.test')
-        expect(Origen.site_config.home_dir).to eql("/home/#{username}/.test")
+        expect(Origen.site_config.home_dir).to eql("#{home}/.test")
       end
       
       it 'still appends /gems to :user_gem_dir' do
-        expect(Origen.site_config.user_gem_dir).to eql("/home/#{username}/.test/gems")
+        expect(Origen.site_config.user_gem_dir).to eql("#{home}/.test/gems")
       end
     end
       
@@ -391,13 +403,13 @@ describe "Origen.site_config" do
         add_config_variable('append_gems', 'false')
         
         expect(Origen.site_config.append_gems).to be false
-        expect(Origen.site_config.user_gem_dir).to eql("/home/#{username}/.origen")
+        expect(Origen.site_config.user_gem_dir).to eql("#{home}/.origen")
       end
       
       it 'appends whatever append_gems is when it does not equal true or false (TRUE/FALSE/0/1)' do
         add_config_variable('append_gems', 'user_gems')
         
-        expect(Origen.site_config.user_gem_dir).to eql("/home/#{username}/.origen/user_gems")
+        expect(Origen.site_config.user_gem_dir).to eql("#{home}/.origen/user_gems")
       end
     end
   end

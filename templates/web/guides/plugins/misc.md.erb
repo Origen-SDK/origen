@@ -1,0 +1,97 @@
+% render "layouts/guides.html" do
+
+Topics on this page relate to plugins in general but do not fit into any of the previous topics and are too minor in scope and content to warrant their own pages.
+
+<div class="list-group">
+  <li class="list-group-item"><a href="#Failing_the_Application">Failing the Application</a></li>
+</div>
+
+### Failing the Application
+
+Sometimes, the usage of your application or plugin is not correct, certain conditions are not met, or some other circumstance arises in which the application or
+plugin cannot continue. In these instances, the best course of action is to print the error message and exit the current process.
+
+Ruby provides a few methods to do this. Most commonly:
+
+* <code>throw</code>: raises an exception.
+* <code>fail/raise</code>: raises a runtime error.
+* <code>exit</code>: raises a <code>SystemExit</code> error but still runs <code>ensure</code> blocks and can be rescued.
+* <code>exit!</code>: kills the process immediately.
+
+Each of these has their place, but their usefulness is based primarily on the information you, as the developer, provide. For example, using <code>exit!</code> without any error message
+just kills the process, without any information going back to the user. <code>fail</code> can be used to dump a stack trace, but for those that aren't power users, and
+especially for those who are newer to programming, this can be almost as bad as providing no details, with the exception of sending the stack trace to someone else.
+
+Information on the <i>what, where, when, and why</i> for failing and exiting the process is readily available online, both for Ruby and for programming in 
+general. Discussions on those matters get into <i>best practices</i>, <i>use cases</i>, <i>coding styles</i>, etc., and are way out of the scope of this guide. What
+will be covered is <i>how</i> Origen can help you when you choose to exit the process and/or raise an exception.
+
+Origen provides two methods to help with this: <code>Origen.app.fail</code>, and <code>Origen.app.fail!</code>. The former behaves almost identically to the standard
+<code>fail</code> method, with the exception of accepting a hash instead of string, and prepending the current application that is calling
+<code>Origen.app.fail</code>.
+
+Note that these are <code>Origen::Application</code> instance methods, and <code>Origen.app</code> will always reference the application. For usage in plugins,
+<code>Origen.app!</code> should be used instead. See [here](<%= path "guides/plugins/app/#Am_I_the_Current_Application_or_Plugin?" %>) 
+for additional information.
+
+~~~ruby
+Origen.app!.name
+  #=> my_app
+
+fail
+  #=> RuntimeError with no message
+
+# Just fail the application, without adding details:
+Origen.app!.fail
+  #=> RuntimeError with message: 'Fail in my_app'
+
+# Fail the application with some context:
+Origen.app!.fail(message: 'An unknown condition occured!')
+  #=> RuntimeError with message: 'Fail in my_app: An unknown condition occured!'
+
+# Fail the application with some context and a custom exception:
+Origen.app!.fail(message: 'An unknown condition occured!', exception_class: StandardError)
+  #=> StandardError with message: 'Fail in my_app: An unknown condition occured!'
+~~~
+
+Note that <code>exception_class</code> should be a <code>class object</code> (of type <code>class</code>), <b>not</b> an instance of the class.
+
+<code>Origen.app.fail!</code> performs the same function as <code>Origen.app.fail</code> but raises a <code>SystemExit</code> and quits the process cleanly
+(no stack trace). It also prints the message using [Origen's Logger](<%= path 'guides/misc/logger/' %>),
+instead of using the exception message to convey information.
+
+The key difference, however, is if the current process is run with <code>debug enabled</code> (using the <code>-d</code> or <code>--debug</code> command line options)
+then <code>Origen.app.fail!</code> behaves identically to <code>Origen.app.fail</code>. The intention is give a user-facing API a clean exit while displaying in the
+familiar Origen-logger format, while allowing users to generate more useful bug reports, or just for the curious user themselves to get more information.
+
+~~~ruby
+Origen.debugger_enabled?
+  #=> false
+
+Origen.app!.name
+  #=> :my_app
+
+Origen.app.fail!(message: 'An unknown condition occured!')
+  #=> [ERROR]      0.009[0.009]    || Fail in my_app: An unknown condition occured!
+  #=> *Process Terminates*
+~~~
+
+~~~ruby
+Origen.debugger_enabled?
+  #=> true
+
+Origen.app!.name
+  #=> :my_app
+
+Origen.app.fail!(message: 'An unknown condition occured!')
+  #=> RuntimeError with message: Fail in my_app: An unknown condition occured!
+  #=> *Process terminates with #raise instead of #exit*
+  #=> *Exception and stack trace printed to console*
+~~~
+
+By default, the <code>status</code> of a process exited with <code>Origen.app.fail!</code> will be <code>1</code>. You can provide an option <code>exit_status</code>
+to exit with that status instead.
+
+Full API documentation is available on the [API](<%= path 'api/Origen/Application.html#fail-instance_method' %>)
+
+% end

@@ -900,6 +900,53 @@ END
       @target_instantiated
     end
 
+    # Prepends the application name to the fail message and throws a RuntimeError exception.
+    # Very similar to the plain <code>fail</code> method with the addition of prepending the application name.
+    # Prepended message: 'Fail in app.name: '
+    # If no message if provided, message is set to 'Fail in app.name'
+    # @param message [String] Message to print with the exception. If the message option is nil, a default message will be used instead.
+    # @param exception_class [Class] Custom Exception class to throw. May require the full namespace, e.g. <code>Origen::OrigenError</code> instead of just <code>OrigenError</code>.
+    # @raise [RuntimeError, exception_class] Option exception_class is raised, defaulting to <code>RuntimeError</code>.
+    def fail(message: nil, exception_class: RuntimeError)
+      message.nil? ? message = "Fail in #{name}" : message = "Fail in #{name}: #{message}"
+      e = exception_class.new(message)
+
+      # If the caller is Origen.app.fail!, remove this caller from the backtrace, leaving where Origen.app.fail! was called.
+      # As an aside, if there's an exception raised in Origen.app.fail!, then that would actually raise a Kernel.fail, so there's no concern with masking
+      # out a problem with Origen.app.fail! by doing this.
+      if caller[0] =~ (/lib\/origen\/application.rb:\d+:in `fail!'/)
+        e.set_backtrace(caller[1..-1])
+      else
+        e.set_backtrace(caller)
+      end
+      Kernel.fail(e)
+    end
+
+    # Similar to Origen.app.fail, but will instead print the message using Origen.log.error and exit the current process (using <code>exit 1</code>)
+    # UNLESS --debug is used. In those cases, <code>exit</code> will not be used and instead this will behave the same as {Origen::Application#fail}.
+    # Purpose here is to allow fail! for normal usage, but provide more details as to where fail! was used when running in debug.
+    # @param message [String] Message to print with the exception. If the message option is nil, a default message will be used instead.
+    # @param exception_class [Class] Custom Exception class to throw. May require the full namespace.
+    # @param exit_status [Integer] Exit status to use when exiting the application.
+    # @raise [RuntimeError, SystemExit, exception_class] When debug is disabled, <code>SystemExit</code> will be raised.
+    #   When debug is enabled, exception_class will be raised, defaulting to <code>RuntimeError</code>.
+    def fail!(message: nil, exception_class: RuntimeError, exit_status: 1)
+      if Origen.debug?
+        # rubocop:disable Style/RedundantSelf
+        self.fail(message: message, exception_class: exception_class)
+        # rubocop:enable Style/RedundantSelf
+      else
+        begin
+          # rubocop:disable Style/RedundantSelf
+          self.fail(message: message, exception_class: exception_class)
+          # rubocop:enable Style/RedundantSelf
+        rescue exception_class => e
+          Origen.log.error(e.message)
+          exit exit_status
+        end
+      end
+    end
+
     # This method is called just after an application inherits from Origen::Application,
     # allowing the developer to load classes in lib and use them during application
     # configuration.

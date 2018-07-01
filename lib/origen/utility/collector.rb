@@ -1,15 +1,30 @@
 module Origen
   module Utility
     class Collector
+      # Returns the collector's hash. This is the same as calling {#to_h}
       attr_reader :_hash_
+
+      # Queries the current merge_method.
       attr_reader :merge_method
 
       # Need to keep a seperate methods list so we know what's been added by method missing instead of what's
       # been added either by the hash or by method missing.
       # Only overwriting a value in the block should cause an error. Overriding a value from the hash depends on
       # the merge method's setting.
+
+      # List of the currently seen method names.
       attr_reader :_methods_
 
+      # Creates a new Collector object and creates a Hash out of the methods names and values in the given block.
+      # @see http://origen-sdk.org/origen/guides/misc/utilities/#Collector
+      # @example Create a collector to transform a block into a Hash
+      #  Origen::Utility::Collector.new { |c| c.my_param 'My Parameter'}.to_h #=> {my_param: 'My Parameter'}
+      # @yield [self] Passes the collector to the given block.
+      # @param options [Hash] Customization options.
+      # @option options [Hash] :hash Input, or starting, values that are set in the output hash prior to calling the given block.
+      # @option options [Symbol] :merge_method (:keep_hash) Indicates how arguments that exist in both the input hash and in the block should be handled.
+      #   Accpeted values are :keep_hash, :keep_block, :fail.
+      # @raise [Origen::OrigenError] Raised when an unknown merge method is used.
       def initialize(options = {}, &block)
         @merge_method = options[:merge_method] || :keep_hash
         @fail_on_empty_args = options[:fail_on_empty_args]
@@ -25,18 +40,32 @@ module Origen
         end
       end
 
-      # Legacy store method.
+      # Retrieve the collector's hash.
+      # @deprecated Use Ruby-centric {#to_hash} instead.
+      # @return [Hash] Hash representation of the collector.
       def store
         Origen.log.deprecate 'Collector::store method was used. Please use the Ruby-centric Collector::to_h or Collector::to_hash method instead' \
                              " Called from: #{caller[0]}"
         @_hash_
       end
 
+      # Returns the collector, as a Hash.
+      # @return [Hash] Hash representation of the collector.
       def to_hash
         @_hash_
       end
       alias_method :to_h, :to_hash
 
+      # Using the method name, creates a key in the Collector with argument given to the method.
+      # @see http://origen-sdk.org/origen/guides/misc/utilities/#Collector
+      # @note If no args are given, the method key is set to <code>nil</code>.
+      # @raise [ArgumentError] Raised when a method attempts to use both arguments and a block in the same line.
+      #   E.g.: <code>collector.my_param 'my_param' { 'MyParam' }</code>
+      # @raise [ArgumentError] Raised when a method attempts to use multiple input values.
+      #   E.g.: <code>collector.my_param 'my_param', 'MyParam'</code>
+      # @raise [Origen::OrigenError] Raised when a method is set more than once. I.e., overriding values are not allowed.
+      #   E.g.: <code>collector.my_param 'my_param'; collector.my_param 'MyParam'</code>
+      # @raise [Origen::OrigenError] Raised when the input hash and the block attempt to set the same method name and the merge method is set to <code>:fail</code>.
       def method_missing(method, *args, &_block)
         key = method.to_s.sub('=', '').to_sym
 
