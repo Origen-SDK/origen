@@ -8,9 +8,9 @@ module Origen
       include OrgFile::Interceptable
 
       ORG_FILE_INTERCEPTED_METHODS = [
-        :drive, :drive_hi, :drive_lo, :drive_very_hi, :drive_mem, :expect_mem, :toggle,
-        :repeat_previous=, :capture, :assert, :compare, :expect,
-        :assert_hi, :expect_hi, :compare_hi, :assert_lo, :expect_lo, :compare_lo,
+        :drive, :write, :drive_hi, :write_hi, :drive_lo, :write_lo, :drive_very_hi, :drive_mem, :expect_mem, :toggle,
+        :repeat_previous=, :capture, :assert, :read, :compare, :expect,
+        :assert_hi, :expect_hi, :compare_hi, :read_hi, :assert_lo, :expect_lo, :compare_lo, :read_lo,
         :dont_care
       ]
 
@@ -234,33 +234,39 @@ module Origen
         end
         myself
       end
+      alias_method :write, :drive
 
       def drive!(val)
         drive(val)
         cycle
       end
+      alias_method :write!, :drive!
 
       # Set all pins in pin group to drive 1's on future cycles
       def drive_hi
         each(&:drive_hi)
         myself
       end
+      alias_method :write_hi, :drive_hi
 
       def drive_hi!
         drive_hi
         cycle
       end
+      alias_method :write_hi!, :drive_hi!
 
       # Set all pins in pin group to drive 0's on future cycles
       def drive_lo
         each(&:drive_lo)
         myself
       end
+      alias_method :write_lo, :drive_lo
 
       def drive_lo!
         drive_lo
         cycle
       end
+      alias_method :write_lo!, :drive_lo!
 
       # Set all pins in the pin group to drive a high voltage on future cycles (if the tester supports it).
       # For example on a J750 high-voltage channel the pin state would be set to "2"
@@ -377,6 +383,7 @@ module Origen
       end
       alias_method :compare, :assert
       alias_method :expect, :assert
+      alias_method :read, :assert
 
       def assert!(*args)
         assert(*args)
@@ -384,6 +391,7 @@ module Origen
       end
       alias_method :compare!, :assert!
       alias_method :expect!, :assert!
+      alias_method :read!, :assert!
 
       # Set all pins in the pin group to expect 1's on future cycles
       def assert_hi(options = {})
@@ -392,6 +400,7 @@ module Origen
       end
       alias_method :expect_hi, :assert_hi
       alias_method :compare_hi, :assert_hi
+      alias_method :read_hi, :assert_hi
 
       def assert_hi!
         assert_hi
@@ -399,6 +408,7 @@ module Origen
       end
       alias_method :expect_hi!, :assert_hi!
       alias_method :compare_hi!, :assert_hi!
+      alias_method :read_hi!, :assert_hi!
 
       # Set all pins in the pin group to expect 0's on future cycles
       def assert_lo(options = {})
@@ -407,6 +417,7 @@ module Origen
       end
       alias_method :expect_lo, :assert_lo
       alias_method :compare_lo, :assert_lo
+      alias_method :read_lo, :assert_lo
 
       def assert_lo!
         assert_lo
@@ -414,6 +425,7 @@ module Origen
       end
       alias_method :expect_lo!, :assert_lo!
       alias_method :compare_lo!, :assert_lo!
+      alias_method :read_lo!, :assert_lo!
 
       # Set all pins in the pin group to X on future cycles
       def dont_care
