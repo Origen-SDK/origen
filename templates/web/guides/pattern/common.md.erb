@@ -248,11 +248,30 @@ by a call to a subroutine).  Change from the default like this:
 tester.overlay_style = :digsrc
 tester.overlay_style = :subroutine
 tester.overlay_style = :label
+tester.overlay_style = :handshake
 
 # change the overlay style for this cycle only by adding :overlay_style to the overlay_options
 overlay_options[:overlay_style] = :label
 tester.cycle overlay: overlay_options
 ~~~
+
+Not all overlay styles are supported on all testers and if the requested style is not supported a warning
+will be logged and it will fall back to the default style (:subroutine).
+
+Here is a brief summary of what each type does:
+
+digsrc
+: The vectors to be modified are updated with the data value held in a tester memory.
+
+subroutine
+: The vectors to be modified are removed from the pattern and replaced by a call to a another (subroutine) pattern.
+
+label
+: A label is inserted into the pattern immediately before the vectors to be modified.
+
+handshake
+: The vectors to be modified are removed from the pattern and replaced by a handshake with the tester.
+
 
 ##### configure source memory
 

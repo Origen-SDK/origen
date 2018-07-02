@@ -1,3 +1,30 @@
+<a class="anchor release_tag" name="v0_33_3"></a>
+<h1><a href="#v0_33_3">Tag: v0.33.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 20-Jun-2018 12:16PM
+
+
+* Removed OrigenTesters deprecation warning since the corresponding OrigenTesters release
+  has been delayed
+* Fixed usage of regular comparison operators (<, >=, ==, etc) when comparing
+  Origen::VersionString instances
+* Fixed a regex bug that has been causing runtime warnings
+
+<a class="anchor release_tag" name="v0_33_2"></a>
+<h1><a href="#v0_33_2">Tag: v0.33.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Ronnie Lajaunie on 19-Jun-2018 08:04AM
+
+
+- Remove volts as unit of measure for numeric attributes for inspect method PR-265 -
+(Brian C)
+- Fix for bug where mode query mode.blah? resulted in stack overflow PR-269 - (Ronnie L)
+- Added info on overlay styles PR-268 - (Stephen M)
+
 <a class="anchor release_tag" name="v0_33_1"></a>
 <h1><a href="#v0_33_1">Tag: v0.33.1</a></h1>
 
