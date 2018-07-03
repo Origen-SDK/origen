@@ -14,13 +14,13 @@ module Origen
       # to all of its contained bits unless a specific bit has its own definition of the same
       # attribute
       REG_LEVEL_ATTRIBUTES = {
-        feature:   {},
-        reset:     { aliases: [:res] },
-        memory:    {},
-        path:      { aliases: [:hdl_path] },
-        abs_path:  { aliases: [:absolute_path] },
-        access:    {},
-        bit_order: {}
+        _feature:   {},
+        _reset:     { aliases: [:res] },
+        _memory:    {},
+        _path:      { aliases: [:hdl_path] },
+        _abs_path:  { aliases: [:absolute_path] },
+        _access:    {},
+        _bit_order: {}
       }
 
       # Returns the object that own the register.
@@ -69,7 +69,13 @@ module Origen
         @init_as_writable = options.delete(:init_as_writable)
         @define_file = options.delete(:define_file)
         REG_LEVEL_ATTRIBUTES.each do |attribute, _meta|
-          instance_variable_set("@#{attribute}", options.delete(attribute))
+          if options[attribute[1..-1].to_sym]
+            # If register creation is coming directly from Reg.new, instead of Placeholder,
+            #   it may not have attributes with '_' prefix
+            instance_variable_set("@#{attribute[1..-1]}", options.delete(attribute[1..-1].to_sym))
+          else
+            instance_variable_set("@#{attribute[1..-1]}", options.delete(attribute))
+          end
         end
         @description_from_api = {}
         description = options.delete(:description)
