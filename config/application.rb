@@ -109,6 +109,16 @@ class OrigenCoreApplication < Origen::Application
     end
   end
 
+  def after_web_compile(options)
+    Origen.app.plugins.each do |plugin|
+      if plugin.config.shared && plugin.config.shared[:origen_guides]
+        Origen.app.runner.launch action: :compile,
+                                 files:  File.join(plugin.root, plugin.config.shared[:origen_guides]),
+                                 output: File.join('web', 'content', 'guides')
+      end
+    end
+  end
+
   # Ensure that all tests pass before allowing a release to continue
   def validate_release
     if !system("origen specs") || !system("origen examples")
