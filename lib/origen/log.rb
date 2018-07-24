@@ -9,29 +9,13 @@ module Origen
   #   log.deprecate "Blah" # Deprecate message, always shown
   class Log
     require 'colored'
-    require 'log4r'
-    require 'log4r/outputter/fileoutputter'
-
-    attr_accessor :msg_hash
-    alias_method :messages, :msg_hash
+    require 'logger'
 
     LEVELS = [:normal, :verbose, :silent]
 
     def initialize
       @log_time_0 = @t0 = Time.new
       self.level = :normal
-      @msg_hash = init_msg_hash
-    end
-
-    def init_msg_hash
-      msg_types = [:info, :warn, :error, :deprecate, :debug, :success]
-      msg_hash = {}
-      msg_types.each do |m|
-        msg_hash[m] = Hash.new do |h, k|
-          h[k] = []
-        end
-      end
-      msg_hash
     end
 
     def console_only?
@@ -69,16 +53,16 @@ module Origen
       case val
       when :normal
         # Output everything except debug statements
-        console.level = Log4r::INFO
+        console.level = Logger::INFO
         # Output everything
-        log_files.level = Log4r::DEBUG unless console_only?
+        log_files(:level=, Logger::DEBUG) unless console_only?
       when :verbose
-        console.level = Log4r::DEBUG
-        log_files.level = Log4r::DEBUG unless console_only?
+        console.level = Logger::DEBUG
+        log_files(:level=, Logger::DEBUG) unless console_only?
       when :silent
         # We don't use any fatal messages, so this is effectively OFF
-        console.level = Log4r::FATAL
-        log_files.level = Log4r::DEBUG unless console_only?
+        console.level = Logger::FATAL
+        log_files(:level=, Logger::DEBUG) unless console_only?
       end
 
       @level = val
@@ -97,18 +81,16 @@ module Origen
     def debug(string = '', msg_type = nil)
       string, msg_type = validate_args(string, msg_type)
       msg = format_msg('DEBUG', string)
-      log_files.debug msg unless console_only?
+      log_files(:debug, msg) unless console_only?
       console.debug msg
-      @msg_hash[:debug][msg_type] << msg
       nil
     end
 
     def info(string = '', msg_type = nil)
       string, msg_type = validate_args(string, msg_type)
       msg = format_msg('INFO', string)
-      log_files.info msg unless console_only?
+      log_files(:info, msg) unless console_only?
       console.info msg
-      @msg_hash[:info][msg_type] << msg
       nil
     end
     # Legacy methods
@@ -118,18 +100,16 @@ module Origen
     def success(string = '', msg_type = nil)
       string, msg_type = validate_args(string, msg_type)
       msg = format_msg('SUCCESS', string)
-      log_files.info msg unless console_only?
+      log_files(:info, msg) unless console_only?
       console.info msg.green
-      @msg_hash[:success][msg_type] << msg
       nil
     end
 
     def deprecate(string = '', msg_type = nil)
       string, msg_type = validate_args(string, msg_type)
       msg = format_msg('DEPRECATED', string)
-      log_files.warn msg unless console_only?
+      log_files(:warn, msg) unless console_only?
       console.warn msg.yellow
-      @msg_hash[:deprecate][msg_type] << msg
       nil
     end
     alias_method :deprecated, :deprecate
@@ -137,9 +117,8 @@ module Origen
     def warn(string = '', msg_type = nil)
       string, msg_type = validate_args(string, msg_type)
       msg = format_msg('WARNING', string)
-      log_files.warn msg unless console_only?
+      log_files(:warn, msg) unless console_only?
       console.warn msg.yellow
-      @msg_hash[:warn][msg_type] << msg
       nil
     end
     alias_method :warning, :warn
@@ -147,9 +126,8 @@ module Origen
     def error(string = '', msg_type = nil)
       string, msg_type = validate_args(string, msg_type)
       msg = format_msg('ERROR', string)
-      log_files.error msg unless console_only?
+      log_files(:error, msg) unless console_only?
       console.error msg.red
-      @msg_hash[:error][msg_type] << msg
       nil
     end
 
@@ -157,10 +135,6 @@ module Origen
     # instantiating a new logger (mainly for use by the origen save command)
     def self.log_file
       "#{log_file_directory}/last.txt"
-    end
-
-    def self.rolling_log_file
-      "#{log_file_directory}/rolling.txt"
     end
 
     def self.log_file_directory
@@ -181,41 +155,38 @@ module Origen
 
     # Force logger to write any buffered output
     def flush
-      if Origen.app
-        log_files.outputters.each(&:flush)
-      end
-      console.outputters.each(&:flush)
+      # No such API provided by the underlying logger, method kept around for compatibility with application
+      # code which was built for a previous version of this logger where flushing was required
     end
 
     private
 
-    # Returns a Log4r instance that will send to the console
+    # Returns a logger instance that will send to the console
     def console
       @console ||= begin
-        console = Log4r::Logger.new 'console'
-        # console.level = QUIET
-        out = Log4r::Outputter.stdout
-        out.formatter = format
-        console.outputters << out
-        console
+        l = Logger.new(STDOUT)
+        l.formatter = proc do |severity, dateime, progname, msg|
+          msg
+        end
+        l
       end
     end
 
-    # Returns a Log4r instance that will send to the log files
-    def log_files
-      @log_files ||= begin
-        log_files = Log4r::Logger.new 'log_files'
-        # log_files.level = QUIET
-        file = Log4r::FileOutputter.new('fileOutputter', filename: self.class.log_file, trunc: true)
-        file.formatter = format
-        log_files.outputters << file
-        unless Origen.running_remotely?
-          rolling_file = Log4r::RollingFileOutputter.new('rollingfileOutputter', filename: self.class.rolling_log_file, trunc: false, maxsize: 5_242_880, max_backups: 10)
-          rolling_file.formatter = format
-          log_files.outputters << rolling_file
+    # Returns a logger instance that will send to the log/last.txt file
+    def last_file
+      @last_file ||= begin
+        file = File.open(Log.log_file, File::WRONLY | File::APPEND | File::CREAT)
+        l = Logger.new(file)
+        l.formatter = proc do |severity, dateime, progname, msg|
+          msg
         end
-        log_files
+        l
       end
+    end
+
+    # Sends the given method and arguments to all file logger instances
+    def log_files(method, *args)
+      last_file.send(method, *args)
     end
 
     def relog(msg)
@@ -237,13 +208,9 @@ module Origen
       delta_t = '%0.3f' % delta_t
       delta_t0 = (log_time_1.to_f - @t0.to_f).round(6)
       delta_t0 = '%0.3f' % delta_t0
-      msg = "[#{type}]".ljust(13) + "#{delta_t0}[#{delta_t}]".ljust(16) + "|| #{msg}"
+      msg = "[#{type}]".ljust(13) + "#{delta_t0}[#{delta_t}]".ljust(16) + "|| #{msg}\n"
       @log_time_0 = log_time_1
       msg
-    end
-
-    def format
-      Log4r::PatternFormatter.new(pattern: '%m')
     end
   end
 end
