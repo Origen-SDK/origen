@@ -121,18 +121,34 @@ module Origen
         end
       end
 
+      def strip_dir_and_ext(name)
+        Pathname.new(name).basename('.*').basename('.*').to_s
+      end
+
       def run
         Origen.app.current_jobs << self
         begin
           if @options[:compile]
+            Origen.log.start_job(strip_dir_and_ext(@requested_pattern), :compiler)
             Origen.generator.compiler.compile(@requested_pattern, @options)
           elsif @options[:job_type] == :merge
+            Origen.log.start_job(strip_dir_and_ext(@requested_pattern), :merger)
             Origen.generator.compiler.merge(@requested_pattern)
           elsif @options[:action] == :program
+            if Origen.running_simulation?
+              Origen.log.start_job(strip_dir_and_ext(@requested_pattern), :simulator)
+            else
+              Origen.log.start_job(strip_dir_and_ext(@requested_pattern), :program_generator)
+            end
             Origen.flow.reset
             Origen.resources.reset
             OrigenTesters::Generator.execute_source(@pattern)
           else
+            if Origen.running_simulation?
+              Origen.log.start_job(strip_dir_and_ext(@requested_pattern), :simulator)
+            else
+              Origen.log.start_job(strip_dir_and_ext(@requested_pattern), :pattern_generator)
+            end
             Origen.generator.pattern.reset      # Resets the pattern controller ready for a new pattern
             # Give the app a chance to handle pattern dispatch
             skip = false
@@ -164,6 +180,7 @@ module Origen
             raise
           end
         end
+        Origen.log.stop_job
         Origen.app.current_jobs.pop
       end
     end

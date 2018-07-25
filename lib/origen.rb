@@ -660,6 +660,10 @@ unless defined? RGen::ORIGENTRANSITION
         @running_remotely = val
       end
 
+      def running_simulation?
+        !!(defined?(OrigenSim) && Origen.tester && Origen.tester.sim?)
+      end
+
       # Returns true if Origen is running with the -d or --debug switches enabled
       def debug?
         @debug || false

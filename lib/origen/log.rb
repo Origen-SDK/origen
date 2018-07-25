@@ -101,7 +101,7 @@ module Origen
       string, msg_type = validate_args(string, msg_type)
       msg = format_msg('SUCCESS', string)
       log_files(:info, msg) unless console_only?
-      console.info msg.green
+      console.info color_unless_remote(msg, :green)
       nil
     end
 
@@ -109,7 +109,7 @@ module Origen
       string, msg_type = validate_args(string, msg_type)
       msg = format_msg('DEPRECATED', string)
       log_files(:warn, msg) unless console_only?
-      console.warn msg.yellow
+      console.warn color_unless_remote(msg, :yellow)
       nil
     end
     alias_method :deprecated, :deprecate
@@ -118,7 +118,7 @@ module Origen
       string, msg_type = validate_args(string, msg_type)
       msg = format_msg('WARNING', string)
       log_files(:warn, msg) unless console_only?
-      console.warn msg.yellow
+      console.warn color_unless_remote(msg, :yellow)
       nil
     end
     alias_method :warning, :warn
@@ -127,14 +127,14 @@ module Origen
       string, msg_type = validate_args(string, msg_type)
       msg = format_msg('ERROR', string)
       log_files(:error, msg) unless console_only?
-      console.error msg.red
+      console.error color_unless_remote(msg, :red)
       nil
     end
 
     # Made these all class methods so that they can be read without
     # instantiating a new logger (mainly for use by the origen save command)
     def self.log_file
-      "#{log_file_directory}/last.txt"
+      File.join(log_file_directory, 'last.txt')
     end
 
     def self.log_file_directory
@@ -165,37 +165,76 @@ module Origen
       self.level = :normal
       @last_file.close if @last_file
       @last_file = nil
+      @job_file.close if @job_file
+      @job_file = nil
+    end
+
+    # @api private
+    def start_job(name, type)
+      dir = File.join(Origen.config.log_directory, type.to_s)
+      if target = Origen.try(:target).try(:name)
+        dir = File.join(dir, target)
+      end
+      if env = Origen.try(:environment).try(:name)
+        dir = File.join(dir, env)
+      end
+      FileUtils.mkdir_p dir unless File.exist?(dir)
+      @job_file_path = File.join(dir, "#{name}.txt")
+      FileUtils.rm_f(@job_file_path) if File.exist?(@job_file_path)
+      @job_file = open_log(@job_file_path)
+    end
+
+    # @api private
+    def stop_job
+      if @job_file
+        Origen.log.info "Log file written to: #{@job_file_path}"
+        @job_file.close
+        @job_file = nil
+      end
     end
 
     private
 
+    # When running on an LSF client, the console log output is captured to a file. Color codings in files just
+    # add noise, so inhibit them in this case since it is not providing any visual benefit to the user
+    def color_unless_remote(msg, color)
+      if Origen.running_remotely?
+        msg
+      else
+        msg.send(color)
+      end
+    end
+
     # Returns a logger instance that will send to the console
     def console
-      @console ||= begin
-        l = Logger.new(STDOUT)
-        l.formatter = proc do |severity, dateime, progname, msg|
-          msg
-        end
-        l
-      end
+      @console ||= open_log(STDOUT)
     end
 
     # Returns a logger instance that will send to the log/last.txt file
     def last_file
       @last_file ||= begin
+        # Preserve one prior version of the log file
         FileUtils.mv Log.log_file, "#{Log.log_file}.old" if File.exist?(Log.log_file)
-        file = File.open(Log.log_file, File::WRONLY | File::APPEND | File::CREAT)
-        l = Logger.new(file)
-        l.formatter = proc do |severity, dateime, progname, msg|
-          msg
-        end
-        l
+        open_log(Log.log_file)
       end
     end
 
     # Sends the given method and arguments to all file logger instances
     def log_files(method, *args)
-      last_file.send(method, *args)
+      # When running remotely on an LSF client, the LSF manager will capture STDOUT (i.e. the console log output)
+      # and save it to a log file.
+      # Don't write to the last log file in that case because we would have multiple processes all vying to
+      # write to it at the same time.
+      last_file.send(method, *args) unless Origen.running_remotely?
+      @job_file.send(method, *args) if @job_file
+    end
+
+    def open_log(file)
+      l = Logger.new(file)
+      l.formatter = proc do |severity, dateime, progname, msg|
+        msg
+      end
+      l
     end
 
     def relog(msg)
