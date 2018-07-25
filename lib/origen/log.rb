@@ -159,6 +159,14 @@ module Origen
       # code which was built for a previous version of this logger where flushing was required
     end
 
+    # Mainly intended for testing the logger, this will return the log level to the default (:normal)
+    # and close all log files, such that any further logging will be done to a new file(s)
+    def reset
+      self.level = :normal
+      @last_file.close if @last_file
+      @last_file = nil
+    end
+
     private
 
     # Returns a logger instance that will send to the console
@@ -175,6 +183,7 @@ module Origen
     # Returns a logger instance that will send to the log/last.txt file
     def last_file
       @last_file ||= begin
+        FileUtils.mv Log.log_file, "#{Log.log_file}.old" if File.exist?(Log.log_file)
         file = File.open(Log.log_file, File::WRONLY | File::APPEND | File::CREAT)
         l = Logger.new(file)
         l.formatter = proc do |severity, dateime, progname, msg|
