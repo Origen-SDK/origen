@@ -660,6 +660,12 @@ unless defined? RGen::ORIGENTRANSITION
         @running_remotely = val
       end
 
+      # Returns true if Origen is running interactively. That is, the command was 'origen i'
+      def running_interactively?
+        !!@running_interactively
+      end
+      alias_method :interactive?, :running_interactively?
+
       # Returns true if Origen is running with the -d or --debug switches enabled
       def debug?
         @debug || false
@@ -671,7 +677,7 @@ unless defined? RGen::ORIGENTRANSITION
       end
 
       def debugger_enabled?
-        @debug
+        debug?
       end
 
       def development?

@@ -58,6 +58,9 @@ data_sources:
     # it will become /about.html/ instead.
     allow_periods_in_identifiers: false
 
+    # Force utf-8 encoding scheme.
+    encoding: utf-8
+
 # Configuration for the watch command, which watches a site for changes and
 # recompiles if necessary.
 watcher:
