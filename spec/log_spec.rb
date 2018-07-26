@@ -76,6 +76,43 @@ describe 'The Origen logger' do
     MSG_TYPES.each do |m|
       expect { Origen.log.send(m, :blah) }.to output(/.*#{m.to_s.upcase}.* \|\| $/).to_stdout_from_any_process
     end
-
   end
+
+  it "Accepts a symbol as a 2nd arg (legacy API compatibility)" do
+    Origen.log.level = :verbose
+
+    MSG_TYPES.each do |m|
+      expect { Origen.log.send(m, 'Test message 7', :blah) }.to output(/.*#{m.to_s.upcase}.*Test message.*/).to_stdout_from_any_process
+    end
+  end
+
+  it "Output can be logged to the console only" do
+    Origen.log.send(:reset)  # Force a flush of the file buffer by closing the log
+    Origen.log.level = :verbose
+    expect { Origen.log.debug 'Test message 8' }.to output(/.*DEBUG.*Test message 8.*/).to_stdout_from_any_process
+    Origen.log.send(:reset)  # Force a flush of the file buffer by closing the log
+    File.read(File.join("log", "last.txt")).should include("DEBUG", "Test message 8")
+
+    Origen.log.send(:reset)  # Force a flush of the file buffer by closing the log
+    Origen.log.level = :verbose
+    Origen::Log.console_only do
+      expect { Origen.log.debug 'Test message 9' }.to output(/.*DEBUG.*Test message 9.*/).to_stdout_from_any_process
+    end
+    Origen.log.send(:reset)  # Force a flush of the file buffer by closing the log
+    File.read(File.join("log", "last.txt")).should_not include("DEBUG", "Test message 9")
+
+    Origen.log.send(:reset)  # Force a flush of the file buffer by closing the log
+    Origen.log.level = :verbose
+    expect { Origen.log.debug 'Test message 10', console_only: true }.to output(/.*DEBUG.*Test message 10.*/).to_stdout_from_any_process
+    Origen.log.send(:reset)  # Force a flush of the file buffer by closing the log
+    File.read(File.join("log", "last.txt")).should_not include("DEBUG", "Test message 10")
+  end
+
+  #it "Can log to a custom log file" do
+  #  Origen.log.send(m, 'Test message 6')
+  #  Origen.log.send(:reset)  # Force a flush of the file buffer by closing the log
+  #  File.read(File.join("log", "last.txt")).should include(m.to_s.upcase, "Test message")
+
+
+  #end
 end

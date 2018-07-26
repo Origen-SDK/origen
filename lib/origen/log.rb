@@ -18,8 +18,13 @@ module Origen
       self.level = :normal
     end
 
-    def console_only?
-      self.class.console_only? || !Origen.app || Origen.running_globally?
+    def console_only?(options = {})
+      if options.key?(:console_only)
+        option = options[:console_only]
+      else
+        option = self.class.console_only?
+      end
+      option || !Origen.app || Origen.running_globally?
     end
 
     # Anything executed within the given block will log to the console only
@@ -73,23 +78,18 @@ module Origen
       @level
     end
 
-    def validate_args(string, msg_type)
-      return string, msg_type unless string.is_a? Symbol
-      ['', string]
-    end
-
-    def debug(string = '', msg_type = nil)
-      string, msg_type = validate_args(string, msg_type)
+    def debug(string = '', options = {})
+      string, options = sanitize_args(string, options)
       msg = format_msg('DEBUG', string)
-      log_files(:debug, msg) unless console_only?
+      log_files(:debug, msg) unless console_only?(options)
       console.debug msg
       nil
     end
 
     def info(string = '', msg_type = nil)
-      string, msg_type = validate_args(string, msg_type)
+      string, options = sanitize_args(string, options)
       msg = format_msg('INFO', string)
-      log_files(:info, msg) unless console_only?
+      log_files(:info, msg) unless console_only?(options)
       console.info msg
       nil
     end
@@ -98,35 +98,35 @@ module Origen
     alias_method :lprint, :info
 
     def success(string = '', msg_type = nil)
-      string, msg_type = validate_args(string, msg_type)
+      string, options = sanitize_args(string, options)
       msg = format_msg('SUCCESS', string)
-      log_files(:info, msg) unless console_only?
+      log_files(:info, msg) unless console_only?(options)
       console.info color_unless_remote(msg, :green)
       nil
     end
 
     def deprecate(string = '', msg_type = nil)
-      string, msg_type = validate_args(string, msg_type)
+      string, options = sanitize_args(string, options)
       msg = format_msg('DEPRECATED', string)
-      log_files(:warn, msg) unless console_only?
+      log_files(:warn, msg) unless console_only?(options)
       console.warn color_unless_remote(msg, :yellow)
       nil
     end
     alias_method :deprecated, :deprecate
 
     def warn(string = '', msg_type = nil)
-      string, msg_type = validate_args(string, msg_type)
+      string, options = sanitize_args(string, options)
       msg = format_msg('WARNING', string)
-      log_files(:warn, msg) unless console_only?
+      log_files(:warn, msg) unless console_only?(options)
       console.warn color_unless_remote(msg, :yellow)
       nil
     end
     alias_method :warning, :warn
 
     def error(string = '', msg_type = nil)
-      string, msg_type = validate_args(string, msg_type)
+      string, options = sanitize_args(string, options)
       msg = format_msg('ERROR', string)
-      log_files(:error, msg) unless console_only?
+      log_files(:error, msg) unless console_only?(options)
       console.error color_unless_remote(msg, :red)
       nil
     end
@@ -153,7 +153,7 @@ module Origen
       level == :verbose
     end
 
-    # Force logger to write any buffered output
+    # Used to force logger to write any buffered output under an earlier implementation, now does nothing
     def flush
       # No such API provided by the underlying logger, method kept around for compatibility with application
       # code which was built for a previous version of this logger where flushing was required
@@ -194,6 +194,19 @@ module Origen
     end
 
     private
+
+    def sanitize_args(*args)
+      message = ''
+      options = {}
+      args.each do |arg|
+        if arg.is_a?(String)
+          message = arg
+        elsif arg.is_a?(Hash)
+          options = arg
+        end
+      end
+      [message, options]
+    end
 
     # When running on an LSF client, the console log output is captured to a file. Color codings in files just
     # add noise, so inhibit them in this case since it is not providing any visual benefit to the user
