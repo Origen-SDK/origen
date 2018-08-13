@@ -317,6 +317,7 @@ module Origen
               unless line =~ /^Logging/ || line == '' ||
                      line =~ /V(\d+\.\d+-\d+|\d.\d+)/ || # Screen out something like "V5.1-1205" or "V6R2010"
                      line =~ /^3DEXPERIENCER\d+x$/ || # Screen out something like '3DEXPERIENCER2016x'
+                     line =~ /^3DEXPERIENCE R\d+x$/ || # Screen out something like '3DEXPERIENCE R2017x'
                      line.strip.empty?
                 output << line.strip
               end

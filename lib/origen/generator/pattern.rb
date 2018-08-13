@@ -201,21 +201,22 @@ module Origen
 
       def header
         Origen.tester.pre_header if Origen.tester.doc?
-        c2 '*' * 75
+        inject_separator
         if $desc
           c2 'DESCRIPTION:'
           $desc.split(/\n/).each { |line| cc line }
-          c2 '*' * 75
+          inject_separator
         end
         c2 'GENERATED:'
         c2 "  Time:    #{Origen.launch_time}"
         c2 "  By:      #{Origen.current_user.name}"
+        c2 "  Mode:    #{Origen.mode}"
         l = "  Command: origen g #{job.requested_pattern} -t #{Origen.target.file.basename}"
         if Origen.environment && Origen.environment.file
           l += " -e #{Origen.environment.file.basename}"
         end
         c2(l)
-        c2 '*' * 75
+        inject_separator
         c2 'ENVIRONMENT:'
         c2 '  Application'
         if Origen.app.rc
@@ -251,11 +252,100 @@ module Origen
             c2 "    #{plugin.name}:".ljust(30) + plugin.version
           end
         end
-        c2 '*' * 75
+        inject_separator
+
+        unless Origen.app.plugins.empty?
+          # Plugins can use config.shared_pattern_header to inject plugin-specific comments into the patterns header
+          header_printed = false
+          Origen.app.plugins.sort_by { |p| p.name.to_s }.each do |plugin|
+            unless plugin.config.shared_pattern_header.nil?
+              unless header_printed
+                c2 'Header Comments From Shared Plugins:'
+                header_printed = true
+              end
+              inject_pattern_header(
+                config_loc:      plugin,
+                scope:           :shared_pattern_header,
+                message:         "Header Comments From Shared Plugin: #{plugin.name}:",
+                message_spacing: 2,
+                line_spacing:    4,
+                no_separator:    true
+              )
+            end
+          end
+          inject_separator if header_printed
+        end
+
+        if Origen.app.plugins.current && !Origen.app.plugins.current.config.send(:current_plugin_pattern_header).nil?
+          # The top level plugin (if one is set) can further inject plugin-specific comment into the header.
+          # These will only appear if the plugin is the top-level plugin though.
+          inject_pattern_header(
+            config_loc: Origen.app.plugins.current,
+            scope:      :current_plugin_pattern_header,
+            message:    "Header Comments From The Current Plugin: #{Origen.app.plugins.current.name}:"
+          )
+        end
+
+        unless Origen.app.config.send(:application_pattern_header).nil?
+          inject_pattern_header(
+            config_loc: Origen.app,
+            scope:      :application_pattern_header,
+            message:    "Header Comments From Application: #{Origen.app.name}:"
+          )
+        end
+
         if Origen.config.pattern_header
-          c2 '*' * 75
+          Origen.log.deprecated 'Origen.config.pattern_header is deprecated.'
+          Origen.log.deprecated 'Please use config.shared_pattern_header, config.application_pattern_header, or config.current_plugin_pattern_header instead.'
+          inject_separator
         end
         Origen.tester.close_text_block if Origen.tester.doc?
+      end
+
+      def inject_separator(options = {})
+        separator_length = options[:size] || 75
+        c2('*' * separator_length)
+      end
+
+      def inject_pattern_header(config_loc:, scope:, message:, **options)
+        message_spacing = options[:message_spacing] || 0
+        line_spacing = options[:line_spacing] || 2
+        no_separator = options[:no_separator] || false
+
+        # Print a warning if any of the pattern header configs have an arity greater than 1.
+        # Anything over 1 won't be used and may cause confusion.
+        if config_loc.config.send(scope).arity > 1
+          Origen.log.warning "Configuration in #{config_loc.name} has attribute ##{scope} whose block has an arity > 1"
+          Origen.log.warning 'Calls to this attribute from Origen are only given an options hash parameter. Any other arguments are extraneous'
+        end
+
+        # Inject the header based on these guidelines:
+        # 1. if pattern_header is nil, ignore all. Don't print he message, don't do anything.
+        # 2. if pattern header is a block, print the message, then call the block. This allows the user to format everything themselves.
+        #    i.e., use of cc, ss, etc. is allowed here, at the expense of the user being responsible for the formatting.
+        # 3. if a string, print the message and format the string as 'cc'
+        # 4. if an array, print the message and format the array as a subsequent 'cc' calls.
+        injection = config_loc.config.send(scope).call({})
+        if injection.nil?
+          # Do nothing. It is assumed in this acase that the pattern header has not comments to add at this scope.
+          return
+        elsif injection.is_a?(String)
+          c2(' ' * message_spacing + message)
+          c2(' ' * line_spacing + injection.to_s)
+          inject_separator(options) unless no_separator
+        elsif injection.is_a?(Array)
+          c2(' ' * message_spacing + message)
+          injection.each do |line|
+            c2(' ' * line_spacing + line.to_s)
+          end
+          inject_separator(options) unless no_separator
+        elsif injection.respond_to?(:call)
+          c2(' ' * message_spacing + message)
+          injection.call
+          inject_separator(options) unless no_separator
+        else
+          Origen.app.fail!(message: "Unexpected object class returned by config.pattern_header from #{config_loc.name}: #{injection.class}", exception_class: TypeError)
+        end
       end
 
       def pattern_open(options = {})

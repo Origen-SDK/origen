@@ -43,8 +43,8 @@ class OrigenCoreApplication < Origen::Application
   
   config.pattern_prefix = "nvm"
 
-  config.pattern_header do
-    cc "This is a dummy pattern created by the Origen test environment"
+  config.application_pattern_header do |options|
+    "This is a dummy pattern created by the Origen test environment"
   end
 
   # Add any directories or files not intended to be under change management control

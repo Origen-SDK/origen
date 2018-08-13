@@ -52,6 +52,8 @@ Usage: origen i [options]
   Origen.target.temporary = options[:target] if options[:target]
   Origen.app.load_target!
   Origen.app.runner.prepare_directories # Ensure tmp et all exist
+
+  Origen.instance_variable_set(:@running_interactively, true)
   listeners_for(:interactive_startup).each(&:interactive_startup)
 
   begin

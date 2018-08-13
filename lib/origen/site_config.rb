@@ -39,17 +39,24 @@ module Origen
     end
 
     def eval_path(path, options = {})
-      # Expand the first path. This will take care of replacing any leading ~/ with the home directory.
-      if path.start_with?('\\')
-        path[0] = ''
-      else
-        path = File.expand_path(path)
-      end
+      # Any leading ~ should be expanded with whatever ~/ points to. This needs to be done now because later ~ will be replaced with just the username.
+      path = path.sub(/^~/, File.expand_path('~/'))
 
       # Gsub the remaining ~ that aren't escaped.
       # If it was escaped, eat the escape character
       path.gsub!(/(?<!\\|\A)~/, "#{Etc.getlogin}")
       path.gsub!(/\\(?=~)/, '')
+
+      # Now, expand the entire path for any other OS-specific symbols.
+      # One note, if we still have a leading '~', that means it was escaped at the beginning. So, what we'll do for this is let it expand
+      # then replace the leading File.expand_path('~/') with just '~', pretty much the opposite of path.sub(/^~/, File.expand_path('~/'))
+      # Note, we can't just take it out, expand, then add it back  because expanding the path on Windows will expand to
+      # C:\, or D:\ or whatever, so need to do this 'expand, then unexpand' method.
+      if path.start_with?('~')
+        path = File.expand_path(path).sub(/^#{Regexp.quote(File.expand_path('~/'))}/, '~')
+      else
+        path = File.expand_path(path)
+      end
 
       append = find_val('append_dot_origen')
       append = '.origen' if append == true || append.nil?

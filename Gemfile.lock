@@ -108,6 +108,8 @@ GEM
     net-ldap (0.16.1)
     nokogiri (1.8.2)
       mini_portile2 (~> 2.3.0)
+    nokogiri (1.8.2-x64-mingw32)
+      mini_portile2 (~> 2.3.0)
     origen_core_support (0.2.3)
       origen (>= 0.2.6)
     origen_debuggers (0.6.0)
@@ -174,6 +176,7 @@ GEM
 
 PLATFORMS
   ruby
+  x64-mingw32
 
 DEPENDENCIES
   byebug (~> 8)
@@ -189,4 +192,4 @@ DEPENDENCIES
   ripper-tags
 
 BUNDLED WITH
-   1.16.1
+   1.16.2

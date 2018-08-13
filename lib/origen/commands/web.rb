@@ -50,6 +50,7 @@ The following options are available:
     opts.on('-m', '--mode MODE', Origen::Mode::MODES, 'Force the Origen operating mode:', '  ' + Origen::Mode::MODES.join(', ')) { |_m| }
     opts.on('--no-serve', "Don't serve the website after compiling without the remote option") { options[:no_serve] = true }
     opts.on('-c', '--comment COMMENT', String, 'Supply a commit comment when deploying to Git') { |o| options[:comment] = o }
+
     # Apply any application option extensions to the OptionParser
     Origen::CommandHelpers.extend_options(opts, app_options, options)
     opts.separator ''
@@ -73,14 +74,10 @@ The following options are available:
 
   def self._start_server
     # Get the current host
-    host = `hostname`.strip.downcase
-    if Origen.running_on_windows?
-      domain = 'fsl.freescale.net'
-    else
-      domain = `dnsdomainname`.strip
-    end
-    # Get a free port
     require 'socket'
+    host = Socket.gethostbyname(Socket.gethostname).first.downcase
+
+    # Get a free port
     port = 8000 # preferred port
     begin
       server = TCPServer.new('127.0.0.1', port)
@@ -92,11 +89,7 @@ The following options are available:
     server.close
     # Start the server
     puts ''
-    if host.include? domain
-      puts "Point your browser to this address:  http://#{host}:#{port}"
-    else
-      puts "Point your browser to this address:  http://#{host}#{domain.empty? ? '' : '.' + domain}:#{port}"
-    end
+    puts "Point your browser to this address:  http://#{host}:#{port}"
     puts ''
     puts 'To shut down the server use CTRL-C'
     puts ''
