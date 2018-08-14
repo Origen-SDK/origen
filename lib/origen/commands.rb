@@ -32,7 +32,7 @@ Origen.send :current_command=, @command
 # Don't log to file during the save command since we need to preserve the last log,
 # this is done as early in the process as possible so any deprecation warnings during
 # load don't trigger a new log
-Origen::Log.console_only = (%w(save target environment version).include?(@command) || ARGV.include?('--exec_remote'))
+Origen::Log.console_only = %w(save target environment version).include?(@command)
 
 if ARGV.delete('--coverage') ||
    ((@command == 'specs' || @command == 'examples' || @command == 'test') && (ARGV.delete('-c') || ARGV.delete('--coverage')))
