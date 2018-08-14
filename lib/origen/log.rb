@@ -16,6 +16,7 @@ module Origen
     def initialize
       @log_time_0 = @t0 = Time.new
       self.level = :normal
+      @custom_logs = {}
     end
 
     def console_only?(options = {})
@@ -167,6 +168,10 @@ module Origen
       @last_file = nil
       @job_file.close if @job_file
       @job_file = nil
+      @custom_logs.each do |name, log|
+        log.close
+      end
+      @custom_logs = {}
     end
 
     # @api private
@@ -191,6 +196,24 @@ module Origen
         @job_file.close
         @job_file = nil
       end
+    end
+
+    def method_missing(method, *args, &block)
+      @custom_logs[method.to_sym] ||= begin
+        log_file = File.join(Log.log_file_directory, "#{method}.txt")
+        unless Origen.running_remotely?
+          FileUtils.mv log_file, "#{log_file}.old" if File.exist?(log_file)
+        end
+        open_log(log_file)
+      end
+      msg = args.shift
+      options = args.shift || {}
+      if options.key?(:format) && !options[:format]
+        msg = "#{msg}\n"
+      else
+        msg = format_msg(method.to_s.upcase, msg)
+      end
+      @custom_logs[method.to_sym].info(msg)
     end
 
     private

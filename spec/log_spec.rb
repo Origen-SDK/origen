@@ -108,11 +108,13 @@ describe 'The Origen logger' do
     File.read(File.join("log", "last.txt")).should_not include("DEBUG", "Test message 10")
   end
 
-  #it "Can log to a custom log file" do
-  #  Origen.log.send(m, 'Test message 6')
-  #  Origen.log.send(:reset)  # Force a flush of the file buffer by closing the log
-  #  File.read(File.join("log", "last.txt")).should include(m.to_s.upcase, "Test message")
-
-
-  #end
+  it "Can log to a custom log file" do
+    Origen.log.reset
+    Origen.log.blah 'Test message 11'
+    File.read(File.join("log", "blah.txt")).should include("BLAH", "Test message 11")
+    Origen.log.reset
+    Origen.log.blah 'Test message 12', format: false
+    File.read(File.join("log", "blah.txt")).should_not include("BLAH")
+    File.read(File.join("log", "blah.txt")).should include("Test message 12")
+  end
 end
