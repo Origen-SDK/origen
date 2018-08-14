@@ -29,7 +29,8 @@ module Origen
       # below for more details on this.
       ATTRS_THAT_DEPEND_ON_TARGET = [
         :output_directory, :reference_directory, :pattern_postfix, :pattern_prefix,
-        :pattern_header, :release_directory, :pattern_name_translator, :pattern_directory, :pattern_output_directory,
+        :pattern_header, :current_plugin_pattern_header, :application_pattern_header, :shared_pattern_header,
+        :release_directory, :pattern_name_translator, :pattern_directory, :pattern_output_directory,
         :proceed_with_pattern, :test_program_output_directory, :test_program_source_directory,
         :test_program_template_directory, :referenced_pattern_list, :program_prefix, :web_directory,
         :web_domain
@@ -49,6 +50,10 @@ module Origen
         :pattern_prefix, :pattern_postfix, :program_prefix, :pattern_header, :pattern_output_directory,
         :output_directory, :reference_directory, :test_program_output_directory,
         :test_program_template_directory, :referenced_pattern_list
+      ]
+
+      ATTRS_THAT_ARE_SET_TO_A_BLOCK = [
+        :current_plugin_pattern_header, :application_pattern_header, :shared_pattern_header, #:pattern_footer
       ]
 
       def log_deprecations
@@ -146,7 +151,9 @@ module Origen
                   fail "You have attempted to access Origen.config.#{name} before instantiating the target"
                 end
               end
-              var.call
+
+              # Some config variables should be left as a block/proc object. If this is one of those, just return the var.
+              ATTRS_THAT_ARE_SET_TO_A_BLOCK.include?(name) ? var : var.call
             else
               var
             end

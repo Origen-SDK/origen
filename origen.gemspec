@@ -35,7 +35,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "rspec", "~>3"
   spec.add_runtime_dependency "rspec-legacy_formatters", "~>1"
   spec.add_runtime_dependency "thor", "~>0.19"
-  spec.add_runtime_dependency "nanoc", "~>3.7"
+  spec.add_runtime_dependency "nanoc", "~>3.7.0"
   spec.add_runtime_dependency "kramdown", "~>1.5"
   spec.add_runtime_dependency "rubocop", "0.30"
   spec.add_runtime_dependency "coderay", "~>1.1"
@@ -51,4 +51,5 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "dentaku", "~>2"
   spec.add_runtime_dependency "colorize", "~> 0.8.1"
   spec.add_runtime_dependency 'nokogiri', '>= 1.7.2'
+  spec.add_runtime_dependency 'cri', '~>2.10.0' # Not required by Origen, but add constrain to avoid Ruby 2.3 requirement
 end

@@ -5,6 +5,7 @@
 .irb_history
 .byebug_history
 /vendor/lib/models/origen
+/spec/patterns
 
 # Editor cruft
 *.swp

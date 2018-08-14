@@ -1,3 +1,52 @@
+<a class="anchor release_tag" name="v0_34_1"></a>
+<h1><a href="#v0_34_1">Tag: v0.34.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 14-Aug-2018 12:16PM
+
+
+Really fix compatibility with Ruby 2.2
+
+<a class="anchor release_tag" name="v0_34_0"></a>
+<h1><a href="#v0_34_0">Tag: v0.34.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 14-Aug-2018 11:34AM
+
+
+* Added `read` and `write` methods for pins as aliases for `drive` and `expect`
+  (Paul Derouen)
+* Allow register bit names that are similar to reg level attributes, e.g. `feature`,
+  `reset`, `access` (Ronnie Lajaunie)
+* Fix `origen web compile` on Windows (Corey Engelken)
+* Various spec testing and dev environment improvements (Corey Engelken)
+* Add API to allow application and plugins to add content to test pattern headers, see
+  http://origen-sdk.org/origen/guides/pattern/documenting/#Pattern\_Headers (Corey Engelken)
+* Fix compatibility with Ruby 2.2
+* Added API to allow plugins to add pages to the Origen guides (and moved pattern and
+  program generator guides to OrigenTesters):
+
+  ~~~ruby
+  # In the plugin's config/application.rb
+  config.shared = {
+    # Specify the local directory where the guides live, should be the same in most cases
+    origen\_guides: "templates/origen\_guides",
+    origen\_guides\_index: -> (index) do
+      # Example of adding a section
+      index.section :pattern, heading: "Pattern Generator", after: :controllers do |section|
+        section.page :introduction, heading: "Introduction"
+        section.page :creating, heading: "Creating Patterns"
+      end
+      # Example of adding a page to an existing section
+      index.section :program do |section|
+        section.page :smt8, heading: "V93K SMT8", after: :v93k
+      end
+    end
+  }
+  ~~~
+
 <a class="anchor release_tag" name="v0_33_3"></a>
 <h1><a href="#v0_33_3">Tag: v0.33.3</a></h1>
 

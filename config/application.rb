@@ -43,8 +43,8 @@ class OrigenCoreApplication < Origen::Application
   
   config.pattern_prefix = "nvm"
 
-  config.pattern_header do
-    cc "This is a dummy pattern created by the Origen test environment"
+  config.application_pattern_header do |options|
+    "This is a dummy pattern created by the Origen test environment"
   end
 
   # Add any directories or files not intended to be under change management control
@@ -106,6 +106,16 @@ class OrigenCoreApplication < Origen::Application
 
     iterator.pattern_name do |name, setting|
       name.gsub("_x", "_#{setting}")
+    end
+  end
+
+  def after_web_compile(options)
+    Origen.app.plugins.each do |plugin|
+      if plugin.config.shared && plugin.config.shared[:origen_guides]
+        Origen.app.runner.launch action: :compile,
+                                 files:  File.join(plugin.root, plugin.config.shared[:origen_guides]),
+                                 output: File.join('web', 'content', 'guides')
+      end
     end
   end
 
