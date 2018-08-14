@@ -1,4 +1,11 @@
 GIT
+  remote: https://github.com/Origen-SDK/origen_core_support.git
+  revision: b73bfaf57f0871ec24f3f9e0833e951015ed90a0
+  specs:
+    origen_core_support (0.2.3)
+      origen (>= 0.2.6)
+
+GIT
   remote: https://github.com/Origen-SDK/origen_testers.git
   revision: 9947ea576ba26733514895f63c33952a8e29c40b
   specs:
@@ -16,6 +23,7 @@ PATH
       coderay (~> 1.1)
       colored (~> 1.2)
       colorize (~> 0.8.1)
+      cri (~> 2.10.0)
       dentaku (~> 2)
       geminabox (= 0.12.4)
       gems (~> 0.8)
@@ -101,8 +109,6 @@ GEM
       mini_portile2 (~> 2.1.0)
     nokogiri (1.7.2-x64-mingw32)
       mini_portile2 (~> 2.1.0)
-    origen_core_support (0.2.3)
-      origen (>= 0.2.6)
     origen_debuggers (0.6.0)
       origen (>= 0.2.6)
       origen_testers (>= 0.5.0)
@@ -177,7 +183,7 @@ DEPENDENCIES
   loco
   nokogiri (= 1.7.2)
   origen!
-  origen_core_support (= 0.2.3)
+  origen_core_support!
   origen_debuggers (~> 0)
   origen_doc_helpers
   origen_testers!
