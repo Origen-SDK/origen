@@ -181,6 +181,7 @@ DEPENDENCIES
   byebug (~> 8)
   coveralls
   loco
+  nokogiri
   origen!
   origen_core_support!
   origen_debuggers (~> 0)
