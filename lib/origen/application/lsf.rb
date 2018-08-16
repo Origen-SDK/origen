@@ -21,7 +21,7 @@ module Origen
         # Specify the number of cores to use while submitting the job to LSF
         # There is a restriction on the number of cores available per queue name
         # Below is a table:
-        #         NxDI Queue name	xFSL equivalent		Purpose
+        #         Queue name	      equivalent		Purpose
         #         interq	          gui			Interactive jobs, like Virtuoso. Max 15 jobs/user
         #         batchq	          normal		CPU intensive batch jobs, 1 .. 3 threads. Specify # of threads with bsub -n option. Slots/user: ~10% of total batch capacity.
         #         batchq_mt	          normal		CPU intensive batch jobs, >= 4 threads. Specify # of threads with bsub -n option. Slots: shared with batchq.
