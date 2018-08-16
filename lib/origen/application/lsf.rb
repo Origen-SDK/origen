@@ -18,13 +18,30 @@ module Origen
         # When set to true no submissions will be made to LSF and instead the
         # command that would have been submitted is printed to the terminal instead
         attr_accessor :debug
+        # Specify the number of cores to use while submitting the job to LSF
+        # There is a restriction on the number of cores available per queue name
+        # Below is a table:
+        #         NxDI Queue name	xFSL equivalent		Purpose
+        #         interq	          gui			Interactive jobs, like Virtuoso. Max 15 jobs/user
+        #         batchq	          normal		CPU intensive batch jobs, 1 .. 3 threads. Specify # of threads with bsub -n option. Slots/user: ~10% of total batch capacity.
+        #         batchq_mt	          normal		CPU intensive batch jobs, >= 4 threads. Specify # of threads with bsub -n option. Slots: shared with batchq.
+        #         shortq	          short			CPU intensive batch jobs, 1 thread (= 1 core), guaranteed run time 15 minutes. Slots/user: approximately 3x limit in batchq.
+        #         offloadq	            -			Used for offloading cpu intensive batch jobs to cloud, see CloudPortal.
+        #                                       		Do not submit directly into this queue. No real slot limit. Focused on CPU intensive jobs, not using much memory/data.
+        #         distributed	          normal		Run jobs than span multiple hosts.
+        #         -			  prio	                High prio queue with low slot count, useful if you don't have slots available in normal queue. See PrioritizingMyJobs.
+        #         -			  ondemand     		On-Demand Servers to satisfy urgent and short-term (2 weeks or less) customer compute requirements.
+        #         -			  wam	  		WAM cron processing
+        #         -			  grid	     		Low-priority batch jobs (random sim, regressions, etc). Access to all spare CPU cycles.
+        attr_accessor :cores
 
         def initialize
           @group = nil
           @project = 'msg.te'
-          @resource = 'linux'
-          @queue = 'short'
+          @resource = 'rhel6' # Defaults to new NxDI LSF strings
+          @queue = 'shortq'   # Defaults to new NxDI LSF Strings
           @debug = false
+          @cores = '1'
         end
       end
 
@@ -74,6 +91,8 @@ module Origen
           resource = resource ? "-R '#{resource}'" : ''
           queue = options[:queue] || config.queue
           queue = queue ? "-q #{queue}" : ''
+          cores = options[:cores] || config.cores
+          cores = cores ? "-n #{cores}" : ''
           rerunnable = options[:rerunnable] ? '-r' : ''
           if options[:dependents].empty?
             dependents = ''
@@ -81,7 +100,7 @@ module Origen
             dependents = options[:dependents].map { |id| "ended(#{id})" }.join(' && ')
             dependents = "-w '#{dependents}'"
           end
-          cmd = "bsub -oo /dev/null #{dependents} #{rerunnable} #{group} #{project} #{resource} #{queue} '#{command}'"
+          cmd = "bsub -oo /dev/null #{dependents} #{rerunnable} #{group} #{project} #{resource} #{queue} #{cores} '#{command}'"
           if config.debug
             puts cmd
             '496212'  # Return a dummy ID to keep the caller happy
