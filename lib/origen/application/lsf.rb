@@ -38,8 +38,8 @@ module Origen
         def initialize
           @group = nil
           @project = 'msg.te'
-          @resource = 'rhel6' # Defaults to new NxDI LSF strings
-          @queue = 'shortq'   # Defaults to new NxDI LSF Strings
+          @resource = 'linux'
+          @queue = 'short'
           @debug = false
           @cores = '1'
         end
