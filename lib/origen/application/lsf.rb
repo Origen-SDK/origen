@@ -36,12 +36,12 @@ module Origen
         attr_accessor :cores
 
         def initialize
-          @group = nil
-          @project = 'msg.te'
-          @resource = 'linux'
-          @queue = 'short'
-          @debug = false
-          @cores = '1'
+          @group = Origen.site_config.lsf_group
+          @project = Origen.site_config.lsf_project
+          @resource = Origen.site_config.lsf_resource
+          @queue = Origen.site_config.lsf_queue
+          @debug = Origen.site_config.lsf_debug
+          @cores = Origen.site_config.lsf_cores
         end
       end
 
