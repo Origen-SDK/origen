@@ -509,8 +509,6 @@ module Origen
         # options is now an array for split bit groups or a hash if single bit/range bits
         # Now add the requested bits to the register, removing the unwritable bits as required
         options.each do |bit_id, bit_params|
-          puts bit_id
-          puts bit_params
           if bit_params.is_a? Hash
             description = bit_params.delete(:description)
             if description
