@@ -516,14 +516,14 @@ module Origen
             bind(bit_id, bit_params.delete(:bind)) if bit_params[:bind]
             position = bit_params[:pos] || 0
             num_bits = bit_params[:bits] || 1
-            if @reset
-              if @reset.is_a?(Symbol)
-                bit_params[:res] = @reset
+            if @_reset
+              if @_reset.is_a?(Symbol)
+                bit_params[:res] = @_reset
               else
-                bit_params[:res] = @reset[(num_bits + position - 1), position]
+                bit_params[:res] = @_reset[(num_bits + position - 1), position]
               end
             end
-            bit_params[:access] = @access if bit_params[:access].nil?
+            bit_params[:access] = @_access if bit_params[:access].nil?
             bit_params[:res] = bit_params[:data] if bit_params[:data]
             bit_params[:res] = bit_params[:reset] if bit_params[:reset]
             if num_bits == 1
