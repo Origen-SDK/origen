@@ -330,7 +330,7 @@ module Origen
           Origen.log.debug "Initializing Git workspace at #{local}"
           git 'init'
           git 'remote remove origin', verbose: false, check_errors: false
-          git "remote add origin #{remote}"
+          git "remote add origin #{remote}", check_errors: false
         end
       end
 
