@@ -304,6 +304,13 @@ describe Origen::VersionString do
       end
     end
 
+    it 'can be compared to regular text strings' do
+      S = Origen::VersionString
+      (S.new('master') == 'HEAD').should == false
+      (S.new('master') == S.new('HEAD')).should == false
+      ('master' == S.new('HEAD')).should == false
+    end
+
     specify "the minimum_version method works" do
       Origen::VersionString.minimum_version("v1.2.3").should == "1.2.3"
       Origen::VersionString.minimum_version("== v1.2.3").should == "1.2.3"
