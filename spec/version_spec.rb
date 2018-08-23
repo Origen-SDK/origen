@@ -309,6 +309,9 @@ describe Origen::VersionString do
       (S.new('master') == 'HEAD').should == false
       (S.new('master') == S.new('HEAD')).should == false
       ('master' == S.new('HEAD')).should == false
+      (S.new('HEAD') == 'HEAD').should == true
+      (S.new('HEAD') == S.new('HEAD')).should == true
+      ('HEAD' == S.new('HEAD')).should == true
     end
 
     specify "the minimum_version method works" do
