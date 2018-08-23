@@ -52,7 +52,7 @@ Pattern.create do
 
   cc "This should wait for 5 cycles, 1000/200"
   $tester.set_timeset("nvm_slow", 200)
-  $tester.wait(:time_in_ns => 1000)
+  1000.ns!
   cc "This should wait for 25 cycles, 1000/40"
   $tester.set_timeset("nvm_fast", 40)
   $tester.wait(:time_in_ns => 1000)
@@ -69,5 +69,4 @@ Pattern.create do
   ss "Test that Fixnum.cycles works"
   cc "There should be 10 cycles here"
   10.cycles
-
 end
