@@ -32,7 +32,12 @@ module Origen
     alias_method :orig_equal?, :==
 
     def equal?(version)
-      condition_met?("== #{version}")
+      # If not a valid version string, compare using regular string comparison
+      if valid?
+        condition_met?("== #{version}")
+      else
+        orig_equal?(version)
+      end
     end
     alias_method :eq?, :equal?
     alias_method :==, :equal?
