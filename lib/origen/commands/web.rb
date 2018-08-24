@@ -166,7 +166,12 @@ The following options are available:
           listener.before_web_compile(options)
         end
         ARGV.each do |file|
-          output = Origen.file_handler.sub_dir_of(Origen.file_handler.clean_path_to(file), "#{Origen.root}/templates/web")
+          path = Origen.file_handler.clean_path_to(file)
+          if path.to_s =~ /origen_guides/
+            output = Origen.file_handler.sub_dir_of(path, "#{Origen.root}/templates/origen_guides")
+          else
+            output = Origen.file_handler.sub_dir_of(path, "#{Origen.root}/templates/web")
+          end
           Origen.app.runner.launch action: :compile,
                                    files:  file,
                                    output: "#{Origen.root}/web/content/#{output}"

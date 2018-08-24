@@ -1,4 +1,4 @@
-source 'http://rubygems.org'
+source 'https://rubygems.org'
 
 # Development dependencies
 gem 'coveralls', require: false
@@ -13,7 +13,7 @@ gem "origen_testers", git: "https://github.com/Origen-SDK/origen_testers.git"
 gem 'origen_debuggers', '~> 0'
 gem 'ripper-tags'
 gem 'origen_updater'
-gem 'nokogiri', '1.7.2'  # Helps development within NXP env
+gem 'nokogiri'
 
 # Specify all runtime dependencies in origen.gemspec
 gemspec

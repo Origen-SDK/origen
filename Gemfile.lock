@@ -7,7 +7,7 @@ GIT
 
 GIT
   remote: https://github.com/Origen-SDK/origen_testers.git
-  revision: 9947ea576ba26733514895f63c33952a8e29c40b
+  revision: 9d91b74dc2ecf19cbe67870e5d706ef7f999794c
   specs:
     origen_testers (0.19.0)
       atp (~> 1.1, >= 1.1.2)
@@ -17,7 +17,7 @@ GIT
 PATH
   remote: .
   specs:
-    origen (0.34.1)
+    origen (0.34.3)
       activesupport (~> 4.1)
       bundler (~> 1.7)
       coderay (~> 1.1)
@@ -45,7 +45,7 @@ PATH
       yard (~> 0.8)
 
 GEM
-  remote: http://rubygems.org/
+  remote: https://rubygems.org/
   specs:
     activesupport (4.2.10)
       i18n (~> 0.7)
@@ -95,7 +95,7 @@ GEM
     kramdown (1.17.0)
     loco (0.0.6)
     method_source (0.9.0)
-    mini_portile2 (2.1.0)
+    mini_portile2 (2.3.0)
     minitest (5.11.3)
     multi_xml (0.6.0)
     multipart-post (2.0.0)
@@ -103,12 +103,12 @@ GEM
       cri (~> 2.3)
     nesty (1.0.2)
     net-ldap (0.16.1)
-    nokogiri (1.7.2)
-      mini_portile2 (~> 2.1.0)
+    nokogiri (1.8.4)
+      mini_portile2 (~> 2.3.0)
     origen_debuggers (0.6.0)
       origen (>= 0.2.6)
       origen_testers (>= 0.5.0)
-    origen_doc_helpers (0.7.0)
+    origen_doc_helpers (0.7.1)
       origen (>= 0.7.15)
     origen_updater (0.7.0)
       origen
@@ -125,7 +125,7 @@ GEM
       rake
     rake (10.5.0)
     require_all (1.5.0)
-    ripper-tags (0.6.0)
+    ripper-tags (0.6.1)
     rspec (3.8.0)
       rspec-core (~> 3.8.0)
       rspec-expectations (~> 3.8.0)
@@ -176,7 +176,7 @@ DEPENDENCIES
   byebug (~> 8)
   coveralls
   loco
-  nokogiri (= 1.7.2)
+  nokogiri
   origen!
   origen_core_support!
   origen_debuggers (~> 0)

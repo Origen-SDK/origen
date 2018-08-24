@@ -1,3 +1,26 @@
+<a class="anchor release_tag" name="v0_34_3"></a>
+<h1><a href="#v0_34_3">Tag: v0.34.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 17-Aug-2018 12:13PM
+
+
+Origen will now use site config variables for a LSF configuration setup.
+The application can always override the default values by specifiying them within the app
+config.
+
+<a class="anchor release_tag" name="v0_34_2"></a>
+<h1><a href="#v0_34_2">Tag: v0.34.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 16-Aug-2018 12:15PM
+
+
+Minor bug fixes to support org\_file usage in OrigenSim and to enable Origen guides that
+are supplied from plugins to be compiled/viewed within a plugin workspace
+
 <a class="anchor release_tag" name="v0_34_1"></a>
 <h1><a href="#v0_34_1">Tag: v0.34.1</a></h1>
 

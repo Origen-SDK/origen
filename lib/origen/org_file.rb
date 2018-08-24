@@ -29,7 +29,7 @@ module Origen
       def close(id, options = {})
         fail "An org_file with this ID has not been opened id: #{id}" unless open_files[id]
         open_files[id].close unless options[:_internal_org_file_call_]
-        open_files[id] = nil
+        open_files.delete(id)
       end
 
       def org_file(id = nil)
@@ -109,15 +109,15 @@ module Origen
     def cycle(number)
       if @buffer
         if @line == @buffer
-          @buffer_cycles += 1
+          @buffer_cycles += number
         else
           file.puts "#{@buffer}#{@buffer_cycles}"
           @buffer = @line
-          @buffer_cycles = 1
+          @buffer_cycles = number
         end
       else
         @buffer = @line
-        @buffer_cycles = 1
+        @buffer_cycles = number
       end
       @line = nil
     end

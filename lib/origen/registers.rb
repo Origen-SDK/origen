@@ -140,6 +140,11 @@ module Origen
         @name = name
         @attributes = attributes
         @feature = attributes[:_feature] if attributes.key?(:_feature)
+
+        # Give reg.new a way to tell if coming from Placeholder
+        if attributes[:bit_info].is_a? Hash
+          attributes[:bit_info][:from_placeholder] = true
+        end
       end
 
       # Make this appear like a reg to any application code

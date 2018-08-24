@@ -95,4 +95,10 @@ gem_use_from_system:
 # Optional to override the name given to the user ID attribute on the LDAP system ('id' by default)
 #ldap_user_id_attribute: uid
 
-# LSF  
+# LSF Configuration
+lsf_queue: 'batchq'
+lsf_group: 'nil'
+lsf_project: 'msg.te'
+lsf_resource: 'rhel6'
+lsf_cores: '1'
+lsf_debug: 'false'
