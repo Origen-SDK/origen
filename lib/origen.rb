@@ -660,6 +660,10 @@ unless defined? RGen::ORIGENTRANSITION
         @running_remotely = val
       end
 
+      def running_simulation?
+        !!(defined?(OrigenSim) && Origen.tester && Origen.tester.sim?)
+      end
+
       # Returns true if Origen is running interactively. That is, the command was 'origen i'
       def running_interactively?
         !!@running_interactively

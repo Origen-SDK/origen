@@ -1,3 +1,6 @@
+# Project specific ignores
+/spec/patterns
+
 # Misc
 .irb_history
 .byebug_history

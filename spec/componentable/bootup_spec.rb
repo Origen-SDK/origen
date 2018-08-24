@@ -253,7 +253,7 @@ RSpec.shared_examples :componentable_bootup_spec do
             include ComponentableSpec::ComponentableNamesTests
           end.new
         end
-        
+       
         it 'will initialize the API with COMPONENTABLE_SINGLETON_NAME defined' do
           expect(@parent).to_not respond_to(:test_component_singleton_defined)
           expect(@parent).to_not respond_to(:test_component_singleton_defineds)
@@ -296,14 +296,12 @@ RSpec.shared_examples :componentable_bootup_spec do
       end
       
       it 'warns if any of the other generic methods already exists' do
-        ComponentableSpec::InitTests::InitParentWithParentMethodsDefined.new
-        
-        # Check that the logger's last three warnings were the expected warnings.
-        expect(Origen.log.msg_hash[:warn][nil][-3]).to include('Componentable: Parent class ComponentableSpec::InitTests::InitParentWithParentMethodsDefined already defines a method test_components. This method will not be used by Componentable')
-        expect(Origen.log.msg_hash[:warn][nil][-2]).to include('Componentable: Parent class ComponentableSpec::InitTests::InitParentWithParentMethodsDefined already defines a method add_test_component. This method will not be used by Componentable')
-        expect(Origen.log.msg_hash[:warn][nil][-1]).to include('Componentable: Parent class ComponentableSpec::InitTests::InitParentWithParentMethodsDefined already defines a method each_test_component. This method will not be used by Componentable')
+        l1 = "Componentable: Parent class ComponentableSpec::InitTests::InitParentWithParentMethodsDefined already defines a method test_components. This method will not be used by Componentable"
+        l2 = "Componentable: Parent class ComponentableSpec::InitTests::InitParentWithParentMethodsDefined already defines a method add_test_component. This method will not be used by Componentable"
+        l3 = "Componentable: Parent class ComponentableSpec::InitTests::InitParentWithParentMethodsDefined already defines a method each_test_component. This method will not be used by Componentable"
+                                                                                                  # http://rubular.com/r/jOmctDGhvR
+        expect { ComponentableSpec::InitTests::InitParentWithParentMethodsDefined.new }.to output(/#{l1}.*\n.*#{l2}.*\n.*#{l3}/).to_stdout_from_any_process
       end
     end
-    
   end
 end

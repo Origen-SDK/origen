@@ -7,7 +7,7 @@ GIT
 
 GIT
   remote: https://github.com/Origen-SDK/origen_testers.git
-  revision: 9947ea576ba26733514895f63c33952a8e29c40b
+  revision: 9d91b74dc2ecf19cbe67870e5d706ef7f999794c
   specs:
     origen_testers (0.19.0)
       atp (~> 1.1, >= 1.1.2)
@@ -30,7 +30,6 @@ PATH
       highline (~> 1.7)
       httparty (~> 0.13)
       kramdown (~> 1.5)
-      log4r (~> 1.1.10, ~> 1.1)
       nanoc (~> 3.7.0)
       net-ldap (~> 0.13)
       nokogiri (>= 1.7.2)
@@ -95,7 +94,6 @@ GEM
     json (2.1.0)
     kramdown (1.17.0)
     loco (0.0.6)
-    log4r (1.1.10)
     method_source (0.9.0)
     mini_portile2 (2.3.0)
     minitest (5.11.3)
@@ -106,8 +104,6 @@ GEM
     nesty (1.0.2)
     net-ldap (0.16.1)
     nokogiri (1.8.4)
-      mini_portile2 (~> 2.3.0)
-    nokogiri (1.8.4-x64-mingw32)
       mini_portile2 (~> 2.3.0)
     origen_debuggers (0.6.0)
       origen (>= 0.2.6)
@@ -129,7 +125,7 @@ GEM
       rake
     rake (10.5.0)
     require_all (1.5.0)
-    ripper-tags (0.6.0)
+    ripper-tags (0.6.1)
     rspec (3.8.0)
       rspec-core (~> 3.8.0)
       rspec-expectations (~> 3.8.0)
@@ -175,7 +171,6 @@ GEM
 
 PLATFORMS
   ruby
-  x64-mingw32
 
 DEPENDENCIES
   byebug (~> 8)
