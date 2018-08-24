@@ -1,3 +1,16 @@
+<a class="anchor release_tag" name="v0_35_0"></a>
+<h1><a href="#v0_35_0">Tag: v0.35.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 24-Aug-2018 10:52AM
+
+
+* Fix bugs related to initial remote population from older versions of Git
+* Added numeric wait helpers, e.g. `10.ms!`
+* Patch to reg creation (Ronnie Lajaunie)
+* Improved logger with per job log creation
+
 <a class="anchor release_tag" name="v0_34_3"></a>
 <h1><a href="#v0_34_3">Tag: v0.34.3</a></h1>
 
