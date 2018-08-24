@@ -703,6 +703,7 @@ module RegTest
       bits_copy = {
         b0: {pos: 0, bits: 8, writable: false},
         b1: {pos: 8, bits: 8, res: 4},
+        from_placeholder: true
       }
       add_reg :dummy, 0x10, 16, bits
       bits.should == bits_copy

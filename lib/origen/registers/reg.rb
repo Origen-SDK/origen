@@ -68,13 +68,14 @@ module Origen
         @name = name
         @init_as_writable = options.delete(:init_as_writable)
         @define_file = options.delete(:define_file)
+        @from_placeholder = options.delete(:from_placeholder) || false
         REG_LEVEL_ATTRIBUTES.each do |attribute, _meta|
-          if options[attribute[1..-1].to_sym]
+          if @from_placeholder
+            instance_variable_set("@#{attribute[1..-1]}", options.delete(attribute))
+          else
             # If register creation is coming directly from Reg.new, instead of Placeholder,
             #   it may not have attributes with '_' prefix
             instance_variable_set("@#{attribute[1..-1]}", options.delete(attribute[1..-1].to_sym))
-          else
-            instance_variable_set("@#{attribute[1..-1]}", options.delete(attribute))
           end
         end
         @description_from_api = {}
