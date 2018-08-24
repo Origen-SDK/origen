@@ -187,4 +187,24 @@ class Numeric
       self / 1_000_000_000_000.0
     end
   end
+
+  # Shorthand for tester.wait(time_in_ns: 100), e.g. 100.ns!
+  def ns!
+    Origen.app.tester.wait time_in_ns: self
+  end
+
+  # Shorthand for tester.wait(time_in_us: 100), e.g. 100.us!
+  def us!
+    Origen.app.tester.wait time_in_us: self
+  end
+
+  # Shorthand for tester.wait(time_in_ms: 100), e.g. 100.ms!
+  def ms!
+    Origen.app.tester.wait time_in_ms: self
+  end
+
+  # Shorthand for tester.wait(time_in_s: 100), e.g. 100.s!
+  def s!
+    Origen.app.tester.wait time_in_s: self
+  end
 end
