@@ -6,6 +6,15 @@ GIT
       origen (>= 0.2.6)
 
 GIT
+  remote: https://github.com/Origen-SDK/origen_sim.git
+  revision: 361107187e4e8bed9833d78297640927ef61ebe2
+  specs:
+    origen_sim (0.12.1)
+      origen (>= 0.35.0)
+      origen_testers
+      origen_verilog (>= 0.5)
+
+GIT
   remote: https://github.com/Origen-SDK/origen_testers.git
   revision: 9d91b74dc2ecf19cbe67870e5d706ef7f999794c
   specs:
@@ -112,8 +121,12 @@ GEM
       origen (>= 0.7.15)
     origen_updater (0.7.0)
       origen
+    origen_verilog (0.5.0)
+      ast (~> 2)
+      treetop
     parser (2.5.1.2)
       ast (~> 2.4.0)
+    polyglot (0.3.5)
     powerpack (0.1.2)
     pry (0.11.3)
       coderay (~> 1.1.0)
@@ -165,6 +178,8 @@ GEM
     thread_safe (0.3.6)
     tilt (2.0.8)
     tins (1.16.3)
+    treetop (1.6.10)
+      polyglot (~> 0.3)
     tzinfo (1.2.5)
       thread_safe (~> 0.1)
     yard (0.9.16)
@@ -181,9 +196,10 @@ DEPENDENCIES
   origen_core_support!
   origen_debuggers (~> 0)
   origen_doc_helpers
+  origen_sim!
   origen_testers!
   origen_updater
   ripper-tags
 
 BUNDLED WITH
-   1.16.3
+   1.16.4
