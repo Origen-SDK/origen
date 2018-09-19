@@ -7,6 +7,10 @@ module Origen
     TRUE_VALUES = ['true', 'TRUE', '1', 1]
     FALSE_VALUES = ['false', 'FALSE', '0', 0]
 
+    # Adding parameters to this array will prevent them from being converted to booleans if
+    # they are assigned one of the values in the TRUE_VALUES/FALSE_VALUES arrays
+    NON_BOOLEAN_PARAMETERS = [:lsf_cores]
+
     # Define a couple of site configs variables that need a bit of processing
 
     # Gets the gem_intall_dir. This is either site_config.home_dir/gems or the site configs gem_install_dir
@@ -179,10 +183,12 @@ module Origen
         value = config ? config[val] : nil
       end
 
-      if TRUE_VALUES.include?(value)
-        return true
-      elsif FALSE_VALUES.include?(value)
-        return false
+      unless NON_BOOLEAN_PARAMETERS.include?(val.to_s.downcase.to_sym)
+        if TRUE_VALUES.include?(value)
+          return true
+        elsif FALSE_VALUES.include?(value)
+          return false
+        end
       end
       value
     end

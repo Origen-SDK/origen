@@ -46,7 +46,7 @@ PATH
       yard (~> 0.8)
 
 GEM
-  remote: http://rubygems.org/
+  remote: https://rubygems.org/
   specs:
     activesupport (4.2.10)
       i18n (~> 0.7)
@@ -191,4 +191,4 @@ DEPENDENCIES
   ripper-tags
 
 BUNDLED WITH
-   1.16.3
+   1.16.4
