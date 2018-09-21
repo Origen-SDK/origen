@@ -7,7 +7,7 @@ GIT
 
 GIT
   remote: https://github.com/Origen-SDK/origen_sim.git
-  revision: 5b98cee1cdb70bcde6067b900d00f5d0cb394ff1
+  revision: d724ef2b58ab211b6787f1e883fabf66603dd728
   specs:
     origen_sim (0.12.1)
       origen (>= 0.35.0)
