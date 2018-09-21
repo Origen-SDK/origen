@@ -67,6 +67,11 @@ describe "Origen.site_config" do
       Origen.site_config.gem_manage_bundler.should == true
     end
   end
+
+  it "allows variables to be marked as non-boolean to prevent casting" do
+    add_config_variable('lsf_cores', '1')
+    Origen.site_config.lsf_cores.should == '1'
+  end
   
   it "allows user overrides" do
     add_config_variable('test', 'test value')
