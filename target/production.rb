@@ -5,5 +5,4 @@ $tester = OrigenTesters::J750.new
 $dut = $top
 $soc = $top
 
-#Origen.mode = :production
 Origen.mode = :debug

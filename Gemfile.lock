@@ -1,6 +1,7 @@
 GIT
   remote: https://github.com/Origen-SDK/origen_core_support.git
-  revision: b73bfaf57f0871ec24f3f9e0833e951015ed90a0
+  revision: 2f4140a6d0e3e7b4f57f882b3e313af2ad01ba08
+  branch: app_dir
   specs:
     origen_core_support (0.2.3)
       origen (>= 0.2.6)
@@ -85,7 +86,7 @@ GEM
     dentaku (2.0.11)
     diff-lcs (1.3)
     docile (1.3.1)
-    faraday (0.15.2)
+    faraday (0.15.3)
       multipart-post (>= 1.2, < 3)
     geminabox (0.12.4)
       builder

@@ -92,7 +92,7 @@ module Origen
     def clean_path_to(file, options = {})
       # Allow individual calls to this method to specify additional custom load paths to consider
       if options[:load_paths]
-        [options[:load_paths]].each do |root|
+        Array(options[:load_paths]).each do |root|
           if File.exist?("#{root}/#{file}")
             return Pathname.new("#{root}/#{file}")
           end
@@ -214,7 +214,7 @@ module Origen
       begin
         # Allow relative references to templates/web when compiling a web template
         if Origen.lsf.current_command == 'web' || web_file
-          clean_path_to(file, load_paths: "#{Origen.root}/templates/web")
+          clean_path_to(file, load_paths: ["#{Origen.root}/app/templates/web", "#{Origen.root}/templates/web"])
         else
           clean_path_to(file)
         end
@@ -222,7 +222,7 @@ module Origen
         # Try again without .erb
         file = file.gsub('.erb', '')
         if Origen.lsf.current_command == 'web' || web_file
-          clean_path_to(file, load_paths: "#{Origen.root}/templates/web")
+          clean_path_to(file, load_paths: ["#{Origen.root}/app/templates/web", "#{Origen.root}/templates/web"])
         else
           clean_path_to(file)
         end
@@ -256,7 +256,11 @@ module Origen
             if import_name == :origen || import_name == :origen_core
               path.sub! 'origen', "#{Origen.top}/templates/shared"
             else
-              path.sub! Regexp.last_match[1], "#{root}/templates/shared"
+              if File.exist?("#{root}/app/templates/shared")
+                path.sub! Regexp.last_match[1], "#{root}/app/templates/shared"
+              else
+                path.sub! Regexp.last_match[1], "#{root}/templates/shared"
+              end
             end
           else
             fail 'Unknown import path type!'

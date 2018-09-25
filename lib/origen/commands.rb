@@ -235,6 +235,10 @@ when 'generate', 'program', 'compile', 'merge', 'interactive', 'target', 'enviro
   require "origen/commands/#{@command}"
   exit 0 unless @command == 'interactive'
 
+when 'new'
+  require 'origen/commands/new_resource'
+  exit 0
+
 when 'exec'
   load ARGV.first
   exit 0
@@ -273,6 +277,7 @@ The core origen commands are:
  web          Web page tools, see -h for details
  time         Tools for test time analysis and forecasting
  lint         Lint and style check (and correct) your application code
+ new          Generate a new model, timing, pattern, etc. for your application
   EOT
   cmds.split(/\n/).each do |line|
     puts Origen.clean_help_line(line)

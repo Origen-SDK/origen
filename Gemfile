@@ -4,7 +4,8 @@ source 'https://rubygems.org'
 gem 'coveralls', require: false
 gem "byebug", "~>8"  # Keep support for Ruby 2.0
 #gem "stackprof", "~>0"
-gem "origen_core_support", git: "https://github.com/Origen-SDK/origen_core_support.git"
+gem "origen_core_support", git: "https://github.com/Origen-SDK/origen_core_support.git", branch: "app_dir"
+#gem "origen_core_support", path: "~/Code/github/origen_core_support"
 #gem "origen_doc_helpers", ">= 0.2.0"
 gem "origen_doc_helpers"
 gem "loco"

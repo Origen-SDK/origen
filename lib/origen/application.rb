@@ -956,7 +956,8 @@ END
     #     config.i18n.backend = MyBackend
     #   end
     def add_lib_to_load_path! #:nodoc:
-      [root.join('lib'), root.join('vendor', 'lib')].each do |path|
+      [root.join('lib'), root.join('vendor', 'lib'), root.join('app', 'lib'),
+       root.join('app', 'models'), root.join('app', 'controllers')].each do |path|
         $LOAD_PATH.unshift(path.to_s) if File.exist?(path) && !$LOAD_PATH.include?(path.to_s)
       end
     end
