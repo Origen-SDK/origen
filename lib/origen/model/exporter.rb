@@ -261,8 +261,10 @@ module Origen
           unless bits.access == :rw
             line << ", access: :#{bits.access}"
           end
-          unless bits.reset_val == 0 || bits.reset_val == :undefined
-            line << ", reset: #{bits.reset_val.to_hex}"
+          if bits.reset_val.is_a?(Symbol)
+            line << ", reset: :#{bits.reset_val}"
+          else
+            line << ", reset: #{bits.reset_val.to_hex}" unless bits.reset_val == 0
           end
           lines << line
         end
