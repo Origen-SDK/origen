@@ -1,5 +1,4 @@
 require 'open-uri'
-require 'rbconfig'
 
 module Origen
   module CodeGenerators
@@ -16,13 +15,44 @@ module Origen
         @config
       end
 
+      # Adds an autoload statement for the given resource name into +app/lib/my_app_name.rb+
+      #
+      # An array of namespaces can optionally be supplied in the arguments. The name and namespaces
+      # should all be lower cased and underscored.
+      #
+      #   add_autoload "my_model", namespaces: ["my_namespace", "my_other_namespace"]
+      def add_autoload(name, options = {})
+        namespaces = Array(options[:namespaces])
+        # Remove the app namespace if present, we will add the autoload inside the top-level module block
+        namespaces.shift if namespaces.first == Origen.app.name.to_s
+        top_level_file = File.join('app', 'lib', "#{Origen.app.name}.rb")
+
+        if namespaces.empty?
+          line = "  autoload :#{name.to_s.camelcase}, '#{Origen.app.name}/#{name}'\n"
+          insert_into_file top_level_file, line, after: /module #{Origen.app.namespace}\n/
+        else
+          contents = File.read(top_level_file)
+          regex = "module #{Origen.app.namespace}\s*(#.*)?\n"
+          indent = ''
+          namespaces.each do |namespace|
+            indent += '  '
+            new_regex = regex + "(\n|.)*^\s*module #{namespace.to_s.camelcase}\s*(#.*)?\n"
+            unless contents =~ Regexp.new(new_regex)
+              lines = "#{indent}module #{namespace.to_s.camelcase}\n"
+              lines << "#{indent}end\n"
+              insert_into_file top_level_file, lines, after: Regexp.new(regex), force: true
+            end
+            regex = new_regex
+          end
+          line = "#{indent}  autoload :#{name.to_s.camelcase}, '#{Origen.app.name}/#{namespaces.join('/')}/#{name}'\n"
+          insert_into_file top_level_file, line, after: Regexp.new(regex)
+        end
+      end
+
       # Removes (comments out) the specified configuration setting from +config/application.rb+
       #
       #   comment_config :semantically_version
-      def comment_config(*args)
-        options = args.extract_options!
-        name = args.first.to_s
-
+      def comment_config(name, options = {})
         # Set the message to be shown in logs
         log :comment, name
 
@@ -31,10 +61,7 @@ module Origen
       end
 
       # Adds an entry into +config/application.rb+
-      def add_config(*args)
-        options = args.extract_options!
-        name, value = args
-
+      def add_config(name, value, options = {})
         # Set the message to be shown in logs
         message = name.to_s
         if value ||= options.delete(:value)
@@ -53,10 +80,7 @@ module Origen
       #   gem "rspec", group: :test
       #   gem "technoweenie-restful-authentication", lib: "restful-authentication", source: "http://gems.github.com/"
       #   gem "rails", "3.0", git: "git://github.com/rails/rails"
-      def gem(*args)
-        options = args.extract_options!
-        name, version = args
-
+      def gem(name, version, options = {})
         # Set the message to be shown in logs. Uses the git repo if one is given,
         # otherwise use name (version).
         parts, message = [quote(name)], name
@@ -200,18 +224,6 @@ module Origen
         in_root { run_ruby_script("bin/rails generate #{what} #{argument}", verbose: false) }
       end
 
-      # Runs the supplied rake task
-      #
-      #   rake("db:migrate")
-      #   rake("db:migrate", env: "production")
-      #   rake("gems:install", sudo: true)
-      def rake(command, options = {})
-        log :rake, command
-        env  = options[:env] || ENV['RAILS_ENV'] || 'development'
-        sudo = options[:sudo] && RbConfig::CONFIG['host_os'] !~ /mswin|mingw/ ? 'sudo ' : ''
-        in_root { run("#{sudo}#{extify(:rake)} #{command} RAILS_ENV=#{env}", verbose: false) }
-      end
-
       # Reads the given file at the source root and prints it in the console.
       #
       #   readme "README"
@@ -233,12 +245,9 @@ module Origen
         end
       end
 
-      # Add an extension to the given name based on the platform.
-      def extify(name)
-        if RbConfig::CONFIG['host_os'] =~ /mswin|mingw/
-          "#{name}.bat"
-        else
-          name
+      def in_root
+        Dir.chdir(Origen.root) do
+          yield
         end
       end
 

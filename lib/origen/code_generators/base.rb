@@ -50,7 +50,7 @@ module Origen
       end
 
       def self.banner
-        "origen add #{namespace == 'origen' ? '' : namespace + ':'}#{name} [options]"
+        "origen new #{namespace == 'origen' ? '' : namespace + ':'}#{name} [options]"
       end
     end
   end

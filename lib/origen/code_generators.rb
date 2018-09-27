@@ -29,9 +29,9 @@ module Origen
     def self.load_generators
       return if @generators_loaded
       # Load Origen's generators
-      Dir.glob("#{Origen.top}/lib/origen/code_generators/**/*.rb").sort.each do |file|
-        require file
-      end
+      require_relative 'code_generators/dut'
+      require_relative 'code_generators/sub_block'
+      require_relative 'code_generators/model'
       # Load generators from plugins, TBD what the rules will be here
       @generators_loaded = true
     end
@@ -70,11 +70,11 @@ module Origen
     end
 
     # Show help message with available generators.
-    def self.help(command = 'add')
+    def self.help(command = 'new')
       puts <<-END
 Add pre-built features and code snippets.
 
-This command will add pre-built code to your application to implement a given feature. In some
+This command will generate code for your application to implement a given feature. In some
 cases this will be a complete feature and in others it will provide a starting point for you
 to further customize.
 
@@ -88,7 +88,7 @@ END
       puts '  -s, [--skip]     # Skip files that already exist'
       puts '  -q, [--quiet]    # Suppress status output'
       puts
-      puts "The available features are listed below, run 'origen add <feature> -h' for more info."
+      puts "The available features are listed below, run 'origen new <feature> -h' for more info."
       puts
 
       print_generators
