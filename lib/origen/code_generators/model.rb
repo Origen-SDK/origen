@@ -26,8 +26,8 @@ END
       def create_model_file
         # @summary = ask 'Describe your plugin in a few words:'
         # template 'templates/code_generators/gemspec.rb', File.join(Origen.root, "#{Origen.app.name}.gemspec")
-        template 'templates/code_generators/model.rb', File.join(Origen.root, 'app', 'models', *@namespaces, "#{@name}.rb")
-        template 'templates/code_generators/controller.rb', File.join(Origen.root, 'app', 'controllers', *@namespaces, "#{@name}_controller.rb")
+        template 'templates/code_generators/model.rb', File.join(Origen.root, 'app', 'models', "#{@name}.rb")
+        template 'templates/code_generators/controller.rb', File.join(Origen.root, 'app', 'controllers', "#{@name}_controller.rb")
       end
     end
   end

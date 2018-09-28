@@ -795,6 +795,7 @@ END
         end
         @target_instantiated = true
         Origen.mode = :debug if options[:force_debug]
+        load_definitions(options) if dut
         listeners_for(:on_create).each do |obj|
           unless obj.is_a?(Origen::SubBlocks::Placeholder)
             if obj.try(:is_a_model_and_controller?)
@@ -815,6 +816,16 @@ END
       listeners_for(:after_load_target).each(&:after_load_target)
       Origen.app.plugins.validate_production_status
       # @target_instantiated = true
+    end
+
+    def load_definitions(options = {})
+      resources = [:pins, :timesets, :limits]
+      resources.each do |resource|
+        f = "#{root}/app/#{resource}/application.rb"
+        load f if File.exist?(f)
+        f = "#{root}/app/#{resource}/#{Origen.target.name}.rb"
+        load f if File.exist?(f)
+      end
     end
 
     # Returns true if the on_create callback has already been called during a target load
@@ -956,8 +967,7 @@ END
     #     config.i18n.backend = MyBackend
     #   end
     def add_lib_to_load_path! #:nodoc:
-      [root.join('lib'), root.join('vendor', 'lib'), root.join('app', 'lib'),
-       root.join('app', 'models'), root.join('app', 'controllers')].each do |path|
+      [root.join('lib'), root.join('vendor', 'lib'), root.join('app', 'lib')].each do |path|
         $LOAD_PATH.unshift(path.to_s) if File.exist?(path) && !$LOAD_PATH.include?(path.to_s)
       end
     end

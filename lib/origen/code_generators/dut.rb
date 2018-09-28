@@ -26,14 +26,19 @@ END
       def create_model_file
         # @summary = ask 'Describe your plugin in a few words:'
         # template 'templates/code_generators/gemspec.rb', File.join(Origen.root, "#{Origen.app.name}.gemspec")
-        template 'templates/code_generators/dut.rb', File.join(Origen.root, 'app', 'models', *@namespaces, "#{@name}.rb")
-        template 'templates/code_generators/controller.rb', File.join(Origen.root, 'app', 'controllers', *@namespaces, "#{@name}_controller.rb")
-        add_autoload @name, namespaces: @namespaces
+        @top_level = true
+        @dut_generator = true
+        template 'templates/code_generators/model.rb', File.join(Origen.root, 'app', 'models', "#{@name}.rb")
+        template 'templates/code_generators/controller.rb', File.join(Origen.root, 'app', 'controllers', "#{@name}_controller.rb")
+        template 'templates/code_generators/pins.rb', File.join(Origen.root, 'app', 'pins', "#{@name}.rb")
+        template 'templates/code_generators/timesets.rb', File.join(Origen.root, 'app', 'timesets', "#{@name}.rb")
+        template 'templates/code_generators/limits.rb', File.join(Origen.root, 'app', 'limits', "#{@name}.rb")
+        # add_autoload @name, namespaces: @namespaces
       end
 
       def create_target
         contents = ''
-        contents << ([Origen.app.name] + @namespaces).map { |n| n.to_s.camelcase }.join('::')
+        contents << @namespaces.map { |n| n.to_s.camelcase }.join('::')
         contents << "::#{@name.to_s.camelcase}.new\n"
 
         create_file "#{Origen.root}/target/#{@name}.rb", contents

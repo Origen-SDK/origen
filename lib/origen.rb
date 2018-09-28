@@ -12,6 +12,7 @@ unless defined? RGen::ORIGENTRANSITION
   # by the site_config lookup.
   $_origen_invocation_pwd ||= Pathname.pwd
   require 'fileutils'
+  require 'origen/dependencies'
   require 'origen/site_config'
   require 'origen/operating_systems'
   require 'origen/core_ext'
@@ -290,6 +291,7 @@ unless defined? RGen::ORIGENTRANSITION
 
       # Returns true if Origen is running in an application workspace
       def in_app_workspace?
+        return @in_app_workspace if defined? @in_app_workspace
         @in_app_workspace ||= begin
           path = Pathname.new(Dir.pwd)
           until path.root? || File.exist?(File.join(path, APP_CONFIG))
