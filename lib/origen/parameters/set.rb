@@ -21,7 +21,7 @@ module Origen
         @defining = true
         yield self, parent
         @defining = false
-        finalize
+        finalize unless Origen::Parameters.transaction_open
       end
 
       # Returns the current parameter context
@@ -114,6 +114,7 @@ module Origen
       end
 
       def defining?
+        return true if Origen::Parameters.transaction_open
         if top_level?
           @defining
         else

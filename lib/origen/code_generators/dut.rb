@@ -32,7 +32,7 @@ END
         template 'templates/code_generators/controller.rb', File.join(Origen.root, 'app', 'controllers', "#{@name}_controller.rb")
         template 'templates/code_generators/pins.rb', File.join(Origen.root, 'app', 'pins', "#{@name}.rb")
         template 'templates/code_generators/timesets.rb', File.join(Origen.root, 'app', 'timesets', "#{@name}.rb")
-        template 'templates/code_generators/limits.rb', File.join(Origen.root, 'app', 'limits', "#{@name}.rb")
+        template 'templates/code_generators/parameters.rb', File.join(Origen.root, 'app', 'parameters', "#{@name}.rb")
         # add_autoload @name, namespaces: @namespaces
       end
 

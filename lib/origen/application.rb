@@ -819,12 +819,15 @@ END
     end
 
     def load_definitions(options = {})
-      resources = [:pins, :timesets, :limits]
+      # Keep parameters first so that they may be referenced in the other resource files
+      resources = [:parameters, :pins, :timesets]
       resources.each do |resource|
+        Origen::Parameters.start_transaction if resource == :parameters
         f = "#{root}/app/#{resource}/application.rb"
         load f if File.exist?(f)
         f = "#{root}/app/#{resource}/#{Origen.target.name}.rb"
         load f if File.exist?(f)
+        Origen::Parameters.stop_transaction if resource == :parameters
       end
     end
 
