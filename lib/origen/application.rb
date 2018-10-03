@@ -766,6 +766,7 @@ END
         force_debug: false
       }.merge(options)
       @on_create_called = false
+      @target_loading = true
       if options[:reload]
         @target_load_count = 0
       else
@@ -795,7 +796,11 @@ END
         end
         @target_instantiated = true
         Origen.mode = :debug if options[:force_debug]
-        load_definitions(options) if dut
+        if dut
+          load_definitions(:application, options)
+          load_definitions(Origen.target.name, options)
+          # dut.send(:_load_definitions)
+        end
         listeners_for(:on_create).each do |obj|
           unless obj.is_a?(Origen::SubBlocks::Placeholder)
             if obj.try(:is_a_model_and_controller?)
@@ -815,17 +820,42 @@ END
       end
       listeners_for(:after_load_target).each(&:after_load_target)
       Origen.app.plugins.validate_production_status
-      # @target_instantiated = true
+      @target_loading = false
     end
 
-    def load_definitions(options = {})
-      # Keep parameters first so that they may be referenced in the other resource files
-      resources = [:parameters, :pins, :timesets]
+    # Load the definitions for the given name, where the definitions are the files that live in:
+    #
+    # * app/parameters
+    # * app/pins
+    # * app/timesets
+    #
+    # By default, Origen will load any definitions named application.rb and then any named after the
+    # current target during the target load process.
+    # Applications can use this API to load any additional files that don't correspond to a particular
+    # target.
+    #
+    #     # Load all definitions named 'ip1'
+    #     Origen.app.load_definitions :ip1
+    #
+    #     # Load only the pin and timeset definitions named 'ip1'
+    #     Origen.app.load_definitions :ip1, only: [:parameters, :pins]
+    #
+    #     # Load all definitions named 'ip1' except for the timesets
+    #     Origen.app.load_definitions :ip1, except: [:timesets]
+    def load_definitions(name, options = {})
+      name, options = nil, name if name.is_a?(Hash)
+      if options[:only]
+        resources = Array(options[:only])
+      else
+        # Keep parameters first so that they may be referenced in the other resource files
+        resources = [:parameters, :pins, :timesets]
+      end
+      if options[:except]
+        resources = resources - Array(options[:except])
+      end
       resources.each do |resource|
         Origen::Parameters.start_transaction if resource == :parameters
-        f = "#{root}/app/#{resource}/application.rb"
-        load f if File.exist?(f)
-        f = "#{root}/app/#{resource}/#{Origen.target.name}.rb"
+        f = "#{root}/app/#{resource}/#{name}.rb"
         load f if File.exist?(f)
         Origen::Parameters.stop_transaction if resource == :parameters
       end
@@ -912,6 +942,10 @@ END
 
     def target_instantiated?
       @target_instantiated
+    end
+
+    def target_loading?
+      @target_loading || false
     end
 
     # Prepends the application name to the fail message and throws a RuntimeError exception.

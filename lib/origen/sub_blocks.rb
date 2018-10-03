@@ -403,17 +403,17 @@ module Origen
         @klass ||= begin
           class_name = attributes.delete(:class_name)
           if class_name
-            if eval("defined? ::#{owner.namespace}::#{class_name}")
+            begin
               klass = eval("::#{owner.namespace}::#{class_name}")
-            else
-              if eval("defined? #{class_name}")
+            rescue NameError
+              begin
                 klass = eval(class_name)
-              else
-                if eval("defined? #{owner.class}::#{class_name}")
+              rescue NameError
+                begin
                   klass = eval("#{owner.class}::#{class_name}")
-                else
+                rescue NameError
                   puts "Could not find class: #{class_name}"
-                  fail 'Unknown sub block class!'
+                  raise 'Unknown sub block class!'
                 end
               end
             end

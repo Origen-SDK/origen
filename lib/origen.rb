@@ -25,7 +25,7 @@ unless defined? RGen::ORIGENTRANSITION
   require 'origen/remote_manager'
   require 'origen/utility'
   require 'origen/logger_methods'
-  require 'option_parser/optparse'
+  require 'origen/core_ext/option_parser/optparse'
   require 'bundler'
   require 'origen/undefined'
   require 'origen/componentable'

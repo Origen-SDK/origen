@@ -36,38 +36,43 @@ module Origen
           name = "#{self}::#{name}" unless self == Object
           return nil if @_checking_name == name
           names = name.split('::')
-          namespace = names.first
+          namespace = names.shift
           if app = _get_app_from_namespace(namespace)
-            path = File.join(*names.map(&:underscore)) + '.rb'
-            if File.exist?(f = File.join(app.root, 'app', 'models', path))
-              model = _require_file(f, name)
-              # Try and reference the controller to load it too, though don't raise an error if it
-              # doesn't exist
-              @pre_loading_controller = true
-              eval "#{name}Controller"
-              return model
-            elsif File.exist?(f = File.join(app.root, 'app', 'controllers', path))
-              return _require_file(f, name)
-            elsif File.exist?(f = File.join(app.root, 'app', 'lib', path))
-              return _require_file(f, name)
+            altname = nil
+            until names.empty?
+              path = File.join(*names.map(&:underscore)) + '.rb'
+
+              if File.exist?(f = File.join(app.root, 'app', 'duts', 'models', path)) ||
+                 File.exist?(f = File.join(app.root, 'app', 'sub_blocks', 'models', path))
+                model = _require_file(f, name, altname)
+                # Try and reference the controller to load it too, though don't raise an error if it
+                # doesn't exist
+                @pre_loading_controller = true
+                eval "#{altname || name}Controller"
+                return model
+
+              elsif File.exist?(f = File.join(app.root, 'app', 'duts', 'controllers', path)) ||
+                    File.exist?(f = File.join(app.root, 'app', 'sub_blocks', 'controllers', path))
+                return _require_file(f, name, altname)
+
+              elsif File.exist?(f = File.join(app.root, 'app', 'lib', namespace.underscore, path))
+                return _require_file(f, name, altname)
+              end
+
+              # Don't waste time looking up the namespace hierarchy for the controller, if it exists it
+              # should be within the exact same namespace as the model
+              return nil if @pre_loading_controller
+
+              # Remove the highest level namespace and then search again in the parent namespace
+              if discarded_namespace = names.delete_at(-2)
+                altname ||= name
+                altname = altname.sub("#{discarded_namespace}::", '')
+              else
+                names.pop
+              end
             end
 
-            # Try again without the top-level namespace dir
-            names.shift
-            path = File.join(*names.map(&:underscore)) + '.rb'
-            if File.exist?(f = File.join(app.root, 'app', 'models', path))
-              model = _require_file(f, name)
-              # Try and reference the controller to load it too, though don't raise an error if it
-              # doesn't exist
-              @pre_loading_controller = true
-              eval "#{name}Controller"
-              return model
-            elsif File.exist?(f = File.join(app.root, 'app', 'controllers', path))
-              return _require_file(f, name)
-            elsif File.exist?(f = File.join(app.root, 'app', 'lib', path))
-              return _require_file(f, name)
-            end
-            _raise_uninitialized_constant_error(name) unless @pre_loading_controller
+            _raise_uninitialized_constant_error(name)
           else
             _raise_uninitialized_constant_error(name)
           end
@@ -79,11 +84,11 @@ module Origen
       end
 
       # @api_private
-      def _require_file(file, name)
+      def _require_file(file, name, altname = nil)
         require file
         return if @pre_loading_controller
-        @_checking_name = name
-        const = eval(name)
+        @_checking_name = altname || name
+        const = eval(altname || name)
         @_checking_name = nil
         return const if const
         msg ||= "uninitialized constant #{name} (expected it to be defined in: #{file})"

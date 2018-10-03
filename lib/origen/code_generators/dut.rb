@@ -28,8 +28,8 @@ END
         # template 'templates/code_generators/gemspec.rb', File.join(Origen.root, "#{Origen.app.name}.gemspec")
         @top_level = true
         @dut_generator = true
-        template 'templates/code_generators/model.rb', File.join(Origen.root, 'app', 'models', "#{@name}.rb")
-        template 'templates/code_generators/controller.rb', File.join(Origen.root, 'app', 'controllers', "#{@name}_controller.rb")
+        template 'templates/code_generators/model.rb', File.join(Origen.root, 'app', 'duts', 'models', "#{@name}.rb")
+        template 'templates/code_generators/controller.rb', File.join(Origen.root, 'app', 'duts', 'controllers', "#{@name}_controller.rb")
         template 'templates/code_generators/pins.rb', File.join(Origen.root, 'app', 'pins', "#{@name}.rb")
         template 'templates/code_generators/timesets.rb', File.join(Origen.root, 'app', 'timesets', "#{@name}.rb")
         template 'templates/code_generators/parameters.rb', File.join(Origen.root, 'app', 'parameters', "#{@name}.rb")

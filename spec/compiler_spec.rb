@@ -51,12 +51,12 @@ describe "Inline compiler" do
   end
 
   it "can preserve the target properly" do
-    $nvm.attribute_x.should == nil
-    $nvm.attribute_x = "X"
+    dut.nvm.attribute_x.should == nil
+    dut.nvm.attribute_x = "X"
     Origen.compile(FILE).should == "25\nHello"
-    $nvm.attribute_x.should == nil
-    $nvm.attribute_x = "X"
+    dut.nvm.attribute_x.should == nil
+    dut.nvm.attribute_x = "X"
     Origen.compile(FILE, preserve_target: true).should == "25\nHello"
-    $nvm.attribute_x.should == "X"
+    dut.nvm.attribute_x.should == "X"
   end
 end

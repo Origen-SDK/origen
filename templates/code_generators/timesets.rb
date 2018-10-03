@@ -4,7 +4,7 @@
 # ******************************************************************************
 
 <% end -%>
-# For more examples see: https://origen-sdk.org/origen/guides/pattern/timing/#Complex_Timing 
+# For more examples see: https://origen-sdk.org/origen/guides/pattern/timing/#Complex_Timing
 
 # By default, all pins will drive for the whole period on drive cycles and strobe at 50%
 # of the period on compare cycles, this can be overridden for all or specific pins as shown
@@ -16,7 +16,7 @@
 #   t.compare_wave do |w|
 #     w.compare :data, at: "period / 4"
 #   end
-# 
+#
 #   t.drive_wave :tck do |w|
 #      w.drive :data, at: 0
 #      w.drive 0, at: 25

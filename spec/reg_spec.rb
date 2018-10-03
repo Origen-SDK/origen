@@ -596,8 +596,8 @@ module RegTest
 
     specify "copy works via the reg API" do
       load_target
-      reg1 = $nvm.reg(:mclkdiv)
-      reg2 = $nvm.reg(:data)
+      reg1 = dut.nvm.reg(:mclkdiv)
+      reg2 = dut.nvm.reg(:data)
       reg1.overlay("hello")
       reg1.write(0x1234)
       reg2.copy(reg1)
@@ -607,9 +607,9 @@ module RegTest
 
     specify "copy works with bit collections" do
       load_target
-      reg1 = $nvm.reg(:mclkdiv)
+      reg1 = dut.nvm.reg(:mclkdiv)
       reg1 = reg1.bits
-      reg2 = $nvm.reg(:data)
+      reg2 = dut.nvm.reg(:data)
       reg1.overlay("hello")
       reg1.write(0x1234)
       reg2.copy(reg1)
@@ -711,7 +711,7 @@ module RegTest
 
     specify "reg(:blah) can be used to test for the presence of a register" do
       load_target
-      $nvm.reg(:blah).should_not be
+      dut.nvm.reg(:blah).should_not be
     end
 
     specify "reg(:blah) can be used to test for the presence of a register - not when strict" do
@@ -719,14 +719,14 @@ module RegTest
       load_target
       puts "******************** Missing register error expected here ********************"
       lambda do
-        $nvm.reg(:blah).should_not be
+        dut.nvm.reg(:blah).should_not be
       end.should raise_error
     end
 
     it "registers can be overridden in sub classes" do
       Origen.config.strict_errors = false
       Origen.app.unload_target!
-      nvm = C99::NVMSub.new
+      nvm = OrigenCoreSupport::NVMSub.new
       nvm.reg(:data).address.should == 0x4
       nvm.redefine_data_reg
       nvm.reg(:data).address.should == 0x40
@@ -735,7 +735,7 @@ module RegTest
     it "registers can be overridden in sub classes - not when strict" do
       Origen.config.strict_errors = true
       Origen.app.unload_target!
-      nvm = C99::NVMSub.new
+      nvm = OrigenCoreSupport::NVMSub.new
       nvm.reg(:data).address.should == 0x4
       puts "******************** Redefine register error expected here ********************"
       lambda do
@@ -745,38 +745,38 @@ module RegTest
 
     specify "clone and dup mean clone the register, not the placeholder" do
       load_target
-      $nvm.reg(:mclkdiv).class.should == Origen::Registers::Placeholder
-      $nvm.reg(:data).class.should == Origen::Registers::Placeholder
-      $nvm.reg(:mclkdiv).clone.class.should == Origen::Registers::Reg
-      $nvm.reg(:data).dup.class.should == Origen::Registers::Reg
+      dut.nvm.reg(:mclkdiv).class.should == Origen::Registers::Placeholder
+      dut.nvm.reg(:data).class.should == Origen::Registers::Placeholder
+      dut.nvm.reg(:mclkdiv).clone.class.should == Origen::Registers::Reg
+      dut.nvm.reg(:data).dup.class.should == Origen::Registers::Reg
     end
 
     it "register owned_by method works" do
-      $nvm.reg(:mclkdiv).owned_by?(:ram).should == false
-      $nvm.reg(:mclkdiv).owned_by?(:nvm).should == true
-      $nvm.reg(:mclkdiv).owned_by?(:flash).should == true
-      $nvm.reg(:mclkdiv).owned_by?(:fmu).should == true
+      dut.nvm.reg(:mclkdiv).owned_by?(:ram).should == false
+      dut.nvm.reg(:mclkdiv).owned_by?(:nvm).should == true
+      dut.nvm.reg(:mclkdiv).owned_by?(:flash).should == true
+      dut.nvm.reg(:mclkdiv).owned_by?(:fmu).should == true
     end
 
     it "registers automatically pick up a base address from the object doing the read/write" do
-      $nvm.reg(:mclkdiv).address.should == 0x4000_0003
+      dut.nvm.reg(:mclkdiv).address.should == 0x4000_0003
     end
 
     it "registers pick up a base address from the object doing the write" do
-      $nvm.reg(:mclkdiv).address(relative: true).should == 0x3
-      $nvm.reg(:mclkdiv).write!
-      $nvm.reg(:mclkdiv).address.should == 0x4000_0003
+      dut.nvm.reg(:mclkdiv).address(relative: true).should == 0x3
+      dut.nvm.reg(:mclkdiv).write!
+      dut.nvm.reg(:mclkdiv).address.should == 0x4000_0003
     end
 
     it "registers pick up a base address from the object doing the read" do
-      $nvm.reg(:mclkdiv).address(relative: true).should == 0x3
-      $nvm.reg(:mclkdiv).read!
-      $nvm.reg(:mclkdiv).address.should == 0x4000_0003
+      dut.nvm.reg(:mclkdiv).address(relative: true).should == 0x3
+      dut.nvm.reg(:mclkdiv).read!
+      dut.nvm.reg(:mclkdiv).address.should == 0x4000_0003
     end
 
     it "registers can be declared in block format with descriptions" do
       Origen.app.unload_target!
-      nvm = C99::NVMSub.new
+      nvm = OrigenCoreSupport::NVMSub.new
       nvm.add_reg_with_block_format
       nvm.reg(:dreg).data.should == 0x8055
       nvm.reg(:dreg2).data.should == 0x8055
@@ -797,7 +797,7 @@ module RegTest
 
     it "register descriptions can be supplied via the API" do     
       Origen.app.unload_target!
-      nvm = C99::NVMSub.new
+      nvm = OrigenCoreSupport::NVMSub.new
       nvm.add_reg_with_block_format
       nvm.reg(:dreg3).description(include_name: false).size.should == 1
       nvm.reg(:dreg3).description(include_name: false).first.should == "This is dreg3"
@@ -810,7 +810,7 @@ module RegTest
 
     it "bit value descriptions work" do
       Origen.app.unload_target!
-      nvm = C99::NVMSub.new
+      nvm = OrigenCoreSupport::NVMSub.new
       nvm.add_reg_with_block_format
       nvm.reg(:dreg).bits(:bit15).bit_value_descriptions.size.should == 0
       nvm.reg(:dreg).bits(:bit14).bit_value_descriptions.size.should == 2
@@ -833,7 +833,7 @@ module RegTest
 
     it "bit names from a description work" do
       Origen.app.unload_target!
-      nvm = C99::NVMSub.new
+      nvm = OrigenCoreSupport::NVMSub.new
       nvm.add_reg_with_block_format
       nvm.reg(:dreg).bits(:bit14).full_name.should == "Bit 14"
       nvm.reg(:dreg3).bits(:bit14).full_name.should == "Bit 14"
@@ -841,7 +841,7 @@ module RegTest
 
     it "register names from a description work" do
       Origen.app.unload_target!
-      nvm = C99::NVMSub.new
+      nvm = OrigenCoreSupport::NVMSub.new
       nvm.add_reg_with_block_format
       nvm.reg(:dreg).full_name.should == "Data Register 3"
       nvm.reg(:dreg3).full_name.should == "Data Register 3"

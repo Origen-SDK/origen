@@ -55,6 +55,20 @@ module Origen
         # Do this before wrapping, otherwise the respond to method in the controller will
         # be looking for the model to be instantiated when it is not fully done yet
         is_top_level = x.respond_to?(:includes_origen_top_level?)
+
+        # If this is a top-level model then don't call these now if we are in a target load, the target loader
+        # will call them later once the parameters have been loaded (to allow the reg/sub-block definitions to
+        # reference them)
+        #        if is_top_level
+        #          if Origen.application_loaded? && Origen.app.target_loading?
+        #            x.send(:_defer_load_definitions, *args)
+        #          else
+        #            x.send(:_load_definitions, *args)
+        #          end
+        #        else
+        #          x.send(:_load_definitions, *args)
+        #        end
+
         if x.respond_to?(:wrap_in_controller)
           x = x.wrap_in_controller
         end

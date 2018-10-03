@@ -65,5 +65,11 @@ module ModelSpec
       m.mode = :mode1
       m.mode_changed_count.should == 1
     end
+
+#    it 'the app method returns the app instance who own the model' do
+#      m = MyModel.new
+#      m.app.name.should == :origen_core
+#
+#    end
   end
 end

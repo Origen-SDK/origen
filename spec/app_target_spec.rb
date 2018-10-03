@@ -29,8 +29,7 @@ describe "Application Target" do
   it "can be loaded" do
     Origen.target.temporary = "production"
     Origen.target.load!
-    $top.should be
-    $nvm.should be
+    dut.should be
   end
 
   it "reloading a target should not cause a duplicate pins error" do
@@ -168,12 +167,12 @@ describe "Application Target" do
   end
 
   it "configurable targets work" do
-    Origen.load_target("configurable", tester: OrigenTesters::J750, dut: C99::SOC)
-    $tester.j750?.should == true
-    $top.is_a?(C99::SOC).should == true
-    Origen.load_target("configurable", tester: OrigenTesters::V93K, dut: C99::NVM)
-    $tester.v93k?.should == true
-    $top.is_a?(C99::NVM).should == true
+    Origen.load_target("configurable", tester: OrigenTesters::J750, dut: OrigenCoreSupport::SOC)
+    tester.j750?.should == true
+    dut.is_a?(OrigenCoreSupport::SOC).should == true
+    Origen.load_target("configurable", tester: OrigenTesters::V93K, dut: OrigenCoreSupport::MySOC)
+    tester.v93k?.should == true
+    dut.is_a?(OrigenCoreSupport::MySOC).should == true
   end
 
   it "caches are cleared between reloads of configurable targets with different options" do

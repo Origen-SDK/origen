@@ -1,10 +1,11 @@
 GIT
   remote: https://github.com/Origen-SDK/origen_core_support.git
-  revision: 2f4140a6d0e3e7b4f57f882b3e313af2ad01ba08
+  revision: 2786ca81fffeae42af911218222727a437939f67
   branch: app_dir
   specs:
     origen_core_support (0.2.3)
       origen (>= 0.2.6)
+      origen_testers
 
 GIT
   remote: https://github.com/Origen-SDK/origen_sim.git

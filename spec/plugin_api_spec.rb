@@ -53,11 +53,11 @@ describe "The plugins API" do
   end
 
   it "methods can be overridden by the application" do
-    $nvm.override_method.should == :overridden
+    dut.nvm.override_method.should == :overridden
   end
 
   it "methods can be added by the application" do
-    $nvm.added_method.should == :added
+    dut.nvm.added_method.should == :added
   end
 
   it "Origen.root references within a plugin mean the top-level app root" do
@@ -66,7 +66,7 @@ describe "The plugins API" do
 
   it "Origen.root! references within a plugin mean the plugin root" do
     Origen.root.should_not == $dut.origen_dot_root!
-    File.exist?("#{$dut.origen_dot_root!}/app/models/c99/block.rb").should == true
+    File.exist?("#{$dut.origen_dot_root!}/app/lib/origen_core_support/block.rb").should == true
   end
 
   it "Origen.root! references within a top level app are equivalent to Origen.root" do
@@ -79,7 +79,7 @@ describe "The plugins API" do
 
   it "Origen.app! references within a plugin mean the plugin app" do
     Origen.app.should_not == $dut.origen_dot_root!
-    File.exist?("#{$dut.origen_dot_app!.root}/app/models/c99/block.rb").should == true
+    File.exist?("#{$dut.origen_dot_app!.root}/app/lib/origen_core_support/block.rb").should == true
   end
 
   it "Origen.app! references within a top level app are equivalent to Origen.app" do

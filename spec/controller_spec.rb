@@ -73,7 +73,7 @@ module Origen
 
   class PathControl
     include Origen::Controller
-    model path: "$nvm"
+    model path: "dut.nvm"
   end
 
   module Tmp

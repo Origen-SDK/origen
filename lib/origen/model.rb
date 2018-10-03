@@ -63,7 +63,7 @@ module Origen
 
     # Returns true if the model is the current DUT/top-level model
     def is_top_level?
-      Origen.top_level == self
+      respond_to?(:includes_origen_top_level?)
     end
     alias_method :is_dut?, :is_top_level?
     alias_method :top_level?, :is_top_level?
@@ -391,6 +391,16 @@ module Origen
     end
 
     private
+
+    def _load_definitions(options = {})
+      options = @_defer_load_definitions_options if @_defer_load_definitions_options
+      define_registers(options) if respond_to?(:define_registers)
+      define_sub_blocks(options) if respond_to?(:define_sub_blocks)
+    end
+
+    def _defer_load_definitions(options = {})
+      @_defer_load_definitions_options = options
+    end
 
     def _initialized
       @_initialized = true

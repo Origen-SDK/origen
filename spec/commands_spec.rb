@@ -21,7 +21,7 @@ describe "Origen commands" do
       output = `origen t production`
       output = `origen t`
       output.should_not include "No target has been specified"
-      output.should include "$nvm"
+      output.should include "OrigenCoreSupport::SOC.new"
     ensure
       Origen.target.default = "debug"
     end

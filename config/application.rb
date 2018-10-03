@@ -78,13 +78,13 @@ class OrigenCoreApplication < Origen::Application
     iterator.key = :by_block
 
     iterator.loop do |&pattern|
-      $nvm.blocks.each do |block|
+      dut.nvm.blocks.each do |block|
         pattern.call(block)
       end
     end
 
     iterator.setup do |block|
-      blk = $nvm.find_block_by_id(block.id)
+      blk = dut.nvm.find_block_by_id(block.id)
       blk.select
       blk
     end

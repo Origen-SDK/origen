@@ -1,8 +1,4 @@
-$top = C99::SOC.new
-$nvm = C99::NVM.new
-$tester = OrigenTesters::J750.new
-
-$dut = $top
-$soc = $top
+OrigenCoreSupport::SOC.new
+OrigenTesters::J750.new
 
 Origen.mode = :debug
