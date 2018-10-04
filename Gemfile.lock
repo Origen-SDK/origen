@@ -7,18 +7,18 @@ GIT
 
 GIT
   remote: https://github.com/Origen-SDK/origen_sim.git
-  revision: d724ef2b58ab211b6787f1e883fabf66603dd728
+  revision: 761d2b4b09ad5719398bdc193974eca79dec969b
   specs:
-    origen_sim (0.12.1)
+    origen_sim (0.13.0)
       origen (>= 0.35.0)
       origen_testers
       origen_verilog (>= 0.5)
 
 GIT
   remote: https://github.com/Origen-SDK/origen_testers.git
-  revision: f74d4c6f0be7273faf6b31731434472f09d79575
+  revision: d6a27e69f697d8116cce6ffa7c907ceabeb7406e
   specs:
-    origen_testers (0.19.0)
+    origen_testers (0.19.2)
       atp (~> 1.1, >= 1.1.2)
       origen (>= 0.26.0)
       require_all (~> 1)
