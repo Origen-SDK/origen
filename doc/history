@@ -1,3 +1,27 @@
+<a class="anchor release_tag" name="v0_36_0"></a>
+<h1><a href="#v0_36_0">Tag: v0.36.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 08-Oct-2018 11:11AM
+
+
+* Added bootsnap gem to speed up application boot time, this can be disabled via the
+  site config variable `use\_bootsnap` if required
+* Bug fix in model exporter which crashed when it encountered a register whose reset
+  value was set to a symbol like :undefined or :memory (Paul Derouen)
+
+<a class="anchor release_tag" name="v0_35_1"></a>
+<h1><a href="#v0_35_1">Tag: v0.35.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 21-Sep-2018 15:31PM
+
+
+Fixes bug introduced in 0.34.3 whereby jobs would not submit to the LSF when a value of
+'1' was assigned to the lsf\_cores site config parameter.
+
 <a class="anchor release_tag" name="v0_35_0"></a>
 <h1><a href="#v0_35_0">Tag: v0.35.0</a></h1>
 

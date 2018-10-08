@@ -171,6 +171,10 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
     end
   end
   require 'bundler/setup'
+  if Origen.site_config.use_bootsnap && !Origen.os.windows?
+    ENV["BOOTSNAP_CACHE_DIR"] ||= "#{origen_root}/tmp/cache"
+    require 'bootsnap/setup'
+  end
   require 'origen'
 else
   $LOAD_PATH.unshift "#{File.expand_path(File.dirname(__FILE__))}/../lib"
