@@ -12,7 +12,7 @@ unless defined? RGen::ORIGENTRANSITION
   # by the site_config lookup.
   $_origen_invocation_pwd ||= Pathname.pwd
   require 'fileutils'
-  require 'origen/dependencies'
+  require 'origen/loader'
   require 'origen/site_config'
   require 'origen/operating_systems'
   require 'origen/core_ext'

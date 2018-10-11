@@ -390,17 +390,13 @@ module Origen
                            }, *args)
     end
 
-    private
-
+    # @api private
     def _load_definitions(options = {})
-      options = @_defer_load_definitions_options if @_defer_load_definitions_options
       define_registers(options) if respond_to?(:define_registers)
       define_sub_blocks(options) if respond_to?(:define_sub_blocks)
     end
 
-    def _defer_load_definitions(options = {})
-      @_defer_load_definitions_options = options
-    end
+    private
 
     def _initialized
       @_initialized = true

@@ -62,6 +62,28 @@ module Origen
         super || instance.respond_to?(*args)
       end
 
+      # Returns the application instance (i.e. main app or the plugin) that owns the given class/module
+      # (literal, string or symbol representation is accepted) or object instance.
+      # Returns nil if no matching Origen application can be found.
+      #
+      #     Origen::Application.from_namespace(MyApp)                       # => <my_app instance>
+      #     Origen::Application.from_namespace(MyApp::MyClass)              # => <my_app instance>
+      #     Origen::Application.from_namespace('MyApp::MyClass')            # => <my_app instance>
+      #     Origen::Application.from_namespace(<my_app::my_class instance>) # => <my_app instance>
+      def from_namespace(item)
+        if item.is_a?(Module) || item.is_a?(Class) || item.is_a?(Symbol)
+          item = item.to_s
+        elsif !item.is_a?(String) # Assume to be an object instance in this case
+          item = item.class.to_s
+        end
+        namespace = item.split('::').first
+        return Origen.app if Origen.app.namespace == namespace
+        Origen.app.plugins.each do |plugin|
+          return plugin if plugin.namespace == namespace
+        end
+        nil
+      end
+
       protected
 
       def method_missing(*args, &block)
@@ -781,25 +803,29 @@ END
       clear_dynamic_resources
       load_event(:transient) do
         Origen.mode = Origen.app.session.origen_core[:mode] || :production  # Important since a production target may rely on the default
-        begin
-          $_target_options = @target_load_options
-          Origen.target.set_signature(@target_load_options)
-          $dut = nil
-          load environment.file if environment.file
-          if target.proc
-            target.proc.call
-          else
-            load target.file!
+        # This defers calling the DUTs define_register and define_sub_blocks methods
+        # until the end of the block, allowing the target definitions, such as the parameters
+        # to be loaded first
+        Loader.defer_load_definitions do
+          begin
+            $_target_options = @target_load_options
+            Origen.target.set_signature(@target_load_options)
+            $dut = nil
+            load environment.file if environment.file
+            if target.proc
+              target.proc.call
+            else
+              load target.file!
+            end
+          ensure
+            $_target_options = nil
           end
-        ensure
-          $_target_options = nil
-        end
-        @target_instantiated = true
-        Origen.mode = :debug if options[:force_debug]
-        if dut
-          load_definitions(:application, options)
-          load_definitions(Origen.target.name, options)
-          # dut.send(:_load_definitions)
+          @target_instantiated = true
+          Origen.mode = :debug if options[:force_debug]
+          if dut
+            load_definitions(:application, options)
+            load_definitions(Origen.target.name, options)
+          end
         end
         listeners_for(:on_create).each do |obj|
           unless obj.is_a?(Origen::SubBlocks::Placeholder)

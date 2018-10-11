@@ -371,6 +371,9 @@ module Origen
           block.extend owner.send(:export_module_names_from_path, file).join('::').constantize
         end
         block.owner = owner
+        # Load definitions
+
+        # Load regs and sub_blocks
         block
       end
 

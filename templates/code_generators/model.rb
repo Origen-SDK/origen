@@ -11,15 +11,15 @@
 <% end -%>
 <%= indent %>
 <%= indent %>  def initialize(options = {})
-<%= indent %>    define_registers(options)
-<%= indent %>    define_sub_blocks(options)
 <%= indent %>  end
 <%= indent %>
-<%= indent %>  # Define this model's registers within this method
+<%= indent %>  # Define this model's registers within this method, this will be called
+<%= indent %>  # automatically whenever this model is instantiated
 <%= indent %>  def define_registers(options = {})
 <%= indent %>  end
 <%= indent %>
-<%= indent %>  # Define this model's sub_blocks within this method
+<%= indent %>  # Define this model's sub_blocks within this method, this will be called
+<%= indent %>  # automatically whenever this model is instantiated
 <%= indent %>  def define_sub_blocks(options = {})
 <%= indent %>  end
 <%= indent %>end

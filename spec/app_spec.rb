@@ -86,5 +86,11 @@ describe Origen::Application do
       expect(Origen.debugger_enabled?).to be false
     end
 
+    it "The app instance that owns a given class/module/object can be found" do
+      Origen::Application.from_namespace(Origen::Registers::Reg).name.should == :origen_core
+      Origen::Application.from_namespace('OrigenCoreSupport').name.should == :origen_core_support
+      Origen::Application.from_namespace('OrigenCoreSupport::NVM').name.should == :origen_core_support
+      Origen::Application.from_namespace(OrigenCoreSupport::NVM.new).name.should == :origen_core_support
+    end
   end
 end

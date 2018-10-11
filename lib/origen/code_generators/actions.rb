@@ -2,6 +2,7 @@ require 'open-uri'
 
 module Origen
   module CodeGenerators
+    # Common helpers available to all Origen code generators
     module Actions
       def initialize(*args) # :nodoc:
         if args.last.is_a?(Hash)
@@ -153,7 +154,7 @@ module Origen
         data = yield if !data && block_given?
 
         in_root do
-          if options[:env].nil?
+          if options[:env].nil?.map(&:camelcase).join('::')
             inject_into_file 'config/application.rb', "\n    #{data}", after: sentinel, verbose: false
           else
             Array(options[:env]).each do |env|
@@ -229,6 +230,36 @@ module Origen
       #   readme "README"
       def readme(path)
         log File.read(find_in_source_paths(path))
+      end
+
+      # Returns the depth of the given file, where depth is the number of modules and classes it contains
+      def internal_depth(file)
+        depth = 0
+        File.readlines(file).each do |line|
+          if line =~ /^\s*(end|def)/
+            return depth
+          elsif line =~ /^\s*(module|class)/
+            depth += 1
+          end
+        end
+      end
+
+      # Only executes the given block if the given file does not already define the given method, where the
+      # block would normally go on to insert the method.
+      #
+      # See the ensure_define_sub_blocks method in the sub_blocks.rb generator for a usage example.
+      def unless_has_method(filepath, name)
+        unless File.read(filepath) =~ /^\s*def #{name}(\(|\s|\n)/
+          yield
+        end
+      end
+
+      # Executes the given block unless the given string is lower cased and underscored
+      def unless_lower_cased_underscored(str)
+        str = str.strip
+        if str =~ /[\sA-Z]/
+          yield
+        end
       end
 
       protected

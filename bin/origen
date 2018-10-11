@@ -12,7 +12,7 @@ end
 # by the site_config lookup.
 $_origen_invocation_pwd ||= Pathname.pwd
 
-load File.expand_path('../../lib/origen/dependencies.rb', __FILE__)
+load File.expand_path('../../lib/origen/loader.rb', __FILE__)
 load File.expand_path('../../lib/origen/operating_systems.rb', __FILE__)
 load File.expand_path('../../lib/origen/site_config.rb', __FILE__)
 
