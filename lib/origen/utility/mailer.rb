@@ -15,9 +15,10 @@ module Origen
                     body:           'Hello from Origen!',
                     to:             current_user.email,
                     authentication: (Origen.site_config.email_authentication || :none).to_sym,
+                    domain:         (Origen.site_config.email_domain || ''),
+
                     auth_user:      (Origen.site_config.email_auth_user || current_user.email),
-                    auth_password:  (Origen.site_config.email_auth_password || current_user.password),
-                    domain:         (Origen.site_config.email_domain || '')
+                    auth_password:  (Origen.site_config.email_auth_password || current_user.password)
                   }.merge(options)
 
         # Force to an array

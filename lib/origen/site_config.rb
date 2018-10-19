@@ -329,7 +329,7 @@ module Origen
       if ENV.key?(env)
         value = ENV[env]
       else
-        config = configs.find { |c| c.find_val(val) }
+        config = configs.find { |c| c.has_var?(val) }
         value = config ? config.find_val(val) : nil
       end
 
@@ -348,7 +348,7 @@ module Origen
     private
 
     def configs
-      @configs || configs!
+      @configs ||= configs!
     end
 
     # Searches a directory and returns an array of config objects (from lowest to highest priority) that were found

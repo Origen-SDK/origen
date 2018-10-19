@@ -63,13 +63,41 @@ module Origen
       def fetch
         if centralized?
           puts "Pulling centralized site config from: #{path}"
-          text = HTTParty.get(path, verify: parent.find_val('centralized_site_config_verify_ssl'))
 
-          puts "Caching centralized site config to: #{cached_file}"
-          unless Dir.exist?(cached_file.dirname)
-            FileUtils.mkdir_p(cached_file.dirname)
+          begin
+            text = HTTParty.get(path, verify: parent.find_val('centralized_site_config_verify_ssl'))
+            puts "Caching centralized site config to: #{cached_file}"
+
+            unless Dir.exist?(cached_file.dirname)
+              FileUtils.mkdir_p(cached_file.dirname)
+            end
+            File.open(cached_file, 'w').write(text)
+
+          rescue SocketError => e
+            puts "Origen: Site Config: Unable to connect to #{path}".red
+            puts 'Origen: Site Config: Failed to retrieve centralized site config!'.red
+            puts "Error from exception: #{e.message}".red
+
+            if cached?
+              puts 'Origen: Site Config: Found previously cached site config. Using the older site config.'.red
+            else
+              puts 'Origen: Site Config: No cached file found. An empty site config will be used in its place.'.red
+            end
+            puts
+          rescue OpenSSL::SSL::SSLError => e
+            puts "Origen: Site Config: Unable to connect to #{path}".red
+            puts 'Origen: Site Config: Failed to retrieve centralized site config!'.red
+            puts "Error from exception: #{e.message}".red
+            puts 'It looks like the error is related to SSL certification. If this is a trusted server, you can use ' \
+                 "the site config setting 'centralized_site_config_verify_ssl' to disable verifying the SSL certificate.".red
+
+            if cached?
+              puts 'Origen: Site Config: Found previously cached site config. Using the older site config.'.red
+            else
+              puts 'Origen: Site Config: No cached file found. An empty site config will be used in its place.'.red
+            end
+            puts
           end
-          File.open(cached_file, 'w').write(text)
           text
         end
       end
@@ -80,19 +108,27 @@ module Origen
       # After the initial load, any centralized site configs will be retreived (if needed), cached, and loaded.
       def load
         if centralized?
-          unless cached?
-            fetch
+          if !cached?
+            if fetch
+              erb = ERB.new(File.read(cached_file))
+            else
+              # There was a problem fetching the cnofig. Just use an empty string.
+              # Warning message will come from #fetch
+              erb = ERB.new('')
+            end
+          else
+            erb = ERB.new(File.read(cached_file))
           end
-          erb = ERB.new(File.read(cached_file))
+
           @values = (YAML.load(erb.result) || {})
 
           # check for restricted centralized config values
           RESTRICTED_FROM_CENTRALIZED_VARIABLES.each do |var|
             if @values.key?(var)
               val = @values.delete(var)
-              Origen.log.error 'Origen: Site Config: ' \
+              puts 'Origen: Site Config: ' \
                                "config variable #{var} is not allowed in the centralized site config and will be removed. " \
-                               "Value #{val} will not be applied!"
+                               "Value #{val} will not be applied!".red
             end
           end
 

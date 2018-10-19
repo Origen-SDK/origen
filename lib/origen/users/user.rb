@@ -11,10 +11,6 @@ module Origen
         `whoami`.strip
       end
 
-      def self.username
-        current_user_id
-      end
-
       def self.current
         Origen.current_user
       end
@@ -48,10 +44,11 @@ module Origen
         Origen.mailer.send_email(options)
       end
 
-      def id
+      def id(options = {})
         @id.to_s.downcase
       end
       alias_method :core_id, :id
+      alias_method :username, :id
 
       # Returns true if the user is an admin for the current application
       def admin?
@@ -77,7 +74,7 @@ module Origen
         RevisionControl::Git.user_name
       end
 
-      def email
+      def email(options = {})
         if current?
           @email ||= ENV['ORIGEN_EMAIL'] || email_from_rc || begin
             if Origen.site_config.email_domain
