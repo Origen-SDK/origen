@@ -3,8 +3,8 @@ require 'pathname'
 require 'origen/commands/helpers'
 
 module Origen
-   options = {}
-   
+  options = {}
+
   # App options are options that the application can supply to extend this command
   app_options = @application_options || []
   opt_parser = OptionParser.new do |opts|
@@ -50,4 +50,3 @@ module Origen
     puts "You must supply a command, see 'origen site -h' for a list of commands"
   end
 end
-

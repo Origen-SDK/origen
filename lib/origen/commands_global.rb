@@ -95,7 +95,7 @@ when 'new'
 when '--version', '-v'
   require 'origen/commands/version'
   exit 0
-  
+
 when 'site'
   require 'origen/commands/site'
   exit 0

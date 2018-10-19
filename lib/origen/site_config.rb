@@ -1,6 +1,5 @@
 module Origen
   class SiteConfig
-  
     require 'pathname'
     require 'yaml'
     require 'etc'
@@ -8,7 +7,7 @@ module Origen
     require 'colored'
     require 'httparty'
     require_relative 'site_config/config'
-        
+
     TRUE_VALUES = ['true', 'TRUE', '1', 1]
     FALSE_VALUES = ['false', 'FALSE', '0', 0]
 
@@ -115,8 +114,8 @@ module Origen
     def add_as_highest(var, value)
       # Don't want to override anything, so just shift in a dummy site config instance at the highest level and
       # set the value there.
-      c = Config.new(path: :runtime, parent: self, values: {var.to_s => value})
-      configs.prepend(Config.new(path: :runtime, parent: self, values: {var.to_s => value}))
+      c = Config.new(path: :runtime, parent: self, values: { var.to_s => value })
+      configs.prepend(Config.new(path: :runtime, parent: self, values: { var.to_s => value }))
     end
     alias_method :[]=, :add_as_highest
 
@@ -125,18 +124,18 @@ module Origen
     def add_as_lowest(var, value)
       # Don't want to override anything, so just shift in a dummy site config at the lowest level and
       # set the value there.
-      configs.append(Config.new(path: :runtime, parent: self, values: {var.to_s => value}))
+      configs.append(Config.new(path: :runtime, parent: self, values: { var.to_s => value }))
     end
 
     # Adds a new site config file as the highest priority
     def add_site_config_as_highest(site_config_file)
-      #configs.prepend YAML.load_file(File.expand_path('../../../origen_site_config.yml', __FILE__))
+      # configs.prepend YAML.load_file(File.expand_path('../../../origen_site_config.yml', __FILE__))
       configs.prepend(Config.new(path: site_config_file, parent: self))
     end
 
     # Adds a new site config file as the highest priority
     def add_site_config_as_lowest(site_config_file)
-      #configs.append YAML.load_file(File.expand_path('../../../origen_site_config.yml', __FILE__))
+      # configs.append YAML.load_file(File.expand_path('../../../origen_site_config.yml', __FILE__))
       configs.append(Config.new(path: site_config_file, parent: self))
     end
 
@@ -208,24 +207,24 @@ module Origen
       vars
     end
     alias_method :vars_by_config, :vars_by_configs
-    
+
     def pretty_print_env(*vars)
       puts
-      spacing = " " * 2
+      spacing = ' ' * 2
       r = vars.empty? ? nil : Regexp.union(vars.map { |v| Regexp.new(v) })
       all_vars.each do |var, val|
         if !r.nil? && !(var.match r)
           next
         end
-        
+
         if val.is_a?(Array)
           puts "#{var}: ["
           val.each { |v| puts "#{spacing} #{v}" }
-          puts "]"
+          puts ']'
         elsif val.is_a?(Hash)
           puts "#{var}: {"
           val.each { |v| puts "#{spacing} #{v}" }
-          puts "}"
+          puts '}'
         else
           puts "#{var}: #{val}"
         end
@@ -233,23 +232,21 @@ module Origen
       puts
     end
     alias_method :pp_env, :pretty_print_env
-    
+
     def to_env(val)
       "ORIGEN_#{val.upcase}"
     end
-    
+
     def env_contains?(val)
       ENV.key?(val)
     end
-    
+
     def env(val)
       if env_contains?(val)
         ENV[val]
-      else
-        nil
       end
     end
-    
+
     def inspect_variable(*vars)
       vars.each do |var|
         puts "Inspecting Variable: #{var}"
@@ -269,7 +266,7 @@ module Origen
     alias_method :inspect_var, :inspect_variable
     alias_method :inspect_variables, :inspect_variable
     alias_method :inspect_vars, :inspect_variable
-    
+
     # Inspects the config(s) at the incex given.
     def inspect_configs(*config_indexes)
       config_indexes.each do |i|
@@ -287,36 +284,36 @@ module Origen
             puts "Cached At: #{c.cache_file}" if c.cache_file
             puts "Cached On: #{c.cache_file.ctime}" if c.cache_file
           end
-          
+
           puts
-          puts "Values from this config:"
-          spacing = " " * 2
+          puts 'Values from this config:'
+          spacing = ' ' * 2
           c.values.each do |var, val|
             if val.is_a?(Array)
               puts "#{var}: ["
               val.each { |v| puts "#{spacing} #{v}" }
-              puts "]"
+              puts ']'
             elsif val.is_a?(Hash)
               puts "#{var}: {"
               val.each { |v| puts "#{spacing} #{v}" }
-              puts "}"
+              puts '}'
             else
               puts "#{var}: #{val}"
             end
           end
 
           puts
-          puts "Active (highest-level) values from this config:"
-          spacing = " " * 2
-          vars_by_config.select { |k, v| v == c }.map { |k, v| [k, v[k]]}.to_h.each do |var, val|
+          puts 'Active (highest-level) values from this config:'
+          spacing = ' ' * 2
+          vars_by_config.select { |k, v| v == c }.map { |k, v| [k, v[k]] }.to_h.each do |var, val|
             if val.is_a?(Array)
               puts "#{var}: ["
               val.each { |v| puts "#{spacing} #{v}" }
-              puts "]"
+              puts ']'
             elsif val.is_a?(Hash)
               puts "#{var}: {"
               val.each { |v| puts "#{spacing} #{v}" }
-              puts "}"
+              puts '}'
             else
               puts "#{var}: #{val}"
             end
@@ -362,9 +359,9 @@ module Origen
         File.join(dir, 'config', 'origen_site_config.yml'),
         File.join(dir, 'config', 'origen_site_config.yml.erb'),
         File.join(dir, 'origen_site_config.yml'),
-        File.join(dir, 'origen_site_config.yml.erb'),
+        File.join(dir, 'origen_site_config.yml.erb')
       ].each do |f|
-        if File.exists?(f)
+        if File.exist?(f)
           if prepend
             configs.unshift(Config.new(path: f, parent: self))
           else
@@ -378,53 +375,53 @@ module Origen
     # This will set the @configs along the current path first,
     # then, using those values, will add a site config at the home directory.
     def configs!
-      #@configs = []
-      #@configs = begin
-        # This global is set when Origen is first required, it generally means that what is considered
-        # to be the pwd for the purposes of looking for a site_config file is the place from where the
-        # user invoked Origen. Otherwise if the running app switches the PWD it can lead to confusing
-        # behavior - this was a particular problem when testing the new app generator which switches the
-        # pwd to /tmp to build the new app
-        path = $_origen_invocation_pwd
-        @configs = []
-                
-        # Add any site_configs from where we are currently running from, i.e. the application
-        # directory area
-        until path.root?
-          load_directory(path)
-          #file = File.join(path, 'config', 'origen_site_config.yml')
-          #configs << YAML.load_file(file) if File.exist?(file) && YAML.load_file(file)
-          #file = File.join(path, 'origen_site_config.yml')
-          #configs << YAML.load_file(file) if File.exist?(file) && YAML.load_file(file)
-          path = path.parent
-        end
+      # @configs = []
+      # @configs = begin
+      # This global is set when Origen is first required, it generally means that what is considered
+      # to be the pwd for the purposes of looking for a site_config file is the place from where the
+      # user invoked Origen. Otherwise if the running app switches the PWD it can lead to confusing
+      # behavior - this was a particular problem when testing the new app generator which switches the
+      # pwd to /tmp to build the new app
+      path = $_origen_invocation_pwd
+      @configs = []
 
-        # Add and any site_configs from the directory hierarchy where Ruby is installed
-        path = Pathname.new($LOAD_PATH.last)
-        until path.root?
-          load_directory(path)
-          #file = File.join(path, 'origen_site_config.yml')
-          #configs << YAML.load_file(file) if File.exist?(file) && YAML.load_file(file)
-          path = path.parent
-        end
+      # Add any site_configs from where we are currently running from, i.e. the application
+      # directory area
+      until path.root?
+        load_directory(path)
+        # file = File.join(path, 'config', 'origen_site_config.yml')
+        # configs << YAML.load_file(file) if File.exist?(file) && YAML.load_file(file)
+        # file = File.join(path, 'origen_site_config.yml')
+        # configs << YAML.load_file(file) if File.exist?(file) && YAML.load_file(file)
+        path = path.parent
+      end
 
-        # Add the one from the Origen core as the lowest priority, this one defines
-        # the default values
-        load_directory(File.expand_path('../../../', __FILE__))
-        #configs << YAML.load_file(File.expand_path('../../../origen_site_config.yml', __FILE__))
-        #configs
-      #end
+      # Add and any site_configs from the directory hierarchy where Ruby is installed
+      path = Pathname.new($LOAD_PATH.last)
+      until path.root?
+        load_directory(path)
+        # file = File.join(path, 'origen_site_config.yml')
+        # configs << YAML.load_file(file) if File.exist?(file) && YAML.load_file(file)
+        path = path.parent
+      end
+
+      # Add the one from the Origen core as the lowest priority, this one defines
+      # the default values
+      load_directory(File.expand_path('../../../', __FILE__))
+      # configs << YAML.load_file(File.expand_path('../../../origen_site_config.yml', __FILE__))
+      # configs
+      # end
 
       # Add the site_config from the user's home directory as highest priority, if it exists
       # But, make sure we take the site installation's setup into account.
       # That is, if user's home directories are somewhere else, make sure we use that directory to the find
       # the user's overwrite file. The user can then override that if they want."
       load_directory(File.expand_path(user_install_dir), prepend: true)
-      #user_config = File.join(File.expand_path(user_install_dir), 'origen_site_config.yml')
-      #if File.exist?(user_config)
+      # user_config = File.join(File.expand_path(user_install_dir), 'origen_site_config.yml')
+      # if File.exist?(user_config)
       #  @configs.unshift(YAML.load_file(user_config)) if YAML.load_file(user_config)
-      #end
-      
+      # end
+
       # Load any centralized site configs now.
       centralized_site_config = find_val('centralized_site_config')
       if centralized_site_config
@@ -432,7 +429,7 @@ module Origen
         # values. We want the centralized config to load right after those.
         @configs.insert(-3, Config.new(path: centralized_site_config, parent: self))
       end
-      
+
       # After all configs have been populated, see if the centralized needs refreshing
       @configs.each { |c| c.refresh if c.needs_refresh? }
 

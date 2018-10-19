@@ -15,9 +15,9 @@ module Origen
                     body:           'Hello from Origen!',
                     to:             current_user.email,
                     authentication: (Origen.site_config.email_authentication || :none).to_sym,
-                    auth_user:      (Origen.site_config.email_auth_user      || current_user.email),
-                    auth_password:  (Origen.site_config.email_auth_password  || current_user.password),
-                    domain:         (Origen.site_config.email_domain         || ''),
+                    auth_user:      (Origen.site_config.email_auth_user || current_user.email),
+                    auth_password:  (Origen.site_config.email_auth_password || current_user.password),
+                    domain:         (Origen.site_config.email_domain || '')
                   }.merge(options)
 
         # Force to an array
@@ -36,17 +36,17 @@ Subject: #{options[:subject]}
 END_OF_MESSAGE
 
           begin
-            Origen.log.debug("Origen::Utility::Mailer Setup:")
+            Origen.log.debug('Origen::Utility::Mailer Setup:')
             options.each { |k, v| Origen.log.debug("  #{k}: #{v}") }
-            
-            #Net::SMTP.start(options[:server], options[:port]) do |smtp|
+
+            # Net::SMTP.start(options[:server], options[:port]) do |smtp|
             #  smtp.send_message msg, options[:from], addr
-            #end
+            # end
 
             # Exceptions raised here will be caught by rescue clause
             smtp = Net::SMTP.new(options[:server], options[:port])
             smtp.enable_starttls if options[:authentication] != :none
-            
+
             opts = begin
               if options[:authentication] == :none
                 # Trying to add username and password if there's no authentication will actually be rejected by
@@ -56,18 +56,18 @@ END_OF_MESSAGE
                 [options[:domain], options[:auth_user], options[:auth_password], options[:authentication]]
               end
             end
-            
+
             smtp.start(*opts) do |m|
               m.send_message(msg, options[:from], addr)
             end
-            
+
             # Exceptions raised here will be caught by rescue clause
-            #smtp = Net::SMTP.new(options[:server], options[:port])
-            #smtp.enable_starttls
-            
-            #smtp.start (options[:domain], options[:auth_user], options[:auth_password], options[:authentication]) do |smtp|
+            # smtp = Net::SMTP.new(options[:server], options[:port])
+            # smtp.enable_starttls
+
+            # smtp.start (options[:domain], options[:auth_user], options[:auth_password], options[:authentication]) do |smtp|
             #  smtp.send_message(msg, options[:from], addr)
-            #end
+            # end
           rescue
             warn "Email not able to be sent to address '#{addr}'"
           end

@@ -10,9 +10,9 @@ module Origen
       def self.current_user_id
         `whoami`.strip
       end
-      
+
       def self.username
-        self.current_user_id
+        current_user_id
       end
 
       def self.current
