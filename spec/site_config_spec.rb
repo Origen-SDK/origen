@@ -49,7 +49,8 @@ describe "Origen.site_config" do
   end
 
   def add_config_variable(var, value)
-    Origen.site_config.instance_variable_get('@configs').prepend({var => value})
+    #Origen.site_config.instance_variable_get('@configs').prepend({var => value})
+    Origen.site_config.add_as_highest(var, value)
   end
   
   def remove_config_variable(var)
@@ -498,5 +499,5 @@ describe "Origen.site_config" do
         expect(Origen.site_config.instance_variable_get('@configs')).to be_empty
       end
     end
-  end  
+  end
 end

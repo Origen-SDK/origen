@@ -95,6 +95,10 @@ when 'new'
 when '--version', '-v'
   require 'origen/commands/version'
   exit 0
+  
+when 'site'
+  require 'origen/commands/site'
+  exit 0
 
 # when 'fetch', 'f'
 #  require 'origen/commands/fetch'
@@ -115,6 +119,7 @@ The following commands are available:
               new origen application workspace in "./my_app"
  interactive  Start an interactive Origen console (short-cut alias: "i"), this is just
               IRB with the 'origen' lib loaded automatically
+ site         Monitor and manage the Origen site configuration
   EOT
   cmds.split(/\n/).each do |line|
     puts Origen.clean_help_line(line)
