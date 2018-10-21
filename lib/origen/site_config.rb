@@ -8,6 +8,9 @@ module Origen
     require 'httparty'
     require_relative 'site_config/config'
 
+    # require this version of Origen
+    require_relative '../origen'
+
     TRUE_VALUES = ['true', 'TRUE', '1', 1]
     FALSE_VALUES = ['false', 'FALSE', '0', 0]
 
@@ -375,8 +378,6 @@ module Origen
     # This will set the @configs along the current path first,
     # then, using those values, will add a site config at the home directory.
     def configs!
-      # @configs = []
-      # @configs = begin
       # This global is set when Origen is first required, it generally means that what is considered
       # to be the pwd for the purposes of looking for a site_config file is the place from where the
       # user invoked Origen. Otherwise if the running app switches the PWD it can lead to confusing
@@ -389,10 +390,6 @@ module Origen
       # directory area
       until path.root?
         load_directory(path)
-        # file = File.join(path, 'config', 'origen_site_config.yml')
-        # configs << YAML.load_file(file) if File.exist?(file) && YAML.load_file(file)
-        # file = File.join(path, 'origen_site_config.yml')
-        # configs << YAML.load_file(file) if File.exist?(file) && YAML.load_file(file)
         path = path.parent
       end
 
@@ -400,27 +397,18 @@ module Origen
       path = Pathname.new($LOAD_PATH.last)
       until path.root?
         load_directory(path)
-        # file = File.join(path, 'origen_site_config.yml')
-        # configs << YAML.load_file(file) if File.exist?(file) && YAML.load_file(file)
         path = path.parent
       end
 
       # Add the one from the Origen core as the lowest priority, this one defines
       # the default values
       load_directory(File.expand_path('../../../', __FILE__))
-      # configs << YAML.load_file(File.expand_path('../../../origen_site_config.yml', __FILE__))
-      # configs
-      # end
 
       # Add the site_config from the user's home directory as highest priority, if it exists
       # But, make sure we take the site installation's setup into account.
       # That is, if user's home directories are somewhere else, make sure we use that directory to the find
       # the user's overwrite file. The user can then override that if they want."
       load_directory(File.expand_path(user_install_dir), prepend: true)
-      # user_config = File.join(File.expand_path(user_install_dir), 'origen_site_config.yml')
-      # if File.exist?(user_config)
-      #  @configs.unshift(YAML.load_file(user_config)) if YAML.load_file(user_config)
-      # end
 
       # Load any centralized site configs now.
       centralized_site_config = find_val('centralized_site_config')

@@ -110,14 +110,14 @@ module Origen
         if centralized?
           if !cached?
             if fetch
-              erb = ERB.new(File.read(cached_file))
+              erb = ERB.new(File.read(cached_file), 0, '%<>')
             else
               # There was a problem fetching the cnofig. Just use an empty string.
               # Warning message will come from #fetch
               erb = ERB.new('')
             end
           else
-            erb = ERB.new(File.read(cached_file))
+            erb = ERB.new(File.read(cached_file), 0, '%<>')
           end
 
           @values = (YAML.load(erb.result) || {})
@@ -136,7 +136,7 @@ module Origen
           @values
         else
           if File.extname(path) == '.erb'
-            erb = ERB.new(File.read(path))
+            erb = ERB.new(File.read(path), 0, '%<>')
             @values = (YAML.load(erb.result) || {})
           else
             @values = (YAML.load_file(path) || {})
