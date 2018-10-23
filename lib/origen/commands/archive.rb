@@ -12,10 +12,12 @@ opt_parser.parse! ARGV
 Origen.log.info 'Preparing the workspace'
 tmp1 = File.join(Origen.root, '..', "#{Origen.app.name}_copy")
 name = "#{Origen.app.name}-#{Origen.app.version}"
-tmp = File.join(Origen.root, 'tmp', name)
+tmpdir = File.join(Origen.root, 'tmp')
+tmp = File.join(tmpdir, name)
 archive = File.join(Origen.root, 'tmp', "#{name}.origen")
 FileUtils.rm_rf(tmp1) if File.exist?(tmp1)
 FileUtils.rm_rf(tmp) if File.exist?(tmp)
+FileUtils.rm_rf(archive) if File.exist?(archive)
 
 begin
   Origen.log.info 'Creating a copy of the application'
@@ -52,14 +54,16 @@ Dir.chdir tmp do
 end
 
 Origen.log.info 'Creating archive'
-passed = system "tar -cvzf #{archive} #{tmp}"
-unless passed
-  Origen.log.error 'A problem was encountered creating the tarball, archive creation aborted!'
-  exit 1
-end
+Dir.chdir tmpdir do
+  passed = system "tar -cvzf #{name}.origen ./#{name}"
+  unless passed
+    Origen.log.error 'A problem was encountered creating the tarball, archive creation aborted!'
+    exit 1
+  end
 
-Origen.log.info 'Cleaning up'
-FileUtils.rm_rf(tmp)
+  Origen.log.info 'Cleaning up'
+  FileUtils.rm_rf(name)
+end
 
 puts
 begin
