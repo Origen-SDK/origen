@@ -88,8 +88,8 @@ end
 
 case @command
 
-when 'new'
-  require 'origen/commands/new'
+when 'new', 'extract'
+  require "origen/commands/#{@command}"
   exit 0
 
 when '--version', '-v'
@@ -115,6 +115,7 @@ The following commands are available:
               new origen application workspace in "./my_app"
  interactive  Start an interactive Origen console (short-cut alias: "i"), this is just
               IRB with the 'origen' lib loaded automatically
+ extract      Extract an Origen application archive (.origen file created with the archive command)
   EOT
   cmds.split(/\n/).each do |line|
     puts Origen.clean_help_line(line)
