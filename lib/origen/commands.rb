@@ -230,7 +230,8 @@ end.compact
 
 case @command
 when 'generate', 'program', 'compile', 'merge', 'interactive', 'target', 'environment',
-     'save', 'lsf', 'web', 'time', 'dispatch', 'rc', 'lint', 'plugin', 'fetch', 'mode', 'gem' # , 'add'
+     'save', 'lsf', 'web', 'time', 'dispatch', 'rc', 'lint', 'plugin', 'fetch', 'mode', 'gem',
+     'archive'
 
   require "origen/commands/#{@command}"
   exit 0 unless @command == 'interactive'
@@ -273,6 +274,7 @@ The core origen commands are:
  web          Web page tools, see -h for details
  time         Tools for test time analysis and forecasting
  lint         Lint and style check (and correct) your application code
+ archive      Create an archive of your current application state
   EOT
   cmds.split(/\n/).each do |line|
     puts Origen.clean_help_line(line)
