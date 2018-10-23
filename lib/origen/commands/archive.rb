@@ -31,7 +31,7 @@ Dir.chdir tmp do
   Bundler.with_clean_env do
     FileUtils.rm_rf('lbin') if File.exist?('lbin')
     FileUtils.rm_rf('.bundle') if File.exist?('.bundle')
-    `hash -r`  # Silently fail if not on bash
+    system 'hash -r'  # Ignore fail if not on bash
     passed = system 'bundle package --all --all-platforms --no-install'
     unless passed
       Origen.log.error 'A problem was encountered when packaging the gems, archive creation aborted!'
