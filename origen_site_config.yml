@@ -13,14 +13,16 @@
 #  - "http://bitbucket.mycompany.net/origen/my_app_generators.git"
 
 # Centralized Site Config
-# Origen 0.36+ supports a centralized site cnnfig. This site cnofig will be implicitly read and injected into the site
-# config following the site config that declare it.
+# Origen +0.36 (versions after 36.0) supports a centralized site config. This site config will be implicitly read and 
+# injected into the site config following the default site configs from Origen.
 # To surpress the number of requests and possible load time delays, the site config can be cached and read on each
-# startup for :refresh number of hours. If :cache is disabled, the site config will not be cached.
+# startup for :centralized_site_config_refresh number of hours.
 centralized_site_config_cache_dir: '~/.origen/cache/site_config'
 
 # Indicates how many hours should pass before the cached site config is refreshed (refetched, redownloaded)
-# 0 hours indidcates 'always refresh' (but still cache)
+# The default is to refresh once per day (every 24 hours). Decimal values can be used here to get more granularity
+# if needed.
+# 0 indidcates 'always refresh' (cache will still occur though)
 # -1 indicates never refresh.
 centralized_site_config_refresh: 24
 
