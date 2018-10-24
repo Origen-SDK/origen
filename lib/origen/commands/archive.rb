@@ -50,10 +50,7 @@ Dir.chdir tmp do
     FileUtils.rm_rf('.bundle') if File.exist?('.bundle')
     system 'hash -r'  # Ignore fail if not on bash
 
-    # Path shouldn't be required with no-install, but for some reason without it it will try to install
-    # to the system gem directory
-    ENV['BUNDLE_PATH'] = File.expand_path(Origen.site_config.gem_install_dir)
-    passed = system "bundle package --all --all-platforms --no-install --path #{ENV['BUNDLE_PATH']}"
+    passed = system "bundle package --all --all-platforms --no-install --path #{File.join('vendor', 'cache')}"
     unless passed
       Origen.log.error 'A problem was encountered when packaging the gems, archive creation aborted!'
       exit 1
