@@ -6,6 +6,7 @@ options = {}
 
 opt_parser = OptionParser.new do |opts|
   opts.banner = 'Usage: origen archive [options]'
+  opts.on('--sandbox', 'Install gems inside the app itself and include this in the archive)') { options[:sandbox] = true }
 end
 opt_parser.parse! ARGV
 
@@ -34,12 +35,29 @@ Dir.chdir tmp do
     FileUtils.rm_rf('lbin') if File.exist?('lbin')
     FileUtils.rm_rf('.bundle') if File.exist?('.bundle')
     system 'hash -r'  # Ignore fail if not on bash
+
     passed = system 'bundle package --all --all-platforms --no-install'
     unless passed
       Origen.log.error 'A problem was encountered when packaging the gems, archive creation aborted!'
-      exit 1
+      #exit 1
     end
   end
+
+  if options[:sandbox]
+    Bundler.with_clean_env do
+      ENV['BUNDLE_GEMFILE'] = 'Gemfile'
+      ENV['BUNDLE_PATH'] = File.join('vendor', 'gems')
+      ENV['BUNDLE_BIN'] = 'lbin'
+      cmd = "bundle install --gemfile #{ENV['BUNDLE_GEMFILE']} --binstubs #{ENV['BUNDLE_BIN']} --path #{ENV['BUNDLE_PATH']} --local"
+      passed = system cmd
+      unless passed
+        Origen.log.error 'A problem was encountered installing the gem bundle, extraction aborted!'
+        exit 1
+      end
+    end
+  end
+
+  exit 0
 
   Origen.log.info 'Removing all temporary and output files'
   ['.bundle', 'output', 'tmp', 'web', 'waves', '.git', '.ref', 'dist', 'log', '.lsf', '.session'].each do |dir|

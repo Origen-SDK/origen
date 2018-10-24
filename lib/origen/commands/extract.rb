@@ -32,7 +32,12 @@ end
 Dir.chdir dirname do
   Bundler.with_clean_env do
     ENV['BUNDLE_GEMFILE'] = File.join(Dir.pwd, 'Gemfile')
-    ENV['BUNDLE_PATH'] = File.expand_path(Origen.site_config.gem_install_dir)
+    vendor_gems = File.join(Dir.pwd, 'vendor', 'gems')
+    if File.exist?(vendor_gems)
+      ENV['BUNDLE_PATH'] = vendor_gems
+    else
+      ENV['BUNDLE_PATH'] = File.expand_path(Origen.site_config.gem_install_dir)
+    end
     ENV['BUNDLE_BIN'] = File.join(Dir.pwd, 'lbin')
     cmd = "bundle install --gemfile #{ENV['BUNDLE_GEMFILE']} --binstubs #{ENV['BUNDLE_BIN']} --path #{ENV['BUNDLE_PATH']} --local"
     passed = system cmd
