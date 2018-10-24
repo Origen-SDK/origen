@@ -12,6 +12,23 @@
 #  # Or a reference to a plugin's Git repository can be used
 #  - "http://bitbucket.mycompany.net/origen/my_app_generators.git"
 
+# Centralized Site Config
+# Origen +0.36 (versions after 36.0) supports a centralized site config. This site config will be implicitly read and 
+# injected into the site config following the default site configs from Origen.
+# To surpress the number of requests and possible load time delays, the site config can be cached and read on each
+# startup for :centralized_site_config_refresh number of hours.
+centralized_site_config_cache_dir: '~/.origen/cache/site_config'
+
+# Indicates how many hours should pass before the cached site config is refreshed (refetched, redownloaded)
+# The default is to refresh once per day (every 24 hours). Decimal values can be used here to get more granularity
+# if needed.
+# 0 indidcates 'always refresh' (cache will still occur though)
+# -1 indicates never refresh.
+centralized_site_config_refresh: 24
+
+# Indicates whether the SSL certificate should be verified when pulling the centralized site config
+centralized_site_config_verify_ssl: true
+
 # GEM SETUP
 
 # If your company has an internal gem server enter it here
@@ -20,6 +37,13 @@
 # When true Origen will configure and run Bundler in a consistent way for every
 # user (recommended)
 gem_manage_bundler: true
+
+# Use the bootsnap gem (https://github.com/Shopify/bootsnap) to speed up the boot time of
+# your Origen applications. 
+# This creates an offline cache in your app's tmp/cache directory and it can also increase
+# the memory consumption of your app. As a reward, your app will load Ruby files significantly
+# faster, often taking many seconds off the time it takes your app to start up.
+use_bootsnap: true
 
 # WORKSPACE DIRECTORY SETUP
 
@@ -81,10 +105,16 @@ gem_use_from_system:
 #   User.new("ax1234").email  # => "ax1234@company.com"  
 #
 #   # Without email_domain specified
-#   User.new("ax1234@company.com").email  # => "ax1234@company.com"  
+#   User.new("ax1234@company.com").email  # => "ax1234@company.com"
+# If authentication is needed to use the given server, email_authentication can be set to login.
+# If a service user is used to access this account on behalf of the sending users, email_auth_user and email_auth_password
+# can be set. If authentication is indicated but no auth user is given, the current user's email and password are used instead.
 #email_domain: company.com
 #email_server: smtp.company.net
 #email_port: 25
+#email_authentication: login
+#email_auth_user: service_email
+#email_auth_password: service_password
 
 # Required parameters to connect to your company's LDAP system
 #ldap_username: cn=manager,dc=example,dc=com

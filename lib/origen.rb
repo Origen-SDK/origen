@@ -28,6 +28,7 @@ unless defined? RGen::ORIGENTRANSITION
   require 'bundler'
   require 'origen/undefined'
   require 'origen/componentable'
+  require 'socket'
 
   module Origen
     autoload :Features,          'origen/features'
@@ -669,6 +670,11 @@ unless defined? RGen::ORIGENTRANSITION
         !!@running_interactively
       end
       alias_method :interactive?, :running_interactively?
+
+      # Platform independent way of retrieving the hostname
+      def hostname
+        Socket.gethostbyname(Socket.gethostname).first.downcase
+      end
 
       # Returns true if Origen is running with the -d or --debug switches enabled
       def debug?
