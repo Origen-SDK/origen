@@ -22,9 +22,23 @@ FileUtils.rm_rf(archive) if File.exist?(archive)
 
 begin
   Origen.log.info 'Creating a copy of the application'
-  FileUtils.mkdir_p(tmp1)
-  FileUtils.cp_r "#{Origen.root}/.", tmp1
-  FileUtils.mv tmp1, tmp
+  if Origen.os.linux?
+    Dir.chdir Origen.root do
+      cmd = "rsync -av --progress . tmp/#{name} --exclude tmp"
+      ['.bundle', 'output', 'tmp', 'web', 'waves', '.git', '.ref', 'dist', 'log', '.lsf', '.session', 'simulation'].each do |dir|
+        cmd += " --exclude #{dir}"
+      end
+      passed = system cmd
+      unless passed
+        Origen.log.error 'A problem was encountered when creating a copy of your application, archive creation aborted!'
+        exit 1
+      end
+    end
+  else
+    FileUtils.mkdir_p(tmp1)
+    FileUtils.cp_r "#{Origen.root}/.", tmp1
+    FileUtils.mv tmp1, tmp
+  end
 ensure
   FileUtils.rm_rf(tmp1) if File.exist?(tmp1)
 end
@@ -36,10 +50,13 @@ Dir.chdir tmp do
     FileUtils.rm_rf('.bundle') if File.exist?('.bundle')
     system 'hash -r'  # Ignore fail if not on bash
 
-    passed = system 'bundle package --all --all-platforms --no-install'
+    # Path shouldn't be required with no-install, but for some reason without it it will try to install
+    # to the system gem directory
+    ENV['BUNDLE_PATH'] = File.expand_path(Origen.site_config.gem_install_dir)
+    passed = system "bundle package --all --all-platforms --no-install --path #{ENV['BUNDLE_PATH']}"
     unless passed
       Origen.log.error 'A problem was encountered when packaging the gems, archive creation aborted!'
-      #exit 1
+      exit 1
     end
   end
 
