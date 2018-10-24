@@ -3,10 +3,12 @@ require 'fileutils'
 require 'bundler'
 
 options = {}
+options[:exclude] = []
 
 opt_parser = OptionParser.new do |opts|
   opts.banner = 'Usage: origen archive [options]'
-  opts.on('--sandbox', 'Install gems inside the app itself and include this in the archive)') { options[:sandbox] = true }
+  opts.on('--sandbox', 'Install gems inside the app itself and include them in the archive so that it can run completely standalone') { options[:sandbox] = true }
+  opts.on('--exclude DIR', 'Exclude the given directory from the archive, e.g. --exclude simulation') { options[:exclude] << dir }
 end
 opt_parser.parse! ARGV
 
@@ -20,12 +22,14 @@ FileUtils.rm_rf(tmp1) if File.exist?(tmp1)
 FileUtils.rm_rf(tmp) if File.exist?(tmp)
 FileUtils.rm_rf(archive) if File.exist?(archive)
 
+exclude_dirs = ['.bundle', 'output', 'tmp', 'web', 'waves', '.git', '.ref', 'dist', 'log', '.lsf', '.session'] + options[:exclude]
+
 begin
   Origen.log.info 'Creating a copy of the application'
   if Origen.os.linux?
     Dir.chdir Origen.root do
       cmd = "rsync -av --progress . tmp/#{name} --exclude tmp"
-      ['.bundle', 'output', 'tmp', 'web', 'waves', '.git', '.ref', 'dist', 'log', '.lsf', '.session', 'simulation'].each do |dir|
+      exclude_dirs.each do |dir|
         cmd += " --exclude #{dir}"
       end
       passed = system cmd
@@ -50,7 +54,7 @@ Dir.chdir tmp do
     FileUtils.rm_rf('.bundle') if File.exist?('.bundle')
     system 'hash -r'  # Ignore fail if not on bash
 
-    passed = system "bundle package --all --all-platforms --no-install --path #{File.join('vendor', 'cache')}"
+    passed = system "GEM_HOME=#{File.expand_path(Origen.site_config.gem_install_dir)} bundle package --all --all-platforms --no-install"
     unless passed
       Origen.log.error 'A problem was encountered when packaging the gems, archive creation aborted!'
       exit 1
@@ -60,7 +64,7 @@ Dir.chdir tmp do
   if options[:sandbox]
     Bundler.with_clean_env do
       ENV['BUNDLE_GEMFILE'] = 'Gemfile'
-      ENV['BUNDLE_PATH'] = File.join('vendor', 'gems')
+      ENV['BUNDLE_PATH'] = File.join('vendor', 'gems_sandbox')
       ENV['BUNDLE_BIN'] = 'lbin'
       cmd = "bundle install --gemfile #{ENV['BUNDLE_GEMFILE']} --binstubs #{ENV['BUNDLE_BIN']} --path #{ENV['BUNDLE_PATH']} --local"
       passed = system cmd
@@ -71,10 +75,8 @@ Dir.chdir tmp do
     end
   end
 
-  exit 0
-
   Origen.log.info 'Removing all temporary and output files'
-  ['.bundle', 'output', 'tmp', 'web', 'waves', '.git', '.ref', 'dist', 'log', '.lsf', '.session'].each do |dir|
+  exclude_dirs.each do |dir|
     if File.exist?(dir)
       if File.symlink?(dir)
         FileUtils.rm(dir)
