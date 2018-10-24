@@ -8,7 +8,7 @@ options[:exclude] = []
 opt_parser = OptionParser.new do |opts|
   opts.banner = 'Usage: origen archive [options]'
   opts.on('--sandbox', 'Install gems inside the app itself and include them in the archive so that it can run completely standalone') { options[:sandbox] = true }
-  opts.on('--exclude DIR', 'Exclude the given directory from the archive, e.g. --exclude simulation') { options[:exclude] << dir }
+  opts.on('--exclude DIR', 'Exclude the given directory from the archive, e.g. --exclude simulation') { |dir| options[:exclude] << dir }
 end
 opt_parser.parse! ARGV
 
@@ -62,6 +62,7 @@ Dir.chdir tmp do
   end
 
   if options[:sandbox]
+    Origen.log.info 'Installing gem sandbox'
     Bundler.with_clean_env do
       ENV['BUNDLE_GEMFILE'] = 'Gemfile'
       ENV['BUNDLE_PATH'] = File.join('vendor', 'gems_sandbox')
