@@ -7,21 +7,23 @@ options[:exclude] = []
 
 opt_parser = OptionParser.new do |opts|
   opts.banner = 'Usage: origen archive [options]'
-  opts.on('--sandbox', 'Install gems inside the archive itself so that it can run completely standalone') { options[:sandbox] = true }
-  opts.on('--local', 'Install gems within your app so that it can run completely standalone (like --sandbox), no archive is created') { options[:local] = true }
+  opts.on('--sandbox', 'Install gems inside the archive itself so that it can run completely standalone when extracted') { options[:sandbox] = true }
+  opts.on('--local', 'Install gems within your app so that it can run completely standalone, like --sandbox but no archive is created') { options[:local] = true }
   opts.on('--exclude DIR', 'Exclude the given directory from the archive, e.g. --exclude simulation') { |dir| options[:exclude] << dir }
 end
 opt_parser.parse! ARGV
 
-Origen.log.info 'Preparing the workspace'
+Origen.log.info 'Preparing the workspace' unless options[:local]
 tmp1 = File.join(Origen.root, '..', "#{Origen.app.name}_copy")
 name = "#{Origen.app.name}-#{Origen.app.version}"
 tmpdir = File.join(Origen.root, 'tmp')
 tmp = File.join(tmpdir, name)
 archive = File.join(Origen.root, 'tmp', "#{name}.origen")
-FileUtils.rm_rf(tmp1) if File.exist?(tmp1)
-FileUtils.rm_rf(tmp) if File.exist?(tmp)
-FileUtils.rm_rf(archive) if File.exist?(archive)
+unless options[:local]
+  FileUtils.rm_rf(tmp1) if File.exist?(tmp1)
+  FileUtils.rm_rf(tmp) if File.exist?(tmp)
+  FileUtils.rm_rf(archive) if File.exist?(archive)
+end
 
 exclude_dirs = ['.bundle', 'output', 'tmp', 'web', 'waves', '.git', '.ref', 'dist', 'log', '.lsf', '.session'] + options[:exclude]
 
@@ -67,7 +69,7 @@ Dir.chdir dir do
     end
   end
 
-  if options[:sandbox]
+  if options[:sandbox] || options[:local]
     Origen.log.info 'Installing gems into the application (this could take a while)'
     Bundler.with_clean_env do
       ENV['BUNDLE_GEMFILE'] = 'Gemfile'
