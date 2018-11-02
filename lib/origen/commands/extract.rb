@@ -32,7 +32,7 @@ end
 Dir.chdir dirname do
   Bundler.with_clean_env do
     ENV['BUNDLE_GEMFILE'] = File.join(Dir.pwd, 'Gemfile')
-    vendor_gems = File.join(Dir.pwd, 'vendor', 'gems_sandbox')
+    vendor_gems = File.join(Dir.pwd, 'vendor', 'gems')
     if File.exist?(vendor_gems)
       ENV['BUNDLE_PATH'] = vendor_gems
     else
