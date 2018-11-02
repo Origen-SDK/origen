@@ -170,7 +170,8 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
     end
   end
   require 'bundler/setup'
-  if Origen.site_config.use_bootsnap && !Origen.os.windows?
+  _exec_remote = ARGV.include?('--exec_remote') ? true : false  
+  if Origen.site_config.use_bootsnap && !Origen.os.windows? && !_exec_remote
     ENV["BOOTSNAP_CACHE_DIR"] ||= "#{origen_root}/tmp/cache"
     require 'bootsnap/setup'
   end

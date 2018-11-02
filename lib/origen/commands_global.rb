@@ -96,6 +96,10 @@ when '--version', '-v'
   require 'origen/commands/version'
   exit 0
 
+when 'site'
+  require 'origen/commands/site'
+  exit 0
+
 # when 'fetch', 'f'
 #  require 'origen/commands/fetch'
 #  exit 0
@@ -116,6 +120,7 @@ The following commands are available:
  interactive  Start an interactive Origen console (short-cut alias: "i"), this is just
               IRB with the 'origen' lib loaded automatically
  extract      Extract an Origen application archive (.origen file created with the archive command)
+ site         Monitor and manage the Origen site configuration
   EOT
   cmds.split(/\n/).each do |line|
     puts Origen.clean_help_line(line)
