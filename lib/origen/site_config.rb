@@ -9,7 +9,7 @@ module Origen
     require_relative 'site_config/config'
 
     # require this version of Origen
-    require_relative '../origen'
+    #require_relative '../origen'
 
     TRUE_VALUES = ['true', 'TRUE', '1', 1]
     FALSE_VALUES = ['false', 'FALSE', '0', 0]

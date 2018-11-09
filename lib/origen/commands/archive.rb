@@ -82,6 +82,13 @@ Dir.chdir dir do
         Origen.log.error 'A problem was encountered installing the gem bundle, archive aborted!'
         exit 1
       end
+      Origen.log.info 'Verifying the application can boot...'
+
+      passed = system 'origen -v'
+      unless passed
+        Origen.log.error 'The gems have been installed locally but the application cannot boot, archive aborted!'
+        exit 1
+      end
     end
   end
 
