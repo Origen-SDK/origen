@@ -227,8 +227,12 @@ module Origen
           name: ''
         }.merge(options)
 
+        rtl_name = options[:rtl_name]
+        force = options[:force]
         options.delete(:size).times do |i|
           options[:name] = "#{id}#{i}".to_sym
+          options[:rtl_name] = "#{rtl_name}#{i}".to_sym if rtl_name
+          options[:force] = force[i] if force
 
           if power_pin
             group[i] = PowerPin.new(i, self, options)
@@ -732,6 +736,7 @@ If you meant to define the pin then use the add_pin method instead.
       }.merge(options)
       pins(id, options, &block)
     end
+    alias_method :power_pin, :power_pins
 
     # Equivalent to the pins method but considers ground pins rather than regular pins
     def ground_pins(id = nil, options = {}, &block)
@@ -741,6 +746,7 @@ If you meant to define the pin then use the add_pin method instead.
       }.merge(options)
       pins(id, options, &block)
     end
+    alias_method :ground_pin, :ground_pins
 
     # Equivalent to the pins method but considers other pins rather than regular pins
     def other_pins(id = nil, options = {}, &block)
@@ -750,6 +756,7 @@ If you meant to define the pin then use the add_pin method instead.
       }.merge(options)
       pins(id, options, &block)
     end
+    alias_method :other_pin, :other_pins
 
     # Equivalent to the pins method but considers virtual pins rather than regular pins
     def virtual_pins(id = nil, options = {}, &block)
@@ -759,6 +766,7 @@ If you meant to define the pin then use the add_pin method instead.
       }.merge(options)
       pins(id, options, &block)
     end
+    alias_method :virtual_pin, :virtual_pins
 
     def delete_all_pins
       Origen.pin_bank.send :empty!

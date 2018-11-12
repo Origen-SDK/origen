@@ -99,4 +99,18 @@ describe Hash do
     myhash.longest_key.should == 'avdd_pll'
     myhash.longest_value.should == '1.35V'
   end
+  
+  it 'can recursively find values by keys' do
+    h={:x=>1,:y=>2,:z=>{:a=>{:k=>"needle"}}}
+    h.recursive_find_by_key(:k).should == 'needle'
+    h.recursive_find_by_key(:x).should == 1
+    h.recursive_find_by_key(:y).should == 2
+    h={:xx=>1,:xy=>2,:yz=>{:a=>{:xyk=>"needle", :k12=>'corner_case'}}}
+    h.recursive_find_by_key(/^x/).should == {:xx=>1, :xy=>2, :xyk=>"needle"}
+    h.recursive_find_by_key(/^a/).should == nil
+    h.recursive_find_by_key(/k$/).should == 'needle'
+    h.recursive_find_by_key(/xy/).should == {:xy=>2, :xyk=>"needle"}
+    h.recursive_find_by_key(/k1/).should == 'corner_case'
+  end
+ 
 end

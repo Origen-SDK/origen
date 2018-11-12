@@ -330,7 +330,7 @@ module Origen
           Origen.log.debug "Initializing Git workspace at #{local}"
           git 'init'
           git 'remote remove origin', verbose: false, check_errors: false
-          git "remote add origin #{remote}"
+          git "remote add origin #{remote}", check_errors: false
         end
       end
 
@@ -362,7 +362,11 @@ module Origen
             exit_status = wait_thr.value
             unless exit_status.success?
               if options[:check_errors]
-                fail GitError, "This command failed: 'git #{command}'"
+                if output.any? { |l| l =~ /Not a git repository/ }
+                  fail RevisionControlUninitializedError
+                else
+                  fail GitError, "This command failed: 'git #{command}'"
+                end
               end
             end
           end

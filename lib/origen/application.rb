@@ -31,20 +31,26 @@ module Origen
         # Somehow using the old import system and version file format we can get in here when
         # loading the version, this can be removed in future when the imports API is retired
         unless caller[0] =~ /version.rb.*/
-          root = Pathname.new(caller[0].sub(/(\\|\/)?config(\\|\/)application.rb.*/, '')).realpath
-          app = base.instance
-          app.root = root.to_s
-          if Origen.plugins_loaded? && !Origen.loading_top_level?
-            # This situation of a plugin being loaded after the top-level app could occur if the app
-            # doesn't require the plugin until later, in that case there is nothing the plugin owner
-            # can do and we just need to accept that this can happen.
-            # Origen.log.warning "The #{app.name} plugin is using a non-standard loading mechanism, upgrade to a newer version of it to get rid of this warning (please report a bug to its owner if this warning persists)"
+          if base.to_s == 'OrigenGlobalApplication'
+            app = base.instance
+            app.root = Origen.root
             Origen.register_application(app)
-            # Origen.app.plugins << app
           else
-            Origen.register_application(app)
+            root = Pathname.new(caller[0].sub(/(\\|\/)?config(\\|\/)application.rb.*/, '')).realpath
+            app = base.instance
+            app.root = root.to_s
+            if Origen.plugins_loaded? && !Origen.loading_top_level?
+              # This situation of a plugin being loaded after the top-level app could occur if the app
+              # doesn't require the plugin until later, in that case there is nothing the plugin owner
+              # can do and we just need to accept that this can happen.
+              # Origen.log.warning "The #{app.name} plugin is using a non-standard loading mechanism, upgrade to a newer version of it to get rid of this warning (please report a bug to its owner if this warning persists)"
+              Origen.register_application(app)
+              # Origen.app.plugins << app
+            else
+              Origen.register_application(app)
+            end
+            app.add_lib_to_load_path!
           end
-          app.add_lib_to_load_path!
         end
       end
 
@@ -119,20 +125,25 @@ module Origen
     def revision_controller(options = {})
       if current?
         if config.rc_url
-          if config.rc_url =~ /^sync:/
-            @revision_controller ||= RevisionControl::DesignSync.new(
-              local:  root,
-              remote: config.rc_url
-            )
-          elsif config.rc_url =~ /git/
-            @revision_controller ||= RevisionControl::Git.new(
-              local:                  root,
-              # If a workspace is based on a fork of the master repo, config.rc_url may not
-              # be correct
-              remote:                 (options[:uninitialized] ? config.rc_url : (RevisionControl::Git.origin || config.rc_url)),
-              allow_local_adjustment: true
-            )
+          begin
+            if config.rc_url =~ /^sync:/
+              @revision_controller ||= RevisionControl::DesignSync.new(
+                local:  root,
+                remote: config.rc_url
+              )
+            elsif config.rc_url =~ /git/
+              @revision_controller ||= RevisionControl::Git.new(
+                local:                  root,
+                # If a workspace is based on a fork of the master repo, config.rc_url may not
+                # be correct
+                remote:                 (options[:uninitialized] ? config.rc_url : (RevisionControl::Git.origin || config.rc_url)),
+                allow_local_adjustment: true
+              )
 
+            end
+          # The rc_url has been defined, but the initial app checkin has not been done yet
+          rescue RevisionControlUninitializedError
+            @revision_controller = nil
           end
         elsif config.vault
           @revision_controller ||= RevisionControl::DesignSync.new(
@@ -367,15 +378,19 @@ END
     def version(options = {})
       @version = nil if options[:refresh]
       return @version if @version
-      load File.join(root, 'config', 'version.rb')
-      if defined? eval(namespace)::VERSION
-        @version = Origen::VersionString.new(eval(namespace)::VERSION)
+      if Origen.running_globally?
+        @version = Origen.version
       else
-        # The eval of the class is required here as somehow when plugins are imported under the old
-        # imports system and with the old version file format we can end up with two copies of the
-        # same class constant. Don't understand it, but it is fixed with the move to gems and the
-        # namespace-based version file format.
-        @version = Origen::VersionString.new(eval(self.class.to_s)::VERSION)
+        load File.join(root, 'config', 'version.rb')
+        if defined? eval(namespace)::VERSION
+          @version = Origen::VersionString.new(eval(namespace)::VERSION)
+        else
+          # The eval of the class is required here as somehow when plugins are imported under the old
+          # imports system and with the old version file format we can end up with two copies of the
+          # same class constant. Don't understand it, but it is fixed with the move to gems and the
+          # namespace-based version file format.
+          @version = Origen::VersionString.new(eval(self.class.to_s)::VERSION)
+        end
       end
       @version
     end
@@ -750,6 +765,7 @@ END
       options = {
         force_debug: false
       }.merge(options)
+      @on_create_called = false
       if options[:reload]
         @target_load_count = 0
       else
@@ -779,7 +795,19 @@ END
         end
         @target_instantiated = true
         Origen.mode = :debug if options[:force_debug]
-        listeners_for(:on_create).each(&:on_create)
+        listeners_for(:on_create).each do |obj|
+          unless obj.is_a?(Origen::SubBlocks::Placeholder)
+            if obj.try(:is_a_model_and_controller?)
+              m = obj.model
+              c = obj.controller
+              m.on_create if m.respond_to_directly?(:on_create)
+              c.on_create if c.respond_to_directly?(:on_create)
+            else
+              obj.on_create
+            end
+          end
+        end
+        @on_create_called = true
         # Keep this within the load_event to ensure any objects that are further instantiated objects
         # will be associated with (and cleared out upon reload of) the current target
         listeners_for(:on_load_target).each(&:on_load_target)
@@ -787,6 +815,11 @@ END
       listeners_for(:after_load_target).each(&:after_load_target)
       Origen.app.plugins.validate_production_status
       # @target_instantiated = true
+    end
+
+    # Returns true if the on_create callback has already been called during a target load
+    def on_create_called?
+      !!@on_create_called
     end
 
     # Not a clean unload, but allows objects to be re-instantiated for testing
@@ -865,6 +898,53 @@ END
 
     def target_instantiated?
       @target_instantiated
+    end
+
+    # Prepends the application name to the fail message and throws a RuntimeError exception.
+    # Very similar to the plain <code>fail</code> method with the addition of prepending the application name.
+    # Prepended message: 'Fail in app.name: '
+    # If no message if provided, message is set to 'Fail in app.name'
+    # @param message [String] Message to print with the exception. If the message option is nil, a default message will be used instead.
+    # @param exception_class [Class] Custom Exception class to throw. May require the full namespace, e.g. <code>Origen::OrigenError</code> instead of just <code>OrigenError</code>.
+    # @raise [RuntimeError, exception_class] Option exception_class is raised, defaulting to <code>RuntimeError</code>.
+    def fail(message: nil, exception_class: RuntimeError)
+      message.nil? ? message = "Fail in #{name}" : message = "Fail in #{name}: #{message}"
+      e = exception_class.new(message)
+
+      # If the caller is Origen.app.fail!, remove this caller from the backtrace, leaving where Origen.app.fail! was called.
+      # As an aside, if there's an exception raised in Origen.app.fail!, then that would actually raise a Kernel.fail, so there's no concern with masking
+      # out a problem with Origen.app.fail! by doing this.
+      if caller[0] =~ (/lib\/origen\/application.rb:\d+:in `fail!'/)
+        e.set_backtrace(caller[1..-1])
+      else
+        e.set_backtrace(caller)
+      end
+      Kernel.fail(e)
+    end
+
+    # Similar to Origen.app.fail, but will instead print the message using Origen.log.error and exit the current process (using <code>exit 1</code>)
+    # UNLESS --debug is used. In those cases, <code>exit</code> will not be used and instead this will behave the same as {Origen::Application#fail}.
+    # Purpose here is to allow fail! for normal usage, but provide more details as to where fail! was used when running in debug.
+    # @param message [String] Message to print with the exception. If the message option is nil, a default message will be used instead.
+    # @param exception_class [Class] Custom Exception class to throw. May require the full namespace.
+    # @param exit_status [Integer] Exit status to use when exiting the application.
+    # @raise [RuntimeError, SystemExit, exception_class] When debug is disabled, <code>SystemExit</code> will be raised.
+    #   When debug is enabled, exception_class will be raised, defaulting to <code>RuntimeError</code>.
+    def fail!(message: nil, exception_class: RuntimeError, exit_status: 1)
+      if Origen.debug?
+        # rubocop:disable Style/RedundantSelf
+        self.fail(message: message, exception_class: exception_class)
+        # rubocop:enable Style/RedundantSelf
+      else
+        begin
+          # rubocop:disable Style/RedundantSelf
+          self.fail(message: message, exception_class: exception_class)
+          # rubocop:enable Style/RedundantSelf
+        rescue exception_class => e
+          Origen.log.error(e.message)
+          exit exit_status
+        end
+      end
     end
 
     # This method is called just after an application inherits from Origen::Application,

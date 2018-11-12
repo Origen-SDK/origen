@@ -79,6 +79,7 @@ module Origen
               else
                 if options[:action] == :program
                   Origen.generator.generate_program(expand_lists_and_directories(options[:files], options), options)
+                  Origen.app.listeners_for(:program_generated).each(&:program_generated)
                 else
                   temporary_plugin_from_options = options[:current_plugin]
                   expand_lists_and_directories(options[:files], options).each do |file|
@@ -228,14 +229,16 @@ module Origen
         # submitted the job.
         Origen.file_handler.set_output_directory(options.merge(create: Origen.running_locally?))
         Origen.file_handler.set_reference_directory(options.merge(create: Origen.running_locally?))
-        tmp = "#{Origen.root}/tmp"
-        FileUtils.mkdir(tmp) unless File.exist?(tmp)
-        if Origen.running_locally?
-          mkdir Origen::Log.log_file_directory
-          mkdir "#{Origen.root}/.lsf"
-        end
-        if options[:lsf]
-          mkdir Origen.app.lsf_manager.log_file_directory
+        unless Origen.running_globally?
+          tmp = "#{Origen.root}/tmp"
+          FileUtils.mkdir(tmp) unless File.exist?(tmp)
+          if Origen.running_locally?
+            mkdir Origen::Log.log_file_directory
+            mkdir "#{Origen.root}/.lsf"
+          end
+          if options[:lsf]
+            mkdir Origen.app.lsf_manager.log_file_directory
+          end
         end
       end
 

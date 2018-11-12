@@ -2,7 +2,7 @@ require "spec_helper"
 
 # Some dummy classes to test out configurable targets
 class MyDut1
-  include Origen::Pins
+  include Origen::TopLevel
   def initialize
     add_pin :pin1
     add_pin_alias :alias1, :pin1
@@ -10,7 +10,7 @@ class MyDut1
 end
 
 class MyDut2
-  include Origen::Pins
+  include Origen::TopLevel
   def initialize
     add_pin :pin1
   end

@@ -63,6 +63,9 @@ describe "Feature API" do
         bits 15..0, :dataLow
         bits 31..16, :dataHigh, feature: :f3
       end
+      reg :r7, 60, feature: [:f3, :f4] do
+        bits 31..0, :data
+      end
     end
   end
   
@@ -71,10 +74,12 @@ describe "Feature API" do
     dut.has_features?.should == true
     dut.has_feature?(:f1).should == true
     dut.regs.size.should == 5
-    dut.regs(enabled_features: :all).size.should == 6
+    dut.regs(enabled_features: :all).size.should == 7
     dut.regs(enabled_features: :default).size.should == 5
     dut.regs(enabled_features: :f1).size.should == 4
-    dut.regs(enabled_features: [:f1, :f2, :f3]).size.should == 6
+    dut.regs(enabled_features: [:f1, :f2, :f3]).size.should == 7
+    dut.regs(enabled_features: :f3).size.should == 5
+    dut.regs(enabled_features: :f4).size.should == 4
     dut.regs(enabled_features: :none).size.should == 3
   end
   
@@ -120,6 +125,12 @@ describe "Feature API" do
     dut.reg(:r5, enabled_features: :none).should == nil # this should give an error
     dut.reg(:r3).should == nil
     dut.reg(:r5).enabled_by_feature?(:f2).should == true
+    dut.reg(:r7, enabled_feature: :f3).has_feature_constraint?.should == true
+    dut.reg(:r7, enabled_feature: :f3).enabled_by_feature?(:f3).should == true
+    dut.reg(:r7, enabled_feature: :f3).enabled_by_feature?(:f4).should == true
+    dut.reg(:r7, enabled_feature: [:f3, :f4]).enabled_by_feature?(:f3).should == true
+    dut.reg(:r7, enabled_feature: [:f3, :f4]).enabled_by_feature?(:f4).should == true
+    dut.reg(:r7).should == nil
     dut.reg(:r5).enabled?.should == true
 
     dut.reg(:r3, enabled_features: :all).enabled?.should == false

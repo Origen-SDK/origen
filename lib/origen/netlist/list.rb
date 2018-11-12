@@ -49,7 +49,7 @@ module Origen
               else
                 from_proc = false
               end
-              if val.is_a?(Fixnum)
+              if val.is_a?(Integer)
                 bits << Registers::Bit.new(nil, index, access: :ro, data: (i == '*' && !from_proc) ? val[index] : val)
               elsif val
                 vp, vi = *to_v(val)
@@ -122,7 +122,7 @@ module Origen
       end
 
       def clean(path)
-        if path.is_a?(Fixnum)
+        if path.is_a?(Integer)
           { path: path, numeric: true }
         elsif path.is_a?(Proc)
           { path: path, proc: true }

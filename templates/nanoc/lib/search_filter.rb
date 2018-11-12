@@ -8,6 +8,7 @@ class SearchFilter < Nanoc::Filter
   def run(content, params={})
     doc = Nokogiri::HTML(content)
     url = assigns[:item_rep].path
+    encoding = params[:encoding] || 'UTF-8'
     #first_image = doc.xpath('//img/@src').to_a[0]
     document = {
       # See this next time you need to fix this: https://gist.github.com/LeCoupa/8c305ec8c713aad07b14
@@ -19,7 +20,7 @@ class SearchFilter < Nanoc::Filter
     }
 
     if File.exist?(search_file)
-      documents = JSON.parse(File.read(search_file))
+      documents = JSON.parse(File.read(search_file, encoding: encoding))
     else
       documents = {}
     end

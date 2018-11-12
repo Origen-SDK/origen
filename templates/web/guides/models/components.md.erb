@@ -1,0 +1,310 @@
+% render "layouts/guides.html" do
+
+So far we've covered [SubBlocks](<%= path "/guides/models/defining/#Adding_Sub_Blocks" %>), [Fuses](<%= path "/guides/models/fuses/" %>),
+[Power Domains](<%= path "/guides/models/power" %>) and other objects.
+Each of these has its particular use, and its instantiation and customized behavior reflects that, 
+but what about a generic component container?
+
+Origen has one of those too, and it behaves similarly to the aforementioned models. The advantage 
+is that you can get a <code>SubBlock-like</code> or <code>Fuse-like</code> interface without having your
+generic components registered as a <code>SubBlock</code> or <code>Fuse</code> and without any extra overhead. The
+disadvantage is that it does nothing else, and functions much like a stripped-down <code>SubBlock</code> object.
+
+However, this allows you to add and use generic components that could be anything. These components don't require a base
+address, or any other options (otherwise you'd use a <code>SubBlock</code>) but will still initialize and be kept
+track for you.
+
+For example, if I have a class: <code>scan_helper</code>, which I've implemented as something similar to a
+<code>SubBlock</code>, but that doesn't have a base_address, registers, or anything like that, I can
+instantiate it as a component instead:
+
+~~~ruby
+component(:scan_helper, class_name: ScanHelper)
+#=> ScanHelper instance with name :scan_helper
+~~~
+
+I can then get this item as I would a <code>sub_block</code>, <code>fuse</code>, etc.:
+
+~~~ruby
+components[:scan_helper] #=> ScanHelper instance
+
+self.scan_helper #=> ScanHelper instance
+~~~
+
+### Component API
+
+Seems pretty basic, right? Good! That's what we're going for! Below is the API that you can do with components.
+
+#### Adding Components
+
+You can add components in a few different ways:
+
+~~~ruby
+
+# Add a component with default class Origen::Component::Default
+component(:comp1)
+
+# Add another component. Notice the use component(s).
+components(:comp2)
+
+# Add a component of class MyComponent
+add_component(:mine, class_name: MyComponent)
+
+# Method add_components also works, as does using a string as the class name
+add_components(:also_mine, class_name: 'MyComponent')
+
+# Add a component using block notation
+add_components(:block_add) do |comp|
+  comp.class_name 'MyComponent'
+end
+
+# Add another one using block notation
+components(:block_add_2) do |c|
+  c.class_name 'MyComponent'
+end
+
+~~~
+
+Now, if we call just <code>components</code>, we'll get the resulting Hash storing these. So,
+
+~~~ruby
+
+components.keys
+#=> ["comp1", "comp2", "mine", "also_mine", "block_add", "block_add_2"]
+
+~~~
+
+Notice the switch from <code>:comp1</code> to <code>"comp1"</code>. This is because the underlying <code>Hash</code>
+is [with_indifferent_access](http://api.rubyonrails.org/classes/ActiveSupport/HashWithIndifferentAccess.html).
+
+Therefore, you can get components from the Hash using either a <code>String</code> or a <code>Symbol</code>,
+but when listing, comparing, etc., the keys will be returned as a <code>String</code>
+
+#### Adding Multiple Instances
+
+You can add multiple instances at once by passing in the <code>:instances</code> option. This will auto-append an
+appendix number to each item.
+
+For example:
+
+~~~ruby
+
+add_component(:multiple, instances: 4)
+
+components.keys
+#=> ["multiple0", "multiple1", "multiple2", "multiple3"]
+
+# In addition, this will make an accessor for each one. So, the following are now defined:
+
+multiple0 #=> :multiple0 Component
+multiple1 #=> :multiple1 Component
+multiple2 #=> :multiple2 Component
+multiple3 #=> :multiple3 Component
+
+~~~
+
+You can pass other options in as well. Single options will be applied to all instances. A <i>single option</i> being
+either not an <code>Array</code> object, or an <code>Array</code> object of size 1.
+
+Options that are <code>Arrays</code> longer than size 1 will be indexed to each instances. For example, if you indicate
+four instances of a component, Array index 0 will go to instance 0, Array index index 1 to instance 1, and so on. Providing
+an incompatible Array length will result in an <code>Origen::Componentable::Error</code>.
+
+~~~ruby
+
+add_component(:multiple, instances: 4, letter: ['A', 'B', 'C', 'D'], number: 0)
+
+multiple0 #=> :multiple0 Component with parameters: letter: 'A', number: 0
+multiple1 #=> :multiple1 Component with parameters: letter: 'B', number: 0
+multiple2 #=> :multiple2 Component with parameters: letter: 'C', number: 0
+multiple3 #=> :multiple3 Component with parameters: letter: 'D', number: 0
+
+add_component(:more, instances: 3, letter: ['A', 'B', 'C', 'D'], number: 0)
+#=> Origen::Componentable::Error
+
+~~~
+
+The corner case of wanting a static-sized array given to each instance can be overcome by embedding that Array in
+another Array of size 1. For example, the options <code>instance: 2, cores: [:cm0, :cm3, :cm4]</code> will result in
+an <code>Origen::Componentable::Error</code> but, <code>instance: 2, cores: [[:cm0, :cm3, :cm4]]</code> will be fine 
+and results in both instances getting the option <code>cores: [:cm0, :cm3, :cm4]</code>.
+
+#### Copying and Moving Components
+
+You can copy and move components using these methods:
+
+~~~ruby
+
+copy_component(:comp1, :comp1_copy)
+# Method copy_components is an alias
+
+components.keys
+#=> ["comp1", "comp2", "mine", "also_mine", "block_add", "block_add_2", "comp1_copy"]
+
+move_component(:comp1_copy, :comp1_moved)
+# Method move_components is an alias
+
+components.keys
+#=> ["comp1", "comp2", "mine", "also_mine", "block_add", "block_add_2", "comp1_moved"]
+~~~
+
+Note that copying components will actually clone the component. So, you get an independent instance
+of the object that you copied from.
+
+#### Listing Components
+
+Listing the components will show you just the names. This is the equivalent of using
+<code>components.keys</code>:
+
+~~~ruby
+
+list_components
+#=> ["comp1", "comp2", "mine", "also_mine", "block_add", "block_add_2", "comp1_moved"]
+
+~~~
+
+You can check if a component has been added using the <code>has_component?</code> method:
+
+~~~ruby
+
+has_component?("comp1") #=> true
+has_component?(:comp1) #=> true
+
+has_component?("comp_dne") #=> false
+has_component?(:comp_dne) #=> false
+
+# component?(name) is an alias method name
+
+~~~
+
+#### Getting Components
+
+You can get components using either the index notation or by utiliting the accessor given
+during the <code>add</code> process:
+
+~~~ruby
+
+components[:comp1] #=> component at name :comp1
+
+comp1 #=> same as calling components[:comp1]
+
+~~~
+
+#### Querying Added Components
+
+There's a method available that can query the current classes of the added components.
+
+~~~ruby
+
+components_of_class(MyComponent)
+#=> ["mine", "also_mine", "block_add"]
+
+# components_instances_of and components_of_type are aliases
+
+~~~
+
+#### Enumerating
+
+Component exposes two commonly used enumerable methods: <code>each</code> and <code>select</code>
+
+~~~ruby
+
+# All of these call the :each method
+
+components.each do |name, component|
+  # do something
+end
+
+each_component do |name, component|
+  # do something
+end
+
+all_components do |name, component|
+  # do something
+end
+
+~~~
+
+~~~ruby
+
+select_components do |name, component|
+  # do something
+end
+
+~~~
+
+You can use other enumerable methods provided by the <code>Hash</code> class by using
+<code>components._enumerable_method_</code>
+
+#### Deleting Components
+
+You can delete components that you've previously added. This will return the deleted item, or
+raise an exception if the name does not exist.
+
+~~~ruby
+
+list_components
+#=> ["comp1", "comp2", "mine", "also_mine", "block_add", "block_add_2", "comp1_moved"]
+
+delete_component("comp1_moved")
+#=> Component at comp1_moved
+
+list_components
+#=> ["comp1", "comp2", "mine", "also_mine", "block_add", "block_add_2"]
+
+# Methods delete_components, remove_component, and remove_components, are all aliases
+
+~~~
+
+You can also clear the entire component structure and start fresh. <strong>Note this this will
+not return any components.</strong>
+
+~~~ruby
+
+list_components
+#=> ["comp1", "comp2", "mine", "also_mine", "block_add", "comp1_moved"]
+
+delete_all_components
+
+list_components
+#=> []
+
+# Methods clear_components and remove_all_components are aliases
+
+~~~
+
+<div class="alert alert-info">
+  <strong>Info!</strong> Due to the way Component is implemented, it does not an API section. You can see the next
+  topic on <a href="<%= path '/guides/models/componentable' %>">Componentable</a>
+  however to extract the component API in YARDOC from its <code>Componentable</code> mixin.
+</div>
+
+### Disabling Accessors
+
+If you add lots of components, or if you add lots of components, subblocks, fuses, etc., it may get messy having each
+one try to put its own accessor on your model. If you find yourself not wanting components to place accessors on your
+model, you can define a method <code>:disable_componentable_accessors(klass)</code> and have it return <code>true</code>
+if <code>klass</code> is of type <code>Origen::Component</code>. In other words:
+
+~~~ruby
+def disable_componentable_accessors(klass)
+  if klass == Origen::Component
+    true
+  else
+    false
+  end
+end
+~~~
+
+<div class="alert alert-warning">
+  <strong>Warning!</strong> Returning a blanket <code>true</code> value will result in all <code>Componentable</code>
+  objects withholding accessors from your model, including <code>components</code>. For more details on this, please
+  see the <a href='<%= path "/guides/models/componentable" %>'>Componentable Guide</a>.
+</div>
+
+### Componentable
+
+<code>Component</code> is an example of a <code>Origen::Componentable</code> mixin. For information on using this module
+in your own classes to get a component-like interface, please see the topic [here](<%= path "/guides/models/componentable" %>)
+
+% end

@@ -20,4 +20,18 @@ class Array
     hash.delete_if { |_k, v| v.size == 1 }
     hash
   end
+
+  def include_hash?
+    each { |e| return true if e.is_a? Hash }
+    false
+  end
+
+  def include_hash_with_key?(key)
+    each do |e|
+      if e.is_a? Hash
+        return e if e.key?(key)
+      end
+    end
+    nil
+  end
 end

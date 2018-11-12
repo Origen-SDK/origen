@@ -61,7 +61,9 @@ module Origen
       # which is will build and checkout as required
       def git_repo
         @git_repo ||= begin
-          local = Pathname.new("#{Origen.app.workspace_manager.imports_directory}/git/#{Origen.config.web_directory.gsub('/', '-').symbolize}")
+          local_path = "#{Origen.config.web_directory.gsub('/', '-').symbolize}"
+          local_path.gsub!(':', '-') if Origen.os.windows?
+          local = Pathname.new("#{Origen.app.workspace_manager.imports_directory}/git/#{local_path}")
           if git_sub_dir
             remote = Origen.config.web_directory.sub("\/#{git_sub_dir}", '')
           else

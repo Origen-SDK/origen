@@ -51,10 +51,15 @@ definition must still be around when Origen tries to resurrect it from the sessi
 cannot store an object, delete the class definition for that object, and then materialize it
 from the session later. Similarly binary data cannot be stored to the session.
 
-For now no API is provided to delete things from the session, although you can set values to nil:
+There are a few helper methods for managing the session store.
 
 ~~~ruby
-Origen.app.session.main[:exec_count] = nil
+Origen.app.session.main[:exec_count] = 10       
+Origen.app.session.main[:owner] = 'Stephen'     
+Origen.app.session.main.has_key?(:exec_count)   # => true
+Origen.app.session.main.keys.sort               # => [:exec_count, :owner]
+Origen.app.session.main.delete_key(:exec_count) # => 10
+Origen.app.session.main.keys.sort               # => [:owner]
 ~~~
 
 #### A Practical Example

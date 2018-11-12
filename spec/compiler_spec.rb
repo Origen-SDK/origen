@@ -49,4 +49,14 @@ describe "Inline compiler" do
     Origen.app.plugins.current = nil
     Origen.app.runner.launch action: :generate, files: "compiler_test", output: "#{Origen.root}/tmp"
   end
+
+  it "can preserve the target properly" do
+    $nvm.attribute_x.should == nil
+    $nvm.attribute_x = "X"
+    Origen.compile(FILE).should == "25\nHello"
+    $nvm.attribute_x.should == nil
+    $nvm.attribute_x = "X"
+    Origen.compile(FILE, preserve_target: true).should == "25\nHello"
+    $nvm.attribute_x.should == "X"
+  end
 end

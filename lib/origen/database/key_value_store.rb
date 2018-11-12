@@ -60,6 +60,30 @@ module Origen
         @private
       end
 
+      # Check if the store has a key
+      def has_key?(key)
+        store.include? key
+      end
+
+      # Remove the session file in the case it gets corrupted
+      # This can happen when a complex object is not handled
+      # correctly by the Marshal method.
+      def rm_session_file
+        FileUtils.rm_f(file)
+      end
+
+      # Deletes a key from the active store
+      def delete_key(key)
+        store.delete(key)
+        save_to_file
+        load_from_file
+      end
+
+      # Return an array of store keys, excluding the 'infrastructure' key(s)
+      def keys
+        store.keys - [:refresh_interval_in_minutes]
+      end
+
       private
 
       def dssc

@@ -1,6 +1,30 @@
+# The base class of all numbers, i.e. integers and floats
 class Numeric
-  def undefined?
-    false
+  # Helpers for cases where a method may return a 0, 1 or an instance
+  # of Origen::Value::X or Origen::Value::Z
+
+  def z?;
+    false;
+  end
+
+  def hi_z?;
+    false;
+  end
+
+  def x?;
+    false;
+  end
+
+  def undefined?;
+    false;
+  end
+
+  def x_or_z?;
+    false;
+  end
+
+  def z_or_x?;
+    false;
   end
 
   def to_hex
@@ -29,15 +53,49 @@ class Numeric
     result
   end
 
+  def as_units(units)
+    if self >= 1_000_000_000_000_000
+      "#{self / 1_000_000_000_000_000.0}P#{units}"
+    elsif self >= 1_000_000_000_000
+      "#{self / 1_000_000_000_000.0}T#{units}"
+    elsif self >= 1_000_000_000
+      "#{self / 1_000_000_000.0}G#{units}"
+    elsif self >= 1_000_000
+      "#{self / 1_000_000.0}M#{units}"
+    elsif self >= 1_000
+      "#{self / 1_000.0}k#{units}"
+    elsif self >= 1
+      "#{self}#{units}"
+    elsif self >= 1e-3
+      "#{self * 1_000}m#{units}"
+    elsif self >= 1e-6
+      "#{self * 1_000_000}u#{units}"
+    elsif self >= 1e-9
+      "#{self * 1_000_000_000}n#{units}"
+    elsif self >= 1e-12
+      "#{self * 1_000_000_000_000}p#{units}"
+    elsif self >= 1e-15
+      "#{self * 1_000_000_000_000_000}a#{units}"
+    else
+      "%.3e#{units}" % self
+    end
+  end
+
+  %w(Hz hz Ts ts bps sps ohm Ohm a A v V s S f F).each do |m|
+    define_method "as_#{m}" do
+      as_units(m)
+    end
+  end
+
   # Msps ==> Mega samples per second
 
-  %w(GHz Ghz GTs Gts Gsps).each do |m|
+  %w(GHz Ghz GTs Gts Gsps Gbps).each do |m|
     define_method m do
       self * 1_000_000_000
     end
   end
 
-  %w(MHz Mhz MTs Mts Msps).each do |m|
+  %w(MHz Mhz MTs Mts Msps Mbps).each do |m|
     define_method m do
       self * 1_000_000
     end
@@ -100,33 +158,53 @@ class Numeric
     end
   end
 
-  %w(v V s S a A Hz Ts Ohm ohm O o).each do |m|
+  %w(v V s S a A Hz Ts Ohm ohm O o f F).each do |m|
     define_method m do
       self
     end
   end
 
-  %w(mv mV ms mS ma mA mo mO mOhm mohm).each do |m|
+  %w(mv mV ms mS ma mA mo mO mOhm mohm mf mF).each do |m|
     define_method m do
       self / 1_000.0
     end
   end
 
-  %w(uv uV us uS ua uA).each do |m|
+  %w(uv uV us uS ua uA uf uF).each do |m|
     define_method m do
       self / 1_000_000.0
     end
   end
 
-  %w(nv nV ns nS na nA).each do |m|
+  %w(nv nV ns nS na nA nf nF).each do |m|
     define_method m do
       self / 1_000_000_000.0
     end
   end
 
-  %w(pv pV ps pS pa pA).each do |m|
+  %w(pv pV ps pS pa pA pf pF).each do |m|
     define_method m do
       self / 1_000_000_000_000.0
     end
+  end
+
+  # Shorthand for tester.wait(time_in_ns: 100), e.g. 100.ns!
+  def ns!
+    Origen.app.tester.wait time_in_ns: self
+  end
+
+  # Shorthand for tester.wait(time_in_us: 100), e.g. 100.us!
+  def us!
+    Origen.app.tester.wait time_in_us: self
+  end
+
+  # Shorthand for tester.wait(time_in_ms: 100), e.g. 100.ms!
+  def ms!
+    Origen.app.tester.wait time_in_ms: self
+  end
+
+  # Shorthand for tester.wait(time_in_s: 100), e.g. 100.s!
+  def s!
+    Origen.app.tester.wait time_in_s: self
   end
 end

@@ -22,9 +22,9 @@ module Origen
           Origen.log.info 'The following remotes need to be updated, this will now happen automatically:'
           dirty_remotes.each do |name, remote|
             if remote[:path]
-              Origen.log.info "  #{name} - #{remote[:path]}".green
+              Origen.log.info "  #{name} - #{remote[:path]} (included by #{remote[:importer].name})".green
             else
-              Origen.log.info "  #{name} - #{remote[:version]}".green
+              Origen.log.info "  #{name} - #{remote[:version]} (included by #{remote[:importer].name})".green
             end
           end
           Origen.log.info ''
@@ -119,7 +119,46 @@ module Origen
       end
     end
 
+    # Fetches any defined remotes, regardless of whether they are dirty or not
+    def resolve_remotes!
+      resolve_remotes
+      process_remotes
+    end
+
     private
+
+    # Process each remote
+    def process_remotes
+      remotes.each do |_name, remote|
+        dir = workspace_of(remote)
+        rc_url = remote[:rc_url] || remote[:vault]
+        tag = remote[:tag].nil? ? Origen::VersionString.new(remote[:version]) : Origen::VersionString.new(remote[:tag])
+        version_file = dir.to_s + '/.current_version'
+        begin
+          if File.exist?("#{dir}/.initial_populate_successful")
+            FileUtils.rm_f(version_file) if File.exist?(version_file)
+            rc = RevisionControl.new remote: rc_url, local: dir
+            rc.send rc.remotes_method, version: prefix_tag(tag), force: true
+            File.open(version_file, 'w') do |f|
+              f.write tag
+            end
+          else
+            rc = RevisionControl.new remote: rc_url, local: dir
+            rc.send rc.remotes_method, version: prefix_tag(tag), force: true
+            FileUtils.touch "#{dir}/.initial_populate_successful"
+            File.open(version_file, 'w') do |f|
+              f.write tag
+            end
+          end
+        rescue Origen::GitError, Origen::DesignSyncError, Origen::PerforceError => e
+          # If Git failed in the remote, its usually easy to see what the problem is, but now *where* it is.
+          # This will prepend the failing remote along with the error from the revision control system,
+          # then rethrow the error
+          e.message.prepend "When updating remotes for #{remote[:importer].name}: "
+          raise e
+        end
+      end
+    end
 
     # Returns the name of the given import (a lower cased symbol)
     def name_of(remote)
@@ -216,14 +255,14 @@ module Origen
       @remotes = {}
       top_level_remotes
       top_level_remotes.each do |remote|
-        traverse_remotes(remote) do |remote|
-          add_remote(remote)
-        end
+        remote[:importer] = Origen.app
+        add_remote(remote)
       end
       # Add remotes from imports
       Origen.app.plugins.each do |plugin|
         plugin.config.remotes.each do |import_remote|
-          add_remote(import_remote)
+          import_remote[:importer] = plugin
+          add_remote(import_remote) unless import_remote[:development]
         end
       end
       @remotes
@@ -233,29 +272,8 @@ module Origen
       Origen.app.config.remotes    #+ Origen.app.config.remotes_dev (there are no core remotes at this time)
     end
 
-    # Walks down an import tree recursively yielding all nested imports, if
-    # the imported application has not been populated yet then it will
-    # not return any nested imports.
-    #
-    # This will also update the required origen version if a app
-    # instance is encountered that requires a newer version than the current
-    # version.
-    def traverse_remotes(remote, &block)
-      yield remote
-      if remote_present?(remote)
-        app = Origen.application_instance(origen_root_for(remote), reload: true)
-        app.config.remotes.each do |remote|
-          traverse_remotes(remote, &block)
-        end
-      end
-    end
-
     def remotes
       @remotes ||= resolve_remotes
-    end
-
-    def remote_present?(remote)
-      !!origen_root_for(remote, accept_missing: true)
     end
 
     # Conflicts are resolved by the following rules:
@@ -264,6 +282,11 @@ module Origen
     #   * If multiple versions of the same remote are found the most
     #     recent one wins.
     def add_remote(new)
+      # Cannot have both a tag and a version defined for a remote
+      if ([:tag, :version] - new.keys).empty?
+        Origen.log.error('Cannot define both a tag and a version for a remote!')
+        fail
+      end
       name = name_of(new)
       # If the current remote has been imported by one of it's dev dependencies
       # then always use the local workspace
@@ -310,25 +333,32 @@ module Origen
         end
         if remote[:path]
           create_symlink(remote[:path], dir)
-
         else
           rc_url = remote[:rc_url] || remote[:vault]
-          tag = Origen::VersionString.new(remote[:version])
+          tag = remote[:tag].nil? ? Origen::VersionString.new(remote[:version]) : Origen::VersionString.new(remote[:tag])
           version_file = dir.to_s + '/.current_version'
-          if File.exist?("#{dir}/.initial_populate_successful")
-            FileUtils.rm_f(version_file) if File.exist?(version_file)
-            rc = RevisionControl.new remote: rc_url, local: dir
-            rc.checkout version: prefix_tag(tag), force: true
-            File.open(version_file, 'w') do |f|
-              f.write tag
+          begin
+            if File.exist?("#{dir}/.initial_populate_successful")
+              FileUtils.rm_f(version_file) if File.exist?(version_file)
+              rc = RevisionControl.new remote: rc_url, local: dir
+              rc.send rc.remotes_method, version: prefix_tag(tag), force: true
+              File.open(version_file, 'w') do |f|
+                f.write tag
+              end
+            else
+              rc = RevisionControl.new remote: rc_url, local: dir
+              rc.send rc.remotes_method, version: prefix_tag(tag), force: true
+              FileUtils.touch "#{dir}/.initial_populate_successful"
+              File.open(version_file, 'w') do |f|
+                f.write tag
+              end
             end
-          else
-            rc = RevisionControl.new remote: rc_url, local: dir
-            rc.checkout version: prefix_tag(tag), force: true
-            FileUtils.touch "#{dir}/.initial_populate_successful"
-            File.open(version_file, 'w') do |f|
-              f.write tag
-            end
+          rescue Origen::GitError, Origen::DesignSyncError, Origen::PerforceError  => e
+            # If Git failed in the remote, its usually easy to see what the problem is, but now *where* it is.
+            # This will prepend the failing remote along with the error from the revision control system,
+            # then rethrow the error
+            e.message.prepend "When updating remotes for #{remote[:importer].name}: "
+            raise e
           end
         end
       end

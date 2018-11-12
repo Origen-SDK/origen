@@ -4,6 +4,10 @@ unless defined? RGen::ORIGENTRANSITION
   require 'English'
   require 'pathname'
   require 'pry'
+  # require these here to make required files consistent between global commands invoke globally and global commands
+  # invoked from an application workspace
+  require 'colored'
+  require 'fileutils'
   # Keep a note of the pwd at the time when Origen was first loaded, this is initially used
   # by the site_config lookup.
   $_origen_invocation_pwd ||= Pathname.pwd
@@ -23,38 +27,49 @@ unless defined? RGen::ORIGENTRANSITION
   require 'option_parser/optparse'
   require 'bundler'
   require 'origen/undefined'
+  require 'origen/componentable'
+  require 'socket'
 
   module Origen
-    autoload :Features,  'origen/features'
-    autoload :Bugs,      'origen/bugs'
-    autoload :Generator, 'origen/generator'
-    autoload :Pins,      'origen/pins'
-    autoload :Registers, 'origen/registers'
-    autoload :Ports,     'origen/ports'
-    autoload :Users,     'origen/users'
-    autoload :FileHandler, 'origen/file_handler'
+    autoload :Features,          'origen/features'
+    autoload :Bugs,              'origen/bugs'
+    autoload :Generator,         'origen/generator'
+    autoload :Pins,              'origen/pins'
+    autoload :Registers,         'origen/registers'
+    autoload :Ports,             'origen/ports'
+    autoload :Users,             'origen/users'
+    autoload :FileHandler,       'origen/file_handler'
     autoload :RegressionManager, 'origen/regression_manager'
-    autoload :Location,  'origen/location'
-    autoload :VersionString, 'origen/version_string'
-    autoload :Mode,      'origen/mode'
-    autoload :ChipMode,   'origen/chip_mode'
-    autoload :ChipPackage,   'origen/chip_package'
-    autoload :Client,    'origen/client'
-    autoload :SubBlocks,  'origen/sub_blocks'
-    autoload :SubBlock,   'origen/sub_blocks'
+    autoload :Location,          'origen/location'
+    autoload :VersionString,     'origen/version_string'
+    autoload :Mode,              'origen/mode'
+    autoload :ChipMode,          'origen/chip_mode'
+    autoload :ChipPackage,       'origen/chip_package'
+    autoload :Client,            'origen/client'
+    autoload :SubBlocks,         'origen/sub_blocks'
+    autoload :SubBlock,          'origen/sub_blocks'
     autoload :ModelInitializer,  'origen/model_initializer'
-    autoload :Controller, 'origen/controller'
-    autoload :Database,   'origen/database'
-    autoload :Parameters, 'origen/parameters'
-    autoload :RevisionControl, 'origen/revision_control'
-    autoload :Specs,      'origen/specs'
-    autoload :CodeGenerators, 'origen/code_generators'
-    autoload :Encodings, 'origen/encodings'
-    autoload :Log,       'origen/log'
-    autoload :Chips,     'origen/chips'
-    autoload :Netlist,   'origen/netlist'
-    autoload :Models,    'origen/models'
-    autoload :Errata,    'origen/errata'
+    autoload :Controller,        'origen/controller'
+    autoload :Database,          'origen/database'
+    autoload :Parameters,        'origen/parameters'
+    autoload :RevisionControl,   'origen/revision_control'
+    autoload :Specs,             'origen/specs'
+    autoload :CodeGenerators,    'origen/code_generators'
+    autoload :Encodings,         'origen/encodings'
+    autoload :Log,               'origen/log'
+    autoload :Chips,             'origen/chips'
+    autoload :Netlist,           'origen/netlist'
+    autoload :Models,            'origen/models'
+    autoload :Errata,            'origen/errata'
+    autoload :LSF,               'origen/application/lsf'
+    autoload :LSFManager,        'origen/application/lsf_manager'
+    autoload :Fuses,             'origen/fuses'
+    autoload :Tests,             'origen/tests'
+    autoload :PowerDomains,      'origen/power_domains'
+    autoload :Clocks,            'origen/clocks'
+    autoload :Value,             'origen/value'
+    autoload :OrgFile,           'origen/org_file'
+    autoload :Limits,            'origen/limits'
 
     attr_reader :switch_user
 
@@ -66,11 +81,26 @@ unless defined? RGen::ORIGENTRANSITION
       end
     end
 
+    class PerforceError < OrigenError;  status_code(11); end
     class GitError < OrigenError; status_code(11); end
     class DesignSyncError < OrigenError; status_code(12); end
+    class RevisionControlUninitializedError < OrigenError; status_code(13); end
+    class SyntaxError < OrigenError; status_code(14); end
 
     class << self
       include Origen::Utility::TimeAndDate
+
+      # Uniformly justifies the given help command line for display in a command line help output
+      def clean_help_line(str)
+        if str =~ /^\s\s\s\s\s\s\s*(.*)/
+          (' ' * 20) + Regexp.last_match(1)
+        # http://rubular.com/r/MKmU4xZgO2
+        elsif str =~ /^\s*([^\s]+)\s+(.*)/
+          ' ' + Regexp.last_match(1).ljust(19) + Regexp.last_match(2)
+        else
+          str
+        end
+      end
 
       def enable_profiling
         @profiling = true
@@ -150,6 +180,10 @@ unless defined? RGen::ORIGENTRANSITION
         find_app_by_root(path)
       end
       alias_method :application!, :app!
+
+      def has_plugin?(plugin)
+        _applications_lookup[:name][plugin.to_sym].nil? ? false : true
+      end
 
       # @api private
       def with_source_file(file)
@@ -257,12 +291,21 @@ unless defined? RGen::ORIGENTRANSITION
 
       # Returns true if Origen is running in an application workspace
       def in_app_workspace?
-        path = Pathname.new(Dir.pwd)
-        until path.root? || File.exist?(File.join(path, APP_CONFIG))
-          path = path.parent
+        @in_app_workspace ||= begin
+          path = Pathname.new(Dir.pwd)
+          until path.root? || File.exist?(File.join(path, APP_CONFIG))
+            path = path.parent
+          end
+          !path.root?
         end
-        !path.root?
       end
+
+      # Shortcut method to find if Origen was invoked from within an application or from
+      # the global Origen install. This is just the opposite of in_app_workspace?
+      def running_globally?
+        @running_globally ||= !in_app_workspace?
+      end
+      alias_method :invoked_globally?, :running_globally?
 
       def root(plugin = nil)
         if plugin
@@ -277,7 +320,10 @@ unless defined? RGen::ORIGENTRANSITION
                 path = path.parent
               end
               if path.root?
-                fail 'Something went wrong resolving the application root!'
+                @running_globally = true
+                path = Pathname.new($_origen_invocation_pwd || Dir.pwd)
+              else
+                @in_app_workspace = true
               end
               path
             end
@@ -429,47 +475,54 @@ unless defined? RGen::ORIGENTRANSITION
       # automatically the first time the application is referenced via Origen.app
       def load_application(options = {})
         @application ||= begin
-          # Make sure the top-level root is always in the load path, it seems that some existing
-          # plugins do some strange things to require stuff from the top-level app and rely on this
-          path = File.join(root, 'lib')
-          $LOAD_PATH.unshift(path) unless $LOAD_PATH.include?(path)
-          # This flag is set so that when a thread starts with no app it remains with no app. This
-          # was an issue when building a new app with the fetch command and when the thread did a
-          # chdir to the new app directory (to fetch it) Origen.log would try to load the partial app.
-          @running_outside_an_app = true unless in_app_workspace?
-          return nil if @running_outside_an_app
-          # Load the app's plugins and other gem requirements
-          if File.exist?(File.join(root, 'Gemfile')) && !@with_boot_environment
-            # Don't understand the rules here, belt and braces approach for now to make
-            # sure that all Origen plugins are auto-required (otherwise Origen won't know
-            # about them to plug them into the application)
-            Bundler.require
-            Bundler.require(:development)
-            Bundler.require(:runtime)
-            Bundler.require(:default)
-          end
-          @plugins_loaded = true
-          # Now load the app
-          @loading_top_level = true
-          require File.join(root, APP_CONFIG)
-          @application = _applications_lookup[:root][root.to_s]
-          @loading_top_level = false
-          if @with_boot_environment
-            @application.plugins.disable_current
+          # If running globally (outside of an app workspace), instantiate a bare bones app to help
+          # many of Origen's features that expect an app to be present.
+          if running_globally?
+            @plugins_loaded = true
+            # Now load the app
+            @loading_top_level = true
+            require 'origen/global_app'
+            @application = _applications_lookup[:root][root.to_s]
+            @loading_top_level = false
+            @application_loaded = true
+            @application
           else
-            Origen.remote_manager.require!
+            # Make sure the top-level root is always in the load path, it seems that some existing
+            # plugins do some strange things to require stuff from the top-level app and rely on this
+            path = File.join(root, 'lib')
+            $LOAD_PATH.unshift(path) unless $LOAD_PATH.include?(path)
+            if File.exist?(File.join(root, 'Gemfile')) && !@with_boot_environment
+              # Don't understand the rules here, belt and braces approach for now to make
+              # sure that all Origen plugins are auto-required (otherwise Origen won't know
+              # about them to plug them into the application)
+              Bundler.require
+              Bundler.require(:development)
+              Bundler.require(:runtime)
+              Bundler.require(:default)
+            end
+            @plugins_loaded = true
+            # Now load the app
+            @loading_top_level = true
+            require File.join(root, APP_CONFIG)
+            @application = _applications_lookup[:root][root.to_s]
+            @loading_top_level = false
+            if @with_boot_environment
+              @application.plugins.disable_current
+            else
+              Origen.remote_manager.require!
+            end
+            boot = File.join(root, 'config', 'boot.rb')
+            require boot if File.exist?(boot)
+            env = File.join(root, 'config', 'environment.rb')
+            require env if File.exist?(env)
+            dev = File.join(root, 'config', 'development.rb')
+            require dev if File.exist?(dev)
+            validate_origen_dev_configuration!
+            ([@application] + Origen.app.plugins).each(&:on_loaded)
+            @application_loaded = true
+            Array(@after_app_loaded_blocks).each { |b| b.call(@application) }
+            @application
           end
-          boot = File.join(root, 'config', 'boot.rb')
-          require boot if File.exist?(boot)
-          env = File.join(root, 'config', 'environment.rb')
-          require env if File.exist?(env)
-          dev = File.join(root, 'config', 'development.rb')
-          require dev if File.exist?(dev)
-          validate_origen_dev_configuration!
-          ([@application] + Origen.app.plugins).each(&:on_loaded)
-          @application_loaded = true
-          Array(@after_app_loaded_blocks).each { |b| b.call(@application) }
-          @application
         end
       end
 
@@ -577,17 +630,14 @@ unless defined? RGen::ORIGENTRANSITION
       # Use User.current to retrieve the current user, this is an internal API that will
       # be cleaned up (removed) in future
       # @api private
-      def current_user
+      def current_user(options = {})
+        @current_user = nil if options[:refresh]
         if app_loaded? || in_app_workspace?
           return @switch_user unless @switch_user.nil?
-          application.current_user
+          @current_user ||= application.current_user
         else
-          User.new(User.current_user_id)
+          @current_user ||= User.new(User.current_user_id)
         end
-      end
-
-      def lsf
-        application.lsf_manager
       end
 
       def running_on_windows?
@@ -611,6 +661,21 @@ unless defined? RGen::ORIGENTRANSITION
         @running_remotely = val
       end
 
+      def running_simulation?
+        !!(defined?(OrigenSim) && Origen.tester && Origen.tester.sim?)
+      end
+
+      # Returns true if Origen is running interactively. That is, the command was 'origen i'
+      def running_interactively?
+        !!@running_interactively
+      end
+      alias_method :interactive?, :running_interactively?
+
+      # Platform independent way of retrieving the hostname
+      def hostname
+        Socket.gethostbyname(Socket.gethostname).first.downcase
+      end
+
       # Returns true if Origen is running with the -d or --debug switches enabled
       def debug?
         @debug || false
@@ -622,7 +687,7 @@ unless defined? RGen::ORIGENTRANSITION
       end
 
       def debugger_enabled?
-        @debug
+        debug?
       end
 
       def development?
@@ -691,7 +756,34 @@ unless defined? RGen::ORIGENTRANSITION
 
       # Returns the home directory of Origen (i.e., the primary place that Origen operates out of)
       def home
-        "#{Dir.home}/.origen"
+        File.expand_path(Origen.site_config.home_dir)
+      end
+
+      def lsf_manager
+        @lsf_manager ||= Origen::Application::LSFManager.new
+      end
+
+      # Picks between either the global lsf_manager or the application's LSF manager
+      def lsf
+        if running_globally?
+          lsf_manager
+        else
+          application.lsf_manager
+        end
+      end
+
+      # Returns the Origen LSF instance, not the lsf_manager. Use Origen.lsf for that
+      def lsf!
+        @lsf ||= Origen::Application::LSF.new
+      end
+
+      # Let's Origen know about any domain specific acronyms used with an application, this will cause
+      # them to be translated between underscored and camel-cased versions correctly
+      def register_acronym(name)
+        require 'active_support/core_ext/string/inflections'
+        ActiveSupport::Inflector.inflections(:en) do |inflect|
+          inflect.acronym(name)
+        end
       end
 
       private
@@ -716,4 +808,6 @@ unless defined? RGen::ORIGENTRANSITION
   # outside the scope of an Origen command
   require 'origen/global_methods'
   include Origen::GlobalMethods
+
+  require 'origen/components'
 end

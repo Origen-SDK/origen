@@ -43,6 +43,7 @@ else
   end
 end
 
+# If running inside an application workspace
 if origen_root
   # Force everyone to have a consistent way of installing gems with bundler
   ENV['BUNDLE_GEMFILE'] = File.join(origen_root, 'Gemfile')
@@ -56,9 +57,57 @@ if origen_root
     exec Gem.ruby, "#{origen_root}/lbin/origen", *ARGV
     exit 0
   end
+  
+  boot_app = true
+
+# If running outside an application and a user or central tool Origen bundle is to be used
+elsif Origen.site_config.gem_manage_bundler && (Origen.site_config.user_install_enable || Origen.site_config.tool_repo_install_dir)
+  # Force everyone to have a consistent way of installing gems with bundler.
+  # In this case, we aren't running from an Origen application, so build everything at Origen.home instead
+  # Have two options here: if user_install_enable is true, use user_install_dir. Otherwise, use the tool_repo_install_dir
+  Origen.site_config.user_install_enable ? origen_root = File.expand_path(Origen.site_config.user_install_dir) : origen_root = File.expand_path(Origen.site_config.tool_repo_install_dir)
+  unless Dir.exists?(origen_root)
+    load File.expand_path('../../lib/origen/utility/input_capture.rb', __FILE__)
+    include Origen::Utility::InputCapture
+    
+    puts "Root directory '#{origen_root}' does not exist. Would you like to create it?"
+    if get_text(confirm: :return_boolean)
+      FileUtils.mkdir(origen_root)
+    else
+      puts "Exiting with creating Origen install"
+      exit!
+    end
+  end
+  
+  gemfile = File.join(origen_root, 'Gemfile')
+  unless File.exists?(gemfile)
+    # Create a default Gemfile that can be further customized by the user.
+    # Initial Gemfile only requires Origen. Nothing else. Essentially a blank installation.
+    Dir.chdir(origen_root) do
+      `bundle init`
+    end
+    # The above will give a general Gemfile from Bundler. We'll just append "gem 'origen' to the end.
+    File.open(gemfile, 'a') do |f|
+     f << "gem 'origen'\n"
+    end
+  end
+  ENV['BUNDLE_GEMFILE'] = gemfile
+  ENV['BUNDLE_PATH'] = File.expand_path(Origen.site_config.gem_install_dir)
+  ENV['BUNDLE_BIN'] = File.join(origen_root, 'lbin')
+
+  origen_exec = File.join(ENV['BUNDLE_BIN'], 'origen')
+
+  # If the user/tool bundle already exists but we have not been invoked through that, abort this thread
+  # and re-launch under the required bundler environment
+  if File.exist?(origen_exec) && !ENV['BUNDLE_BIN_PATH'] && File.exist?(ENV['BUNDLE_PATH'])
+    exec Gem.ruby, origen_exec, *ARGV
+    exit 0
+  else
+    boot_app = false
+  end
 end
 
-if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_manage_bundler
+if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_manage_bundler && (boot_app || Origen.site_config.user_install_enable || Origen.site_config.tool_repo_install_dir)
   # Overriding bundler here so that bundle install can be automated as required
   require 'bundler/shared_helpers'
   if Bundler::SharedHelpers.in_bundle?
@@ -121,6 +170,11 @@ if origen_root && File.exist?(ENV['BUNDLE_GEMFILE']) && Origen.site_config.gem_m
     end
   end
   require 'bundler/setup'
+  _exec_remote = ARGV.include?('--exec_remote') ? true : false  
+  if Origen.site_config.use_bootsnap && !Origen.os.windows? && !_exec_remote
+    ENV["BOOTSNAP_CACHE_DIR"] ||= "#{origen_root}/tmp/cache"
+    require 'bootsnap/setup'
+  end
   require 'origen'
 else
   $LOAD_PATH.unshift "#{File.expand_path(File.dirname(__FILE__))}/../lib"
@@ -131,13 +185,19 @@ begin
   # If this script has been invoked from within an Origen application then open
   # up all commands, if not then only allow the command to create a new Origen
   # application.
-  if origen_root
+  if origen_root && boot_app
     require 'origen/commands'
   else
     require 'origen/commands_global'
   end
 rescue Exception => e
-  unless e.is_a?(SystemExit) && e.status == 0
+  # A formatted stack dump will not be printed if the application ends via 'exit 0' or 'exit 1'. In that
+  # case the application code is responsible for printing a helpful error message.
+  # This will intercept all other exits, e.g. via 'fail "Something has done wrong"', and split the stack
+  # dump to separate all in-application references from Origen core/plugin references.
+  if e.is_a?(SystemExit)
+    exit e.status
+  else
     puts
     if Origen.app_loaded?
       puts 'COMPLETE CALL STACK'

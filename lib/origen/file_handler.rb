@@ -171,8 +171,8 @@ module Origen
                     Dir.glob("#{options[:default_dir]}/#{file}")).sort
         if matches.size == 0
           matches = Dir.glob("#{options[:default_dir]}/**{,/*/**}/#{file}").sort # Takes symlinks into consideration
-          matches = matches.flatten.uniq
         end
+        matches = matches.flatten.uniq
       end
 
       if matches.size == 0
@@ -210,9 +210,10 @@ module Origen
       file = inject_import_path(file, type: :template)
       file = add_underscore_to(file)
       file = add_extension_to(file)
+      web_file = file =~ /\.(html|md)(\.|$)/
       begin
         # Allow relative references to templates/web when compiling a web template
-        if Origen.lsf.current_command == 'web'
+        if Origen.lsf.current_command == 'web' || web_file
           clean_path_to(file, load_paths: "#{Origen.root}/templates/web")
         else
           clean_path_to(file)
@@ -220,7 +221,7 @@ module Origen
       rescue
         # Try again without .erb
         file = file.gsub('.erb', '')
-        if Origen.lsf.current_command == 'web'
+        if Origen.lsf.current_command == 'web' || web_file
           clean_path_to(file, load_paths: "#{Origen.root}/templates/web")
         else
           clean_path_to(file)

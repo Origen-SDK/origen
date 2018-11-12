@@ -21,7 +21,11 @@ module RegTest
       Container.new(endian: :little).big_endian?.should == false
     end
 
-    it "updates it's address based on the address of the contained register(s)" do
+    it "contains bits" do
+      Container.new.contains_bits?.should == true
+    end
+
+     it "updates it's address based on the address of the contained register(s)" do
       c = Container.new
       r1 = Reg.new(self, 0, 8, :r1, {})
       r2 = Reg.new(self, 1, 8, :r2, {})
@@ -62,7 +66,11 @@ module RegTest
       owner = Container.new
       r1 = Reg.new(owner, 0, 16, :r1, {})
       c.owner.should == nil
+      c.owned_by?('owner').should == false
       c.add(r1).owner.should == owner
+      c.owned_by?('owner').should == false
+      c.owned_by = 'cont_owner'
+      c.owned_by?('cont_owner').should == true
     end
 
     it "keeps the registers in address order" do
@@ -158,6 +166,12 @@ module RegTest
       r1.write(0x7E00)
       big.add(r1, address: 4)
       big.data.should == 0x0000_7E00
+      big.big_endian?.should == true
+      big.little_endian?.should == false
+      r1.read
+      r1.is_to_be_read?.should == true
+      big.clear_flags
+      r1.is_to_be_read?.should == false
     end
 
     it "works with another real life data example" do
@@ -166,6 +180,8 @@ module RegTest
       r1.write(0x80)
       little.add(r1, address: 3)
       little.data.should == 0x0000_0080
+      little.little_endian?.should == true
+      little.big_endian?.should == false
     end
 
     it "can be shifted left" do

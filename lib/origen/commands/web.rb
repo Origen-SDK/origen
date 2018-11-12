@@ -1,5 +1,6 @@
 require 'optparse'
 require 'pathname'
+require 'origen/commands/helpers'
 
 module Origen
   options = {}
@@ -49,9 +50,9 @@ The following options are available:
     opts.on('-m', '--mode MODE', Origen::Mode::MODES, 'Force the Origen operating mode:', '  ' + Origen::Mode::MODES.join(', ')) { |_m| }
     opts.on('--no-serve', "Don't serve the website after compiling without the remote option") { options[:no_serve] = true }
     opts.on('-c', '--comment COMMENT', String, 'Supply a commit comment when deploying to Git') { |o| options[:comment] = o }
-    app_options.each do |app_option|
-      opts.on(*app_option) {}
-    end
+
+    # Apply any application option extensions to the OptionParser
+    Origen::CommandHelpers.extend_options(opts, app_options, options)
     opts.separator ''
     opts.on('-h', '--help', 'Show this message') { puts opts; exit }
   end
@@ -73,14 +74,10 @@ The following options are available:
 
   def self._start_server
     # Get the current host
-    host = `hostname`.strip.downcase
-    if Origen.running_on_windows?
-      domain = 'fsl.freescale.net'
-    else
-      domain = `dnsdomainname`.strip
-    end
-    # Get a free port
     require 'socket'
+    host = Socket.gethostbyname(Socket.gethostname).first.downcase
+
+    # Get a free port
     port = 8000 # preferred port
     begin
       server = TCPServer.new('127.0.0.1', port)
@@ -92,7 +89,7 @@ The following options are available:
     server.close
     # Start the server
     puts ''
-    puts "Point your browser to this address:  http://#{host}#{domain.empty? ? '' : '.' + domain}:#{port}"
+    puts "Point your browser to this address:  http://#{host}:#{port}"
     puts ''
     puts 'To shut down the server use CTRL-C'
     puts ''
@@ -135,13 +132,14 @@ The following options are available:
     when 'new'
       _build_web_dir
     when 'compile'
-      Origen.app.load_target!
       if options[:remote]
+        Origen.app.load_target!
         _require_web_directory
         _deployer.prepare!(options)
         # If the whole site has been requested that start from a clean slate
         _build_web_dir if ARGV.empty?
       else
+        Origen.app.load_target!(force_debug: true)
         Origen.set_development_mode
       end
       options[:files] = ARGV.dup
@@ -168,7 +166,12 @@ The following options are available:
           listener.before_web_compile(options)
         end
         ARGV.each do |file|
-          output = Origen.file_handler.sub_dir_of(Origen.file_handler.clean_path_to(file), "#{Origen.root}/templates/web")
+          path = Origen.file_handler.clean_path_to(file)
+          if path.to_s =~ /origen_guides/
+            output = Origen.file_handler.sub_dir_of(path, "#{Origen.root}/templates/origen_guides")
+          else
+            output = Origen.file_handler.sub_dir_of(path, "#{Origen.root}/templates/web")
+          end
           Origen.app.runner.launch action: :compile,
                                    files:  file,
                                    output: "#{Origen.root}/web/content/#{output}"

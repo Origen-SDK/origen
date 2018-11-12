@@ -30,6 +30,11 @@ module Origen
       end
       alias_method :current_context, :context
 
+      def available_contexts
+        owner._parameter_sets.keys
+      end
+      alias_method :contexts, :available_contexts
+
       def copy_defaults_from(set)
         set.each do |name, val|
           if val.is_a?(Set)
@@ -152,6 +157,34 @@ module Origen
       def live
         owner._request_live_parameter
         self
+      end
+
+      def to_flat_hash(options = {})
+        options = {
+          delimiter: '.'
+        }.update(options)
+        flatten_params(self, options[:delimiter]).first
+      end
+
+      private
+
+      def flatten_params(param_hash, delimiter, name = nil, results_hash = {})
+        param_hash.each do |k, v|
+          if v.is_a? Origen::Parameters::Set
+            name.nil? ? name = k.to_s : name << "#{delimiter}#{k}"
+            (results_hash, name) = flatten_params(v, delimiter, name, results_hash)
+          else
+            if name.nil?
+              results_hash[k] = v
+            else
+              results_hash["#{name}#{delimiter}#{k}"] = v
+              if k == param_hash.keys.last
+                name = name.include?(delimiter) ? name.split(delimiter)[0..-2].join(delimiter) : nil
+              end
+            end
+          end
+        end
+        [results_hash, name]
       end
     end
   end

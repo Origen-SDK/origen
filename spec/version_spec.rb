@@ -141,87 +141,89 @@ describe Origen::VersionString do
 
       it "equal works" do
         ref = Origen::VersionString.new("v2.2.2")
-        ref.condition_met?("v2.2.2").should == true
-        ref.condition_met?("= v2.2.2").should == true
-        ref.condition_met?("== v2.2.2").should == true
-        ref.condition_met?("v1.2.2").should == false
-        ref.condition_met?("v2.1.2").should == false
-        ref.condition_met?("v2.2.1").should == false
-        ref.condition_met?("v2.2.2.dev2").should == false
+        (ref == " v2.2.2").should == true
+        (ref == "v2.2.2").should == true
+        (ref == "v2.2.2").should == true
+        (ref == "v1.2.2").should == false
+        (ref == "v2.1.2").should == false
+        (ref == "v2.2.1").should == false
+        (ref == "v2.2.2.dev2").should == false
         ref = Origen::VersionString.new("2.2.2")
-        ref.condition_met?("2.2.2").should == true
-        ref.condition_met?("= 2.2.2").should == true
-        ref.condition_met?("== 2.2.2").should == true
-        ref.condition_met?("1.2.2").should == false
-        ref.condition_met?("2.1.2").should == false
-        ref.condition_met?("2.2.1").should == false
-        ref.condition_met?("2.2.2.pre2").should == false
+        (ref == " 2.2.2").should == true
+        (ref == "2.2.2").should == true
+        (ref == "2.2.2").should == true
+        (ref == "1.2.2").should == false
+        (ref == "2.1.2").should == false
+        (ref == "2.2.1").should == false
+        (ref == "2.2.2.pre2").should == false
       end
 
       it "greater than works" do
         ref = Origen::VersionString.new("v2.2.2")
-        ref.condition_met?("> v2.2.2").should == false
+        (ref > " v2.2.2").should == false
 
-        ref.condition_met?("> v1.2.2").should == true
-        ref.condition_met?("> v3.2.2").should == false
-        ref.condition_met?(">v2.1.2").should == true
-        ref.condition_met?(">v2.3.2").should == false
-        ref.condition_met?(">v2.2.1").should == true
-        ref.condition_met?(">v2.2.3").should == false
-        ref.condition_met?("> v2.2.1.dev2").should == true
-        ref.condition_met?("> v2.2.2.dev2").should == false
+        (ref > " v1.2.2").should == true
+        (ref > " v3.2.2").should == false
+        (ref > "v2.1.2").should == true
+        (ref > "v2.3.2").should == false
+        (ref > "v2.2.1").should == true
+        (ref > "v2.2.3").should == false
+        (ref > " v2.2.1.dev2").should == true
+        (ref > " v2.2.2.dev2").should == false
 
         ref = Origen::VersionString.new("2.2.2")
-        ref.condition_met?("> 2.2.2").should == false
+        (ref > " 2.2.2").should == false
 
-        ref.condition_met?("> 1.2.2").should == true
-        ref.condition_met?("> 3.2.2").should == false
-        ref.condition_met?(">2.1.2").should == true
-        ref.condition_met?(">2.3.2").should == false
-        ref.condition_met?(">2.2.1").should == true
-        ref.condition_met?(">2.2.3").should == false
-        ref.condition_met?("> 2.2.1.dev2").should == true
-        ref.condition_met?("> 2.2.2.dev2").should == false
+        (ref > " 1.2.2").should == true
+        (ref > " 3.2.2").should == false
+        (ref > "2.1.2").should == true
+        (ref > "2.3.2").should == false
+        (ref > "2.2.1").should == true
+        (ref > "2.2.3").should == false
+        (ref > " 2.2.1.dev2").should == true
+        (ref > " 2.2.2.dev2").should == false
       end
 
       it "greater than equal works" do
         ref = Origen::VersionString.new("v2.2.2")
-        ref.condition_met?(">= v2.2.2").should == true
+        (ref >= "v2.2.2").should == true
         ref = Origen::VersionString.new("2.2.2")
-        ref.condition_met?(">= 2.2.2").should == true
+        (ref >= "2.2.2").should == true
       end
 
       it "less than works" do
         ref = Origen::VersionString.new("v2.2.2")
-        ref.condition_met?("> v2.2.2").should == false
+        (ref > "v2.2.2").should == false
 
-        ref.condition_met?("< v1.2.2").should == false
-        ref.condition_met?("< v3.2.2").should == true
-        ref.condition_met?("<v2.1.2").should == false
-        ref.condition_met?("<v2.3.2").should == true
-        ref.condition_met?("<v2.2.1").should == false
-        ref.condition_met?("<v2.2.3").should == true
-        ref.condition_met?("< v2.2.1.dev2").should == false
-        ref.condition_met?("< v2.2.2.dev2").should == true
+        (ref < "v1.2.2").should == false
+        (ref < "v3.2.2").should == true
+        (ref < "v2.1.2").should == false
+        (ref < "v2.3.2").should == true
+        (ref < "v2.2.1").should == false
+        (ref < "v2.2.3").should == true
+        (ref < "v2.2.1.dev2").should == false
+        (ref < "v2.2.2.dev2").should == true
 
         ref = Origen::VersionString.new("2.2.2")
-        ref.condition_met?("> 2.2.2").should == false
+        (ref > "2.2.2").should == false
 
-        ref.condition_met?("< 1.2.2").should == false
-        ref.condition_met?("< 3.2.2").should == true
-        ref.condition_met?("<2.1.2").should == false
-        ref.condition_met?("<2.3.2").should == true
-        ref.condition_met?("<2.2.1").should == false
-        ref.condition_met?("<2.2.3").should == true
-        ref.condition_met?("< 2.2.1.dev2").should == false
-        ref.condition_met?("< 2.2.2.dev2").should == true
+        (ref < "1.2.2").should == false
+        (ref < "3.2.2").should == true
+        (ref < "2.1.2").should == false
+        (ref < "2.3.2").should == true
+        (ref < "2.2.1").should == false
+        (ref < "2.2.3").should == true
+        (ref < "2.2.1.dev2").should == false
+        (ref < "2.2.2.dev2").should == true
+
+        (Origen::VersionString.new('0.10.0') < Origen::VersionString.new('0.8.0')).should == false
       end
 
       it "less than equal works" do
         ref = Origen::VersionString.new("v2.2.2")
-        ref.condition_met?("<= v2.2.2").should == true
+        (ref <= "v2.2.2").should == true
         ref = Origen::VersionString.new("2.2.2")
-        ref.condition_met?("<= 2.2.2").should == true
+        (ref <= "2.2.2").should == true
       end
 
       it "production works" do
@@ -300,6 +302,16 @@ describe Origen::VersionString do
         S.new("1.2.3.dev2").next_prod(:tiny).should == "1.2.4"
         S.new("1.2.3.dev2").next_prod(:major).should == "2.0.0"
       end
+    end
+
+    it 'can be compared to regular text strings' do
+      S = Origen::VersionString
+      (S.new('master') == 'HEAD').should == false
+      (S.new('master') == S.new('HEAD')).should == false
+      ('master' == S.new('HEAD')).should == false
+      (S.new('HEAD') == 'HEAD').should == true
+      (S.new('HEAD') == S.new('HEAD')).should == true
+      ('HEAD' == S.new('HEAD')).should == true
     end
 
     specify "the minimum_version method works" do

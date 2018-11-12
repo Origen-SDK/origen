@@ -17,8 +17,9 @@ module Origen
     alias_method :typ_voltage, :typical_voltage
 
     def initialize(name, options = {})
-      @name = name
       options.each { |k, v| instance_variable_set("@#{k}", v) }
+      (block.arity < 1 ? (instance_eval(&block)) : block.call(self)) if block_given?
+      @name = name
       validate_args
     end
 
@@ -45,7 +46,7 @@ module Origen
           # The data rate unit was validated on init so it is good to go
           # in theory but should still check if it returns a numeric
           value = @data_rate.send(@data_rate_unit.to_sym)
-          if [Fixnum, Bignum, Float, Integer, Numeric].include? value.class
+          if value.is_a?(Numeric)
             return value
           else
             Origen.log.error "@data_rate '#{@data_rate}' conversion using @data_rate_unit '#{@data_rate_unit}' did not product a Numeric, exiting..."
@@ -65,12 +66,23 @@ module Origen
     # Implements methods like:
     #
     #     if $dut.mode.rambist?
-    def method_missing(method_name, *arguments)
+    def method_missing(method_name, *arguments, &block)
+      ivar = "@#{method_name.to_s.gsub('=', '')}"
+      ivar_sym = ":#{ivar}"
       if method_name[-1] == '?'
-        id == method_name[0..-2].to_sym
+        return id == method_name[0..-2].to_sym
+      elsif method_name[-1] == '='
+        define_singleton_method(method_name) do |val|
+          instance_variable_set(ivar, val)
+        end
+      elsif instance_variables.include? ivar_sym
+        instance_variable_get(ivar)
       else
-        super
+        define_singleton_method(method_name) do
+          instance_variable_get(ivar)
+        end
       end
+      send(method_name, *arguments, &block)
     end
 
     def to_s

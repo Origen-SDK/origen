@@ -3,6 +3,7 @@ require 'fileutils'
 require 'httparty'
 require 'digest'
 require 'gems'
+require 'time'
 
 include Origen::Utility::InputCapture
 
@@ -25,7 +26,7 @@ http://origen-sdk.org/origen_app_generators
 Usage: origen new [APP_NAME] [options]
 END
   opts.on('-d', '--debugger', 'Enable the debugger') {  options[:debugger] = true }
-  opts.on('-v', '--version TAG', String, 'Use a specific version of Origen App Generators') { |f| options[:version] = f }
+  opts.on('-f', '--fetch', 'Fetch the latest versions of the app generators, otherwise happens every 24hrs') { options[:fetch] = true }
   opts.separator ''
   opts.on('-h', '--help', 'Show this message') { puts opts; exit }
 end
@@ -45,69 +46,85 @@ unless Dir["#{dir}/*"].empty?
   exit 1
 end
 
-version = options[:version] || begin
-  (Gems.info 'origen_app_generators')['version']
-end
+generators_dir = "#{Origen.home}/app_generators"
+update_required = false
 
-version ||= '0.0.0'
-
-version.sub!(/^v/, '')
-
-if Origen.running_on_windows?
-  tmp = 'C:/tmp/origen_app_generators'
+# Update the generators every 24hrs unless specifically requested
+if options[:fetch] || !File.exist?(generators_dir)
+  update_required = true
 else
-  tmp = '/tmp/origen_app_generators'
-end
-
-tmp_dir = "#{tmp}/app_gen#{version}"
-lib = "#{tmp_dir}/lib"
-md5 = "#{tmp}/md5#{version}"
-
-# If the app generators already exists in /tmp, check that all files are still there.
-# This deals with the problem of some files being swept up by the tmp cleaner while
-# leaving the top-level folder there.
-if File.exist?(tmp_dir) && File.exist?(md5)
-  old_sig = File.read(md5)
-  hash = Digest::MD5.new
-  Dir["#{tmp_dir}/**/{*,.*}"].each do |f|
-    hash << File.read(f) unless File.directory?(f)
-  end
-  new_sig = hash.hexdigest
-  all_present = old_sig == new_sig
-else
-  all_present = false
-end
-
-unless all_present
-
-  FileUtils.rm_rf(tmp_dir) if File.exist?(tmp_dir)
-  FileUtils.mkdir_p(tmp) unless File.exist?(tmp)
-
-  File.open("#{tmp}/app_gen#{version}.gem", 'wb') do |f|
-    response = HTTParty.get("http://rubygems.org/downloads/origen_app_generators-#{version}.gem")
-    if response.success?
-      f.write response.parsed_response
-    else
-      puts "Sorry, could not find app generators version #{version}"
-      exit 1
+  if Origen.session.app_generators[generators_dir]
+    if Time.now - Origen.session.app_generators[generators_dir] > 60 * 60 * 24
+      update_required = true
     end
+  else
+    update_required = true
   end
-
-  Dir.chdir tmp do
-    `gem unpack app_gen#{version}.gem`
-    `rm -f app_gen#{version}.gem`
-  end
-
-  hash = Digest::MD5.new
-  Dir["#{tmp_dir}/**/{*,.*}"].each do |f|
-    hash << File.read(f) unless File.directory?(f)
-  end
-  File.open(md5, 'w') { |f| f.write(hash.hexdigest) }
 end
 
-$LOAD_PATH.unshift(lib)
+generators = [['http://rubygems.org', 'origen_app_generators']] + Array(Origen.site_config.app_generators)
+
+if update_required
+  puts 'Fetching the latest app generators...'
+  FileUtils.rm_rf(generators_dir) if File.exist?(generators_dir)
+  FileUtils.mkdir_p(generators_dir)
+
+  Dir.chdir generators_dir do
+    generators.each_with_index do |gen, i|
+      # If a reference to a gem from a gem server
+      if gen.is_a?(Array)
+        response = HTTParty.get("#{gen[0]}/api/v1/dependencies.json?gems=#{gen[1]}")
+
+        if response.success?
+          latest_version = JSON.parse(response.body).map { |v| v['number'] }.max
+
+          response = HTTParty.get("#{gen[0]}/gems/#{gen[1]}-#{latest_version}.gem")
+          if response.success?
+            File.open("#{gen[1]}-#{latest_version}.gem", 'wb') do |f|
+              f.write response.parsed_response
+            end
+          else
+            puts "Sorry, could not find generator #{gen[1]} version #{latest_version}"
+          end
+
+          `gem unpack #{gen[1]}-#{latest_version}.gem`
+          FileUtils.rm_rf("#{gen[1]}-#{latest_version}.gem")
+          FileUtils.mv("#{gen[1]}-#{latest_version}", i.to_s)
+
+        else
+          puts "Failed to get generator #{gen[1]}, the response from the server was:"
+          puts response.body
+        end
+
+      # If a reference to a git repo
+      elsif gen.to_s =~ /\.git$/
+        Origen::RevisionControl.new(remote: gen, local: i.to_s).checkout(version: 'master', force: true)
+
+      # Assume a reference to a folder
+      else
+        if File.exist?(gen)
+          FileUtils.cp_r(gen, i.to_s)
+        else
+          puts "Failed to find generator at #{gen}"
+        end
+
+      end
+    end
+
+    Origen.session.app_generators[generators_dir] = Time.now
+  end
+end
+
+generators.each_with_index do |gen, i|
+  lib = "#{generators_dir}/#{i}/lib"
+  $LOAD_PATH.unshift(lib)
+end
 
 Origen.with_boot_environment do
   require 'origen_app_generators'
+  generators.each_with_index do |gen, i|
+    loader = "#{generators_dir}/#{i}/config/load_generators.rb"
+    require loader if File.exist?(loader)
+  end
   OrigenAppGenerators.invoke(dir)
 end

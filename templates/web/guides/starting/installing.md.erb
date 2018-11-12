@@ -50,7 +50,17 @@ package manager will probably be quite old.
 If you have any particular problems installing Ruby, please [use this discussion thread](https://disqus.com/home/channel/origensdk/discussion/channel-origensdk/ruby_installation_issues/)
 so that we can build up a record of common problems and solutions.
 
-### 3. Install Origen
+### 3. Modify Your $PATH
+
+All Origen applications will create an `lbin` directory that contains the `origen` executable (and others), you should add these directories to your `$PATH`.
+
+Executing this command will do that for bash:
+
+~~~text
+echo 'export PATH="./lbin:$PATH"' >> ~/.bashrc
+~~~
+
+### 4. Install Origen
 
 Once you have Ruby successfully installed, Origen can be installed very easily via:
 

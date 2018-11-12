@@ -7,9 +7,12 @@ module Origen
   module Model
     extend ActiveSupport::Concern
 
+    autoload :Exporter, 'origen/model/exporter'
+
     included do
       attr_writer :ip_name
       attr_accessor :version
+      attr_accessor :parent
       attr_reader :controller
 
       include Origen::ModelInitializer
@@ -25,6 +28,13 @@ module Origen
       include Origen::Netlist
       include Origen::Memory
       include Origen::Errata
+      include Origen::Fuses
+      include Origen::Tests
+      include Origen::PowerDomains
+      include Origen::Clocks
+      include Origen::Model::Exporter
+      include Origen::Component
+      include Origen::Limits
     end
 
     module ClassMethods
@@ -45,6 +55,12 @@ module Origen
       true
     end
 
+    # Returns true if the instance is an Origen::Model that is wrapped
+    # in a controller
+    def is_a_model_and_controller?
+      !!controller
+    end
+
     # Returns true if the model is the current DUT/top-level model
     def is_top_level?
       Origen.top_level == self
@@ -58,6 +74,18 @@ module Origen
     def model
       self
     end
+
+    def ==(obj)
+      if obj.is_a?(Origen::SubBlocks::Placeholder)
+        obj = obj.materialize
+      end
+      if controller
+        super(obj) || controller.send(:==, obj, called_from_model: true)
+      else
+        super(obj)
+      end
+    end
+    alias_method :equal?, :==
 
     def log
       Origen.log
@@ -114,10 +142,13 @@ module Origen
       klass = self.class
       while klass != Object
         controller_class = "#{klass}Controller"
-        if eval("defined? #{controller_class}")
-          return eval(controller_class)
-        elsif eval("defined? ::#{controller_class}")
-          return eval("::#{controller_class}")
+        unless controller_class.start_with?('#<Class')
+          # klass is an anonymous class. Can't support automatic resolution with anonymous classes
+          if eval("defined? #{controller_class}")
+            return eval(controller_class)
+          elsif eval("defined? ::#{controller_class}")
+            return eval("::#{controller_class}")
+          end
         end
         klass = klass.superclass
       end
@@ -171,6 +202,15 @@ module Origen
       if @current_mode
         return _modes[@current_mode] if _modes[@current_mode]
         fail "The mode #{@current_mode} of #{self.class} has not been defined!"
+      else
+        unless top_level?
+          # Need to do this in case a class besides SubBlock includes Origen::Model
+          obj_above_self = parent.nil? ? Origen.top_level : parent
+          return nil if obj_above_self.nil?
+          if obj_above_self.current_mode
+            _modes[obj_above_self.current_mode.id] if _modes.include? obj_above_self.current_mode.id
+          end
+        end
       end
     end
     alias_method :mode, :current_mode
@@ -178,6 +218,10 @@ module Origen
     # Set the current mode configuration of the current model
     def current_mode=(id)
       @current_mode = id.is_a?(ChipMode) ? id.id : id
+      Origen.app.listeners_for(:on_mode_changed).each do |listener|
+        listener.on_mode_changed(mode: @current_mode, instance: self)
+      end
+      @current_mode
     end
     alias_method :mode=, :current_mode=
 

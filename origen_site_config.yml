@@ -1,12 +1,85 @@
+# GENERAL SETUP
+
+# Application generator plugins can be used to extend the available new application templates
+# that are offered via the 'origen new' command.
+# This allows you to offer application shells that are unique to your company or to specific
+# domains within your company.
+#app_generators:
+#  # Example of how to reference a plugin from an internal gem server (recommended)
+#  - ["http://gems.mycompany.net:9292", my_app_generators]
+#  # Alternatively a file system path to a central copy of a plugin can be used
+#  - "/path/to/some/central/location/my_app_generators"
+#  # Or a reference to a plugin's Git repository can be used
+#  - "http://bitbucket.mycompany.net/origen/my_app_generators.git"
+
+# Centralized Site Config
+# Origen +0.36 (versions after 36.0) supports a centralized site config. This site config will be implicitly read and 
+# injected into the site config following the default site configs from Origen.
+# To surpress the number of requests and possible load time delays, the site config can be cached and read on each
+# startup for :centralized_site_config_refresh number of hours.
+centralized_site_config_cache_dir: '~/.origen/cache/site_config'
+
+# Indicates how many hours should pass before the cached site config is refreshed (refetched, redownloaded)
+# The default is to refresh once per day (every 24 hours). Decimal values can be used here to get more granularity
+# if needed.
+# 0 indidcates 'always refresh' (cache will still occur though)
+# -1 indicates never refresh.
+centralized_site_config_refresh: 24
+
+# Indicates whether the SSL certificate should be verified when pulling the centralized site config
+centralized_site_config_verify_ssl: true
+
 # GEM SETUP
 
 # If your company has an internal gem server enter it here
 #gem_server: http://gems.company.net:9292
+
 # When true Origen will configure and run Bundler in a consistent way for every
 # user (recommended)
 gem_manage_bundler: true
-# Where user's local gems will be installed if gem_manage_bundler is set to true.
-gem_install_dir: ~/.origen/gems
+
+# Use the bootsnap gem (https://github.com/Shopify/bootsnap) to speed up the boot time of
+# your Origen applications. 
+# This creates an offline cache in your app's tmp/cache directory and it can also increase
+# the memory consumption of your app. As a reward, your app will load Ruby files significantly
+# faster, often taking many seconds off the time it takes your app to start up.
+use_bootsnap: true
+
+# WORKSPACE DIRECTORY SETUP
+
+# Defines where the home directory is
+#home_dir: ~/
+
+# Defines where the user customization directory is
+#user_install_dir:
+
+# Defines the gems are to be installed
+#user_gem_dir:
+
+# Indicates whether '.origen' should be appended to home_dir
+append_dot_origen: true
+
+# Indicates whether 'gems' should be appended to the user_gem_dir
+append_gems: true
+
+# ORIGEN STARTUP OPTIONS
+# These options define how and where Origen should boot.
+# See the guides at advanced/invocations for additional details.
+
+# By default, don't allow user install. This is more for power users to utilize for debug or those who want absolute 
+# control over their environment.
+user_install_enable: false
+
+# Default 'tool_repo_install_dir' to nil, meaning no 'tool_repo_install_dir' is present. If neither this nor 
+# 'user_install_enable' is present, the universal install will be used.
+#tool_repo_install_dir: nil
+
+# If 'tool_repo_install_dir' is set, then, by default, Bundler will use and build the gems in the tool repo.
+# Purpose of this, is to allow a power user to setup and install these gems and for individuals to just use.
+# Added this parameter and set to true so that this will be the default behavior. Otherwise, gem_install_dir
+# would need to be overwritten and set with the 'tool_repo_install_dir'
+gems_use_tool_repo: true
+
 # Some gems can be difficult to install reliably across individual user environments.
 # Such gems can be installed to a communal system Ruby and then listed here, Origen
 # will then use the system version of the given gem instead of trying to install
@@ -16,6 +89,7 @@ gem_use_from_system:
   - [nokogiri, 1.6.4.1] # Only required for earlier versions of Origen
   - [nokogiri, 1.6.7.2] # Only required for earlier versions of Origen
   - [nokogiri, 1.7.2]
+
 # Additionally any build switches/options that are required to build specific gems
 # in your user environment can be defined here.
 #gem_build_switches:
@@ -31,10 +105,16 @@ gem_use_from_system:
 #   User.new("ax1234").email  # => "ax1234@company.com"  
 #
 #   # Without email_domain specified
-#   User.new("ax1234@company.com").email  # => "ax1234@company.com"  
+#   User.new("ax1234@company.com").email  # => "ax1234@company.com"
+# If authentication is needed to use the given server, email_authentication can be set to login.
+# If a service user is used to access this account on behalf of the sending users, email_auth_user and email_auth_password
+# can be set. If authentication is indicated but no auth user is given, the current user's email and password are used instead.
 #email_domain: company.com
 #email_server: smtp.company.net
 #email_port: 25
+#email_authentication: login
+#email_auth_user: service_email
+#email_auth_password: service_password
 
 # Required parameters to connect to your company's LDAP system
 #ldap_username: cn=manager,dc=example,dc=com
@@ -45,4 +125,10 @@ gem_use_from_system:
 # Optional to override the name given to the user ID attribute on the LDAP system ('id' by default)
 #ldap_user_id_attribute: uid
 
-# LSF  
+# LSF Configuration
+lsf_queue: 'batchq'
+lsf_group: 'nil'
+lsf_project: 'msg.te'
+lsf_resource: 'rhel6'
+lsf_cores: '1'
+lsf_debug: 'false'

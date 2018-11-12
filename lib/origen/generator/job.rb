@@ -4,12 +4,14 @@ module Origen
     class Job # :nodoc: all
       attr_accessor :output_file_body, :pattern
       attr_reader :split_counter
+      attr_reader :options
 
       def initialize(pattern, options)
         @testing = options[:testing]
         @options = options
         @requested_pattern = pattern
         @no_comments = options[:no_comments]
+        @output_opt = options[:output]
       end
 
       # Returns true if the job is a test job, will only be true in a test scenario
@@ -66,7 +68,7 @@ module Origen
 
       def output_pattern_directory
         @output_pattern_directory ||= begin
-          dir = Origen.app.config.pattern_output_directory
+          dir = output_override || Origen.app.config.pattern_output_directory
           if tester.respond_to?(:subdirectory)
             dir = File.join(dir, tester.subdirectory)
           end
@@ -100,6 +102,17 @@ module Origen
         '.' + Origen.tester.pat_extension
       end
 
+      def output_override
+        if @output_opt
+          if @output_opt =~ /#{Origen.root}/
+            return @output_opt
+          else
+            return "#{Origen.root}/#{@output_opt}"
+          end
+        end
+        nil
+      end
+
       def split_number
         if split_counter
           "_part#{split_counter}"
@@ -108,18 +121,34 @@ module Origen
         end
       end
 
+      def strip_dir_and_ext(name)
+        Pathname.new(name).basename('.*').basename('.*').to_s
+      end
+
       def run
         Origen.app.current_jobs << self
         begin
           if @options[:compile]
+            Origen.log.start_job(strip_dir_and_ext(@requested_pattern), :compiler)
             Origen.generator.compiler.compile(@requested_pattern, @options)
           elsif @options[:job_type] == :merge
+            Origen.log.start_job(strip_dir_and_ext(@requested_pattern), :merger)
             Origen.generator.compiler.merge(@requested_pattern)
           elsif @options[:action] == :program
+            if Origen.running_simulation?
+              Origen.log.start_job(strip_dir_and_ext(@requested_pattern), :simulator)
+            else
+              Origen.log.start_job(strip_dir_and_ext(@requested_pattern), :program_generator)
+            end
             Origen.flow.reset
             Origen.resources.reset
             OrigenTesters::Generator.execute_source(@pattern)
           else
+            if Origen.running_simulation?
+              Origen.log.start_job(strip_dir_and_ext(@requested_pattern), :simulator)
+            else
+              Origen.log.start_job(strip_dir_and_ext(@requested_pattern), :pattern_generator)
+            end
             Origen.generator.pattern.reset      # Resets the pattern controller ready for a new pattern
             # Give the app a chance to handle pattern dispatch
             skip = false
@@ -151,6 +180,7 @@ module Origen
             raise
           end
         end
+        Origen.log.stop_job
         Origen.app.current_jobs.pop
       end
     end

@@ -1,3 +1,659 @@
+<a class="anchor release_tag" name="v0_36_1"></a>
+<h1><a href="#v0_36_1">Tag: v0.36.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Ronnie Lajaunie on 01-Nov-2018 08:42AM
+
+
+* Patch Bootsnap for LSF remote job execution
+
+<a class="anchor release_tag" name="v0_36_0"></a>
+<h1><a href="#v0_36_0">Tag: v0.36.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 08-Oct-2018 11:11AM
+
+
+* Added bootsnap gem to speed up application boot time, this can be disabled via the
+  site config variable `use\_bootsnap` if required
+* Bug fix in model exporter which crashed when it encountered a register whose reset
+  value was set to a symbol like :undefined or :memory (Paul Derouen)
+
+<a class="anchor release_tag" name="v0_35_1"></a>
+<h1><a href="#v0_35_1">Tag: v0.35.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 21-Sep-2018 15:31PM
+
+
+Fixes bug introduced in 0.34.3 whereby jobs would not submit to the LSF when a value of
+'1' was assigned to the lsf\_cores site config parameter.
+
+<a class="anchor release_tag" name="v0_35_0"></a>
+<h1><a href="#v0_35_0">Tag: v0.35.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 24-Aug-2018 10:52AM
+
+
+* Fix bugs related to initial remote population from older versions of Git
+* Added numeric wait helpers, e.g. `10.ms!`
+* Patch to reg creation (Ronnie Lajaunie)
+* Improved logger with per job log creation
+
+<a class="anchor release_tag" name="v0_34_3"></a>
+<h1><a href="#v0_34_3">Tag: v0.34.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 17-Aug-2018 12:13PM
+
+
+Origen will now use site config variables for a LSF configuration setup.
+The application can always override the default values by specifiying them within the app
+config.
+
+<a class="anchor release_tag" name="v0_34_2"></a>
+<h1><a href="#v0_34_2">Tag: v0.34.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 16-Aug-2018 12:15PM
+
+
+Minor bug fixes to support org\_file usage in OrigenSim and to enable Origen guides that
+are supplied from plugins to be compiled/viewed within a plugin workspace
+
+<a class="anchor release_tag" name="v0_34_1"></a>
+<h1><a href="#v0_34_1">Tag: v0.34.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 14-Aug-2018 12:16PM
+
+
+Really fix compatibility with Ruby 2.2
+
+<a class="anchor release_tag" name="v0_34_0"></a>
+<h1><a href="#v0_34_0">Tag: v0.34.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 14-Aug-2018 11:34AM
+
+
+* Added `read` and `write` methods for pins as aliases for `drive` and `expect`
+  (Paul Derouen)
+* Allow register bit names that are similar to reg level attributes, e.g. `feature`,
+  `reset`, `access` (Ronnie Lajaunie)
+* Fix `origen web compile` on Windows (Corey Engelken)
+* Various spec testing and dev environment improvements (Corey Engelken)
+* Add API to allow application and plugins to add content to test pattern headers, see
+  http://origen-sdk.org/origen/guides/pattern/documenting/#Pattern\_Headers (Corey Engelken)
+* Fix compatibility with Ruby 2.2
+* Added API to allow plugins to add pages to the Origen guides (and moved pattern and
+  program generator guides to OrigenTesters):
+
+  ~~~ruby
+  # In the plugin's config/application.rb
+  config.shared = {
+    # Specify the local directory where the guides live, should be the same in most cases
+    origen\_guides: "templates/origen\_guides",
+    origen\_guides\_index: -> (index) do
+      # Example of adding a section
+      index.section :pattern, heading: "Pattern Generator", after: :controllers do |section|
+        section.page :introduction, heading: "Introduction"
+        section.page :creating, heading: "Creating Patterns"
+      end
+      # Example of adding a page to an existing section
+      index.section :program do |section|
+        section.page :smt8, heading: "V93K SMT8", after: :v93k
+      end
+    end
+  }
+  ~~~
+
+<a class="anchor release_tag" name="v0_33_3"></a>
+<h1><a href="#v0_33_3">Tag: v0.33.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 20-Jun-2018 12:16PM
+
+
+* Removed OrigenTesters deprecation warning since the corresponding OrigenTesters release
+  has been delayed
+* Fixed usage of regular comparison operators (<, >=, ==, etc) when comparing
+  Origen::VersionString instances
+* Fixed a regex bug that has been causing runtime warnings
+
+<a class="anchor release_tag" name="v0_33_2"></a>
+<h1><a href="#v0_33_2">Tag: v0.33.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Ronnie Lajaunie on 19-Jun-2018 08:04AM
+
+
+- Remove volts as unit of measure for numeric attributes for inspect method PR-265 -
+(Brian C)
+- Fix for bug where mode query mode.blah? resulted in stack overflow PR-269 - (Ronnie L)
+- Added info on overlay styles PR-268 - (Stephen M)
+
+<a class="anchor release_tag" name="v0_33_1"></a>
+<h1><a href="#v0_33_1">Tag: v0.33.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Corey Engelken on 04-May-2018 10:10AM
+
+
+Spec-ed and documented Origen's <code>Collector</code> utility. Docs are available [on the
+utilities page.](http://origen-sdk.org/origen/guides/misc/utilities/)
+
+Fixes for [issue #261](https://github.com/Origen-SDK/origen/issues/261) and [issue
+#259](https://github.com/Origen-SDK/origen/issues/259)
+
+<a class="anchor release_tag" name="v0_33_0"></a>
+<h1><a href="#v0_33_0">Tag: v0.33.0</a></h1>
+
+##### Branch: 'master'
+
+##### by nxa13790 on 19-Mar-2018 13:50PM
+
+
+Added basic password method (McGinty).
+
+Here is an example of how it works:
+
+~~~
+stephen@ywing:~/Code/github/origen$ origen i
+origen(main):001:0> User.current.id
+=> "stephen"
+origen(main):002:0> User.current.password
+Please enter your password:
+=> "blah"
+origen(main):003:0> User.current.password
+=> "blah"
+origen(main):004:0> exit
+
+# It survives across threads and will also be shared amongst all of a user's apps, since
+the
+# global Origen session store is used
+
+stephen@ywing:~/Code/github/origen$ origen i
+origen(main):001:0> User.current.password
+=> "blah"
+origen(main):002:0> exit
+
+# The password is stored in the user's home dir, only readable by them:
+
+stephen@ywing:~/Code/github/origen$ ls -al ~/.origen/.session/
+total 20
+drwxrwxr-x 2 stephen stephen 4096 Mar 19 14:50 .
+drwxrwxr-x 5 stephen stephen 4096 Mar 19 10:27 ..
+-rw-rw-r-- 1 stephen stephen  163 Mar 19 10:27 app\_generators
+-rw-rw-r-- 1 stephen stephen   67 Mar 19 14:50 \_system
+-rw------- 1 stephen stephen   57 Mar 19 14:57 user
+~~~
+
+
+<a class="anchor release_tag" name="v0_32_1"></a>
+<h1><a href="#v0_32_1">Tag: v0.32.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 19-Mar-2018 14:05PM
+
+
+Moved Perforce driver to a plugin to remove dependency on p4ruby gem
+
+<a class="anchor release_tag" name="v0_32_0"></a>
+<h1><a href="#v0_32_0">Tag: v0.32.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 14-Mar-2018 15:14PM
+
+
+* Removed nokogiri as a dependency of Origen (Welguisz)
+* Fix for sub\_block.owner anomaly (McGinty)
+* Updated dev env to latest OrigenTesters (McGinty)
+* Cleaned up Origen::Clocks::Clock and added in feature to disable sub\_block creation for clock users (info-rchitect)
+
+~~~ruby
+add\_clock :socclk do |c|
+  c.description = 'SoC clock'
+  c.nominal\_frequency = 1.2.Ghz
+  c.frequency\_range = :fixed
+  c.users = [:data\_mesh]
+  c.instantiate\_users = false
+end
+~~~
+
+* Updated Origen::Clocks::Clock to have min, max methods based on frequency range (info-rchitect)
+* Fix for improper web url for web server (Priyavadan)
+* New param? method (rlaj)
+
+~~~ruby
+dut.param?('tprog').should == 20
+dut.param?(:tprog).should == 20
+dut.param?('tprog\_does\_not\_exist').should == nil
+dut.param?(:tprog\_does\_not\_exist).should == nil
+~~~
+
+* Add on\_mode\_changed callback (info-rchitect)
+
+~~~ruby
+def initialize
+  @my\_version = version
+    add\_mode :mode1
+  @mode\_changed\_count = 0
+end
+
+def on\_mode\_changed(options)
+  @mode\_changed\_count += 1
+end
+
+it 'on\_mode\_changed callback works' do
+  m = MyModel.new
+  m.modes.should == [:mode1]
+  m.mode.should == nil
+  m.mode\_changed\_count.should == 0
+  m.mode = :mode1
+  m.mode\_changed\_count.should == 1
+end
+~~~
+
+* Fixed bug in current\_mode method (info-rchitect)
+* Fixed bug where exported pins metadata was being forced to be a number or a string (info-rchitect)
+* Added support for tag configuration in Origen remotes that does not get prepended with a 'v'.
+  Also added remotes support for the Perforce revision control software
+
+~~~ruby
+Origen.config.remotes do
+  [
+    {
+      dir: "mydir",
+      vault: "p4://myserver:myport//path/to/my/remote/file/myfile.xlsx",
+      tag: '0.1.0'
+    }    
+  ]
+end
+~~~
+
+* Model exporter fix (McGinty)
+* Added resolve\_remotes! method that enables remotes defined outside the application.rb file to be donwloaded
+  sometime during DUT init (info-rchitect)
+* Fixed SPI plugin link (McGinty)
+* Added hook to support testers where a pattern is multiple files for SmarTest8 (McGinty)
+
+<a class="anchor release_tag" name="v0_31_0"></a>
+<h1><a href="#v0_31_0">Tag: v0.31.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 12-Feb-2018 07:00AM
+
+
+* Sub-blocks return to being immediately instantiated by default, but with the option
+  of making them lazy by supplying `lazy: true` to the sub\_block definition
+
+  Note that this means that any large amount of imported/exported data will go back to
+  taking 10 seconds or whatever to load the target again.
+  That can be fixed by doing one of the following:
+
+  * Re-import/export the data under this new version of Origen, the exporter will now
+    add the lazy: true attribute to everything that it exports.
+  * Set `Origen::SubBlocks.lazy = true` in your target before instantiating the DUT and
+    it will go back to the previous behavior of lazy-loading by default.
+
+
+* Model data can now be exported/imported to a custom directory and not just vendor
+  the API is as follows:
+
+  ~~~ruby
+    my\_model.export 'some\_id', dir: "/any/dir/of/my/choosing"
+  ~~~
+
+  Then to import that data:
+
+  ~~~ruby
+  my\_model.import 'some\_id', dir: "/any/dir/of/my/choosing"
+  ~~~
+
+  As before, the exported code is wrapped in the current application's namespace and if you
+  are exporting and importing back and forth within the same app you don't need to worry about it.
+  However, if you are exporting from one app and importing into another, then the importing app
+  needs to know about the namespace that was used to do the exporting.
+  The namespace can now be selected (or even set to nil if you want) via the following API:
+
+  ~~~ruby
+  my\_model.import 'some\_id', namespace: 'NameOfExportingApp'
+  ~~~
+
+  You can also specify the namespace at the point of export if you want to use something other
+  than the app's name:
+
+  ~~~ruby
+  my\_model.export 'some\_id', namespace: "design\_data"
+  ~~~
+
+  Then to import that data:
+
+  ~~~ruby
+  my\_model.import 'some\_id', namespace: "design\_data"
+  ~~~
+
+  The `:dir` and `:namespace` options are independent of each other and can be used together if desired.
+
+* Fix for bug #218 (erroneous OrgFile::Interceptable integration error)
+
+<a class="anchor release_tag" name="v0_30_0"></a>
+<h1><a href="#v0_30_0">Tag: v0.30.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Engelken Corey-B50956 on 24-Jan-2018 09:49AM
+
+
+Restored site config's user\_gem\_dir to previous behavior (enabled backwards compatability
+if a user\_gem\_dir already exist and points to /.origen/gems). Bug fix to site config
+wherein it wasn't finding a user's site config.
+
+<a class="anchor release_tag" name="v0_29_0"></a>
+<h1><a href="#v0_29_0">Tag: v0.29.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 19-Jan-2018 10:23AM
+
+
+* Various improvements and bug fixes to enable plugins to add global commands (i.e. available
+  outside of an Origen application workspace).
+* Officially only support Ruby 2 now (though probably has effectively been the case for a long
+  time).
+* Added internal infrastructure to enable the generation of org files (Origen native pattern
+  vector format).
+
+<a class="anchor release_tag" name="v0_28_2"></a>
+<h1><a href="#v0_28_2">Tag: v0.28.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 07-Dec-2017 15:48PM
+
+
+on\_create will now be called immediately when a sub-block (or any other model) is
+instantiated after the target has been loaded.
+
+<a class="anchor release_tag" name="v0_28_1"></a>
+<h1><a href="#v0_28_1">Tag: v0.28.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 01-Dec-2017 09:19AM
+
+
+Reinstated Origen.site\_config.gem\_install\_dir ($ORIGEN\_GEM\_INSTALL\_DIR) as a means of
+changing the location of where a user's gems are installed.
+
+<a class="anchor release_tag" name="v0_28_0"></a>
+<h1><a href="#v0_28_0">Tag: v0.28.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Lajaunie Ronald-B01784 on 29-Nov-2017 13:55PM
+
+
+* Add block write!/read! ability to allow for better coding style for bit manipulations
+(PR 157, Chris Nappi)
+
+~~~ruby
+  add\_reg :blregtest,   0x00,  4,  :y       => { :pos => 0},
+                                   :x       => { :pos => 1, :bits => 2 },
+                                   :w       => { :pos => 3 }
+
+  reg(:blregtest).write! do |r|
+    r.bits(:y).write(1)
+    r.bits(:x).write(0x2)
+    r.bits(:w).write(1)
+  end
+
+  reg(:blregtest).write(0)
+  reg(:blregtest).x.write! do |b|
+    b[1].write(1)
+  end
+
+  reg(:blregtest).read! do |r|
+    r.bits(:y).read
+  end
+~~~
+
+* Added in String.is\_upcase? and String.is\_lowercase? (PR 158, Brian Caquelin)
+* Updated power domains model guide and fixed ERB file name (PR 160, Brian Caquelin)
+* Added in Parameter inheritance between objects and added optional maximum\_voltage\_rating
+attribute to Origen::PowerDomain (PR 161, Brian Caquelin) - [Documentation](http://origen-sdk.org/origen/guides/models/parameters/#Local\_Inheritance)
+* Model import and export (PR 162, Stephen Mcginty) - [RFC3](https://github.com/Origen-SDK/rfcs/blob/master/text/0003-model-export-and-import.md)
+* Fancy register output (PR 163, Adam Kohler)
+* Added a few more numeric unit methods (capacitance) (PR 166, Brian Caquelin)
+* Added in String excel\_col\_index method and added pins method\_missing to hit self.meta(PR 167, Brian Caquelin)
+* Added in min, max attributes for Origen::PowerDomains::PowerDomain (PR 171, Brian Caquelin)
+
+~~~ruby
+    add\_power\_domain :vdd do |domain|
+      domain.description = 'CPU'
+      domain.nominal\_voltage = 1.0.V
+      domain.unit\_voltage\_range = 0.7.V..1.1.V
+      domain.maximum\_voltage\_rating = 1.50.V
+      domain.min = 0.9.V
+      domain.max = 1.1.V
+      domain.display\_names(Nokogiri::XML::DocumentFragment.parse 'OV<sub>DD</sub>')
+    end
+~~~
+
+* Enhanced model exporter for pins to account for packages (PR 172, Brian Caquelin)
+* Added in package scoped DIB metadata to Origen::Pins::Pin (PR 174, Brian Caquelin) - [Documentation](http://origen-sdk.org/origen/guides/models/pins/#Package\_Attributes) 
+* Added Symbol.smatch(/blah blah blah/) method as shortcut for Symbol.to\_s.match (PR 176, Brian Caquelin)
+* Bug fix for site\_config environment variable (PR 177, Brian Caquelin)
+
+<a class="anchor release_tag" name="v0_27_0"></a>
+<h1><a href="#v0_27_0">Tag: v0.27.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 26-Oct-2017 09:38AM
+
+
+* Added clocks model (Brian Caquelin)
+
+~~~ruby
+add\_clock :cclk do |c|
+  c.description = 'Core complex clock'
+  c.nominal\_frequency = 2.5.Ghz
+  c.frequency\_range = 0.8.Ghz..3.2.Ghz
+  c.users = [:core\_complex]  # The names here refer to the sub-blocks that use it
+end
+~~~
+
+* Spec definitions can now reference 'the current' power domain or clock value via a symbol in
+  an expression (Brian Caquelin)
+
+~~~ruby
+spec :fmin, :ac do |s|
+  s.symbol "Fmin"
+  s.description = "Frequency Min"
+  s.min = ":core\_clk * 0.9"
+end
+spec :memio\_voh, :dc do |s|
+  s.symbol "Voh"
+  s.description = "Output high voltage"
+  s.max = ":vmemio * 0.8"
+end
+~~~
+
+* Renamed `Origen::PowerDomains::PowerDomain#voltage\_range` to `unit\_voltage\_range` to better
+  reflect its usage (Brian Caquelin)
+* Stopped `String#symbolize` method from injecting multiple underscores when faced with multiple
+  spaces in a sting, these are now condensed to a single underscore (Brian Caquelin)
+* Sub blocks now inherit their `current\_mode` attribute from their parent if not otherwise set
+  on the sub-block specifically (Brian Caquelin)
+* Bug fix to regression manager to fix Bundler errors when generating the reference output
+
+<a class="anchor release_tag" name="v0_26_0"></a>
+<h1><a href="#v0_26_0">Tag: v0.26.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Lajaunie Ronald-B01784 on 16-Oct-2017 12:54PM
+
+
+* Added in Origen::Tests module and made add\_mode more flexible PR.136 (Brian Caquelin)
+* Allow target preservation with inline compiler PR.137 (Ronnie Lajaunie)
+* Added in params.contexts method PR.138 (Brian Caquelin)
+* Added in Origen::PowerDomains module PR.140 (Brian Caquelin)
+* Fixed power\_domain inspect output for some cases PR.142 (Adam Kohler)
+
+<a class="anchor release_tag" name="v0_25_1"></a>
+<h1><a href="#v0_25_1">Tag: v0.25.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 15-Sep-2017 19:12PM
+
+
+Removed some pre-release work that was included in the 0.25.0 release by accident
+
+<a class="anchor release_tag" name="v0_25_0"></a>
+<h1><a href="#v0_25_0">Tag: v0.25.0</a></h1>
+
+##### Branch: 'gym'
+
+##### by Stephen McGinty on 15-Sep-2017 18:58PM
+
+
+* Added Fixnum#to\_spreadsheet\_column and Origen::Parameters::Set#to\_flat\_hash methods (Brian
+  Caquelin)
+* Improved an application's ability to add additional options to core Origen commands (Ronnie
+  Lajaunie)
+* Bug fix - fixed option (-o) for generate command (Ronnie Lajaunie)
+* Bug fix - Accessing the base\_address of a model/controller pair before later accessing a
+  register does not crash.
+
+<a class="anchor release_tag" name="v0_24_0"></a>
+<h1><a href="#v0_24_0">Tag: v0.24.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 02-Sep-2017 20:27PM
+
+
+* Remotes can now be optionally declared as private
+* Various bug fixes including fixing compatibility with Ruby 2.4
+
+<a class="anchor release_tag" name="v0_23_0"></a>
+<h1><a href="#v0_23_0">Tag: v0.23.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 25-Aug-2017 21:38PM
+
+
+* Added numeric value to a string-with-units helper methods (@arkohler), e.g.
+
+~~~ruby
+12\_000\_000.as\_Ohm          # => '12.0MOhm'
+123\_000\_000\_000.as\_Hz      # => '123.0GHz'
+123\_456\_000\_000\_000.as\_hz  # => '123.456Thz'
+~~~
+
+* Stopped dumping the stack trace when Origen ends from 'exit 1'. This makes the command
+  line output cleaner, but an un-controlled exit via "fail 'some error!'" will still cause
+  a stack dump as before.
+* User.current will now always return the same user object (Corey Engelken)
+* The 'origen web compile' command will now always run in debug mode (Corey Engelken)
+* Fixed bug where an Origen app/plugin added via a remote would be actively loaded rather
+  than just being treated like non-application files.
+* Cleanup command line output with Design Sync 2016 (Corey Engelken)
+* Model#reg now accepts a regex in string format to return a matching subset of registers
+  (Ronnie Lajaunie):
+
+~~~ruby
+# Ex 1: Only ADC cfg registers (:adc0\_cfg, :adc1\_cfg)
+dut.regs('/acd\d\_cfg/')  # => [reg\_obj, reg\_obj]
+
+# Ex 2: Any cfg registers (:adc0\_cfg, :adc1\_cfg, :dac\_cfg)
+dut.regs('/cfg/')         # => [reg\_obj, reg\_obj, reg\_obj]
+~~~
+
+* Various documentation updates
+
+<a class="anchor release_tag" name="v0_22_0"></a>
+<h1><a href="#v0_22_0">Tag: v0.22.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 16-Aug-2017 16:42PM
+
+
+* Updated the 'origen new' command to allow company specific application generators to hook
+  into it.
+* Fixed bug whereby site\_config variables set to true or false via environment variables
+  were not converted into Ruby booleans.
+
+<a class="anchor release_tag" name="v0_21_0"></a>
+<h1><a href="#v0_21_0">Tag: v0.21.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 14-Aug-2017 08:37AM
+
+
+* Added a system to allow plugins to extend and add commands to Origen outwith
+  the scope of an application (Corey Engelken)
+* Added support for Verilog formatted numbers in the String#to\_dec method and
+  added an API for modelling fuse blocks (Brian Caquelin)
+
+<a class="anchor release_tag" name="v0_20_3"></a>
+<h1><a href="#v0_20_3">Tag: v0.20.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 02-Aug-2017 11:38AM
+
+
+* Added keys method to session stores, very similar to the Hash#keys method
+  (Brian Caquelin)
+* The current plugin's config.pattern\_name\_translator is now given a
+  chance to translate a pattern name when dispatched via a parent app.
+
+<a class="anchor release_tag" name="v0_20_2"></a>
+<h1><a href="#v0_20_2">Tag: v0.20.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Lajaunie Ronald-B01784 on 13-Jul-2017 14:04PM
+
+
+* Added methods to database key value stores PR #102 (info-rchitect)
+* Fixed a bug where the file handler was erroring when it found the same file twice with
+Dir.glob PR #95 (info-rchitect)
+
+<a class="anchor release_tag" name="v0_20_1"></a>
+<h1><a href="#v0_20_1">Tag: v0.20.1</a></h1>
+
+##### Branch: 'master'
+
+##### by nxa19128 on 27-Jun-2017 14:33PM
+
+
+Initialized @max\_address\_reg\_size to prevent nil case for single-register sub-block. Pull
+Request #92 - Chris Hume.
+
 <a class="anchor release_tag" name="v0_20_0"></a>
 <h1><a href="#v0_20_0">Tag: v0.20.0</a></h1>
 

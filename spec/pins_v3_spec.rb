@@ -26,6 +26,19 @@ class PinsV3Sub
 
 end
 
+class IncorrectPackageDut
+  include Origen::TopLevel
+  
+  def initialize
+    add_pin :pinx
+  end
+  
+  def add_packages
+    add_package :pcs
+  end
+  
+end
+
 describe "Origen Pin API v3" do
 
   before :each do
@@ -55,7 +68,7 @@ describe "Origen Pin API v3" do
       $dut.pin[:pinx].direction.should == :io
       $dut.pin[:piny].direction.should == :input
       $dut.pin[:pinz].direction.should == :io
-      $dut.pin[:pinz].rtl_name.should == nil
+      $dut.pin[:pinz].rtl_name.should == "pinz"
       $dut.pin[:piny].rtl_name.should == "piny[0]"
     end
 
@@ -991,5 +1004,37 @@ describe "Origen Pin API v3" do
       $dut.pins(:all).size.should == 28
       $dut.pins(:all2).size.should == 28
     end
+  end
+  
+  it "pin meta data can be found via method meissing and respond_to?" do
+    $dut.add_pin :pinx, meta: { a: 2 }
+    $dut.pins(:pinx).meta[:a].should == $dut.pins(:pinx).a
+    $dut.pins(:pinx).respond_to?(:a).should == true
+  end
+  
+  it 'add DIB metadata based on package scope' do
+    $dut.add_package :pcs
+    $dut.add_package :bga
+    $dut.add_pin :tdo, packages: { bga: { location: 'BF32', dib_assignment: [10104] }, pcs: { location: 'BF30', dib_assignment: [31808] } }
+    $dut.pins(:tdo).add_dib_meta :pcs, { :x=>2000, :y=>-15600, :net_name=>"R92/DUT_TDO_TC", :connection=>"PE118.16", :slot=>"PE118", :spring_pin=>"16" }
+    $dut.pins(:tdo).add_dib_meta :bga, { :x=>2000.0, :y=>-15600.0, :net_name=>"TDO", :connection=>"PE117.08", :slot=>"PE117", :spring_pin=>"08" }
+    $dut.package = nil
+    $dut.pins(:tdo).dib_meta.should == {}
+    $dut.package = :bga
+    $dut.pins(:tdo).dib_meta.should == { :x=>2000.0, :y=>-15600.0, :net_name=>"TDO", :connection=>"PE117.08", :slot=>"PE117", :spring_pin=>"08" }
+    $dut.package = :pcs
+    $dut.pins(:tdo).dib_meta.should == { :x=>2000, :y=>-15600, :net_name=>"R92/DUT_TDO_TC", :connection=>"PE118.16", :slot=>"PE118", :spring_pin=>"16" }
+  end
+  
+  it 'does not allow user to set the current DUT package unless it is to a known package' do
+    Origen.app.unload_target!
+    @dut = IncorrectPackageDut.new
+    @dut.packages.should == []
+    @dut.package = :bga # This used to be allowed, setting the package to an unknown package ID
+    @dut.has_pin?(:pinx).should == true # and would then raise an exception when trying to access any pin
+    @dut.add_packages
+    @dut.package = :pcs
+    @dut.package.id.should == :pcs
+    @dut.has_pin?(:pinx).should == false
   end
 end

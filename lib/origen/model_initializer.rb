@@ -14,13 +14,23 @@ module Origen
         x.send(:init_sub_blocks, *args) if x.respond_to?(:init_sub_blocks)
         if x.respond_to?(:version=)
           version = options[:version]
-          version ||= args.first if args.first.is_a?(Fixnum)
+          version ||= args.first if args.first.is_a?(Integer)
           x.version = version
         end
         if x.respond_to?(:parent=)
           parent = options.delete(:parent)
           x.parent = parent if parent
         end
+
+        x.class.included_modules.each do |mod|
+          mod.send(:origen_model_init, x) if mod.respond_to?(:origen_model_init)
+          mod.constants.each do |constant|
+            if mod.const_defined?(constant)
+              mod.const_get(constant).send(:origen_model_init, x) if mod.const_get(constant).respond_to?(:origen_model_init)
+            end
+          end
+        end
+
         options.each do |k, v|
           x.send(:instance_variable_set, "@#{k}", v) if x.respond_to?(k)
         end
@@ -47,6 +57,18 @@ module Origen
         is_top_level = x.respond_to?(:includes_origen_top_level?)
         if x.respond_to?(:wrap_in_controller)
           x = x.wrap_in_controller
+        end
+        # If this object has been instantiated after on_create has already been called,
+        # then invoke it now
+        if Origen.application_loaded? && Origen.app.on_create_called?
+          if x.try(:is_a_model_and_controller)
+            m = x.model
+            c = x.controller
+            m.on_create if m.respond_to_directly?(:on_create)
+            c.on_create if c.respond_to_directly?(:on_create)
+          else
+            x.on_create if x.respond_to?(:on_create)
+          end
         end
         if is_top_level
           Origen.app.listeners_for(:on_top_level_instantiated, top_level: false).each do |listener|

@@ -1,0 +1,34 @@
+% render "layouts/guides.html", heading: 'Creating Custom Application Generators' do
+
+When initially getting started with Origen, it is sufficient to use the generic
+set of new application generators that are built into the `origen new` command.
+
+However, over time you may start to identify common configuration or setups that
+are used regularly within many of your own applications or those created by your
+company.
+Origen provides the ability to extend the `origen new` command on an individual user
+or a per-company basis, so that newly created applications come with much more customized
+setup and configuration out-of-the-box than is provided by the generic starter applications.
+
+To extend the `origen new` command with your own custom application generators,
+first run `origen new` to create an application generator plugin by selecting the following options:
+
+* 1 - Origen Infrastructure
+  * 0 - A plugin to make your own application templates available through the 'origen new' command
+  
+To hook your plugin into the `origen new` command, either release it to your private gem server, check it into your
+Git server, or copy it to a central location that is accessible to all of your users.
+Then update the [app_generators](https://github.com/Origen-SDK/origen/blob/master/origen_site_config.yml#L7) attribute within your
+[site_config file](http://origen-sdk.org/origen/guides/starting/company/) to point to wherever you have put it.
+
+If you don't see it straight away, run `origen new` with the `--fetch` option to force it to
+fetch the latest versions of the generators.
+
+There now follows a guide on how to add a new generator to your custom generators plugin...
+
+% lines = File.readlines("#{Origen.app.remotes_dir}/origen_app_generators/README.md")
+% # Lose the plugin specific per-amble, we have our own above
+% lines.shift until lines.first =~ /# Quickstart/ 
+<%= lines.join('') %>
+
+% end

@@ -10,6 +10,9 @@ describe "Utilities" do
     end
   end
 
+  # Import collector specs
+  include_examples :utility_collector_spec
+
   it "Origen::Utility.read_hex" do
     dut = UDut.new
     reg = dut.d

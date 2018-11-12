@@ -31,6 +31,19 @@ limits more descriptive, here are some examples:
 50.GHz    # => 50,000,000,000
 ~~~
 
+#### Metric Unit Conversion Helpers
+
+Similar to the unit helpers, we have provided a way to convert the number back to a string with units for
+display purposes.  All base units supported by the unit helpers are available as native functions.  For
+any other arbitrary units, the as_units(<str>) function is available.
+
+~~~ruby
+50.as_V             # => '50.0V'
+50000.as_Hz         # => '50.0kHz'
+5e-5.as_A           # => '50.0uA'
+5e-7.as_units('F')  # => '500.0nF'
+~~~
+  
 #### Number Formatting Helpers
 
 Displaying numbers in hex or binary format is very common, some helpers exist for that:
@@ -40,6 +53,23 @@ Displaying numbers in hex or binary format is very common, some helpers exist fo
 100.to_bin          # => "0b1100100"
 100.to_hex.to_dec   # => 100
 100.to_bin.to_dec   # => 100
+~~~
+
+Many data sources imported by Origen use Verilog numbers represented as Strings, to represent
+things such as memory addresses, bit size, etc. that need to be modeled as numbers.
+
+~~~ruby
+"b10100110".to_dec          # => 166
+"o246".to_dec               # => 166
+"d166".to_dec               # => 166
+"hA6".to_dec                # => 166
+"8'b10100110".to_dec        # => 166
+"8'o246".to_dec             # => 166
+"8'd166".to_dec             # => 166
+"8'hA6".to_dec              # => 166
+"8'o246".is_verilog_number? # => true
+"8'd166".is_verilog_number? # => true
+"8'hA6".is_verilog_number?  # => true
 ~~~
 
 #### Part Select

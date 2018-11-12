@@ -41,6 +41,7 @@ module Origen
     end
 
     def method_missing(method, *args, &block) # :nodoc:
+      orig_method = method
       if method[-1] == '!'
         bang = true
         method = method.to_s.chop.to_sym
@@ -50,11 +51,11 @@ module Origen
         r.sync if bang
         r
       else
-        super
+        super(orig_method, *args, &block)
       end
     end
 
-    def respond_to?(sym) # :nodoc:
+    def respond_to?(sym, include_private = false) # :nodoc:
       if sym[-1] == '!'
         r = sym.to_s.chop.to_sym
         _registers.key?(r) || super(sym)
@@ -90,9 +91,9 @@ module Origen
       def default_reg_metadata
         Origen::Registers.reg_metadata[:global] ||= {}
         if block_given?
-          collector = Collector.new
+          collector = Origen::Utility::Collector.new
           yield collector
-          Origen::Registers.reg_metadata[:global].merge!(collector.store)
+          Origen::Registers.reg_metadata[:global].merge!(collector.to_h)
         end
         Origen::Registers.reg_metadata[:global]
       end
@@ -106,9 +107,9 @@ module Origen
       def default_bit_metadata
         Origen::Registers.bit_metadata[:global] ||= {}
         if block_given?
-          collector = Collector.new
+          collector = Origen::Utility::Collector.new
           yield collector
-          Origen::Registers.bit_metadata[:global].merge!(collector.store)
+          Origen::Registers.bit_metadata[:global].merge!(collector.to_h)
         end
         Origen::Registers.bit_metadata[:global]
       end
@@ -138,7 +139,12 @@ module Origen
         @owner = owner
         @name = name
         @attributes = attributes
-        @feature = attributes[:feature] if attributes.key?(:feature)
+        @feature = attributes[:_feature] if attributes.key?(:_feature)
+
+        # Give reg.new a way to tell if coming from Placeholder
+        if attributes[:bit_info].is_a? Hash
+          attributes[:bit_info][:from_placeholder] = true
+        end
       end
 
       # Make this appear like a reg to any application code
@@ -249,8 +255,8 @@ module Origen
         materialize.send(method, *args, &block)
       end
 
-      def respond_to?(method)
-        materialize.respond_to?(method)
+      def respond_to?(method, include_private = false)
+        materialize.respond_to?(method, include_private)
       end
 
       def materialize
@@ -271,18 +277,6 @@ module Origen
 
       def to_json(*args)
         materialize.to_json(*args)
-      end
-    end
-
-    class Collector
-      attr_reader :store
-
-      def initialize
-        @store = {}
-      end
-
-      def method_missing(method, *args, &_block)
-        @store[method.to_s.sub('=', '').to_sym] = args.first
       end
     end
 
@@ -324,14 +318,17 @@ module Origen
       local_vars = {}
 
       Reg::REG_LEVEL_ATTRIBUTES.each do |attribute, meta|
-        aliases = [attribute]
+        aliases = [attribute[1..-1].to_sym]
         aliases += meta[:aliases] if meta[:aliases]
-        aliases.each { |_a| local_vars[attribute] = bit_info.delete(attribute) if bit_info.key?(attribute) }
+        aliases.each { |_a| local_vars[attribute] = bit_info.delete(_a) if bit_info.key?(_a) }
       end
 
-      local_vars[:reset] ||= :memory if local_vars[:memory]
+      local_vars[:_reset] ||= :memory if local_vars[:_memory]
       @min_reg_address ||= address
       @max_reg_address ||= address
+      # Must set an initial value, otherwise max_address_reg_size will be nil if a sub_block contains only
+      # a single register.
+      @max_address_reg_size = size unless @max_address_reg_size
       @min_reg_address = address if address < @min_reg_address
       if address > @max_reg_address
         @max_address_reg_size = size
@@ -430,9 +427,9 @@ module Origen
     def default_reg_metadata
       Origen::Registers.reg_metadata[self.class] ||= {}
       if block_given?
-        collector = Collector.new
+        collector = Origen::Utility::Collector.new
         yield collector
-        Origen::Registers.reg_metadata[self.class].merge!(collector.store)
+        Origen::Registers.reg_metadata[self.class].merge!(collector.to_h)
       end
       Origen::Registers.reg_metadata[self.class]
     end
@@ -441,9 +438,9 @@ module Origen
     def default_bit_metadata
       Origen::Registers.bit_metadata[self.class] ||= {}
       if block_given?
-        collector = Collector.new
+        collector = Origen::Utility::Collector.new
         yield collector
-        Origen::Registers.bit_metadata[self.class].merge!(collector.store)
+        Origen::Registers.bit_metadata[self.class].merge!(collector.to_h)
       end
       Origen::Registers.bit_metadata[self.class]
     end
@@ -504,19 +501,22 @@ module Origen
     end
     alias_method :has_reg, :has_reg?
 
-    # Returns the register object matching the given name, or a hash of all registers,
-    # associated with a feature,if no name is specified.
+    # Returns
+    #  -the register object matching the given name
+    #  -or a hash of all registes matching a given regular expression
+    #  -or a hash of all registers, associated with a feature, if no name is specified.
     #
     # Can also be used to define a new register if a block is supplied in which case
     # it is equivalent to calling add_reg with a block.
     def reg(*args, &block)
-      if block_given? || (args[1].is_a?(Fixnum) && !try(:_initialized?))
+      if block_given? || (args[1].is_a?(Integer) && !try(:_initialized?))
         @reg_define_file = define_file(caller[0])
         add_reg(*args, &block)
       else
         # Example use cases:
         # reg(:reg2)
         # reg(:name => :reg2)
+        # reg('/reg2/')
         if !args.empty? && args.size == 1 && (args[0].class != Hash || (args[0].key?(:name) && args[0].size == 1))
           if args[0].class == Hash
             name = args[0][:name]
@@ -524,6 +524,9 @@ module Origen
           end
           if has_reg(name)
             return _registers[name]
+          elsif name =~ /\/(.+)\//
+            regex = Regexp.last_match(1)
+            return match_registers(regex)
           else
             if Origen.config.strict_errors
               puts ''
@@ -589,6 +592,15 @@ module Origen
     alias_method :regs, :reg
 
     private
+
+    def match_registers(regex)
+      regs_to_return = RegCollection.new(self)
+      _registers.each do |k, v|
+        regs_to_return[k] = v if k.to_s.match(/#{regex}/)
+      end
+      regs_to_return
+    end
+    alias_method :regs_match, :match_registers
 
     def reg_missing_error(params)
       if Origen.config.strict_errors

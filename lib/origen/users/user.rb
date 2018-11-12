@@ -44,10 +44,11 @@ module Origen
         Origen.mailer.send_email(options)
       end
 
-      def id
+      def id(options = {})
         @id.to_s.downcase
       end
       alias_method :core_id, :id
+      alias_method :username, :id
 
       # Returns true if the user is an admin for the current application
       def admin?
@@ -73,7 +74,7 @@ module Origen
         RevisionControl::Git.user_name
       end
 
-      def email
+      def email(options = {})
         if current?
           @email ||= ENV['ORIGEN_EMAIL'] || email_from_rc || begin
             if Origen.site_config.email_domain
@@ -147,7 +148,7 @@ module Origen
         end
       end
 
-      def respond_to?(method)
+      def respond_to?(method, include_private = false)
         super || begin
           if Origen.ldap.available?
             Origen.ldap.lookup(self) && Origen.ldap.lookup(self).attribute_names.include?(method.to_sym)
@@ -157,9 +158,55 @@ module Origen
         end
       end
 
-      # Returns a string like "Stephen McGinty <Stephen.Mcginty@freescale.com>"
+      # Returns a string like "Stephen McGinty <stephen.mcginty@nxp.com>"
       def name_and_email
         "#{name} <#{email}>"
+      end
+
+      # Returns a private global Origen session store (stored in the user's home directory and only readable
+      # by them).
+      # See - http://origen-sdk.org/origen/guides/misc/session/#Global_Sessions
+      def auth_session
+        @session ||= begin
+          @session = Origen.session.user
+          @session.private = true
+          @session
+        end
+      end
+
+      # Returns the password for the current user.
+      # If the user hasn't supplied it yet they will be prompted to enter it, it will then be stored
+      #
+      # First, try in the global session, if its not defined, ask for it.
+      def password(options = {})
+        unless current?
+          fail "You can only reference the password for the current user (#{self.class.current_user_id})!"
+        end
+
+        if options[:refresh]
+          auth_session[:password] = nil
+        end
+
+        if auth_session[:password]
+          password = decrypt(auth_session[:password])
+        else
+          puts 'Please enter your password:'
+          password = (STDIN.noecho(&:gets) || '').chomp
+
+          # TODO: Need some kind of callback here to optionally verify password correctness via LDAP or similar
+
+          auth_session[:password] = encrypt(password)
+        end
+
+        password
+      end
+
+      def decrypt(text)
+        text
+      end
+
+      def encrypt(text)
+        text
       end
     end
   end

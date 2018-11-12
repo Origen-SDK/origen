@@ -440,6 +440,18 @@ has_pin?(:a2)              # => false
 has_pin?(:a3)              # => true
 ~~~
 
+Certain types of metadata only become available at distinct times in a product lifecycle, for example Device Interface Board (DIB) information.
+Depending on when the pin model is constructed the user can specify the DIB metadata in two ways:
+
+~~~ruby
+# All at once
+$dut.add_pin :tdi, packages: { bga: { location: 'BF2', dib_meta: { channel: 100106, connection: "PE117.08", slot: "PE117", spring_pin: "08" } } }
+
+# Over time
+$dut.add_pin :tdi, packages: { bga: { location: 'BF2' } }
+$dut.pins(:tdi).add_dib_meta :bga, { channel: 100106, connection: "PE117.08", slot: "PE117", spring_pin: "08" }
+~~~
+
 #### Pin Functions
 
 Pin aliases are an example of modelling different pin functions that can be mux'd onto the same pin, in this case

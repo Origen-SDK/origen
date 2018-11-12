@@ -17,6 +17,15 @@ module Origen
         end
       end
 
+      # Picks and returns either the application's LSF instance or the global LSF instance
+      def lsf
+        if Origen.running_globally?
+          Origen.lsf!
+        else
+          Origen.app.lsf
+        end
+      end
+
       def remote_jobs_file
         "#{Origen.root}/.lsf/remote_jobs"
       end
@@ -359,7 +368,7 @@ module Origen
         [log_file(job[:id]), passed_file(job[:id]), failed_file(job[:id]), started_file(job[:id])].each do |file|
           FileUtils.rm_f(file) if File.exist?(file)
         end
-        job[:lsf_id] = Origen.app.lsf.submit(command_prefix(job[:id], job[:dependents_ids]) + job[:command] + job[:switches], dependents: job[:dependents_lsf_ids])
+        job[:lsf_id] = lsf.submit(command_prefix(job[:id], job[:dependents_ids]) + job[:command] + job[:switches], dependents: job[:dependents_lsf_ids])
         job[:status] = nil
         job[:completed_at] = nil
         job[:submitted_at] = Time.now
@@ -374,7 +383,7 @@ module Origen
         id = generate_job_id
         dependents_ids = extract_ids([options[:depend], options[:depends], options[:dependent], options[:dependents]].flatten.compact)
         dependents_lsf_ids = dependents_ids.map { |dep_id| remote_jobs[dep_id][:lsf_id] }
-        lsf_id = Origen.app.lsf.submit(command_prefix(id, dependents_ids) + command + switches, dependents: dependents_lsf_ids)
+        lsf_id = lsf.submit(command_prefix(id, dependents_ids) + command + switches, dependents: dependents_lsf_ids)
         job_attrs = {
           id:                 id,
           lsf_id:             lsf_id,
@@ -481,8 +490,8 @@ module Origen
 
       def classify_jobs
         clear_caches
-        queuing_job_ids = Origen.app.lsf.queuing_job_ids
-        running_job_ids = Origen.app.lsf.running_job_ids
+        queuing_job_ids = lsf.queuing_job_ids
+        running_job_ids = lsf.running_job_ids
         remote_jobs.each do |_id, job|
           # If the status has already been determined send it straight to the bucket
           if job[:status]

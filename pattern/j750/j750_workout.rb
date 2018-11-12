@@ -26,8 +26,8 @@ Pattern.create do
   $nvm.pins(:porta).assert_hi!
   $nvm.pins(:porta).assert_lo!
   $nvm.pins(:porta).drive_lo
-  $nvm.pins(:porta)[1].assert(1)
-  $nvm.pins(:porta)[2].assert!(1)
+  $nvm.pins(:porta)[1].read(1)
+  $nvm.pins(:porta)[2].read!(1)
   $nvm.pins(:porta).drive_lo
   end
 
@@ -115,10 +115,9 @@ Pattern.create do
 
   ss "Test looping, these vectors should be executed 3 times"
   $tester.loop_vector("test_loop_2", 3) do
-    $nvm.pins(:porta).drive(0xAA)
+    $nvm.pins(:porta).write(0xAA)
     $tester.cycle
-    $nvm.pins(:porta).drive(0x55)
-    $tester.cycle
+    $nvm.pins(:porta).write!(0x55)
   end
   
     ss "Test looping with label first, these vectors should be executed 3 times"

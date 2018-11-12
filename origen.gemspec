@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{The Semiconductor Developer's Kit}
   spec.homepage      = "http://origen-sdk.org"
   spec.license       = 'MIT'
-  spec.required_ruby_version     = '>= 1.9.3'
+  spec.required_ruby_version     = '>= 2'
   spec.required_rubygems_version = '>= 1.8.11'
 
   spec.files         = Dir["lib/**/*.rb", "lib/**/*.erb", "templates/code_generators/**/*", 
@@ -32,11 +32,10 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "net-ldap", "~>0.13"
   spec.add_runtime_dependency "httparty", "~>0.13"
   spec.add_runtime_dependency "bundler", "~>1.7"
-  spec.add_runtime_dependency "nokogiri", "1.7.2"
   spec.add_runtime_dependency "rspec", "~>3"
   spec.add_runtime_dependency "rspec-legacy_formatters", "~>1"
   spec.add_runtime_dependency "thor", "~>0.19"
-  spec.add_runtime_dependency "nanoc", "~>3.7"
+  spec.add_runtime_dependency "nanoc", "~>3.7.0"
   spec.add_runtime_dependency "kramdown", "~>1.5"
   spec.add_runtime_dependency "rubocop", "0.30"
   spec.add_runtime_dependency "coderay", "~>1.1"
@@ -44,11 +43,14 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "pry", "~>0.10"
   spec.add_runtime_dependency "yard", "~>0.8"
   spec.add_runtime_dependency "simplecov", "~>0.9"
-  spec.add_runtime_dependency "log4r", "~>1.1", "~>1.1.10"
   spec.add_runtime_dependency "scrub_rb", "~>1.0"
   spec.add_runtime_dependency "gems", "~>0.8"
   spec.add_runtime_dependency "highline", "~>1.7"
   spec.add_runtime_dependency "geminabox", "0.12.4"
   spec.add_runtime_dependency "sinatra", "~>1" # Not required by Origen, but Geminabox. V1 required to avoid Ruby 2.3 requirement.
   spec.add_runtime_dependency "dentaku", "~>2"
+  spec.add_runtime_dependency "colorize", "~> 0.8.1"
+  spec.add_runtime_dependency 'nokogiri', '>= 1.7.2'
+  spec.add_runtime_dependency 'cri', '~>2.10.0' # Not required by Origen, but add constrain to avoid Ruby 2.3 requirement
+  spec.add_runtime_dependency 'bootsnap', '>= 1.3.2'
 end

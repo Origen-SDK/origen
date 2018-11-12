@@ -16,6 +16,14 @@ module Origen
         @pin
       end
 
+      # @api private
+      #
+      # To play nicely with == when a function proxy is wrapping a pin that is already
+      # wrapped by an OrgFile interceptor
+      def __object__
+        @pin.__object__
+      end
+
       # Intercept all calls to function-scoped attributes of the pin so
       # that we can inject the function that we want the attribute value for
       Pin::FUNCTION_SCOPED_ATTRIBUTES.each do |attribute|

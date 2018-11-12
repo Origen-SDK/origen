@@ -109,9 +109,22 @@ module Origen
             v = tester.capture do
               store!(sync: true)
             end
-            reverse_shift_out_with_index do |bit, i|
-              bit.instance_variable_set('@updated_post_reset', true)
-              bit.instance_variable_set('@data', v.first[i])
+            if v.first
+              # Serial shift
+              if v.size == 1
+                reverse_shift_out_with_index do |bit, i|
+                  bit.instance_variable_set('@updated_post_reset', true)
+                  bit.instance_variable_set('@data', v.first[i])
+                end
+              # Parallel shift
+              else
+                reverse_shift_out_with_index do |bit, i|
+                  bit.instance_variable_set('@updated_post_reset', true)
+                  bit.instance_variable_set('@data', v[i].to_i)
+                end
+              end
+            else
+              Origen.log.warning "No data was captured when attempting to sync register #{owner.name}, this is probably because the current read_register driver method does not implement store requests"
             end
           end
           if size
@@ -225,10 +238,11 @@ module Origen
       end
 
       def bit_value_descriptions(_bitname = nil)
+        options = _bitname.is_a?(Hash) ? _bitname : {}
         if name == :unknown
           []
         else
-          @reg.bit_value_descriptions(name)
+          @reg.bit_value_descriptions(name, options)
         end
       end
 
@@ -501,13 +515,16 @@ module Origen
         result.to_s
       end
 
-      # Write the bit value on silicon<br>
+      # Write the bit value on silicon.
       # This method will update the data value of the bits and then call $top.write_register
-      # passing the owngin register as the first argument.<br>
+      # passing the owning register as the first argument.
       # This method is expected to handle writing the current state of the register to silicon.
       def write!(value = nil, options = {})
         value, options = nil, value if value.is_a?(Hash)
         write(value, options) if value
+        if block_given?
+          yield size == @reg.size ? @reg : self
+        end
         @reg.request(:write_register, options)
         self
       end
@@ -520,8 +537,10 @@ module Origen
       #   reg(:data).read!(0x5555) # Read register :data, expecting 0x5555
       def read!(value = nil, options = {})
         value, options = nil, value if value.is_a?(Hash)
-        read(value, options)
-        # launch a read reg
+        read(value, options) unless block_given?
+        if block_given?
+          yield size == @reg.size ? @reg : self
+        end
         @reg.request(:read_register, options)
         self
       end

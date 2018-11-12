@@ -13,31 +13,50 @@ specified tag.  Then what you need is an Origen Remote.
 Populating a remote is extremely easy, all that has to be done is to define
 the required remote within the <code>config/application.rb</code> file.
 
-Three details are required:
+Three of these four details are required (tag and version are mutually exclusive):
 
 * <code>dir</code>: The sub-directory within the Origen remotes workspace where you want the population to occur, (aka. local)
 * <code>vault</code> or <code>rc_url</code>: The path to the vault/repo, 'vault' and 'rc_url' can be used interchangeably
-* <code>version</code>: The version, or tag, that you want to use
+* <code>version</code>: The version that you want to use
+* <code>tag</code>: The tag that you want to use
+
+The difference between tag and version is that a version, if semantic, will get a 'v' prepended to it.  This is due to a DesignSync
+requirement.  A tag will get used as-is.  In the examples below the first remote will ask DesignSync for version 'v1.0.1', whereas
+the second remote will ask Perforce for the tag '0.1.0'.
 
 Once in possession of these details add them to the <code>config.remotes</code>
 attribute. 
 This accepts an array and any number of remotes can be added, here is an example
-that populates two remotes:
+that populates three remotes:
 
 ~~~ruby
 config.remotes = [
   {
     dir: "source/include/v_ip_ate",
     vault: "sync://sync-15000:15000/v_ip_ate/compiler/include",
-    version: "v1.0.1",
+    version: "1.0.1",
+  },
+  {
+    dir: "mydir",
+    vault: "p4://myserver:myport//path/to/my/remote/file/myfile.xlsx",
+    tag: '0.1.0'
   },
   {
     dir: "artwork",
     rc_url: "git@github.com:Origen-SDK/artwork.git",
     version: "master",
-  }
+    development: true
+  }  
 ]
 ~~~
+
+Origen will populate all remotes defined by a top-level application. It will also populate all
+remotes defined by an application's plugins, except for those which have been marked with
+`development: true` as in the 2nd example above.
+
+Setting `development: true`, indicates to Origen that the remote is only required when developing
+the plugin within a standalone workspace, and that it is not required when the plugin is being
+used by a top-level application.
 
 #### Location
 
@@ -51,6 +70,13 @@ located at:
 
 Please note that the value of <code>dir</code> must be unique for each remote within the application.
 
+You can get a handle on the top-level remotes dir via the helper <code>Origen.app.remotes_dir</code>, as shown
+in this example:
+  
+~~~ruby
+data = File.read("#{Origen.app.remotes_dir}/source/include/v_ip_ate")
+~~~
+  
 #### Origen Does the Rest
 
 With those details added Origen will then take care of ensuring that the dependencies
@@ -81,5 +107,12 @@ is now always looking at your latest development code.
 
 Origen will not allow the receiving application to be tagged when a path reference is active,
 so you don't need to worry too much about forgetting to remove it!
+
+#### Defining Remotes Outside the Application File
+
+Some applications need to support multiple products using source files from other repositories, and
+cannot put product specific information in the config/application.rb file.  In this case, the remotes
+can be defined in the DUT initialization or a related callback method.  Once defined, the remotes can 
+then be fetched by executing the <code>Origen.remote_manager.resolve_remotes!</code> method.
 
 % end

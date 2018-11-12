@@ -17,6 +17,10 @@ module ParametersSpec
           params.vdd.nom = 1
           params.vdd.min = 0.8
           params.vdd.max = 1.2
+          params.measurement0.force_spec_val = "0.5A"
+          params.measurement0.force_type = "SpecValue"
+          params.measurement1.force_spec_val = "1.5A"
+          params.measurement1.force_type = "SpecValue"
         end
 
         define_params :ate, inherit: :default do |params|
@@ -56,6 +60,7 @@ module ParametersSpec
           bits 7..4, :time, bind: params.live.erase.time
           bits 3..0, :pulses
         end
+        sub_block :ip_with_params, class_name: 'IpWithParams', base_address: 0xDEAD_BEEF
       end
 
       def pulses
@@ -69,7 +74,18 @@ module ParametersSpec
         end
       end
     end
-
+  
+    class IpWithParams
+      include Origen::Model
+      
+      def initialize 
+        define_params :default, inherit: 'dut.default' do |params|
+          params.erase.time = 5
+          params.vdd.xmin = 0.7
+        end
+      end  
+    end
+    
     before :each do
       Origen.app.unload_target!
       $dut = DUT.new
@@ -197,6 +213,8 @@ module ParametersSpec
       $dut.params = :probe
       $dut.erase.time.data.should == 3
       $dut.erase.pulses.data.should == 4
+
+      lambda { $dut.erase.pulses.bind $dut.params.erase.pulses }.should raise_error
     end
 
     it "inherited value works" do
@@ -262,6 +280,49 @@ module ParametersSpec
       ip.ip3.params = :ate
       ip.params.context.should == :ate
       ip.params.a.should == 30
+    end
+    
+    it "parameter sets can be converted to a flat hash" do
+      $dut.params.to_flat_hash.include?('erase.time').should == true
+      $dut.params.to_flat_hash['test.ac.period'].should == 1e-08
+      $dut.params.to_flat_hash(delimiter: '_').include?('erase_time').should == true
+      $dut.params.to_flat_hash(delimiter: '_')['test_ac_period'].should == 1e-08
+    end
+    
+    it "retains proper hierarchy when converting to a flat hash" do
+      $dut.params.to_flat_hash['measurement0.force_spec_val'].should == "0.5A"
+      $dut.params.to_flat_hash['measurement1.force_spec_val'].should == "1.5A"
+      $dut.params.to_flat_hash['measurement0.force_type'].should == "SpecValue"
+      $dut.params.to_flat_hash['measurement1.force_type'].should == "SpecValue"
+    end
+    
+    it "all available parameter contexts can be returned as an array" do
+      $dut.params.available_contexts.should == [:default, :ate, :probe, :ft, :set1, :set2, :set3]
+      $dut.params.contexts.should == [:default, :ate, :probe, :ft, :set1, :set2, :set3]
+    end
+    
+    it "objects that own parameter sets can tell if they do or not" do
+      $dut.has_params?.should == true
+    end
+    
+    it 'can pass inheritance between objects' do
+      $dut.params.contexts.should == [:default, :ate, :probe, :ft, :set1, :set2, :set3]
+      $dut.ip_with_params.params.contexts.should == [:default]
+      $dut.params(:default).keys.should == [:tprog, :erase, :test, :vdd, :measurement0, :measurement1]
+      $dut.ip_with_params.params(:default).keys.should == [:tprog, :erase, :test, :vdd, :measurement0, :measurement1]
+      $dut.params(:default).vdd.keys.should == [:nom, :min, :max]
+      $dut.ip_with_params.params(:default).vdd.keys.should == [:nom, :min, :max, :xmin]
+      ($dut.ip_with_params.params(:default).vdd.keys - $dut.params(:default).vdd.keys).should == [:xmin]
+      $dut.ip_with_params.params(:default).vdd.xmin.should == 0.7
+      $dut.params(:default).erase.time.should == 4
+      $dut.ip_with_params.params(:default).erase.time.should == 5
+    end
+
+    it "params? can return value if exists, otherwise nil" do 
+      $dut.param?('tprog').should == 20
+      $dut.param?(:tprog).should == 20
+      $dut.param?('tprog_does_not_exist').should == nil
+      $dut.param?(:tprog_does_not_exist).should == nil
     end
   end
 end

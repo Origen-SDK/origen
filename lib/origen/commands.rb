@@ -24,11 +24,15 @@ ORIGEN_COMMAND_ALIASES = {
 
 @command = ARGV.shift
 @command = ORIGEN_COMMAND_ALIASES[@command] || @command
+@global_commands = []
+
+# Moved here so boot.rb file can know the current command
+Origen.send :current_command=, @command
 
 # Don't log to file during the save command since we need to preserve the last log,
 # this is done as early in the process as possible so any deprecation warnings during
 # load don't trigger a new log
-Origen::Log.console_only = (%w(save target environment version).include?(@command) || ARGV.include?('--exec_remote'))
+Origen::Log.console_only = %w(save target environment version).include?(@command)
 
 if ARGV.delete('--coverage') ||
    ((@command == 'specs' || @command == 'examples' || @command == 'test') && (ARGV.delete('-c') || ARGV.delete('--coverage')))
@@ -90,7 +94,6 @@ require 'origen/global_methods'
 include Origen::GlobalMethods
 
 Origen.lsf.current_command = @command
-Origen.send :current_command=, @command
 
 if ARGV.delete('-d') || ARGV.delete('--debug')
   begin
@@ -215,9 +218,19 @@ if shared_commands && shared_commands.size != 0
   end
 end
 
+# Get a list of registered plugins and get the global launcher
+@global_launcher = Origen._applications_lookup[:name].dup.map do |plugin_name, plugin|
+  shared = plugin.config.shared || {}
+  if shared[:global_launcher]
+    file = "#{plugin.root}/#{shared[:global_launcher]}"
+    require file
+    file
+  end
+end.compact
+
 case @command
 when 'generate', 'program', 'compile', 'merge', 'interactive', 'target', 'environment',
-     'save', 'lsf', 'web', 'time', 'dispatch', 'rc', 'lint', 'plugin', 'fetch', 'mode' # , 'add'
+     'save', 'lsf', 'web', 'time', 'dispatch', 'rc', 'lint', 'plugin', 'fetch', 'mode', 'gem' # , 'add'
 
   require "origen/commands/#{@command}"
   exit 0 unless @command == 'interactive'
@@ -231,6 +244,10 @@ when 'version'
   require 'origen/commands/version'
   exit 0
 
+when 'site'
+  require 'origen/commands/site'
+  exit 0
+
 else
   if ['-h', '--help'].include?(@command)
     status = 0
@@ -242,6 +259,8 @@ else
 Usage: origen COMMAND [ARGS]
 
 The core origen commands are:
+  EOT
+  cmds = <<-EOT
  environment  Display or set the environment (short-cut alias: "e")
  target       Display or set the target (short-cut alias: "t")
  mode         Display or set the mode (short-cut alias: "m")
@@ -258,24 +277,43 @@ The core origen commands are:
  web          Web page tools, see -h for details
  time         Tools for test time analysis and forecasting
  lint         Lint and style check (and correct) your application code
-
+ site         Monitor and manage the Origen site configuration
   EOT
+  cmds.split(/\n/).each do |line|
+    puts Origen.clean_help_line(line)
+  end
+  puts
   if @application_commands && !@application_commands.empty?
-    puts <<-EOT
-In addition to these the application has added:
-#{@application_commands}
-EOT
+    puts 'In addition to these the application has added:'
+    @application_commands.split(/\n/).each do |cmds|
+      cmds.split(/\n/).each do |line|
+        puts Origen.clean_help_line(line)
+      end
+    end
+    puts
   end
 
   if @plugin_commands && !@plugin_commands.empty?
     puts 'The following commands are provided by plugins:'
-    @plugin_commands.each do |str|
-      puts str
+    @plugin_commands.each do |cmds|
+      cmds.split(/\n/).each do |line|
+        puts Origen.clean_help_line(line)
+      end
     end
+    puts
+  end
+
+  if @global_launcher && !@global_launcher.empty?
+    puts 'The following global commands are provided by plugins:'
+    @global_commands.each do |cmds|
+      cmds.split(/\n/).each do |line|
+        puts Origen.clean_help_line(line)
+      end
+    end
+    puts
   end
 
   puts <<-EOT
-
 All commands can be run with -d (or --debugger) to enable the debugger.
 All commands can be run with --coverage to enable code coverage.
 Many commands can be run with -h (or --help) for more information.

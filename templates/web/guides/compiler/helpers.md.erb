@@ -30,12 +30,16 @@ model:
 require "#{Origen.root}/templates/helpers"
 
 # templates/helpers.rb
-class Origen::Generator::Compiler
+module Origen
+  class Generator
+    class Compiler
 
-  def atd
-    $dut.analog.atd
+      def atd
+        $dut.analog.atd
+      end
+
+    end
   end
-
 end
 ~~~
 

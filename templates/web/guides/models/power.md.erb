@@ -1,0 +1,112 @@
+% render "layouts/guides.html" do
+
+Power domains are modeled from the Design side, not from an ATE perspective.  Power domains are not the same thing
+as power pins, rather power domains contain (indirectly) three types of pins:
+
+1. Signal
+2. Power
+3. Ground
+
+The idea behind modeling power domains is to provide a source of truth for the voltages various pins are programmed to
+on the ATE.  There is no native pin levels API yet in Origen but users do create ATE levels using the
+[Origen compiler](http://origen-sdk.org/origen/guides/compiler/introduction/).  Prior to the development of PowerDomains, 
+applications would likely use the [Origen::Parameters](http://origen-sdk.org/origen/guides/models/parameters/) module to store pin levels.
+The advantage of using PowerDomains is that all pins get a single source of truth for their programmed value.
+
+Here is an example of the PowerDomain API:
+
+~~~ruby
+add_power_domain :vdd do |domain|
+  domain.description = 'CPU Core Complex'
+  domain.nominal_voltage = 0.9.V
+  domain.unit_voltage_range = 0.7.V..1.1.V
+end
+add_power_domain :vdda do |domain|
+  domain.description = 'PLL'
+  domain.nominal_voltage = 1.2.V
+  domain.unit_voltage_range = 1.08.V..1.32.V
+end
+add_power_domain :vccsoc do |domain|
+  domain.description = 'SoC'
+  domain.nominal_voltage = 1.5.V
+  domain.unit_voltage_range = 1.35.V..1.65.V
+end
+~~~
+
+Now we can interact with the power domains using the top level DUT.
+
+~~~ruby
+    $dut.power_domains # => [:vdd, :vdda, :vccsoc]
+    $dut.power_domains(:vdd).description # => "CPU Core Complex"
+    $dut.power_domains(:vdd).nominal_voltage # => 1.0.V
+    $dut.power_domains(:vdd).range # => (0.7.V..1.1.V)
+~~~
+
+Typically in Origen, models own things directly, but in the case of power domains, they 'own' pins indirectly.  Most apps
+instantiate pins to the top level DUT so the PowerDomains module was written to deal with that reality, versus asking apps
+to instantiate pins within a power domain.  In order for a power domain to be aware of the pins it 'owns', pins must set
+the ['supply'](http://origen-sdk.org/origen/api/Origen/Pins/Pin.html#supply-instance_method) pin attribute.
+
+Let's define some pins, for the :vdd power domain, that have the supply attribute defined.
+
+~~~ruby
+  VDD_SIGNAL_PINS = [:pin1, :pin2, :pin3]
+  VDD_POWER_PINS = [:vdd1, :vdd2, :vdd3]
+  VDD_GND_PINS = [:vss1, :vss2, :vss3]
+
+  def initialize
+    VDD_SIGNAL_PINS.each do |p|
+      $dut.add_pin p do |pin|
+        pin.supply = :vdd
+      end
+    end
+    VDD_POWER_PINS.each do |p|
+      $dut.add_power_pin p do |pin|
+        pin.supply = :vdd
+      end
+    end
+    VDD_GND_PINS.each do |p|
+      $dut.add_ground_pin p do |pin|
+        pin.supply = :vdd
+      end
+    end
+  end
+~~~
+
+Here are some methods available to interact with the pins associated with a power domain.
+
+~~~ruby
+    $dut.power_domains(:vdd).signal_pins # => [:pin1, :pin2, :pin3]
+    $dut.power_domains(:vdd).power_pins # => [:vdd1, :vdd2, :vdd3]
+    $dut.power_domains(:vdd).ground_pins # => [:vss1, :vss2, :vss3]
+    $dut.power_domains(:vdd).has_pin?(:vdd1) # => true
+    $dut.power_domains(:vdd).pin_type(:vdd1) # => :power
+    $dut.power_domains(:vdd).has_power_pin?(:vdd1) # => true
+    $dut.power_domains(:vdd).has_pin?(:pin1) # => true
+    $dut.power_domains(:vdd).pin_type(:pin1) # => :signal
+    $dut.power_domains(:vdd).has_signal_pin?(:pin1) # => true
+    $dut.power_domains(:vdd).has_pin?(:vss1) # => true
+    $dut.power_domains(:vdd).pin_type(:vss1) # => :ground
+    $dut.power_domains(:vdd).has_ground_pin?(:vss1) # => true
+    $dut.power_domains(:vdda).signal_pins # => []
+    $dut.power_domains(:vdda).power_pins # => []
+    $dut.power_domains(:vdda).ground_pins # => []
+    $dut.power_domains(:vdda).has_pin?(:vdd1) # => false
+~~~
+
+After a power domain is instantiated, its setpoint or value is nil by default.  This behavior is by design, such that the
+user could define [chip modes](http://origen-sdk.org/origen/guides/models/modes/#Mode) or
+[parameter contexts](http://origen-sdk.org/origen/guides/models/parameters/#Defining_a_Set_of_Parameters) that provide scope
+for a group of power domain values.  Here are some examples of setting power domain setpoints/values.
+
+~~~ruby
+  $dut.power_domains(:vdd).setpoint = 0.72.V
+  $dut.power_domains(:vdda).setpoint = 1.10.V
+  $dut.power_domains(:vccsoc).setpoint = 1.37.V
+~~~
+
+A little about the attribute 'unit_voltage_range'.  If a power domain has this attribute set to :fixed, then it means all units
+will see the eact same voltage when the device is powered up.  If this attribute is set to a Range, then it means each device can 
+power-up to a unique voltage, based on a permanently programmed value stored within the device (e.g. using e-fuses).
+
+% end

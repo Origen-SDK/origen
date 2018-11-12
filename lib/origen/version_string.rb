@@ -29,25 +29,42 @@ module Origen
       !production?
     end
 
+    alias_method :orig_equal?, :==
+
+    def equal?(version)
+      # If not a valid version string, compare using regular string comparison
+      if valid?
+        condition_met?("== #{version}")
+      else
+        orig_equal?(version)
+      end
+    end
+    alias_method :eq?, :equal?
+    alias_method :==, :equal?
+
     def less_than?(version)
       condition_met?("< #{version}")
     end
     alias_method :lt?, :less_than?
+    alias_method :<, :less_than?
 
     def less_than_or_equal_to?(version)
       condition_met?("<= #{version}")
     end
     alias_method :lte?, :less_than_or_equal_to?
+    alias_method :<=, :less_than_or_equal_to?
 
     def greater_than?(version)
       condition_met?("> #{version}")
     end
     alias_method :gt?, :greater_than?
+    alias_method :>, :greater_than?
 
     def greater_than_or_equal_to?(version)
       condition_met?(">= #{version}")
     end
     alias_method :gte?, :greater_than_or_equal_to?
+    alias_method :>=, :greater_than_or_equal_to?
 
     # Returns true if the version is a correctly formatted semantic
     # or timestamp version number
@@ -169,7 +186,7 @@ module Origen
     alias_method :dev, :pre
 
     def latest?
-      downcase == 'trunk' || downcase == 'latest'
+      downcase.orig_equal?('trunk') || downcase.orig_equal?('latest')
     end
 
     # Returns true if the version is a timestamp format version number
@@ -225,11 +242,11 @@ module Origen
 
       elsif condition =~ /^==?\s*(.*)/
         tag = validate_condition!(condition, Regexp.last_match[1])
-        self == tag
+        self.orig_equal?(tag)
 
       else
         tag = validate_condition!(condition, condition)
-        self == tag
+        self.orig_equal?(tag)
       end
     end
 

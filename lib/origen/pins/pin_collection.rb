@@ -5,6 +5,14 @@ module Origen
     class PinCollection
       include PinCommon
       include Enumerable
+      include OrgFile::Interceptable
+
+      ORG_FILE_INTERCEPTED_METHODS = [
+        :drive, :write, :drive_hi, :write_hi, :drive_lo, :write_lo, :drive_very_hi, :drive_mem, :expect_mem, :toggle,
+        :repeat_previous=, :capture, :assert, :read, :compare, :expect,
+        :assert_hi, :expect_hi, :compare_hi, :read_hi, :assert_lo, :expect_lo, :compare_lo, :read_lo,
+        :dont_care
+      ]
 
       attr_accessor :endian
       attr_accessor :description
@@ -22,6 +30,7 @@ module Origen
         @virtual_pins = options.delete(:virtual_pin) || options.delete(:virtual_pins)
         @other_pins = options.delete(:other_pin) || options.delete(:other_pins)
         @endian = options[:endian]
+        @rtl_name = options[:rtl_name]
         @description = options[:description] || options[:desc]
         @options = options
         @store = []
@@ -29,6 +38,18 @@ module Origen
           @store[i] = pin
         end
         on_init(owner, options)
+      end
+
+      def rtl_name
+        (@rtl_name || id).to_s
+      end
+
+      def global_path_to
+        "dut.pins(:#{id})"
+      end
+
+      def org_file_intercepted_methods
+        ORG_FILE_INTERCEPTED_METHODS
       end
 
       # Returns the value held by the pin group as a string formatted to the current tester's pattern syntax
@@ -70,7 +91,7 @@ module Origen
             fail 'When setting vector_formatted_value on a pin group you must supply values for all pins!'
           end
           val.split(//).reverse.each_with_index do |val, i|
-            self[i].vector_formatted_value = val
+            myself[i].vector_formatted_value = val
           end
           @vector_formatted_value = val
         end
@@ -140,12 +161,12 @@ module Origen
 
       def sort!(&block)
         @store = sort(&block)
-        self
+        myself
       end
 
       def sort_by!
         @store = sort_by
-        self
+        myself
       end
 
       def []=(index, pin)
@@ -207,45 +228,51 @@ module Origen
       alias_method :<<, :add_pin
 
       def drive(val)
-        val = val.data if val.respond_to?('data')
+        value = clean_value(value)
         each_with_index do |pin, i|
           pin.drive(val[size - i - 1])
         end
-        self
+        myself
       end
+      alias_method :write, :drive
 
       def drive!(val)
         drive(val)
         cycle
       end
+      alias_method :write!, :drive!
 
       # Set all pins in pin group to drive 1's on future cycles
       def drive_hi
         each(&:drive_hi)
-        self
+        myself
       end
+      alias_method :write_hi, :drive_hi
 
       def drive_hi!
         drive_hi
         cycle
       end
+      alias_method :write_hi!, :drive_hi!
 
       # Set all pins in pin group to drive 0's on future cycles
       def drive_lo
         each(&:drive_lo)
-        self
+        myself
       end
+      alias_method :write_lo, :drive_lo
 
       def drive_lo!
         drive_lo
         cycle
       end
+      alias_method :write_lo!, :drive_lo!
 
       # Set all pins in the pin group to drive a high voltage on future cycles (if the tester supports it).
       # For example on a J750 high-voltage channel the pin state would be set to "2"
       def drive_very_hi
         each(&:drive_very_hi)
-        self
+        myself
       end
 
       def drive_very_hi!
@@ -255,7 +282,7 @@ module Origen
 
       def drive_mem
         each(&:drive_mem)
-        self
+        myself
       end
 
       def drive_mem!
@@ -265,7 +292,7 @@ module Origen
 
       def expect_mem
         each(&:expect_mem)
-        self
+        myself
       end
 
       def expect_mem!
@@ -293,7 +320,7 @@ module Origen
 
       def toggle
         each(&:toggle)
-        self
+        myself
       end
 
       def toggle!
@@ -303,13 +330,13 @@ module Origen
 
       def repeat_previous=(bool)
         each { |pin| pin.repeat_previous = bool }
-        self
+        myself
       end
 
       # Mark the (data) from all the pins in the pin group to be captured
       def capture
         each(&:capture)
-        self
+        myself
       end
       alias_method :store, :capture
 
@@ -320,8 +347,16 @@ module Origen
       alias_method :store!, :capture!
 
       def restore_state
-        each(&:save)
+        save
         yield
+        restore
+      end
+
+      def save
+        each(&:save)
+      end
+
+      def restore
         each(&:restore)
       end
 
@@ -334,6 +369,7 @@ module Origen
       end
 
       def assert(value, options = {})
+        value = clean_value(value)
         each_with_index do |pin, i|
           if !value.respond_to?('data')
             pin.assert(value[size - i - 1], options)
@@ -343,10 +379,11 @@ module Origen
             pin.dont_care
           end
         end
-        self
+        myself
       end
       alias_method :compare, :assert
       alias_method :expect, :assert
+      alias_method :read, :assert
 
       def assert!(*args)
         assert(*args)
@@ -354,14 +391,16 @@ module Origen
       end
       alias_method :compare!, :assert!
       alias_method :expect!, :assert!
+      alias_method :read!, :assert!
 
       # Set all pins in the pin group to expect 1's on future cycles
       def assert_hi(options = {})
         each { |pin| pin.assert_hi(options) }
-        self
+        myself
       end
       alias_method :expect_hi, :assert_hi
       alias_method :compare_hi, :assert_hi
+      alias_method :read_hi, :assert_hi
 
       def assert_hi!
         assert_hi
@@ -369,14 +408,16 @@ module Origen
       end
       alias_method :expect_hi!, :assert_hi!
       alias_method :compare_hi!, :assert_hi!
+      alias_method :read_hi!, :assert_hi!
 
       # Set all pins in the pin group to expect 0's on future cycles
       def assert_lo(options = {})
         each { |pin| pin.assert_lo(options) }
-        self
+        myself
       end
       alias_method :expect_lo, :assert_lo
       alias_method :compare_lo, :assert_lo
+      alias_method :read_lo, :assert_lo
 
       def assert_lo!
         assert_lo
@@ -384,11 +425,12 @@ module Origen
       end
       alias_method :expect_lo!, :assert_lo!
       alias_method :compare_lo!, :assert_lo!
+      alias_method :read_lo!, :assert_lo!
 
       # Set all pins in the pin group to X on future cycles
       def dont_care
         each(&:dont_care)
-        self
+        myself
       end
 
       def dont_care!
@@ -456,12 +498,22 @@ pins(:some_group).map(&:id).sort
         end
       end
 
-      # Delete this pingroup (self)
+      # Delete this pingroup (myself)
       def delete!
-        owner.delete_pin(self)
+        owner.delete_pin(myself)
       end
 
       private
+
+      def clean_value(val)
+        return val if val.respond_to?(:contains_bits?)
+        val = val.data if val.respond_to?('data')
+        if val.is_a?(String) || val.is_a?(Symbol)
+          Origen::Value.new(val)
+        else
+          val
+        end
+      end
 
       # Cleans up indexed references to pins, e.g. makes these equal:
       #
@@ -501,7 +553,7 @@ pins(:some_group).map(&:id).sort
           else
             # Allow getters if all pins are the same
             ref = first.send(method, *args)
-            if self.all? { |pin| pin.send(method, *args) == ref }
+            if myself.all? { |pin| pin.send(method, *args) == ref }
               ref
             else
               fail "The pins held by pin collection #{id} have different values for #{method}"

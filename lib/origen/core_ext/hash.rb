@@ -49,4 +49,33 @@ class Hash
   def longest_value
     values.map(&:to_s).max_by(&:length)
   end
+
+  def recursive_find_by_key(key)
+    search_results = {} # Used to store results when key is a Regexp
+    # Create a stack of hashes to search through for the needle which
+    # is initially this hash
+    stack = [self]
+    # So long as there are more haystacks to search...
+    while (to_search = stack.pop)
+      # ...keep searching for this particular key...
+      to_search.each do |k, v|
+        # If this value can be recursively searched...
+        if v.respond_to?(:recursive_find_by_key)
+          # ...push that on to the list of places to search.
+          stack << v
+        elsif key.is_a? Regexp
+          search_results[k] = v if key.match(k.to_s)
+        else
+          return v if (k == key)
+        end
+      end
+    end
+    if search_results.empty?
+      return nil
+    elsif search_results.size == 1
+      return search_results.values.first
+    else
+      return search_results
+    end
+  end
 end

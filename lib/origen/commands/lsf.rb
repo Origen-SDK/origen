@@ -1,4 +1,5 @@
 require 'optparse'
+require 'origen/commands/helpers'
 
 options = {}
 
@@ -55,9 +56,8 @@ Usage: origen lsf [options]
   # opts.on("-e", "--execute", "Execute....") { options[:execute] = true }
   opts.on('-m', '--mode MODE', Origen::Mode::MODES, 'Force the Origen operating mode:', '  ' + Origen::Mode::MODES.join(', ')) { |_m| }
   opts.on('-d', '--debugger', 'Enable the debugger') {  options[:debugger] = true }
-  app_options.each do |app_option|
-    opts.on(*app_option) {}
-  end
+  # Apply any application option extensions to the OptionParser
+  Origen::CommandHelpers.extend_options(opts, app_options, options)
   opts.separator ''
   opts.on('-h', '--help', 'Show this message') { puts opts; exit }
 end
