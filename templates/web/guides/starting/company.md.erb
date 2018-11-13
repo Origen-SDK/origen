@@ -45,6 +45,28 @@ and edit it as required.
 The values present in this default file are the ones that will be applied by default in
 an installation where no custom configs are present.
 
+#### Dynamic Configuration Files
+
+Origen supports a static <code>origen_site_config.yml</code>, but also supports a template <code>origen_site_config.yml.erb</code>.
+If Origen encounters a site config with the extension <code>.yml.erb</code>, it will invoke the [ERB](https://ruby-doc.org/stdlib-2.5.3/libdoc/erb/rdoc/ERB.html)
+template, adding some dynamic nature to the configuration. With this, the same configuration file can be used throughout
+but can set the site according to the current operating system, the hostname, or anything else. If you are not familiar with
+ERB templating, you can view a [quickstart guide on the Origen docs](https://origen-sdk.org/origen/guides/compiler/creating/).
+
+The site config will automatically include Origen's [Boot API](https://github.com/Origen-SDK/origen/blob/master/lib/origen/boot_api.rb),
+and can be used freely out of the gate.
+
+<div class="alert alert-warning">
+  <strong>Warning!</strong> You should not require any gems (including Origen) within your ERB code. The amount of logic
+  should be kept to a minimum and only be used to customize parameter values to the environment OS or a particular host.
+</div>
+
+<div class="alert alert-warning">
+The ERB template format is hard-coded to match that of the <a href="https://origen-sdk.org/origen/guides/compiler/creating/#Template_Syntax">compiler</a>.
+That is, the <code>%<></code> template setting. See the <code>trim_mode</code> option of ERB's <code>::new</code> method
+<a href="https://ruby-doc.org/stdlib-2.5.3/libdoc/erb/rdoc/ERB.html#method-c-new">on the ERB docs page</a> for additional details.
+</div>
+
 #### Testing the Configuration File
 
 ##### Command Line Driven

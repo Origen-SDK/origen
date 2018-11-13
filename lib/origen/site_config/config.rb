@@ -81,7 +81,9 @@ module Origen
             unless Dir.exist?(cached_file.dirname)
               FileUtils.mkdir_p(cached_file.dirname)
             end
-            File.open(cached_file, 'w').write(text)
+            File.open(cached_file, 'w+') do |f|
+              f.write(text)
+            end
 
           rescue SocketError => e
             puts "Origen: Site Config: Unable to connect to #{path}".red
@@ -124,22 +126,19 @@ module Origen
         if centralized?
           if !cached?
             if fetch
-              # erb = ERB.new(File.read(cached_file), 0, '%<>')
               erb = read_erb(cached_file)
             else
-              # There was a problem fetching the cnofig. Just use an empty string.
+              # There was a problem fetching the config. Just use an empty string.
               # Warning message will come from #fetch
               erb = ERB.new('')
             end
           else
-            # erb = ERB.new(File.read(cached_file), 0, '%<>')
             erb = read_erb(cached_file)
           end
 
           @values = (YAML.load(erb.result) || {})
         else
           if File.extname(path) == '.erb'
-            # erb = ERB.new(File.read(path), 0, '%<>')
             erb = read_erb(path)
             @values = (YAML.load(erb.result) || {})
           else
@@ -150,6 +149,8 @@ module Origen
         unless @values.is_a?(Hash)
           puts "Origen: Site Config: The config at #{path} was not parsed as a Hash, but as a #{@values.class}".red
           puts '                     Please review the format of the this file.'.red
+          puts '                     Alternatively, an error condition may have been received from the server.'.red
+          puts "                     This site config is available at: #{cached_file}".red
           puts '                     This config will not be loaded and will be replaced with an empty config.'.red
           puts
           @values = {}
