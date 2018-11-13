@@ -54,8 +54,12 @@ but can set the site according to the current operating system, the hostname, or
 ERB templating, you can view a [quickstart guide on the Origen docs](https://origen-sdk.org/origen/guides/compiler/creating/).
 
 The site config will automatically include Origen's [Boot API](https://github.com/Origen-SDK/origen/blob/master/lib/origen/boot_api.rb),
-and can be used freely out of the gate. Other methods and libraries can be added as needed to the ERB itself (or to helper
-<code>.rb</code> files then required by the ERB).
+and can be used freely out of the gate.
+
+<div class="alert alert-warning">
+  <strong>Warning!</strong> You should not require any gems (including Origen) within your ERB code. The amount of logic
+  should be kept to a minimum and only be used to customize parameter values to the environment OS or a particular host.
+</div>
 
 <div class="alert alert-warning">
 The ERB template format is hard-coded to match that of the <a href="https://origen-sdk.org/origen/guides/compiler/creating/#Template_Syntax">compiler</a>.
