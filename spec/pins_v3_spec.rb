@@ -376,6 +376,20 @@ describe "Origen Pin API v3" do
       $dut.add_pins :pd, size: 16
       $dut.pins(:pd).size.should == 16
     end
+    
+    it "pin groups can be declared directly with an offset" do
+      $dut.add_pins :offset_pins, size: 4, offset: 1
+      $dut.pins(:offset_pins).size.should == 4
+      [:offset_pins1, :offset_pins2, :offset_pins3, :offset_pins4].each do |pin_name|
+        $dut.has_pin?(pin_name).should == true
+        
+        # Origen will attempt to kill rspec if an undefined pin error is hit. The above test will fail still, so can
+        # skip these to avoid an early termination.
+        $dut.pins(pin_name).name.should == pin_name if $dut.has_pin?(pin_name)
+        $dut.pins(pin_name).rtl_name.should == pin_name.to_s if $dut.has_pin?(pin_name)
+      end
+      $dut.has_pin?(:offset_pins0).should == false
+    end
 
     it "endianness of pin group tests" do
       $dut.add_pins :pb, size: 4

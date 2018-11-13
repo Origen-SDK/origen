@@ -229,21 +229,23 @@ module Origen
 
         rtl_name = options[:rtl_name]
         force = options[:force]
+        offset = options.delete(:offset) || 0
         options.delete(:size).times do |i|
-          options[:name] = "#{id}#{i}".to_sym
-          options[:rtl_name] = "#{rtl_name}#{i}".to_sym if rtl_name
-          options[:force] = force[i] if force
+          pin_index = offset + i
+          options[:name] = "#{id}#{pin_index}".to_sym
+          options[:rtl_name] = "#{rtl_name}#{pin_index}".to_sym if rtl_name
+          options[:force] = force[pin_index] if force
 
           if power_pin
-            group[i] = PowerPin.new(i, self, options)
+            group[i] = PowerPin.new(pin_index, self, options)
           elsif ground_pin
-            group[i] = GroundPin.new(i, self, options)
+            group[i] = GroundPin.new(pin_index, self, options)
           elsif virtual_pin
-            group[i] = VirtualPin.new(i, self, options)
+            group[i] = VirtualPin.new(pin_index, self, options)
           elsif other_pin
-            group[i] = OtherPin.new(i, self, options)
+            group[i] = OtherPin.new(pin_index, self, options)
           else
-            group[i] = Pin.new(i, self, options)
+            group[i] = Pin.new(pin_index, self, options)
           end
           group[i].invalidate_group_cache
         end
