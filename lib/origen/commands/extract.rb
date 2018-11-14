@@ -31,24 +31,15 @@ end
 
 Dir.chdir dirname do
   Bundler.with_clean_env do
-    ENV['BUNDLE_GEMFILE'] = File.join(Dir.pwd, 'Gemfile')
-    vendor_gems = File.join(Dir.pwd, 'vendor', 'gems')
-    if File.exist?(vendor_gems)
-      ENV['BUNDLE_PATH'] = vendor_gems
-    else
-      ENV['BUNDLE_PATH'] = File.expand_path(Origen.site_config.gem_install_dir)
-    end
-    ENV['BUNDLE_BIN'] = File.join(Dir.pwd, 'lbin')
-    cmd = "bundle install --gemfile #{ENV['BUNDLE_GEMFILE']} --binstubs #{ENV['BUNDLE_BIN']} --path #{ENV['BUNDLE_PATH']} --local"
-    passed = system cmd
+    passed = system "#{File.join('lbin', 'origen')} setup"
     unless passed
-      Origen.log.error 'A problem was encountered installing the gem bundle, extraction aborted!'
+      Origen.log.error 'A problem was encountered setting up the workspace, extraction aborted!'
       exit 1
     end
 
     Origen.log.info 'Trying to boot the application...'
 
-    passed = system 'origen -v'
+    passed = system "#{File.join('lbin', 'origen')} -v"
     if passed
       Origen.log.success 'Your application has been extracted and can boot up'
     else

@@ -176,6 +176,7 @@ if origen_root
       Bundler.setup
     rescue Gem::LoadError, Bundler::BundlerError => e
       puts e
+      puts
       if _exec_remote
         puts 'App failed to boot, run it locally so that this can be resolved before re-submitting to the LSF'
         exit 1
@@ -186,7 +187,9 @@ if origen_root
       passed = false
 
       Bundler.with_clean_env do
-        passed = system('bundle install')
+        cmd = 'bundle install'
+        cmd += ' --local' if File.exist?('.origen_archive')
+        passed = system(cmd)
       end
 
       if passed

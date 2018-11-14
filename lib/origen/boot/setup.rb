@@ -71,7 +71,7 @@ bundle_path = nil
 eval ORIGEN_BUNDLER_SETUP  # Will update bundle_path
 
 # Force copy system gems to local gems
-if Origen.site_config.gem_use_from_system
+if Origen.site_config.gem_use_from_system && !File.exist?(File.join(origen_root, '.origen_archive'))
   local_gem_dir = "#{bundle_path}/ruby/#{Pathname.new(Gem.dir).basename}"
   gem_dir = Pathname.new(Gem.dir)
 
