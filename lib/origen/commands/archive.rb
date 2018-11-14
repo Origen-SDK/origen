@@ -19,6 +19,8 @@ unless  File.exist?(origen_binstub) && File.read(origen_binstub) =~ /This file w
   puts 'run the following command to update your application and then try again:'
   puts
   puts '  origen setup'
+  puts
+  exit 1
 end
 
 Origen.log.info 'Preparing the workspace' unless options[:local]
