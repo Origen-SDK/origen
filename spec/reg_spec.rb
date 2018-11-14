@@ -248,6 +248,18 @@ module RegTest
         reg.bits(:b2).data.should == 0
     end
 
+    # # Add read/write coverage for all ACCESS_CODES
+    # specify "access_codes properly control read and writability of individual bits" do
+    #   load_target
+    #   $nvm.reg(:access_types).data.should == 0x0000_0000
+    #   $nvm.reg(:access_types).write(0xFFFF_FFFF)
+    #   # Bits 31,29,28,4 not writable, bit 25,22,21,14,10 clear on write or write of 1'b1
+    #   $nvm.reg(:access_types).data.should == 0b0100_1101_1001_1111__1011_1011_1110_0000
+    #   $nvm.reg(:access_types).read!
+    #   # Bits 29,27,23,15,13,4 clear on a read
+    #   $nvm.reg(:access_types).data.should == 0b0100_0101_0001_1111__0001_1011_1110_0000
+    # end
+
     specify "only defined bits capture state" do
         reg = Reg.new(self, 0x10, 16, :dummy, b0: {pos: 0, bits: 4, res: 0x55}, 
                                               b1: {pos: 8, bits: 4, res: 0xAA})
