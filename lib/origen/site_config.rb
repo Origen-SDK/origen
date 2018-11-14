@@ -8,8 +8,8 @@ module Origen
     require 'httparty'
     require_relative 'site_config/config'
 
-    # require this version of Origen
-    #require_relative '../origen'
+    # Require some useful methods from Origen without requiring the entire module
+    require_relative './boot_api'
 
     TRUE_VALUES = ['true', 'TRUE', '1', 1]
     FALSE_VALUES = ['false', 'FALSE', '0', 0]
