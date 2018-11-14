@@ -1,15 +1,14 @@
 module Origen
   class SiteConfig
+    # NOTE: Gems are not allowed to be required here, only Ruby stlibs
     require 'pathname'
     require 'yaml'
     require 'etc'
     require 'erb'
-    require 'colored'
-    require 'httparty'
     require_relative 'site_config/config'
 
     # Require some useful methods from Origen without requiring the entire module
-    require_relative './boot_api'
+    require_relative 'boot/api'
 
     TRUE_VALUES = ['true', 'TRUE', '1', 1]
     FALSE_VALUES = ['false', 'FALSE', '0', 0]
@@ -274,9 +273,9 @@ module Origen
     def inspect_configs(*config_indexes)
       config_indexes.each do |i|
         if i.to_i > @configs.size
-          puts "Origen::SiteConfig: index #{i} is out of range of the available configs! Total configs: #{@configs.size}.".red
+          puts "Origen::SiteConfig: index #{i} is out of range of the available configs! Total configs: #{@configs.size}."
         elsif i.to_i < 0
-          puts "Origen::SiteConfig: index #{i} is less than 0. This index is ignored.".red
+          puts "Origen::SiteConfig: index #{i} is less than 0. This index is ignored."
         else
           c = @configs[i.to_i]
           puts "Inspecting config \##{i}"
