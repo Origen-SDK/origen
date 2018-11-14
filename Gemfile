@@ -11,7 +11,6 @@ gem "loco"
 #gem "origen_testers", "~> 0.7"
 gem 'origen_debuggers', '~> 0'
 gem 'ripper-tags'
-gem 'origen_updater'
 gem 'nokogiri'
 
 # Plugins that provide guide pages

@@ -272,6 +272,7 @@ The core origen commands are:
  compile      Compile a template file or directory (short-cut alias: "c")
  exec         Execute any Ruby file with access to your app environment
 
+ setup        Setup an app workspace for the first time, or fix if it can't boot
  rc           Revision control commands, see -h for details
  save         Save the new or changed files from the last run or a given log file
  lsf          Monitor and manage LSF jobs (short-cut alias: "l")

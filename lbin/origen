@@ -12,7 +12,7 @@ origen_root = File.expand_path('..', __dir__)
 
 # If the Origen version supports the new boot system then use it
 if File.exist?(boot)
-  ORIGEN_APP_ROOT = origen_root
+  ORIGEN_ROOT = origen_root
   load boot
 
 # Otherwise fall back to an (improved) old-style invocation via Bundler
@@ -27,16 +27,18 @@ else
     File.open(File.join(origen_root, '.bundle', 'config'), 'w') do |f|
       f.puts '# Origen is managing this file, any local edits will be overwritten'
       f.puts '# IT SHOULD NOT BE CHECKED INTO REVISION CONTROL!'
-      f.puts '---' 
+      f.puts '---'
       f.puts 'BUNDLE_BIN: false'
       # If gems have been installed to the app, always use them
-      vendor_gems = File.join(origen_root, 'vendor', 'gems')
-      if File.exist?(vendor_gems)
-        f.puts "BUNDLE_PATH: \"#{vendor_gems}\""
+      bundle_path = File.join(origen_root, 'vendor', 'gems')
+      if File.exist?(bundle_path)
+        # Only keep the gems we actually need when installing to the application, but
+        # don't do this when installing outside since other apps might use them
         f.puts 'BUNDLE_CLEAN: true'
       else
-        f.puts "BUNDLE_PATH: \"#{File.expand_path(Origen.site_config.gem_install_dir)}\""
+        bundle_path = File.expand_path(Origen.site_config.gem_install_dir)
       end
+      f.puts "BUNDLE_PATH: \"#{bundle_path}\""
       Array(Origen.site_config.gem_build_switches).each do |build_switches|
         switches = build_switches.strip.split(' ')
         gem = switches.shift

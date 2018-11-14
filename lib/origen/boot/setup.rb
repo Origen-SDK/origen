@@ -1,9 +1,9 @@
 require 'fileutils'
 
-unless defined?(ORIGEN_APP_ROOT)
-  abort 'Something has gone wrong, ORIGEN_APP_ROOT is not defined!'
+unless defined?(ORIGEN_ROOT)
+  abort 'Something has gone wrong, ORIGEN_ROOT is not defined!'
 end
-origen_root = ORIGEN_APP_ROOT
+origen_root = ORIGEN_ROOT
 
 ORIGEN_BINSTUB =
 "#!/usr/bin/env ruby
@@ -20,7 +20,7 @@ origen_root = File.expand_path('..', __dir__)
 
 # If the Origen version supports the new boot system then use it
 if File.exist?(boot)
-  ORIGEN_APP_ROOT = origen_root
+  ORIGEN_ROOT = origen_root
   load boot
 
 # Otherwise fall back to an (improved) old-style invocation via Bundler
@@ -29,7 +29,7 @@ else
   require 'fileutils'
   $_origen_invocation_pwd = Pathname.pwd
   require File.join(origen_lib, 'site_config')
-" + BUNDLER_SETUP + %q(
+" + ORIGEN_BUNDLER_SETUP + %q(
   bundle_binstub = File.expand_path('../bundle', __FILE__)
 
   if File.file?(bundle_binstub)
@@ -46,7 +46,7 @@ else
 end
 )
 
-lbin_dir = File.join(ORIGEN_APP_ROOT, 'lbin')
+lbin_dir = File.join(origen_root, 'lbin')
 
 # Create the origen binstub
 FileUtils.mkdir_p(lbin_dir)
@@ -54,13 +54,6 @@ File.open(File.join(lbin_dir, 'origen'), 'w') do |f|
   f.puts ORIGEN_BINSTUB
 end
 FileUtils.chmod('+x', File.join(lbin_dir, 'origen'))
-
-# Ensure binstubs are present for the 3rd party executables that Origen uses
-Dir.chdir origen_root do
-  system 'bundle binstubs rspec-core nanoc yard rubocop rake --path lbin --force'
-end
-
-eval BUNDLER_SETUP
 
 if Origen.os.windows?
   Dir.glob("#{origen_root}/lbin/*").each do |bin|
@@ -73,6 +66,49 @@ if Origen.os.windows?
   end
 end
 
-puts 'Your application has been upgraded, remember to check in your ./lbin directory'
+bundle_path = nil
+
+eval ORIGEN_BUNDLER_SETUP  # Will update bundle_path
+
+# Force copy system gems to local gems
+if Origen.site_config.gem_use_from_system
+  local_gem_dir = "#{bundle_path}/ruby/#{Pathname.new(Gem.dir).basename}"
+  gem_dir = Pathname.new(Gem.dir)
+
+  Origen.site_config.gem_use_from_system.each do |gem, version|
+    begin
+      # This will raise an error if the system doesn't have this gem installed, that
+      # will be rescued below
+      spec = Gem::Specification.find_by_name(gem, version)
+
+      local_dir = File.join(local_gem_dir, Pathname.new(spec.gem_dir).relative_path_from(gem_dir))
+      FileUtils.mkdir_p local_dir
+      FileUtils.cp_r("#{spec.gem_dir}/.", local_dir)
+
+      local_file = Pathname.new(File.join(local_gem_dir, Pathname.new(spec.cache_file).relative_path_from(gem_dir)))
+      FileUtils.mkdir_p local_file.dirname
+      FileUtils.cp(spec.cache_file, local_file)
+
+      if spec.extension_dir && File.exist?(spec.extension_dir)
+        local_dir = File.join(local_gem_dir, Pathname.new(spec.extension_dir).relative_path_from(gem_dir))
+        FileUtils.mkdir_p local_dir
+        FileUtils.cp_r("#{spec.extension_dir}/.", local_dir)
+      end
+
+      local_file = Pathname.new(File.join(local_gem_dir, Pathname.new(spec.spec_file).relative_path_from(gem_dir)))
+      FileUtils.mkdir_p local_file.dirname
+      FileUtils.cp(spec.spec_file, local_file)
+
+      puts "Copied #{gem} #{version} from the system into #{bundle_path}"
+
+    rescue Gem::LoadError
+      # This just means that one of the gems that should be copied from the system
+      # was not actually installed in the system, so nothing we can do about that here
+    end
+  end
+end
+
+puts
+puts 'Your application has been setup successfully'
 
 exit 0
