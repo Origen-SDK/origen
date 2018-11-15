@@ -1,5 +1,6 @@
 require 'optparse'
 require 'fileutils'
+require 'find'
 require 'bundler'
 
 options = {}
@@ -56,6 +57,14 @@ unless options[:local]
       FileUtils.mkdir_p(tmp1)
       FileUtils.cp_r "#{Origen.root}/.", tmp1
       FileUtils.mv tmp1, tmp
+    end
+    # Remove all .svn or .SYNC directories
+    Find.find(tmp) do |path|
+      name = File.basename(path)
+      if FileTest.directory?(path) && (name == '.svn' || name == '.SYNC')
+        puts "Removing: #{path}"
+        FileUtils.remove_dir(path)
+      end
     end
   ensure
     FileUtils.rm_rf(tmp1) if File.exist?(tmp1)

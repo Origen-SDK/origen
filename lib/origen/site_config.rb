@@ -273,9 +273,9 @@ module Origen
     def inspect_configs(*config_indexes)
       config_indexes.each do |i|
         if i.to_i > @configs.size
-          puts "Origen::SiteConfig: index #{i} is out of range of the available configs! Total configs: #{@configs.size}."
+          puts red("Origen::SiteConfig: index #{i} is out of range of the available configs! Total configs: #{@configs.size}.")
         elsif i.to_i < 0
-          puts "Origen::SiteConfig: index #{i} is less than 0. This index is ignored."
+          puts red("Origen::SiteConfig: index #{i} is less than 0. This index is ignored.")
         else
           c = @configs[i.to_i]
           puts "Inspecting config \##{i}"
@@ -348,6 +348,10 @@ module Origen
     alias_method :[], :find_val
 
     private
+
+    def red(message)
+      "\e[0;31;49m#{message}\e[0m"
+    end
 
     def configs
       @configs ||= configs!
