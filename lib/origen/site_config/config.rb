@@ -64,9 +64,9 @@ module Origen
       def fetch
         def inform_user_of_cached_file
           if cached?
-            puts 'Origen: Site Config: Found previously cached site config. Using the older site config.'.yellow
+            puts yellow('Origen: Site Config: Found previously cached site config. Using the older site config.')
           else
-            puts 'Origen: Site Config: No cached file found. An empty site config will be used in its place.'.yellow
+            puts yellow('Origen: Site Config: No cached file found. An empty site config will be used in its place.')
           end
           puts
         end
@@ -75,6 +75,8 @@ module Origen
           puts "Pulling centralized site config from: #{path}"
 
           begin
+            # TODO: needs to be replaced with a net/http equivalent, can't use gems here. The reference
+            # to HTTParty will raise an error until that is done, but it will be handled gracefully below.
             text = HTTParty.get(path, verify: parent.find_val('centralized_site_config_verify_ssl'))
             puts "Caching centralized site config to: #{cached_file}"
 
@@ -86,27 +88,27 @@ module Origen
             end
 
           rescue SocketError => e
-            puts "Origen: Site Config: Unable to connect to #{path}".red
-            puts 'Origen: Site Config: Failed to retrieve centralized site config!'.red
-            puts "Error from exception: #{e.message}".red
+            puts red("Origen: Site Config: Unable to connect to #{path}")
+            puts red('Origen: Site Config: Failed to retrieve centralized site config!')
+            puts red("Error from exception: #{e.message}")
 
             inform_user_of_cached_file
           rescue OpenSSL::SSL::SSLError => e
-            puts "Origen: Site Config: Unable to connect to #{path}".red
-            puts 'Origen: Site Config: Failed to retrieve centralized site config!'.red
-            puts "Error from exception: #{e.message}".red
-            puts 'It looks like the error is related to SSL certification. If this is a trusted server, you can use ' \
-                 "the site config setting 'centralized_site_config_verify_ssl' to disable verifying the SSL certificate.".red
+            puts red("Origen: Site Config: Unable to connect to #{path}")
+            puts red('Origen: Site Config: Failed to retrieve centralized site config!')
+            puts red("Error from exception: #{e.message}")
+            puts red('It looks like the error is related to SSL certification. If this is a trusted server, you can use')
+            puts red("the site config setting 'centralized_site_config_verify_ssl' to disable verifying the SSL certificate.")
 
             inform_user_of_cached_file
           rescue Exception => e
             # Rescue anything else to avoid any un-caught exceptions causing Origen not to boot.
             # Print lots of red so that the users are aware that there's a problem, but don't ultimately want this
             # to render Origen un-bootable
-            puts "Origen: Site Config: Unexpected exception ocurred trying to either retrieve or cache the site config at #{path}".red
-            puts 'Origen: Site Config: Failed to retrieve centralized site config!'.red
-            puts "Class of exception:   #{e.class}".red
-            puts "Error from exception: #{e.message}".red
+            puts red("Origen: Site Config: Unexpected exception ocurred trying to either retrieve or cache the site config at #{path}")
+            puts red('Origen: Site Config: Failed to retrieve centralized site config!')
+            puts red("Class of exception:   #{e.class}")
+            puts red("Error from exception: #{e.message}")
 
             inform_user_of_cached_file
           end
@@ -147,11 +149,11 @@ module Origen
         end
 
         unless @values.is_a?(Hash)
-          puts "Origen: Site Config: The config at #{path} was not parsed as a Hash, but as a #{@values.class}".red
-          puts '                     Please review the format of the this file.'.red
-          puts '                     Alternatively, an error condition may have been received from the server.'.red
-          puts "                     This site config is available at: #{cached_file}".red
-          puts '                     This config will not be loaded and will be replaced with an empty config.'.red
+          puts red("Origen: Site Config: The config at #{path} was not parsed as a Hash, but as a #{@values.class}")
+          puts red('                     Please review the format of the this file.')
+          puts red('                     Alternatively, an error condition may have been received from the server.')
+          puts red("                     This site config is available at: #{cached_file}")
+          puts red('                     This config will not be loaded and will be replaced with an empty config.')
           puts
           @values = {}
         end
@@ -161,9 +163,8 @@ module Origen
           RESTRICTED_FROM_CENTRALIZED_VARIABLES.each do |var|
             if @values.key?(var)
               val = @values.delete(var)
-              puts 'Origen: Site Config: ' \
-                   "config variable #{var} is not allowed in the centralized site config and will be removed. " \
-                   "Value #{val} will not be applied!".red
+              puts red("Origen: Site Config: config variable #{var} is not allowed in the centralized site config and will be removed.")
+              puts red("                     Value #{val} will not be applied!")
             end
           end
         end
@@ -200,6 +201,16 @@ module Origen
 
       def runtime?
         type == :runtime
+      end
+
+      private
+
+      def red(message)
+        "\e[0;31;49m#{message}\e[0m"
+      end
+
+      def yellow(message)
+        "\e[0;33;49m#{message}\e[0m"
       end
     end
   end
