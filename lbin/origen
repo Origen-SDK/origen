@@ -6,13 +6,12 @@
 require 'rubygems'
 
 origen_lib = File.expand_path('../../lib/origen', Gem.bin_path('origen', 'origen'))
-origen_lib = '/home/stephen/Code/github/origen/lib/origen'
 boot = File.join(origen_lib, 'boot.rb')
-origen_root = File.expand_path('..', __dir__)
+ORIGEN_ROOT = File.expand_path('..', __dir__)
+origen_root = ORIGEN_ROOT
 
 # If the Origen version supports the new boot system then use it
 if File.exist?(boot)
-  ORIGEN_ROOT = origen_root
   load boot
 
 # Otherwise fall back to an (improved) old-style invocation via Bundler

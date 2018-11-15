@@ -60,8 +60,8 @@ unless options[:local]
     end
     # Remove all .svn or .SYNC directories
     Find.find(tmp) do |path|
-      name = File.basename(path)
-      if FileTest.directory?(path) && (name == '.svn' || name == '.SYNC')
+      n = File.basename(path)
+      if FileTest.directory?(path) && (n == '.svn' || n == '.SYNC')
         puts "Removing: #{path}"
         FileUtils.remove_dir(path)
       end
@@ -91,16 +91,20 @@ Dir.chdir dir do
   end
 
   Origen.log.info 'Installing gems into the application (this could take a while)'
-  Bundler.with_clean_env do
-    FileUtils.mkdir_p(File.join('vendor', 'gems'))
-    passed = system "#{File.join('lbin', 'origen')} setup --quiet"
-    FileUtils.touch('.origen_archive') unless options[:local]
-    unless passed
-      Origen.log.error 'A problem was encountered setting up the workspace, archive aborted!'
-      exit 1
-    end
+  FileUtils.mkdir_p(File.join('vendor', 'gems'))
+  require 'origen/boot/app'
+  begin
+    Origen::Boot.setup(dir)
+    Origen::Boot.setup_bundler(dir)
+  rescue Exception => e
+    Origen.log.error e.to_s
+    Origen.log.error 'A problem was encountered setting up the workspace, archive aborted!'
+    exit 1
+  end
+  FileUtils.touch('.origen_archive') unless options[:local]
 
-    passed = system "#{File.join('lbin', 'origen')} -v"
+  Bundler.with_clean_env do
+    passed = system('bundle') && system('origen -v')
     unless passed
       Origen.log.error 'A problem was encountered installing the gem bundle, archive aborted!'
       exit 1
@@ -130,6 +134,7 @@ if options[:local]
 else
   Origen.log.info 'Creating archive'
   Dir.chdir tmpdir do
+    FileUtils.rm_rf('.bundle') if File.exist?('.bundle')
     passed = system "tar -cvzf #{name}.origen ./#{name}"
     unless passed
       Origen.log.error 'A problem was encountered creating the tarball, archive aborted!'
