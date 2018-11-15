@@ -14,7 +14,6 @@ ORIGEN_BINSTUB =
 require 'rubygems'
 
 origen_lib = File.expand_path('../../lib/origen', Gem.bin_path('origen', 'origen'))
-origen_lib = '/home/stephen/Code/github/origen/lib/origen'
 boot = File.join(origen_lib, 'boot.rb')
 origen_root = File.expand_path('..', __dir__)
 
