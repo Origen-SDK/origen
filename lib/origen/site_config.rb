@@ -354,16 +354,7 @@ module Origen
     end
 
     def configs
-      # Don't know how, but my workspace managed to get into a state where this variable was somehow set (must be
-      # from elsewhere) but it contained config hashes and not config objects.
-      # This @clean_configs_set switch is to ensure that it gets set from in here, even if it already exists upon
-      # entry.
-      if @clean_configs_set
-        @configs ||= configs!
-      else
-        @clean_configs_set = true
-        configs!
-      end
+      @configs ||= configs!
     end
 
     # Searches a directory and returns an array of config objects (from lowest to highest priority) that were found
