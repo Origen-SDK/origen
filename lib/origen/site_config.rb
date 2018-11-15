@@ -86,7 +86,7 @@ module Origen
 
     # Dynamically remove the highest instance of :var
     def remove_highest(var)
-      @configs.each do |c|
+      configs.each do |c|
         if c.has_var?(var)
           return c.remove_var(var)
         end
@@ -103,7 +103,7 @@ module Origen
       # from lowest priority to highest.
       # If [] is returned, it implies that there was no instancs of :var to be removed.
       ret = []
-      @configs.each do |c|
+      configs.each do |c|
         if c.has_var?(var)
           ret << c.remove_var(var)
         end
@@ -161,7 +161,7 @@ module Origen
 
     def get_all(val)
       ret = []
-      @configs.each do |c|
+      configs.each do |c|
         if c.has_var?(val)
           ret << c[val]
         end
@@ -170,7 +170,7 @@ module Origen
     end
 
     def clear
-      @configs.clear
+      configs.clear
     end
 
     def rebuild!
@@ -178,7 +178,7 @@ module Origen
     end
 
     def refresh
-      @configs.each(&:refresh)
+      configs.each(&:refresh)
     end
 
     def pretty_print_configs
@@ -257,7 +257,7 @@ module Origen
         else
           puts "(No enviornment variable #{to_env(var)} defined)"
         end
-        @configs.each do |c|
+        configs.each do |c|
           if c.has_var?(var)
             puts "#{c.path} (#{c.type}): #{c[var]}"
           end
@@ -272,12 +272,12 @@ module Origen
     # Inspects the config(s) at the incex given.
     def inspect_configs(*config_indexes)
       config_indexes.each do |i|
-        if i.to_i > @configs.size
-          puts red("Origen::SiteConfig: index #{i} is out of range of the available configs! Total configs: #{@configs.size}.")
+        if i.to_i > configs.size
+          puts red("Origen::SiteConfig: index #{i} is out of range of the available configs! Total configs: #{configs.size}.")
         elsif i.to_i < 0
           puts red("Origen::SiteConfig: index #{i} is less than 0. This index is ignored.")
         else
-          c = @configs[i.to_i]
+          c = configs[i.to_i]
           puts "Inspecting config \##{i}"
           puts "Type: #{c.type}"
           puts "Path: #{c.path}"
@@ -354,7 +354,16 @@ module Origen
     end
 
     def configs
-      @configs ||= configs!
+      # Don't know how, but my workspace managed to get into a state where this variable was somehow set (must be
+      # from elsewhere) but it contained config hashes and not config objects.
+      # This @clean_configs_set switch is to ensure that it gets set from in here, even if it already exists upon
+      # entry.
+      if @clean_configs_set
+        @configs ||= configs!
+      else
+        @clean_configs_set = true
+        configs!
+      end
     end
 
     # Searches a directory and returns an array of config objects (from lowest to highest priority) that were found
@@ -378,7 +387,7 @@ module Origen
     end
 
     # Forces a reparse of the site configs.
-    # This will set the @configs along the current path first,
+    # This will set the configs along the current path first,
     # then, using those values, will add a site config at the home directory.
     def configs!
       # This global is set when Origen is first required, it generally means that what is considered
