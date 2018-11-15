@@ -31,7 +31,7 @@ end
 
 Dir.chdir dirname do
   Bundler.with_clean_env do
-    passed = system "#{File.join('lbin', 'origen')} setup"
+    passed = system "#{File.join('lbin', 'origen')} setup --quiet"
     unless passed
       Origen.log.error 'A problem was encountered setting up the workspace, extraction aborted!'
       exit 1

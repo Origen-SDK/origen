@@ -81,27 +81,35 @@ if Origen.site_config.gem_use_from_system && !File.exist?(File.join(origen_root,
       # will be rescued below
       spec = Gem::Specification.find_by_name(gem, version)
 
-      local_dir = File.join(local_gem_dir, Pathname.new(spec.gem_dir).relative_path_from(gem_dir))
-      FileUtils.mkdir_p local_dir
-      FileUtils.cp_r("#{spec.gem_dir}/.", local_dir)
+      # If the spec has returned a handle to a system installed gem. If this script has been invoked through
+      # Bundler then it could point to some other gem dir. The only time this should occur is when switching
+      # from the old system to the new system, but can't work out how to fix it so just disabling in that case.
+      if spec.gem_dir =~ /#{gem_dir}/
 
-      local_file = Pathname.new(File.join(local_gem_dir, Pathname.new(spec.cache_file).relative_path_from(gem_dir)))
-      FileUtils.mkdir_p local_file.dirname
-      FileUtils.cp(spec.cache_file, local_file)
-
-      if spec.extension_dir && File.exist?(spec.extension_dir)
-        local_dir = File.join(local_gem_dir, Pathname.new(spec.extension_dir).relative_path_from(gem_dir))
+        local_dir = File.join(local_gem_dir, Pathname.new(spec.gem_dir).relative_path_from(gem_dir))
         FileUtils.mkdir_p local_dir
-        FileUtils.cp_r("#{spec.extension_dir}/.", local_dir)
+        FileUtils.cp_r("#{spec.gem_dir}/.", local_dir)
+
+        local_file = Pathname.new(File.join(local_gem_dir, Pathname.new(spec.cache_file).relative_path_from(gem_dir)))
+        FileUtils.mkdir_p local_file.dirname
+        FileUtils.cp(spec.cache_file, local_file)
+
+        if spec.extension_dir && File.exist?(spec.extension_dir)
+          local_dir = File.join(local_gem_dir, Pathname.new(spec.extension_dir).relative_path_from(gem_dir))
+          FileUtils.mkdir_p local_dir
+          FileUtils.cp_r("#{spec.extension_dir}/.", local_dir)
+        end
+
+        local_file = Pathname.new(File.join(local_gem_dir, Pathname.new(spec.spec_file).relative_path_from(gem_dir)))
+        FileUtils.mkdir_p local_file.dirname
+        FileUtils.cp(spec.spec_file, local_file)
+
+        puts "Copied #{gem} #{version} from the system into #{bundle_path}"
+
       end
 
-      local_file = Pathname.new(File.join(local_gem_dir, Pathname.new(spec.spec_file).relative_path_from(gem_dir)))
-      FileUtils.mkdir_p local_file.dirname
-      FileUtils.cp(spec.spec_file, local_file)
-
-      puts "Copied #{gem} #{version} from the system into #{bundle_path}"
-
-    rescue Gem::LoadError
+    rescue Exception # Gem::LoadError  # Rescue everything here, this is a try-our-best operation, better to
+      # continue and try and install the gem if this fails rather than crash
       # This just means that one of the gems that should be copied from the system
       # was not actually installed in the system, so nothing we can do about that here
     end
@@ -109,6 +117,6 @@ if Origen.site_config.gem_use_from_system && !File.exist?(File.join(origen_root,
 end
 
 puts
-puts 'Your application has been setup successfully'
+puts 'Your application has been setup successfully' unless ARGV.include?('--quiet')
 
 exit 0

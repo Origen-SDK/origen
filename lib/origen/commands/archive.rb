@@ -84,7 +84,7 @@ Dir.chdir dir do
   Origen.log.info 'Installing gems into the application (this could take a while)'
   Bundler.with_clean_env do
     FileUtils.mkdir_p(File.join('vendor', 'gems'))
-    passed = system "#{File.join('lbin', 'origen')} setup"
+    passed = system "#{File.join('lbin', 'origen')} setup --quiet"
     FileUtils.touch('.origen_archive') unless options[:local]
     unless passed
       Origen.log.error 'A problem was encountered setting up the workspace, archive aborted!'
