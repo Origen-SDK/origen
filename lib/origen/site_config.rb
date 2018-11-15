@@ -437,6 +437,9 @@ module Origen
     end
   end
 
+  # Blow this cache whenever this file is re-loaded
+  @site_config = nil
+
   def self.site_config
     @site_config ||= SiteConfig.new
   end

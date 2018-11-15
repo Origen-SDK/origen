@@ -12,8 +12,9 @@ unless defined? RGen::ORIGENTRANSITION
   # by the site_config lookup.
   $_origen_invocation_pwd ||= Pathname.pwd
   require 'fileutils'
-  require 'origen/site_config'
-  require 'origen/operating_systems'
+  # Force these to re-load since they could have been loaded from an earlier version of Origen during boot
+  load 'origen/site_config.rb'
+  load 'origen/operating_systems.rb'
   require 'origen/core_ext'
   require 'origen/acronyms'
   require 'origen/callbacks'
