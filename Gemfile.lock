@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/Origen-SDK/origen_core_support.git
-  revision: b73bfaf57f0871ec24f3f9e0833e951015ed90a0
+  revision: 88c6493f027ffbbdc9c108ca8f4f23f264297498
   specs:
     origen_core_support (0.2.3)
       origen (>= 0.2.6)
@@ -76,7 +76,7 @@ GEM
     coderay (1.1.2)
     colored (1.2)
     colorize (0.8.1)
-    concurrent-ruby (1.0.5)
+    concurrent-ruby (1.1.3)
     coveralls (0.8.22)
       json (>= 1.8, < 3)
       simplecov (~> 0.16.1)
@@ -98,7 +98,8 @@ GEM
       sinatra (>= 1.2.7)
     gems (0.8.3)
     highline (1.7.10)
-    httparty (0.16.2)
+    httparty (0.16.3)
+      mime-types (~> 3.0)
       multi_xml (>= 0.5.2)
     httpclient (2.8.3)
     i18n (0.9.5)
@@ -106,7 +107,10 @@ GEM
     json (2.1.0)
     kramdown (1.17.0)
     loco (0.0.6)
-    method_source (0.9.0)
+    method_source (0.9.2)
+    mime-types (3.2.2)
+      mime-types-data (~> 3.2015)
+    mime-types-data (3.2018.0812)
     mini_portile2 (2.3.0)
     minitest (5.11.3)
     msgpack (1.2.4)
@@ -116,7 +120,7 @@ GEM
       cri (~> 2.3)
     nesty (1.0.2)
     net-ldap (0.16.1)
-    nokogiri (1.8.4)
+    nokogiri (1.8.5)
       mini_portile2 (~> 2.3.0)
     origen_debuggers (0.6.0)
       origen (>= 0.2.6)
@@ -128,14 +132,14 @@ GEM
     origen_verilog (0.5.0)
       ast (~> 2)
       treetop
-    parser (2.5.1.2)
+    parser (2.5.3.0)
       ast (~> 2.4.0)
     polyglot (0.3.5)
     powerpack (0.1.2)
-    pry (0.11.3)
+    pry (0.12.2)
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
-    rack (1.6.10)
+    rack (1.6.11)
     rack-protection (1.5.5)
       rack
     rainbow (2.2.2)
@@ -149,7 +153,7 @@ GEM
       rspec-mocks (~> 3.8.0)
     rspec-core (3.8.0)
       rspec-support (~> 3.8.0)
-    rspec-expectations (3.8.1)
+    rspec-expectations (3.8.2)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.8.0)
     rspec-legacy_formatters (1.0.1)
@@ -206,4 +210,4 @@ DEPENDENCIES
   ripper-tags
 
 BUNDLED WITH
-   1.16.4
+   1.17.1
