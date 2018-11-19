@@ -1,3 +1,26 @@
+<a class="anchor release_tag" name="v0_37_0"></a>
+<h1><a href="#v0_37_0">Tag: v0.37.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 15-Nov-2018 17:21PM
+
+
+* Updated Origen.site\_config to make it self-contained so that it is compatible with
+  upcoming changes to the Origen boot system.
+* The network-based site config file system is broken by the update, it will be
+  re-instated in a future release by Corey.
+
+<a class="anchor release_tag" name="v0_36_1"></a>
+<h1><a href="#v0_36_1">Tag: v0.36.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Ronnie Lajaunie on 01-Nov-2018 08:42AM
+
+
+* Patch Bootsnap for LSF remote job execution
+
 <a class="anchor release_tag" name="v0_36_0"></a>
 <h1><a href="#v0_36_0">Tag: v0.36.0</a></h1>
 

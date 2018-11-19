@@ -248,6 +248,10 @@ when 'version'
   require 'origen/commands/version'
   exit 0
 
+when 'site'
+  require 'origen/commands/site'
+  exit 0
+
 else
   if ['-h', '--help'].include?(@command)
     status = 0
@@ -277,6 +281,7 @@ The core origen commands are:
  web          Web page tools, see -h for details
  time         Tools for test time analysis and forecasting
  lint         Lint and style check (and correct) your application code
+ site         Monitor and manage the Origen site configuration
  new          Generate a new model, timing, pattern, etc. for your application
   EOT
   cmds.split(/\n/).each do |line|
