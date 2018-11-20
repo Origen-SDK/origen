@@ -112,6 +112,8 @@ Some points to note in the above code:
   objects named <code>:porta0</code> through <code>:porta31</code>.
   See below for how to define pin groups based on existing pins.
 * Pin groups can be any size, define via the <code>:size</code> option.
+* For pin groups whose indexes should start somewhere other than <code>0</code> (e.g. modeling the port
+  <code>portc[8:1]</code> instead of <code>portc[7:0]</code>), an <code>:offset</code> option can be provided.
 * Pin groups are big endian by default, however little endian can be specified via the
   <code>:endian</code> option. Changing this attribute will have the effect of reversing the
   order that data is applied in a test pattern.
