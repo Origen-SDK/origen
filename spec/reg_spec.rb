@@ -726,7 +726,7 @@ module RegTest
     it "registers can be overridden in sub classes" do
       Origen.config.strict_errors = false
       Origen.app.unload_target!
-      nvm = OrigenCoreSupport::NVMSub.new
+      nvm = OrigenCoreSupport::NVM::NVMSub.new
       nvm.reg(:data).address.should == 0x4
       nvm.redefine_data_reg
       nvm.reg(:data).address.should == 0x40
@@ -735,7 +735,7 @@ module RegTest
     it "registers can be overridden in sub classes - not when strict" do
       Origen.config.strict_errors = true
       Origen.app.unload_target!
-      nvm = OrigenCoreSupport::NVMSub.new
+      nvm = OrigenCoreSupport::NVM::NVMSub.new
       nvm.reg(:data).address.should == 0x4
       puts "******************** Redefine register error expected here ********************"
       lambda do
@@ -776,7 +776,7 @@ module RegTest
 
     it "registers can be declared in block format with descriptions" do
       Origen.app.unload_target!
-      nvm = OrigenCoreSupport::NVMSub.new
+      nvm = OrigenCoreSupport::NVM::NVMSub.new
       nvm.add_reg_with_block_format
       nvm.reg(:dreg).data.should == 0x8055
       nvm.reg(:dreg2).data.should == 0x8055
@@ -797,7 +797,7 @@ module RegTest
 
     it "register descriptions can be supplied via the API" do     
       Origen.app.unload_target!
-      nvm = OrigenCoreSupport::NVMSub.new
+      nvm = OrigenCoreSupport::NVM::NVMSub.new
       nvm.add_reg_with_block_format
       nvm.reg(:dreg3).description(include_name: false).size.should == 1
       nvm.reg(:dreg3).description(include_name: false).first.should == "This is dreg3"
@@ -810,7 +810,7 @@ module RegTest
 
     it "bit value descriptions work" do
       Origen.app.unload_target!
-      nvm = OrigenCoreSupport::NVMSub.new
+      nvm = OrigenCoreSupport::NVM::NVMSub.new
       nvm.add_reg_with_block_format
       nvm.reg(:dreg).bits(:bit15).bit_value_descriptions.size.should == 0
       nvm.reg(:dreg).bits(:bit14).bit_value_descriptions.size.should == 2
@@ -833,7 +833,7 @@ module RegTest
 
     it "bit names from a description work" do
       Origen.app.unload_target!
-      nvm = OrigenCoreSupport::NVMSub.new
+      nvm = OrigenCoreSupport::NVM::NVMSub.new
       nvm.add_reg_with_block_format
       nvm.reg(:dreg).bits(:bit14).full_name.should == "Bit 14"
       nvm.reg(:dreg3).bits(:bit14).full_name.should == "Bit 14"
@@ -841,7 +841,7 @@ module RegTest
 
     it "register names from a description work" do
       Origen.app.unload_target!
-      nvm = OrigenCoreSupport::NVMSub.new
+      nvm = OrigenCoreSupport::NVM::NVMSub.new
       nvm.add_reg_with_block_format
       nvm.reg(:dreg).full_name.should == "Data Register 3"
       nvm.reg(:dreg3).full_name.should == "Data Register 3"

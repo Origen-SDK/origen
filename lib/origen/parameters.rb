@@ -34,19 +34,24 @@ module Origen
     def self.start_transaction
       @transaction_data = {}
       @transaction_open = true
+      @transaction_counter ||= 0
+      @transaction_counter += 1
     end
 
     # @api private
     def self.stop_transaction
-      # Now finalize (freeze) all parameter sets we have just defined, this was deferred at define time due
-      # to running within a transaction
-      @transaction_data.each do |model, parameter_sets|
-        parameter_sets.keys.each do |name|
-          model._parameter_sets[name].finalize
+      @transaction_counter -= 1
+      if @transaction_counter == 0
+        # Now finalize (freeze) all parameter sets we have just defined, this was deferred at define time due
+        # to running within a transaction
+        @transaction_data.each do |model, parameter_sets|
+          parameter_sets.keys.each do |name|
+            model._parameter_sets[name].finalize
+          end
         end
+        @transaction_data = nil
+        @transaction_open = false
       end
-      @transaction_data = nil
-      @transaction_open = false
     end
 
     # @api private

@@ -71,17 +71,22 @@ module Origen
       #     Origen::Application.from_namespace('MyApp::MyClass')            # => <my_app instance>
       #     Origen::Application.from_namespace(<my_app::my_class instance>) # => <my_app instance>
       def from_namespace(item)
-        if item.is_a?(Module) || item.is_a?(Class) || item.is_a?(Symbol)
-          item = item.to_s
-        elsif !item.is_a?(String) # Assume to be an object instance in this case
-          item = item.class.to_s
+        unless item.is_a?(String)
+          if item.is_a?(Module) || item.is_a?(Class) || item.is_a?(Symbol)
+            item = item.to_s
+          else # Assume to be an object instance in this case
+            item = item.class.to_s
+          end
         end
         namespace = item.split('::').first
-        return Origen.app if Origen.app.namespace == namespace
-        Origen.app.plugins.each do |plugin|
-          return plugin if plugin.namespace == namespace
+        @apps_by_namespace ||= {}
+        @apps_by_namespace[namespace] ||= begin
+          return Origen.app if Origen.app.namespace == namespace
+          Origen.app.plugins.each do |plugin|
+            return plugin if plugin.namespace == namespace
+          end
+          nil
         end
-        nil
       end
 
       protected
@@ -123,6 +128,33 @@ module Origen
             end
           end
         end
+      end
+    end
+
+    # @api private
+    #
+    # Returns a lookup table for all part definitions (app/parts) that the app contains
+    def parts_files
+      @parts_files ||= begin
+        files = {}
+        part_dir = Pathname.new(File.join(root, 'app', 'parts'))
+        if part_dir.exist?
+          part_dir.glob('**/*').each do |item|
+            if item.to_s =~ /(parameters|pins|registers|sub_blocks|timesets).rb$/
+              fields = item.relative_path_from(part_dir).to_s.split('/')
+              fields.delete('derivatives')
+              type = fields.pop.sub('.rb', '').to_sym
+              path = fields.join('/')
+              files[path] ||= { parameters: [], others: [] }
+              if type == :parameters
+                files[path][:parameters] << item.to_s
+              else
+                files[path][:others] << item.to_s
+              end
+            end
+          end
+        end
+        files
       end
     end
 
@@ -803,30 +835,21 @@ END
       clear_dynamic_resources
       load_event(:transient) do
         Origen.mode = Origen.app.session.origen_core[:mode] || :production  # Important since a production target may rely on the default
-        # This defers calling the DUTs define_register and define_sub_blocks methods
-        # until the end of the block, allowing the target definitions, such as the parameters
-        # to be loaded first
-        Loader.defer_load_definitions do
-          begin
-            $_target_options = @target_load_options
-            Origen.target.set_signature(@target_load_options)
-            $dut = nil
-            load environment.file if environment.file
-            if target.proc
-              target.proc.call
-            else
-              load target.file!
-            end
-          ensure
-            $_target_options = nil
+        begin
+          $_target_options = @target_load_options
+          Origen.target.set_signature(@target_load_options)
+          $dut = nil
+          load environment.file if environment.file
+          if target.proc
+            target.proc.call
+          else
+            load target.file!
           end
-          @target_instantiated = true
-          Origen.mode = :debug if options[:force_debug]
-          if dut
-            load_definitions(:application, options)
-            load_definitions(Origen.target.name, options)
-          end
+        ensure
+          $_target_options = nil
         end
+        @target_instantiated = true
+        Origen.mode = :debug if options[:force_debug]
         listeners_for(:on_create).each do |obj|
           unless obj.is_a?(Origen::SubBlocks::Placeholder)
             if obj.try(:is_a_model_and_controller?)
@@ -847,44 +870,6 @@ END
       listeners_for(:after_load_target).each(&:after_load_target)
       Origen.app.plugins.validate_production_status
       @target_loading = false
-    end
-
-    # Load the definitions for the given name, where the definitions are the files that live in:
-    #
-    # * app/parameters
-    # * app/pins
-    # * app/timesets
-    #
-    # By default, Origen will load any definitions named application.rb and then any named after the
-    # current target during the target load process.
-    # Applications can use this API to load any additional files that don't correspond to a particular
-    # target.
-    #
-    #     # Load all definitions named 'ip1'
-    #     Origen.app.load_definitions :ip1
-    #
-    #     # Load only the pin and timeset definitions named 'ip1'
-    #     Origen.app.load_definitions :ip1, only: [:parameters, :pins]
-    #
-    #     # Load all definitions named 'ip1' except for the timesets
-    #     Origen.app.load_definitions :ip1, except: [:timesets]
-    def load_definitions(name, options = {})
-      name, options = nil, name if name.is_a?(Hash)
-      if options[:only]
-        resources = Array(options[:only])
-      else
-        # Keep parameters first so that they may be referenced in the other resource files
-        resources = [:parameters, :pins, :timesets]
-      end
-      if options[:except]
-        resources = resources - Array(options[:except])
-      end
-      resources.each do |resource|
-        Origen::Parameters.start_transaction if resource == :parameters
-        f = "#{root}/app/#{resource}/#{name}.rb"
-        load f if File.exist?(f)
-        Origen::Parameters.stop_transaction if resource == :parameters
-      end
     end
 
     # Returns true if the on_create callback has already been called during a target load

@@ -3,30 +3,39 @@ module Origen
   # application models and controllers without having to require them, and more generally how the
   # contents of the various app/ sub-directories are loaded.
   module Loader
-    # @api private
-    def self.defer_load_definitions(*args)
-      if block_given?
-        deferred_load_definitions << []
-        yield
-        deferred_load_definitions.pop.each do |model, options|
-          model._load_definitions(options) if model.respond_to?(:_load_definitions)
+    # If a part definition exists for the given model, then this will load it and apply it to
+    # the model
+    def self.load_part(model, options = {})
+      model = model.model  # Ensure we have a handle on the model and not its controller
+      if app = options[:app] || model.app
+        if options[:path]
+          paths = options[:path].to_s.split('/')
+        else
+          paths = model.class.to_s.split('::')
+          paths.shift  # Throw away the app namespace
         end
-      else
-        deferred_load_definitions.last << args
+        key = ''
+        # Load all parameters first so that they may be referenced in the other files
+        Origen::Parameters.start_transaction
+        paths.each_with_index do |path, i|
+          key = i == 0 ? path.underscore : "#{key}/#{path.underscore}"
+          if app.parts_files[key]
+            app.parts_files[key][:parameters].each { |f| model.instance_eval(File.read(f), f) }
+          end
+        end
+        Origen::Parameters.stop_transaction
+
+        # Now load the rest
+        paths.each_with_index do |path, i|
+          key = i == 0 ? path.underscore : "#{key}/#{path.underscore}"
+          if app.parts_files[key]
+            app.parts_files[key][:others].each { |f| model.instance_eval(File.read(f), f) }
+          end
+        end
       end
     end
 
-    # @api private
-    def self.deferred_load_definitions
-      @deferred_load_definitions ||= []
-    end
-
-    # @api private
-    def self.deferring_load_definitions?
-      deferred_load_definitions.size > 0
-    end
-
-    # This is inspired by Rails' ActiveRecord::Dependencies module.
+    # This is inspired by Rails' ActiveSupport::Dependencies module.
     module ModuleConstMissing
       def self.append_features(base)
         base.class_eval do
@@ -56,35 +65,45 @@ module Origen
       # app/lib directory.
       def const_missing(name)
         if Origen.in_app_workspace?
-          name = "#{self}::#{name}" unless self == Object
+          if self == Object
+            name = name.to_s
+          else
+            name = "#{self}::#{name}"
+          end
           return nil if @_checking_name == name
           names = name.split('::')
           namespace = names.shift
-          if app = _get_app_from_namespace(namespace)
+          if app = Origen::Application.from_namespace(namespace)
             altname = nil
+            # First check if this refers to a model or controller defined by a part
+            dirs = [app.root, 'app', 'parts']
+            names.each_with_index do |name, i|
+              dirs << 'derivatives' unless i == 0
+              dirs << name.underscore
+            end
+            if File.exist?(f = File.join(*dirs, 'model.rb'))
+              model = _require_file(f, name)
+              # Also load the model's controller if it exists
+              if File.exist?(f = File.join(*dirs, 'controller.rb'))
+                controller = _require_file(f, name + 'Controller')
+              end
+              return model
+            end
             until names.empty?
               path = File.join(*names.map(&:underscore)) + '.rb'
 
-              if File.exist?(f = File.join(app.root, 'app', 'duts', 'models', path)) ||
-                 File.exist?(f = File.join(app.root, 'app', 'sub_blocks', 'models', path))
+              if File.exist?(f = File.join(app.root, 'app', 'lib', namespace.underscore, path))
                 model = _require_file(f, name, altname)
                 # Try and reference the controller to load it too, though don't raise an error if it
                 # doesn't exist
-                @pre_loading_controller = true
+                @@pre_loading_controller = true
                 eval "#{altname || name}Controller"
                 return model
-
-              elsif File.exist?(f = File.join(app.root, 'app', 'duts', 'controllers', path)) ||
-                    File.exist?(f = File.join(app.root, 'app', 'sub_blocks', 'controllers', path))
-                return _require_file(f, name, altname)
-
-              elsif File.exist?(f = File.join(app.root, 'app', 'lib', namespace.underscore, path))
-                return _require_file(f, name, altname)
               end
 
               # Don't waste time looking up the namespace hierarchy for the controller, if it exists it
               # should be within the exact same namespace as the model
-              return nil if @pre_loading_controller
+              return nil if @@pre_loading_controller
 
               # Remove the highest level namespace and then search again in the parent namespace
               if discarded_namespace = names.delete_at(-2)
@@ -103,32 +122,19 @@ module Origen
           _raise_uninitialized_constant_error(name)
         end
       ensure
-        @pre_loading_controller = false
+        @@pre_loading_controller = false
       end
 
       # @api_private
       def _require_file(file, name, altname = nil)
         require file
-        return if @pre_loading_controller
+        return if @@pre_loading_controller
         @_checking_name = altname || name
         const = eval(altname || name)
         @_checking_name = nil
         return const if const
         msg ||= "uninitialized constant #{name} (expected it to be defined in: #{file})"
         _raise_uninitialized_constant_error(name, msg)
-      end
-
-      # @api private
-      def _get_app_from_namespace(namespace)
-        app = Origen.app
-        if app.namespace.to_s == namespace
-          return app
-        else
-          app.plugins.each do |plugin|
-            return plugin if plugin.namespace == namespace
-          end
-        end
-        nil
       end
 
       # @api private

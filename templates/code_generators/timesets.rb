@@ -1,9 +1,14 @@
 <% unless @dut_generator -%>
-# ******************************************************************************
-# Any timesets defined in this file will be added to ALL of your DUT targets!!!!
-# ******************************************************************************
-
+# ********************************************************************************
+# Any timesets defined in this file will be added to ALL top-level DUT models
+# that are defined by this application
+# ********************************************************************************
+<% else -%>
+# ********************************************************************************
+# Any timesets defined in this file will only be added to <%= @name.camelcase %>
+# ********************************************************************************
 <% end -%>
+
 # For more examples see: https://origen-sdk.org/origen/guides/pattern/timing/#Complex_Timing
 
 # By default, all pins will drive for the whole period on drive cycles and strobe at 50%
@@ -12,7 +17,7 @@
 
 # Example definition, defines an alternative default compare wave for all pins and specific
 # drive timing for :tck
-# dut.timeset :func do |t|
+# timeset :func do |t|
 #   t.compare_wave do |w|
 #     w.compare :data, at: "period / 4"
 #   end

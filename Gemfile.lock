@@ -17,6 +17,13 @@ GIT
       require_all (~> 1)
 
 PATH
+  remote: ../origen_core_support
+  specs:
+    origen_core_support (0.2.3)
+      origen (>= 0.2.6)
+      origen_testers
+
+PATH
   remote: .
   specs:
     origen (0.37.0)
@@ -46,13 +53,6 @@ PATH
       sinatra (~> 1)
       thor (~> 0.19)
       yard (~> 0.8)
-
-PATH
-  remote: ../origen_core_support
-  specs:
-    origen_core_support (0.2.3)
-      origen (>= 0.2.6)
-      origen_testers
 
 GEM
   remote: https://rubygems.org/

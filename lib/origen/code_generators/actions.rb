@@ -2,7 +2,10 @@ require 'open-uri'
 
 module Origen
   module CodeGenerators
-    # Common helpers available to all Origen code generators
+    # Common helpers available to all Origen code generators.
+    # Some of these have been copied from Rails and don't make a lot of sense in an Origen context,
+    # however they are being kept around for now as they serve as good examples of how to write
+    # generator helpers.
     module Actions
       def initialize(*args) # :nodoc:
         if args.last.is_a?(Hash)

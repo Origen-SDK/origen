@@ -6,15 +6,15 @@ module Origen
       end
 
       desc <<-END
-This generator creates a top-level (DUT) model and associated resources for it, e.g. a controller,
-target, timeset, pins, etc.
+This generator creates a top-level (DUT) part and all the associated resources for it, e.g. a model,
+controller, target, timeset, pins, etc.
 
-The name of the model should be given, in lower case, optionally prefixed by a sub-directory if you
+The name of the DUT should be given, in lower case, optionally prefixed by a sub-directory if you
 want to create it in a sub-directory of app/duts/.
 
 Examples:
-  origen new dut falcon         # Creates app/duts/models/falcon.rb
-  origen new dut dsps/falcon    # Creates app/duts/models/dsps/falcon.rb
+  origen new dut falcon         # Creates app/parts/dut/derivatives/falcon/
+  origen new dut dsps/falcon    # Creates app/parts/dut/derivatives/dsps/derivatives/falcon/
 END
 
       def extract_model_name
@@ -30,33 +30,67 @@ END
           exit 1
         end
 
-        @namespaces = ARGV.first.downcase.split('/')
+        @final_namespaces = ARGV.first.downcase.split('/')
 
-        @name = @namespaces.pop
-        @name.gsub!(/\.rb/, '')
+        @final_name = @final_namespaces.pop
+        @final_name.gsub!(/\.rb/, '')
 
-        @namespaces.unshift(Origen.app.name.to_s) unless @namespaces.first == Origen.app.name.to_s
+        @final_namespaces.unshift('dut')
+        @final_namespaces.unshift(Origen.app.name.to_s)
 
-        @model_path = @namespaces.dup
-        @model_path.shift
-        @model_path
+        @model_path = @final_namespaces.dup
+        @namespaces = [[:module, @model_path.shift]]
       end
 
       def create_files
         # @summary = ask 'Describe your plugin in a few words:'
         @top_level = true
+        @root_class = true
         @dut_generator = true
-        template 'templates/code_generators/model.rb', File.join(Origen.root, 'app', 'duts', 'models', *@model_path, "#{@name}.rb")
-        template 'templates/code_generators/controller.rb', File.join(Origen.root, 'app', 'duts', 'controllers', *@model_path, "#{@name}_controller.rb")
-        template 'templates/code_generators/pins.rb', File.join(Origen.root, 'app', 'pins', "#{@name}.rb")
-        template 'templates/code_generators/timesets.rb', File.join(Origen.root, 'app', 'timesets', "#{@name}.rb")
-        template 'templates/code_generators/parameters.rb', File.join(Origen.root, 'app', 'parameters', "#{@name}.rb")
+        @model_class = Origen.app.namespace
+        @parent_model_class = nil
+
+        dir = File.join(Origen.root, 'app', 'parts')
+
+        @model_path.each do |path|
+          dir = File.join(dir, path)
+          @name = path
+          f = File.join(dir, 'model.rb')
+          template 'templates/code_generators/model.rb', f unless File.exist?(f)
+          f = File.join(dir, 'controller.rb')
+          template 'templates/code_generators/controller.rb', f unless File.exist?(f)
+          f = File.join(dir, 'pins.rb')
+          template 'templates/code_generators/pins.rb', f unless File.exist?(f)
+          f = File.join(dir, 'timesets.rb')
+          template 'templates/code_generators/timesets.rb', f unless File.exist?(f)
+          f = File.join(dir, 'parameters.rb')
+          template 'templates/code_generators/parameters.rb', f unless File.exist?(f)
+          f = File.join(dir, 'registers.rb')
+          template 'templates/code_generators/registers.rb', f unless File.exist?(f)
+          f = File.join(dir, 'sub_blocks.rb')
+          template 'templates/code_generators/sub_blocks.rb', f unless File.exist?(f)
+          dir = File.join(dir, 'derivatives')
+          @namespaces << [:class, path]
+          @root_class = false
+        end
+
+        @parent_class = @namespaces.map { |type, name| name.camelcase }.join('::')
+        @name = @final_name
+        dir = File.join(dir, @name)
+
+        template 'templates/code_generators/model.rb', File.join(dir, 'model.rb')
+        template 'templates/code_generators/controller.rb', File.join(dir, 'controller.rb')
+        template 'templates/code_generators/pins.rb', File.join(dir, 'pins.rb')
+        template 'templates/code_generators/timesets.rb', File.join(dir, 'timesets.rb')
+        template 'templates/code_generators/parameters.rb', File.join(dir, 'parameters.rb')
+        template 'templates/code_generators/registers.rb', File.join(dir, 'registers.rb')
+        template 'templates/code_generators/sub_blocks.rb', File.join(dir, 'sub_blocks.rb')
         # add_autoload @name, namespaces: @namespaces
       end
 
       def create_target
         contents = ''
-        contents << @namespaces.map { |n| n.to_s.camelcase }.join('::')
+        contents << @final_namespaces.map { |n| n.to_s.camelcase }.join('::')
         contents << "::#{@name.to_s.camelcase}.new\n"
 
         create_file "#{Origen.root}/target/#{@name}.rb", contents
@@ -64,7 +98,7 @@ END
 
       def completed
         puts
-        puts 'New DUT model and target created, run the following command to select it in your workspace:'
+        puts 'New DUT part created, run the following command to select it in your workspace:'
         puts "  origen t #{@name}"
       end
     end

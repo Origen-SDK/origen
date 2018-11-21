@@ -274,33 +274,36 @@ module Origen
     def sub_block(name, options = {})
       if i = options.delete(:instances)
         a = []
+        unless respond_to?("#{name}s")
+          define_singleton_method "#{name}s" do
+            a
+          end
+        end
         options[:_instance] = i
         i.times do |j|
           o = options.dup
           o[:_instance] = j
           a << sub_block("#{name}#{j}", o)
         end
-        define_singleton_method "#{name}s" do
-          a
-        end
         a
       else
         block = Placeholder.new(self, name, options)
-        if sub_blocks[name]
-          # Allow additional attributes to be added to an existing sub-block if it hasn't
-          # been instantiated yet. This is not supported yet for instantiated sub-blocks since
-          # there are probably a lot more corner-cases to consider, and hopefully no one will
-          # really need this anyway.
-          if sub_blocks[name].is_a?(Placeholder)
-            sub_blocks[name].add_attributes(options)
-          else
-            fail "You have already defined a sub-block named #{name} within class #{self.class}"
+        # Allow additional attributes to be added to an existing sub-block if it hasn't
+        # been instantiated yet. This is not supported yet for instantiated sub-blocks since
+        # there are probably a lot more corner-cases to consider, and hopefully no one will
+        # really need this anyway.
+        if sub_blocks[name] && !sub_blocks[name].is_a?(Placeholder)
+          fail "You have already defined a sub-block named #{name} within class #{self.class}"
+        end
+        unless respond_to?(name)
+          define_singleton_method name do
+            get_sub_block(name)
           end
+        end
+        if sub_blocks[name] && sub_blocks[name].is_a?(Placeholder)
+          sub_blocks[name].add_attributes(options)
         else
           sub_blocks[name] = block
-        end
-        define_singleton_method name do
-          get_sub_block(name)
         end
         if options.key?(:lazy)
           lazy = options[:lazy]
@@ -363,17 +366,17 @@ module Origen
       end
 
       def materialize
+        block = nil
         file = attributes.delete(:file)
+        load_part = attributes.delete(:load_part)
         dir = attributes.delete(:dir) || owner.send(:export_dir)
         block = owner.send(:instantiate_sub_block, name, klass, attributes)
         if file
           require File.join(dir, file)
           block.extend owner.send(:export_module_names_from_path, file).join('::').constantize
         end
+        block.load_part(load_part) if load_part
         block.owner = owner
-        # Load definitions
-
-        # Load regs and sub_blocks
         block
       end
 

@@ -75,6 +75,20 @@ module Origen
       self
     end
 
+    # Returns the application instance that defines the model, often the current app but it could
+    # also be one of the plugins.
+    # Returns nil if the application cannot be resolved, usually because the model's class has
+    # not been correctly namespaced.
+    def app
+      @app ||= Origen::Application.from_namespace(self.class.to_s)
+    end
+
+    # Load the part definitions from the given path to the model
+    def load_part(path, options = {})
+      options[:path] = path
+      Origen::Loader.load_part(self, options)
+    end
+
     def ==(obj)
       if obj.is_a?(Origen::SubBlocks::Placeholder)
         obj = obj.materialize
@@ -388,12 +402,6 @@ module Origen
                                reg
                              end
                            }, *args)
-    end
-
-    # @api private
-    def _load_definitions(options = {})
-      define_registers(options) if respond_to?(:define_registers)
-      define_sub_blocks(options) if respond_to?(:define_sub_blocks)
     end
 
     private
