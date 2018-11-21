@@ -52,14 +52,6 @@ describe "The plugins API" do
     Origen.app.plugins.current.should_not == nil
   end
 
-  it "methods can be overridden by the application" do
-    dut.nvm.override_method.should == :overridden
-  end
-
-  it "methods can be added by the application" do
-    dut.nvm.added_method.should == :added
-  end
-
   it "Origen.root references within a plugin mean the top-level app root" do
     Origen.root.should == $dut.origen_dot_root
   end
