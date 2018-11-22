@@ -1,91 +1,43 @@
 module Origen
   module CodeGenerators
     class Dut < Origen::CodeGenerators::Base
+      include PartCommon
+
       def self.banner
         'origen new dut NAME [options]'
       end
 
       desc <<-END
-This generator creates a top-level (DUT) part and all the associated resources for it, e.g. a model,
-controller, target, timeset, pins, etc.
+This generator creates a top-level (DUT) part and all of the associated resources for it, e.g. a model,
+controller, target, timesets, pins, etc.
 
-The name of the DUT should be given, in lower case, optionally prefixed by a sub-directory if you
-want to create it in a sub-directory of app/duts/.
+The name of the DUT should be given in lower case, optionally prefixed by parent DUT name(s) separated
+by a forward slash.
+
+Any parent DUT(s) will be created if they don't exist, but they will not be modified if they do.
 
 Examples:
-  origen new dut falcon         # Creates app/parts/dut/derivatives/falcon/
-  origen new dut dsps/falcon    # Creates app/parts/dut/derivatives/dsps/derivatives/falcon/
+  origen new dut falcon         # Creates app/parts/dut/derivatives/falcon/...
+  origen new dut dsp/falcon     # Creates app/parts/dut/derivatives/dsp/derivatives/falcon/...
 END
 
-      def extract_model_name
+      def validate_args
+        validate_args_common
+
         if args.size > 1 || args.size == 0
           msg = args.size > 1 ? 'Only one' : 'One '
           msg << "argument is expected by the DUT generator, e.g. 'origen new dut my_soc', 'origen new dut my_family/my_soc"
           Origen.log.error(msg)
           exit 1
         end
-
-        unless_lower_cased_underscored(ARGV.first) do
-          Origen.log.error "The NAME argument must be all lower-cased and underscored - #{ARGV.first}"
-          exit 1
-        end
-
-        @final_namespaces = ARGV.first.downcase.split('/')
-
-        @final_name = @final_namespaces.pop
-        @final_name.gsub!(/\.rb/, '')
-
-        @final_namespaces.unshift('dut')
-        @final_namespaces.unshift(Origen.app.name.to_s)
-
-        @model_path = @final_namespaces.dup
-        @namespaces = [[:module, @model_path.shift]]
       end
 
-      def create_files
-        # @summary = ask 'Describe your plugin in a few words:'
+      def setup
+        @generate_model = true
+        @generate_pins = true
         @top_level = true
-        @root_class = true
-        @dut_generator = true
-        @model_class = Origen.app.namespace
-        @parent_model_class = nil
-
-        dir = File.join(Origen.root, 'app', 'parts')
-
-        @model_path.each do |path|
-          dir = File.join(dir, path)
-          @name = path
-          f = File.join(dir, 'model.rb')
-          template 'templates/code_generators/model.rb', f unless File.exist?(f)
-          f = File.join(dir, 'controller.rb')
-          template 'templates/code_generators/controller.rb', f unless File.exist?(f)
-          f = File.join(dir, 'pins.rb')
-          template 'templates/code_generators/pins.rb', f unless File.exist?(f)
-          f = File.join(dir, 'timesets.rb')
-          template 'templates/code_generators/timesets.rb', f unless File.exist?(f)
-          f = File.join(dir, 'parameters.rb')
-          template 'templates/code_generators/parameters.rb', f unless File.exist?(f)
-          f = File.join(dir, 'registers.rb')
-          template 'templates/code_generators/registers.rb', f unless File.exist?(f)
-          f = File.join(dir, 'sub_blocks.rb')
-          template 'templates/code_generators/sub_blocks.rb', f unless File.exist?(f)
-          dir = File.join(dir, 'derivatives')
-          @namespaces << [:class, path]
-          @root_class = false
-        end
-
-        @parent_class = @namespaces.map { |type, name| name.camelcase }.join('::')
-        @name = @final_name
-        dir = File.join(dir, @name)
-
-        template 'templates/code_generators/model.rb', File.join(dir, 'model.rb')
-        template 'templates/code_generators/controller.rb', File.join(dir, 'controller.rb')
-        template 'templates/code_generators/pins.rb', File.join(dir, 'pins.rb')
-        template 'templates/code_generators/timesets.rb', File.join(dir, 'timesets.rb')
-        template 'templates/code_generators/parameters.rb', File.join(dir, 'parameters.rb')
-        template 'templates/code_generators/registers.rb', File.join(dir, 'registers.rb')
-        template 'templates/code_generators/sub_blocks.rb', File.join(dir, 'sub_blocks.rb')
-        # add_autoload @name, namespaces: @namespaces
+        extract_model_name
+        create_files
       end
 
       def create_target
@@ -98,8 +50,10 @@ END
 
       def completed
         puts
-        puts 'New DUT part created, run the following command to select it in your workspace:'
+        puts 'New DUT part created, run the following command to select it in your workspace:'.green
+        puts
         puts "  origen t #{@name}"
+        puts
       end
     end
   end

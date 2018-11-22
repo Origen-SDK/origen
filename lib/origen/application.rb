@@ -139,22 +139,36 @@ module Origen
         files = {}
         part_dir = Pathname.new(File.join(root, 'app', 'parts'))
         if part_dir.exist?
-          part_dir.glob('**/*').each do |item|
-            if item.to_s =~ /(parameters|pins|registers|sub_blocks|timesets).rb$/
-              fields = item.relative_path_from(part_dir).to_s.split('/')
-              fields.delete('derivatives')
-              type = fields.pop.sub('.rb', '').to_sym
-              path = fields.join('/')
-              files[path] ||= { parameters: [], others: [] }
-              if type == :parameters
-                files[path][:parameters] << item.to_s
-              else
-                files[path][:others] << item.to_s
-              end
+          part_dir.children.each do |item|
+            if item.directory?
+              _add_part_files(files, part_dir, item)
             end
           end
         end
         files
+      end
+    end
+
+    # @api private
+    def _add_part_files(files, part_dir, current_dir)
+      fields = current_dir.relative_path_from(part_dir).to_s.split('/')
+      fields.delete('derivatives')
+      path = fields.join('/')
+      files[path] ||= {}
+      current_dir.glob('*.rb').each do |file|
+        type = file.basename('.rb').to_s.to_sym
+        unless type == :model || type == :controller
+          files[path][type] ||= []
+          files[path][type] << file
+        end
+      end
+      derivatives = current_dir.join('derivatives')
+      if derivatives.exist?
+        derivatives.children.each do |item|
+          if item.directory?
+            _add_part_files(files, part_dir, item)
+          end
+        end
       end
     end
 

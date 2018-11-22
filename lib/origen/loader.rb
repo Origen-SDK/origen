@@ -15,21 +15,29 @@ module Origen
           paths.shift  # Throw away the app namespace
         end
         key = ''
+        only = Array(options[:only]) if options[:only]
+        except = Array(options[:except]) if options[:except]
         # Load all parameters first so that they may be referenced in the other files
-        Origen::Parameters.start_transaction
-        paths.each_with_index do |path, i|
-          key = i == 0 ? path.underscore : "#{key}/#{path.underscore}"
-          if app.parts_files[key]
-            app.parts_files[key][:parameters].each { |f| model.instance_eval(File.read(f), f) }
+        unless (only && !only.include?(:parameters)) || (except && except.include?(:parameters))
+          Origen::Parameters.transaction do
+            paths.each_with_index do |path, i|
+              key = i == 0 ? path.underscore : "#{key}/#{path.underscore}"
+              if app.parts_files[key] && app.parts_files[key][:parameters]
+                app.parts_files[key][:parameters].each { |f| model.instance_eval(f.read, f.to_s) }
+              end
+            end
           end
         end
-        Origen::Parameters.stop_transaction
 
         # Now load the rest
         paths.each_with_index do |path, i|
           key = i == 0 ? path.underscore : "#{key}/#{path.underscore}"
           if app.parts_files[key]
-            app.parts_files[key][:others].each { |f| model.instance_eval(File.read(f), f) }
+            app.parts_files[key].each do |type, files|
+              unless type == :parameters || (only && !only.include?(type)) || (except && except.include?(type))
+                files.each { |f| model.instance_eval(f.read, f.to_s) }
+              end
+            end
           end
         end
       end

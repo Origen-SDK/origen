@@ -1,13 +1,7 @@
-<% unless @dut_generator -%>
 # ********************************************************************************
-# Any parameters defined in this file will be added to ALL top-level DUT models
-# that are defined by this application
+# Any parameters defined in this file be added to <%= @fullname %>
+# and all of its derivatives (if any).
 # ********************************************************************************
-<% else -%>
-# ********************************************************************************
-# Any parameters defined in this file will only be added to <%= @name.camelcase %>
-# ********************************************************************************
-<% end -%>
 
 # For more examples see: https://origen-sdk.org/origen/guides/models/parameters/
 

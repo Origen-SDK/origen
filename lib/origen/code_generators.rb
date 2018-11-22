@@ -29,8 +29,13 @@ module Origen
     def self.load_generators
       return if @generators_loaded
       # Load Origen's generators
+      require_relative 'code_generators/part_common'
       require_relative 'code_generators/dut'
       require_relative 'code_generators/sub_block'
+      # Part
+      # Model
+      # Module
+      # Class
       require_relative 'code_generators/model'
       # Load generators from plugins, TBD what the rules will be here
       @generators_loaded = true

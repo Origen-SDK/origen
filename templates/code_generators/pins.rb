@@ -1,13 +1,7 @@
-<% unless @dut_generator -%>
 # ********************************************************************************
-# Any pins defined in this file will be added to ALL top-level DUT models
-# that are defined by this application
+# Any pins defined in this file will be added to <%= @fullname %>
+# and all of its derivatives (if any).
 # ********************************************************************************
-<% else -%>
-# ********************************************************************************
-# Any pins defined in this file will only be added to <%= @name.camelcase %>
-# ********************************************************************************
-<% end -%>
 
 # For more examples see: https://origen-sdk.org/origen/guides/models/pins/
 
