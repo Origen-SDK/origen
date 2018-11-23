@@ -11,7 +11,7 @@ module Origen
 This generator creates a top-level (DUT) part and all of the associated resources for it, e.g. a model,
 controller, target, timesets, pins, etc.
 
-The name of the DUT should be given in lower case, optionally prefixed by parent DUT name(s) separated
+The NAME of the DUT should be given in lower case, optionally prefixed by parent DUT name(s) separated
 by a forward slash.
 
 Any parent DUT(s) will be created if they don't exist, but they will not be modified if they do.

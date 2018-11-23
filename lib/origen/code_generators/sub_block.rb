@@ -14,7 +14,7 @@ module Origen
 This generator creates a primary sub-block part (e.g. RAM, ATD, Flash, DAC, etc.) and all of the associated
 resources for it, e.g. a model, controller, timesets, parameters, etc.
 
-The type and derivative names should be given in lower case (e.g. flash/flash2kb, atd/atd16), optionally with
+The TYPE and DERIVATIVE names should be given in lower case (e.g. flash/flash2kb, atd/atd16), optionally with
 additional parent sub-block names after the initial type.
 
 All parent sub-blocks will be created if they don't exist, but they will not be modified if they do.

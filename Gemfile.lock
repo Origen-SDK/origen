@@ -1,4 +1,13 @@
 GIT
+  remote: https://github.com/Origen-SDK/origen_core_support.git
+  revision: 2c4a47c8cebb14d1514b93bf1cda7194807d0ebd
+  branch: app_dir
+  specs:
+    origen_core_support (0.2.3)
+      origen (>= 0.2.6)
+      origen_testers
+
+GIT
   remote: https://github.com/Origen-SDK/origen_sim.git
   revision: 761d2b4b09ad5719398bdc193974eca79dec969b
   specs:
@@ -15,13 +24,6 @@ GIT
       atp (~> 1.1, >= 1.1.2)
       origen (>= 0.26.0)
       require_all (~> 1)
-
-PATH
-  remote: ../origen_core_support
-  specs:
-    origen_core_support (0.2.3)
-      origen (>= 0.2.6)
-      origen_testers
 
 PATH
   remote: .

@@ -28,7 +28,13 @@ module Origen
       def self.name
         @name ||= begin
           name = to_s.split('::').last.sub(/(CodeGenerator|Generator)$/, '').underscore
-          name == 'klass' ? 'class' : name
+          if name == 'klass'
+            'class'
+          elsif name == 'mod'
+            'module'
+          else
+            name
+          end
         end
       end
 

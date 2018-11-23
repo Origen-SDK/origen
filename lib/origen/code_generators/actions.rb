@@ -267,14 +267,16 @@ module Origen
           end
         end
 
-        def validate_resource_name(name)
+        def validate_resource_path(name)
           name.split('/').each do |n|
             unless_valid_underscored_identifier(n) do
               Origen.log.error "All parts of a resource name must be lower-cased, underscored and start with letter, '#{n}' is invalid"
               exit 1
             end
           end
+          name
         end
+        alias_method :validate_resource_name, :validate_resource_path
 
         # Converts a path to a resource identifier, by performing the following operations on the given path:
         #   1) Convert any absolute paths to relative
@@ -287,15 +289,26 @@ module Origen
         #   /my/code/my_app/app/parts/dut/derivatives/falcon   => dut/falcon
         #   app/lib/my_app/eagle.rb                            => eagle
         def resource_path(path)
-          path = Pathname.new(path).expand_path.relative_path_from(Pathname.pwd).to_s.split('/')
+          path = Pathname.new(path).expand_path.relative_path_from(Pathname.pwd).to_s
+          path = path.sub('.rb', '')
+          path = path.split('/')
+          from_part_dir_path = false
           path.shift if path.first == 'app'
           path.shift if path.first == 'lib'
-          path.shift if path.first == 'parts'
+          if path.first == 'parts'
+            path.shift
+            from_part_dir_path = true
+          end
           path.shift if path.first == Origen.app.name.to_s
-          path.delete('derivatives')
-          path = path.join('/')
-          path.sub('.rb', '')
-          path
+          if path.include?('derivatives')
+            path.delete('derivatives')
+            from_part_dir_path = true
+          end
+          if from_part_dir_path
+            path.pop if path.last == 'model'
+            path.pop if path.last == 'controller'
+          end
+          path.join('/')
         end
 
         # Returns a Pathname to the part directory that should contain the given class name. No checking is
@@ -351,6 +364,27 @@ module Origen
           name = resource_path(path).split('/')   # Ensure this is clean, don't care about performance here
           name.unshift(Origen.app.name.to_s)
           name.map(&:camelcase).join('::')
+        end
+
+        # Adds :class and :module identifiers to an array of namespaces
+        #
+        #   ["my_app", "models", "bist"] => [[:module, "my_app"], [:module, "models"], [:class, "bist"]]
+        #
+        def add_type_to_namespaces(namespaces)
+          identifier = nil
+          namespaces.map do |namespace|
+            if identifier
+              identifier += "::#{namespace.camelcase}"
+            else
+              identifier = namespace.camelcase
+            end
+            begin
+              const = identifier.constantize
+              [const.is_a?(Class) ? :class : :module, namespace]
+            rescue NameError
+              [:module, namespace]
+            end
+          end
         end
       end
       include Helpers
