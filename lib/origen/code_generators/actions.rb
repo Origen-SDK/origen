@@ -19,6 +19,10 @@ module Origen
         @config
       end
 
+      def underscored_app_namespace
+        Origen.app.namespace.to_s.underscore
+      end
+
       # Adds an autoload statement for the given resource name into +app/lib/my_app_name.rb+
       #
       # An array of namespaces can optionally be supplied in the arguments. The name and namespaces
@@ -28,11 +32,11 @@ module Origen
       def add_autoload(name, options = {})
         namespaces = Array(options[:namespaces])
         # Remove the app namespace if present, we will add the autoload inside the top-level module block
-        namespaces.shift if namespaces.first == Origen.app.name.to_s
-        top_level_file = File.join('app', 'lib', "#{Origen.app.name}.rb")
+        namespaces.shift if namespaces.first == app_namespace
+        top_level_file = File.join('app', 'lib', "#{underscored_app_namespace}.rb")
 
         if namespaces.empty?
-          line = "  autoload :#{name.to_s.camelcase}, '#{Origen.app.name}/#{name}'\n"
+          line = "  autoload :#{name.to_s.camelcase}, '#{underscored_app_namespace}/#{name}'\n"
           insert_into_file top_level_file, line, after: /module #{Origen.app.namespace}\n/
         else
           contents = File.read(top_level_file)
@@ -48,7 +52,7 @@ module Origen
             end
             regex = new_regex
           end
-          line = "#{indent}  autoload :#{name.to_s.camelcase}, '#{Origen.app.name}/#{namespaces.join('/')}/#{name}'\n"
+          line = "#{indent}  autoload :#{name.to_s.camelcase}, '#{underscored_app_namespace}/#{namespaces.join('/')}/#{name}'\n"
           insert_into_file top_level_file, line, after: Regexp.new(regex)
         end
       end
@@ -299,14 +303,17 @@ module Origen
             path.shift
             from_part_dir_path = true
           end
-          path.shift if path.first == Origen.app.name.to_s
+          path.shift if path.first == underscored_app_namespace
           if path.include?('derivatives')
             path.delete('derivatives')
             from_part_dir_path = true
           end
           if from_part_dir_path
             path.pop if path.last == 'model'
-            path.pop if path.last == 'controller'
+            if path.last == 'controller'
+              path.pop
+              path << "#{path.pop}_controller"
+            end
           end
           path.join('/')
         end
@@ -353,7 +360,7 @@ module Origen
 
         def resource_path_to_lib_file(path)
           name = resource_path(path).split('/')   # Ensure this is clean, don't care about performance here
-          dir = Origen.root.join('app', 'lib', Origen.app.name.to_s)
+          dir = Origen.root.join('app', 'lib', underscored_app_namespace)
           name.each_with_index do |n, i|
             dir = dir.join(i == name.size - 1 ? "#{n.underscore}.rb" : n.underscore)
           end
@@ -362,7 +369,7 @@ module Origen
 
         def resource_path_to_class(path)
           name = resource_path(path).split('/')   # Ensure this is clean, don't care about performance here
-          name.unshift(Origen.app.name.to_s)
+          name.unshift(underscored_app_namespace)
           name.map(&:camelcase).join('::')
         end
 

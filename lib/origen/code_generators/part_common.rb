@@ -13,7 +13,7 @@ module Origen
         @final_name.gsub!(/\.rb/, '')
 
         @final_namespaces.unshift('dut') if @top_level
-        @final_namespaces.unshift(Origen.app.name.to_s)
+        @final_namespaces.unshift(underscored_app_namespace)
 
         @model_path = @final_namespaces.dup
         @namespaces = [[:module, @model_path.shift]]

@@ -101,6 +101,12 @@ module Origen
               end
               return model
             end
+            if dirs.last =~ /_controller$/
+              dirs << dirs.pop.sub(/_controller$/, '')
+              if File.exist?(f = File.join(*dirs, 'controller.rb'))
+                return _require_file(f, name)
+              end
+            end
             until names.empty?
               path = File.join(*names.map(&:underscore)) + '.rb'
 
@@ -144,7 +150,7 @@ module Origen
 
       # @api_private
       def _require_file(file, name, altname = nil)
-        require file
+        load file
         return if @@pre_loading_controller
         @_checking_name = altname || name
         const = eval(altname || name)
