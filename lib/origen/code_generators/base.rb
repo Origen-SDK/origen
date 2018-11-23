@@ -27,7 +27,8 @@ module Origen
       # Sets the base_name taking into account the current class namespace.
       def self.name
         @name ||= begin
-          to_s.split('::').last.sub(/(CodeGenerator|Generator)$/, '').underscore
+          name = to_s.split('::').last.sub(/(CodeGenerator|Generator)$/, '').underscore
+          name == 'klass' ? 'class' : name
         end
       end
 
