@@ -4,7 +4,7 @@ module Origen
       include PartCommon
 
       def self.banner
-        'origen new dut NAME [options]'
+        'origen new dut NAME'
       end
 
       desc <<-END

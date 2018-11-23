@@ -104,13 +104,18 @@ module Origen
             until names.empty?
               path = File.join(*names.map(&:underscore)) + '.rb'
 
-              if File.exist?(f = File.join(app.root, 'app', 'lib', namespace.underscore, path))
+              f = File.join(app.root, 'app', 'lib', namespace.underscore, path)
+              if File.exist?(f)
                 model = _require_file(f, name, altname)
                 # Try and reference the controller to load it too, though don't raise an error if it
                 # doesn't exist
                 @@pre_loading_controller = true
                 eval "#{altname || name}Controller"
                 return model
+              # If a folder exists that is named after this constant, then assume it is an otherwise
+              # undeclared namespace module and declare it now
+              elsif File.exist?(f.sub('.rb', ''))
+                return const_set path.sub('.rb', '').camelcase, Module.new
               end
 
               # Don't waste time looking up the namespace hierarchy for the controller, if it exists it

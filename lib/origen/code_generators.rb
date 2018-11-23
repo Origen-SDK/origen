@@ -34,10 +34,9 @@ module Origen
       require_relative 'code_generators/sub_block'
       require_relative 'code_generators/part'
       require_relative 'code_generators/model'
-      # Model
-      # Module
       # Class
-      # Load generators from plugins, TBD what the rules will be here
+      # Module
+      # Load generators from plugins, TBD what the API will be here
       @generators_loaded = true
     end
 

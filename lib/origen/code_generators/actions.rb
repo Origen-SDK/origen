@@ -287,7 +287,7 @@ module Origen
         #   /my/code/my_app/app/parts/dut/derivatives/falcon   => dut/falcon
         #   app/lib/my_app/eagle.rb                            => eagle
         def resource_path(path)
-          path = Pathname.new(path).relative_path_from(Pathname.pwd).to_s.split('/')
+          path = Pathname.new(path).expand_path.relative_path_from(Pathname.pwd).to_s.split('/')
           path.shift if path.first == 'app'
           path.shift if path.first == 'lib'
           path.shift if path.first == 'parts'
@@ -314,14 +314,13 @@ module Origen
           dir
         end
 
-        # Returns a Pathname to the lib directory that should contain the given class name. No checking is
+        # Returns a Pathname to the lib directory file that should contain the given class name. No checking is
         # done of the name and it is assumed that it is a valid class name including the application namespace.
-        def class_name_to_lib_dir(name)
+        def class_name_to_lib_file(name)
           name = name.split('::')
-          name.shift  # Drop the application name
           dir = Origen.root.join('app', 'lib')
           name.each_with_index do |n, i|
-            dir = dir.join(n.underscore)
+            dir = dir.join(i == name.size - 1 ? "#{n.underscore}.rb" : n.underscore)
           end
           dir
         end
@@ -339,13 +338,19 @@ module Origen
           dir
         end
 
-        def resource_path_to_lib_dir(path)
+        def resource_path_to_lib_file(path)
           name = resource_path(path).split('/')   # Ensure this is clean, don't care about performance here
           dir = Origen.root.join('app', 'lib', Origen.app.name.to_s)
           name.each_with_index do |n, i|
-            dir = dir.join(n.underscore)
+            dir = dir.join(i == name.size - 1 ? "#{n.underscore}.rb" : n.underscore)
           end
           dir
+        end
+
+        def resource_path_to_class(path)
+          name = resource_path(path).split('/')   # Ensure this is clean, don't care about performance here
+          name.unshift(Origen.app.name.to_s)
+          name.map(&:camelcase).join('::')
         end
       end
       include Helpers
@@ -370,8 +375,8 @@ module Origen
         end
       end
 
-      # Surround string with single quotes if there is no quotes.
-      # Otherwise fall back to double quotes
+      # Surround string with single quotes if there are no quotes,
+      # otherwise fall back to double quotes
       def quote(value)
         return value.inspect unless value.is_a? String
 
