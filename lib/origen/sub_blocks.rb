@@ -447,6 +447,12 @@ module Origen
   class SubBlock
     include Origen::Model
 
+    # Since no application defined this sub-block class, consider its parent's app to be
+    # the owning application
+    def app
+      parent.app
+    end
+
     # Used to create attribute accessors on the fly.
     #
     # On first call of a missing method a method is generated to avoid the missing lookup

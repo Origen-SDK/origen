@@ -9,33 +9,37 @@ module Origen
       model = model.model  # Ensure we have a handle on the model and not its controller
       if app = options[:app] || model.app
         if options[:path]
-          paths = options[:path].to_s.split('/')
+          full_paths = Array(options[:path])
         else
-          paths = model.class.to_s.split('::')
-          paths.shift  # Throw away the app namespace
+          full_paths = model.class.to_s.split('::')
+          full_paths.shift  # Throw away the app namespace
+          full_paths = [full_paths.join('/')]
         end
-        key = ''
-        only = Array(options[:only]) if options[:only]
-        except = Array(options[:except]) if options[:except]
-        # Load all parameters first so that they may be referenced in the other files
-        unless (only && !only.include?(:parameters)) || (except && except.include?(:parameters))
-          Origen::Parameters.transaction do
-            paths.each_with_index do |path, i|
-              key = i == 0 ? path.underscore : "#{key}/#{path.underscore}"
-              if app.parts_files[key] && app.parts_files[key][:parameters]
-                app.parts_files[key][:parameters].each { |f| model.instance_eval(f.read, f.to_s) }
+        full_paths.each do |full_path|
+          paths = full_path.to_s.split('/')
+          key = ''
+          only = Array(options[:only]) if options[:only]
+          except = Array(options[:except]) if options[:except]
+          # Load all parameters first so that they may be referenced in the other files
+          unless (only && !only.include?(:parameters)) || (except && except.include?(:parameters))
+            Origen::Parameters.transaction do
+              paths.each_with_index do |path, i|
+                key = i == 0 ? path.underscore : "#{key}/#{path.underscore}"
+                if app.parts_files[key] && app.parts_files[key][:parameters]
+                  app.parts_files[key][:parameters].each { |f| model.instance_eval(f.read, f.to_s) }
+                end
               end
             end
           end
-        end
 
-        # Now load the rest
-        paths.each_with_index do |path, i|
-          key = i == 0 ? path.underscore : "#{key}/#{path.underscore}"
-          if app.parts_files[key]
-            app.parts_files[key].each do |type, files|
-              unless type == :parameters || (only && !only.include?(type)) || (except && except.include?(type))
-                files.each { |f| model.instance_eval(f.read, f.to_s) }
+          # Now load the rest
+          paths.each_with_index do |path, i|
+            key = i == 0 ? path.underscore : "#{key}/#{path.underscore}"
+            if app.parts_files[key]
+              app.parts_files[key].each do |type, files|
+                unless type == :parameters || (only && !only.include?(type)) || (except && except.include?(type))
+                  files.each { |f| model.instance_eval(f.read, f.to_s) }
+                end
               end
             end
           end

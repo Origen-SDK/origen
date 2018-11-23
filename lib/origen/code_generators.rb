@@ -32,11 +32,11 @@ module Origen
       require_relative 'code_generators/part_common'
       require_relative 'code_generators/dut'
       require_relative 'code_generators/sub_block'
-      # Part
+      require_relative 'code_generators/part'
+      require_relative 'code_generators/model'
       # Model
       # Module
       # Class
-      require_relative 'code_generators/model'
       # Load generators from plugins, TBD what the rules will be here
       @generators_loaded = true
     end
@@ -77,7 +77,7 @@ module Origen
     # Show help message with available generators.
     def self.help(command = 'new')
       puts <<-END
-Add pre-built features and code snippets.
+Add pre-built features and code snippets to your application.
 
 This command will generate code for your application to implement a given feature. In some
 cases this will be a complete feature and in others it will provide a starting point for you

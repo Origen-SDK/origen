@@ -235,73 +235,120 @@ module Origen
         log File.read(find_in_source_paths(path))
       end
 
-      # Returns the depth of the given file, where depth is the number of modules and classes it contains
-      def internal_depth(file)
-        depth = 0
-        File.readlines(file).each do |line|
-          if line =~ /^\s*(end|def)/
-            return depth
-          elsif line =~ /^\s*(module|class)/
-            depth += 1
+      # Should probably move to its own file, these are general helpers rather than actions
+      module Helpers
+        # Returns the depth of the given file, where depth is the number of modules and classes it contains
+        def internal_depth(file)
+          depth = 0
+          File.readlines(file).each do |line|
+            if line =~ /^\s*(end|def)/
+              return depth
+            elsif line =~ /^\s*(module|class)/
+              depth += 1
+            end
           end
         end
-      end
 
-      # Only executes the given block if the given file does not already define the given method, where the
-      # block would normally go on to insert the method.
-      #
-      # See the ensure_define_sub_blocks method in the sub_blocks.rb generator for a usage example.
-      def unless_has_method(filepath, name)
-        unless File.read(filepath) =~ /^\s*def #{name}(\(|\s|\n)/
-          yield
+        # Only executes the given block if the given file does not already define the given method, where the
+        # block would normally go on to insert the method.
+        #
+        # See the ensure_define_sub_blocks method in the sub_blocks.rb generator for a usage example.
+        def unless_has_method(filepath, name)
+          unless File.read(filepath) =~ /^\s*def #{name}(\(|\s|\n)/
+            yield
+          end
         end
-      end
 
-      # Executes the given block unless the given string is lower cased and underscored and doesn't start
-      # with a number of contain any special characters
-      def unless_valid_underscored_identifier(str)
-        if str =~ /[^0-9a-z_]/ || str =~ /^[0-9]/
-          yield
+        # Executes the given block unless the given string is lower cased and underscored and doesn't start
+        # with a number of contain any special characters
+        def unless_valid_underscored_identifier(str)
+          if str =~ /[^0-9a-z_]/ || str =~ /^[0-9]/
+            yield
+          end
         end
-      end
 
-      # Converts a path to a resource identifier, by performing the following operations on the given path:
-      #   1) Convert any absolute paths to relative
-      #   2) Removes any leading part/, lib/ or application namespaces
-      #   3) Remove any derivatives directories from the path
-      #   3) Removes any trailing .rb
-      #
-      # Examples:
-      #
-      #   /my/code/my_app/app/parts/dut/derivatives/falcon   => dut/falcon
-      #   app/lib/my_app/eagle.rb                            => eagle
-      def resource_path(path)
-        path = Pathname.new(path).relative_path_from(Pathname.pwd).to_s.split('/')
-        path.shift if path.first == 'app'
-        path.shift if path.first == 'lib'
-        path.shift if path.first == 'parts'
-        path.shift if path.first == Origen.app.name.to_s
-        path.delete('derivatives')
-        path = path.join('/')
-        path.sub('.rb', '')
-        path
-      end
+        def validate_resource_name(name)
+          name.split('/').each do |n|
+            unless_valid_underscored_identifier(n) do
+              Origen.log.error "All parts of a resource name must be lower-cased, underscored and start with letter, '#{n}' is invalid"
+              exit 1
+            end
+          end
+        end
 
-      # Returns a Pathname to the part directory that should contain the given class name. No checking is
-      # done of the name and it is assumed that it is a valid class name including the application namespace.
-      def class_name_to_part_dir(name)
-        name = name.split('::')
-        name.shift  # Drop the application name
-        dir = Origen.root.join('app', 'parts')
-        name.each_with_index do |n, i|
-          if i == 0
+        # Converts a path to a resource identifier, by performing the following operations on the given path:
+        #   1) Convert any absolute paths to relative
+        #   2) Removes any leading part/, lib/ or application namespaces
+        #   3) Remove any derivatives directories from the path
+        #   3) Removes any trailing .rb
+        #
+        # Examples:
+        #
+        #   /my/code/my_app/app/parts/dut/derivatives/falcon   => dut/falcon
+        #   app/lib/my_app/eagle.rb                            => eagle
+        def resource_path(path)
+          path = Pathname.new(path).relative_path_from(Pathname.pwd).to_s.split('/')
+          path.shift if path.first == 'app'
+          path.shift if path.first == 'lib'
+          path.shift if path.first == 'parts'
+          path.shift if path.first == Origen.app.name.to_s
+          path.delete('derivatives')
+          path = path.join('/')
+          path.sub('.rb', '')
+          path
+        end
+
+        # Returns a Pathname to the part directory that should contain the given class name. No checking is
+        # done of the name and it is assumed that it is a valid class name including the application namespace.
+        def class_name_to_part_dir(name)
+          name = name.split('::')
+          name.shift  # Drop the application name
+          dir = Origen.root.join('app', 'parts')
+          name.each_with_index do |n, i|
+            if i == 0
+              dir = dir.join(n.underscore)
+            else
+              dir = dir.join('derivatives', n.underscore)
+            end
+          end
+          dir
+        end
+
+        # Returns a Pathname to the lib directory that should contain the given class name. No checking is
+        # done of the name and it is assumed that it is a valid class name including the application namespace.
+        def class_name_to_lib_dir(name)
+          name = name.split('::')
+          name.shift  # Drop the application name
+          dir = Origen.root.join('app', 'lib')
+          name.each_with_index do |n, i|
             dir = dir.join(n.underscore)
-          else
-            dir = dir.join('derivatives', n.underscore)
           end
+          dir
         end
-        dir
+
+        def resource_path_to_part_dir(path)
+          name = resource_path(path).split('/')   # Ensure this is clean, don't care about performance here
+          dir = Origen.root.join('app', 'parts')
+          name.each_with_index do |n, i|
+            if i == 0
+              dir = dir.join(n.underscore)
+            else
+              dir = dir.join('derivatives', n.underscore)
+            end
+          end
+          dir
+        end
+
+        def resource_path_to_lib_dir(path)
+          name = resource_path(path).split('/')   # Ensure this is clean, don't care about performance here
+          dir = Origen.root.join('app', 'lib', Origen.app.name.to_s)
+          name.each_with_index do |n, i|
+            dir = dir.join(n.underscore)
+          end
+          dir
+        end
       end
+      include Helpers
 
       protected
 

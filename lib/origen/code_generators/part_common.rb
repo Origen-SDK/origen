@@ -3,12 +3,7 @@ module Origen
     # Base generator for DUT and sub-block parts
     module PartCommon
       def validate_args_common
-        args.first.split('/').each do |name|
-          unless_valid_underscored_identifier(name) do
-            Origen.log.error "All parts of the NAME argument must be lower-cased, underscored and start with letter, '#{name}' is invalid"
-            exit 1
-          end
-        end
+        validate_resource_name(args.first)
       end
 
       def extract_model_name

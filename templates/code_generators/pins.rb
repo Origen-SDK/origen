@@ -17,3 +17,8 @@
 
 # Example of how to declare ad-hoc pin groups (the pins themselves must already have been added)
 # add_pin_group :jtag, :tdi, :tdo, :tck, :tms
+#
+# Examples of how to create pin aliases
+# add_pin_alias :old_name, :new_name
+# add_pin_group_alias :old_name, :new_name
+# add_pin_group_alias :data_byte0, :porta, pins: [7..0]
