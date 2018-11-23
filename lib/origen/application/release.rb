@@ -328,9 +328,9 @@ Your workspace has local modifications that are preventing the requested action
       # Sets the version number in the file store
       def write_version(version)
         if version.semantic?
-          Origen::CodeGenerators.invoke 'semver', [], config: { change: version }
+          Origen::CodeGenerators.invoke_internal 'semver', [], config: { change: version }
         else
-          Origen::CodeGenerators.invoke 'timever', [], config: { change: version }
+          Origen::CodeGenerators.invoke_internal 'timever', [], config: { change: version }
         end
         system 'origen -v' # Invoke Origen under the new version, this updates Gemfile.lock
       end

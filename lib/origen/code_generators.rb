@@ -35,9 +35,17 @@ module Origen
       require_relative 'code_generators/part'
       require_relative 'code_generators/model'
       require_relative 'code_generators/klass'
-      # Module
+      require_relative 'code_generators/module'
       # Load generators from plugins, TBD what the API will be here
       @generators_loaded = true
+    end
+
+    # Loaded separately so as not to pollute the generated list of generators available to users
+    def self.load_internal_generators
+      return if @internal_generators_loaded
+      require_relative 'code_generators/semver'
+      require_relative 'code_generators/timever'
+      @internal_generators_loaded = true
     end
 
     # Receives a namespace, arguments and the behavior to invoke the generator.
@@ -49,6 +57,13 @@ module Origen
         args << '--help' if args.empty? && klass.arguments.any?(&:required?)
         klass.start(args, config)
       end
+    end
+
+    # Like invoke, but will also make internal-use only generators available
+    # commands.
+    def self.invoke_internal(name, args = ARGV, config = {})
+      load_internal_generators
+      invoke(name, args, config)
     end
 
     def self.find_by_name(name)
