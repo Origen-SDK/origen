@@ -68,6 +68,11 @@ module Origen
         end
       end
 
+      # Not sure if this is the right way to fix the infinite loop
+      def bit_order
+        parent.bit_order
+      end
+
       def drive(value = nil, options = {})
         value, options = nil, value if value.is_a?(Hash)
         if options[:index]

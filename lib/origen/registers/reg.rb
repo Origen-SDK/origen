@@ -90,7 +90,6 @@ module Origen
         @size.times do |n|
           @bits << Bit.new(self, n, writable: @init_as_writable, undefined: true)
         end
-
         add_bits_from_options(options)
       end
 
@@ -1005,12 +1004,17 @@ module Origen
 
         @lookup[id] = { pos: position, bits: size }
         size.times do |n|
+          if bit_order == :msb0
+            ndx = size - n - 1
+          else
+            ndx = n
+          end
           bit_options = options.dup
-          bit_options[:data] = options[:data][n]
+          bit_options[:data] = options[:data][ndx]
           if options[:res].is_a?(Symbol)
             bit_options[:res]  = options[:res]
           else
-            bit_options[:res]  = options[:res][n]
+            bit_options[:res]  = options[:res][ndx]
           end
           @bits.delete_at(position + n)
           @bits.insert(position + n, Bit.new(self, position + n, bit_options))
@@ -1037,9 +1041,14 @@ module Origen
           @lookup[id] = [] if @lookup[id].nil?
           @lookup[id] = @lookup[id].push(pos: position, bits: size)
           size.times do |n|
+            if bit_order == :msb0
+              ndx = size - n - 1
+            else
+              ndx = n
+            end
             bit_options = options.dup
-            bit_options[:data] = options[:data][n]
-            bit_options[:res]  = options[:res][n]
+            bit_options[:data] = options[:data][ndx]
+            bit_options[:res]  = options[:res][ndx]
             @bits.delete_at(position + n)
             @bits.insert(position + n, Bit.new(self, position + n, bit_options))
           end

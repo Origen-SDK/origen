@@ -2,7 +2,7 @@ require "spec_helper"
 
 describe "Register bit order significance" do
 
-  class MSB0Dut
+  class BOS0Dut
     include Origen::TopLevel
 
     def initialize
@@ -18,7 +18,7 @@ describe "Register bit order significance" do
   end
 
   before :all do
-    Origen.target.temporary = -> { MSB0Dut.new }
+    Origen.target.temporary = -> { BOS0Dut.new }
     Origen.target.load!
   end
 

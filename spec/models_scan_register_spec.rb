@@ -19,6 +19,16 @@ describe 'The Origen Scan Register model' do
   it 'can shift data in and out via a clock when SE is high' do
     b = Block.new
     sr = b.reg4
+    # below line was causing infinite loop
+    # so(port).data goes to BitCollection.data
+    # BitCollection.data references bit_order which is defined as parent.bit_order
+    # Start_loop - port.bit_order causes method_missting,
+    #  method missing creates a "Section" that creates a bitcollection
+    #  parent.bit_order
+    #  parent is type Section whose method_missing will create another bit collection
+    # Repeat infinitely
+    #
+    # See port.rb line 72 for the "fix", not sure if it works for all possible cases, don't know all cases
     sr.so.data.should == 0
     sr.si.drive(1)
     sr.sr.data.should == 0
