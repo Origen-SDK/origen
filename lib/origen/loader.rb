@@ -1,8 +1,54 @@
 module Origen
   # This module is responsible for enhancing how Ruby requires and loads files to support loading of
-  # application models and controllers without having to require them, and more generally how the
-  # contents of the various app/ sub-directories are loaded.
+  # classes and modules from an application's app dir without having to require them.
+  #
+  # It also implements the <model>.load_path method that loads files from app/parts.
   module Loader
+    # @api private
+    #
+    # Unload all constants (classes and modules) that have been auto-loaded since this was last called
+    def self.unload
+      # puts "******** LOADED CONSTS@ #{@loaded_consts}"
+      path = []
+      (@consts_hierarchy || {}).each do |name, children|
+        _unload(path, name, children)
+      end
+      @consts_hierarchy = {}
+      @loaded_consts = {}
+      nil
+    end
+
+    # @api private
+    def self._unload(path, name, children)
+      path << name
+      children.each do |name, children|
+        _unload(path, name, children)
+      end
+      const = path.join('::')
+      if @loaded_consts[const]
+        path[0...-1].join('::').constantize.send :remove_const, path.last
+        # puts "******** Unloading: #{const}"
+      end
+      path.pop
+    end
+
+    # @api private
+    def self.record_const(name)
+      @consts_hierarchy ||= {}
+      @loaded_consts ||= {}
+      @loaded_consts[name] = true
+      pointer = nil
+      name.split('::').each do |name|
+        if pointer
+          pointer[name] ||= {}
+          pointer = pointer[name]
+        else
+          @consts_hierarchy[name] ||= {}
+          pointer = @consts_hierarchy[name]
+        end
+      end
+    end
+
     # If a part definition exists for the given model, then this will load it and apply it to
     # the model
     def self.load_part(model, options = {})
@@ -86,33 +132,59 @@ module Origen
           names = name.split('::')
           namespace = names.shift
           if app = Origen::Application.from_namespace(namespace)
+            # First we are going to check for a match in the app/parts directory, this needs to be handled
+            # specially since it follows a non-std structure, e.g. use of derivatives folders for organization
+            # without having them as part of the class name-spacing
             altname = nil
-            # First check if this refers to a model or controller defined by a part
             dirs = [app.root, 'app', 'parts']
             names.each_with_index do |name, i|
               dirs << 'derivatives' unless i == 0
               dirs << name.underscore
             end
+            # Is this a reference to a model?
             if File.exist?(f = File.join(*dirs, 'model.rb'))
-              model = _require_file(f, name)
+              model = _load_const(f, name)
               # Also load the model's controller if it exists
               if File.exist?(f = File.join(*dirs, 'controller.rb'))
-                controller = _require_file(f, name + 'Controller')
+                controller = _load_const(f, name + 'Controller')
               end
               return model
             end
+            # Is this a reference to a controller?
             if dirs.last =~ /_controller$/
               dirs << dirs.pop.sub(/_controller$/, '')
               if File.exist?(f = File.join(*dirs, 'controller.rb'))
-                return _require_file(f, name)
+                return _load_const(f, name)
               end
             end
+            # Is this a reference to a module that has been added to a model or controller?
+            # In this case dirs contains something like:
+            #    [..., "my_model", "derivatives", "my_module"]
+            #    [..., "my_model_controller", "derivatives", "my_module"]
+            # So let's try by transforming these into:
+            #    [..., "my_model", "model"] + "my_module.rb"
+            #    [..., "my_model", "controller"] + "my_module.rb"
+            filename = dirs.pop + '.rb'
+            dirs.pop # Lose 'derivatives'
+            if dirs.last =~ /_controller$/
+              dirs << dirs.pop.sub(/_controller$/, '')
+              dirs << 'controller'
+            else
+              dirs << 'model'
+            end
+            if File.exist?(f = File.join(*dirs, filename))
+              return _load_const(f, name)
+            end
+
+            # Now that we have established that it is not a reference to a part (which has a non-std code
+            # organization structure), we can now check for a match in the app/lib directory following std
+            # Ruby code organization conventions
             until names.empty?
               path = File.join(*names.map(&:underscore)) + '.rb'
 
               f = File.join(app.root, 'app', 'lib', namespace.underscore, path)
               if File.exist?(f)
-                model = _require_file(f, name, altname)
+                model = _load_const(f, name, altname)
                 # Try and reference the controller to load it too, though don't raise an error if it
                 # doesn't exist
                 @@pre_loading_controller = true
@@ -149,13 +221,16 @@ module Origen
       end
 
       # @api_private
-      def _require_file(file, name, altname = nil)
+      def _load_const(file, name, altname = nil)
         load file
         return if @@pre_loading_controller
         @_checking_name = altname || name
         const = eval(altname || name)
         @_checking_name = nil
-        return const if const
+        if const
+          Origen::Loader.record_const(altname || name)
+          return const
+        end
         msg ||= "uninitialized constant #{name} (expected it to be defined in: #{file})"
         _raise_uninitialized_constant_error(name, msg)
       end
@@ -170,13 +245,11 @@ module Origen
     end
 
     def self.enable_origen_load_extensions!
-      # Object.class_eval { include Loadable }
       Module.class_eval { include ModuleConstMissing }
     end
 
     def self.disable_origen_load_extensions!
       ModuleConstMissing.exclude_from(Module)
-      # Loadable.exclude_from(Object)
     end
   end
 end

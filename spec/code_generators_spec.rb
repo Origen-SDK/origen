@@ -21,23 +21,22 @@ describe "code generators (origen new command)" do
   end
 
   def load_falcon
-    Origen::DUT.send :remove_const, :FalconController if defined?(Origen::DUT::FalconController)
-    Origen::DUT.send :remove_const, :Falcon if defined?(Origen::DUT::Falcon)
-    Origen.send :remove_const, :DUT if defined?(Origen::DUT)
+    Origen::Loader.unload
     Origen.target.temporary = -> { Origen::DUT::Falcon.new }
     Origen.target.load!
   end
 
-  # Like system, but any arguments will be supplied as user input and a fail will
-  # be raised if the command doesn't pass
-  def system!(cmd, *args)
-    if args.empty?
-      output, status = Open3.capture2(cmd) 
-    else
-      output, status = Open3.capture2(cmd, stdin_data: args.join("\n")) 
+  # Like system for executing the 'origen new ...' command, but any arguments will be supplied as
+  # user input and a fail will and it is run in the current process rather than invoking an external
+  # one so that test coverage is picked up.
+  def system!(cmd, *command_line_inputs)
+    command_line_inputs.each do |input|
+      expect(Thor::LineEditor).to receive(:readline).and_return(input)
     end
-    puts output
-    status.success?.should == true
+    cmd = cmd.strip.sub('origen new ', '')
+    args = cmd.split(/\s+/)
+    name = args.shift
+    Origen::CodeGenerators.invoke name, args
   end
   
   it "can generate a DUT part" do
@@ -89,9 +88,7 @@ describe "code generators (origen new command)" do
     f = Origen.root.join('app', 'parts', 'dut', 'derivatives', 'falcon', 'controller', 'my_module_name.rb')
     f.write(f.read.gsub('# def my_method', "def yo_from_c; 'yo!'; end\n"))
 
-    # Broken, because the model module does not re-require, need to update the loader to get rid of
-    # the require_relative in the model/controller when adding a module
-    #load_falcon
-    #dut.yo_from_c.should == 'yo!'
+    load_falcon
+    dut.yo_from_c.should == 'yo!'
   end
 end

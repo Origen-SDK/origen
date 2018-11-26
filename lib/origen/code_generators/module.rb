@@ -69,7 +69,6 @@ END
           klass = resource_path_to_class(@class_file)
           indent = '  ' * klass.split('::').size
           lines = []
-          lines << indent + "require_relative '#{Pathname.new(@class_file).basename('.rb')}/#{@name}'"
           lines << indent + "include #{@module_name}"
           lines << ''
           inject_into_class @class_file, klass.split('::').last, lines.join("\n") + "\n"
