@@ -2,7 +2,7 @@ This template is used to test that the custom inspect methods of the various RGe
 
 Should display a list of registers:
 
-[:mclkdiv, :data]
+[:mclkdiv, :data, :access_types]
 
 Should display an actual register:
 
