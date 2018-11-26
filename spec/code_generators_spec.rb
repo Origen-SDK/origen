@@ -119,30 +119,30 @@ describe "code generators (origen new command)" do
   end
 
   it 'can create a model without a controller' do
-    system! 'origen new model my_model', 'n'
+    system! 'origen new model my_cg_model', 'n'
 
-    model = Origen::MyModel.new
+    model = Origen::MyCgModel.new
     model.is_an_origen_model?.should == true
     model.is_a_model_and_controller?.should == false
   end
 
   it 'can create a model with a controller' do
-    system! 'origen new model my_model', 'y'
+    system! 'origen new model my_cg_model', 'y'
 
-    model = Origen::MyModel.new
+    model = Origen::MyCgModel.new
     model.is_an_origen_model?.should == true
     model.is_a_model_and_controller?.should == true
   end
 
   it 'can create add a module to a model' do
-    system! 'origen new module my_module app/lib/origen/my_model.rb'
+    system! 'origen new module my_module app/lib/origen/my_cg_model.rb'
 
     # add a method to the new module so that we can test it
-    f = Origen.root.join('app', 'lib', 'origen', 'my_model', 'my_module.rb')
+    f = Origen.root.join('app', 'lib', 'origen', 'my_cg_model', 'my_module.rb')
     f.write(f.read.gsub('# def my_method', "def yo; 'yo!'; end\n"))
     reload!
 
-    model = Origen::MyModel.new
+    model = Origen::MyCgModel.new
     model.yo.should == 'yo!'
   end
 

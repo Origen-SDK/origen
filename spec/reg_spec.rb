@@ -248,6 +248,24 @@ module RegTest
         reg.bits(:b2).data.should == 0
     end
 
+    # Add read/write coverage for all ACCESS_CODES
+    specify "access_codes properly control read and writability of individual bits" do
+      load_target
+      dut.nvm.reg(:access_types).data.should == 0x0000_0000
+      dut.nvm.reg(:access_types).write(0xFFFF_FFFF)
+      # Bits 31,29,28,4 not writable, bit 25,22,21,14,10 clear on write or write of 1'b1
+      # CORRECT: dut.nvm.reg(:access_types).data.should == 0b0100_1101_1001_1111_1011_1011_1110_0000
+      # NOTE: bits 22, 21, and 14 are broken - :wcrs, :w1c, and :w1crs do not clear on write!
+      # TEMP Expectation until above bug is fixed:
+      dut.nvm.reg(:access_types).data.should == 0b0100_1101_1111_1111_1111_1011_1110_0000
+      dut.nvm.reg(:access_types).read!
+      # Bits 29,27,23,15,13,4 clear on a read
+      # CORRECT: dut.nvm.reg(:access_types).data.should == 0b0100_0101_0111_1111_0111_1011_1110_0000
+      # NOTE: Bits 27, 23, and 15 are broken - :wrc, :wsrc, and :w1src do not clear on read!
+      # TEMP Expectation until above bug is fixed:
+      dut.nvm.reg(:access_types).data.should == 0b0100_1101_1111_1111_1111_1011_1110_0000
+    end
+
     specify "only defined bits capture state" do
         reg = Reg.new(self, 0x10, 16, :dummy, b0: {pos: 0, bits: 4, res: 0x55}, 
                                               b1: {pos: 8, bits: 4, res: 0xAA})
