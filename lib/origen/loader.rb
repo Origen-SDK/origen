@@ -15,6 +15,9 @@ module Origen
       end
       @consts_hierarchy = {}
       @loaded_consts = {}
+      (Origen.app.plugins + [Origen.app]).each do |app|
+        app.instance_variable_set(:@parts_files, nil)
+      end
       nil
     end
 
@@ -50,9 +53,11 @@ module Origen
     end
 
     # If a part definition exists for the given model, then this will load it and apply it to
-    # the model
+    # the model.
+    # Returns true if a part is found and loaded, otherwise nil.
     def self.load_part(model, options = {})
       model = model.model  # Ensure we have a handle on the model and not its controller
+      loaded = nil
       if app = options[:app] || model.app
         if options[:path]
           full_paths = Array(options[:path])
@@ -72,7 +77,7 @@ module Origen
               paths.each_with_index do |path, i|
                 key = i == 0 ? path.underscore : "#{key}/#{path.underscore}"
                 if app.parts_files[key] && app.parts_files[key][:parameters]
-                  app.parts_files[key][:parameters].each { |f| model.instance_eval(f.read, f.to_s) }
+                  app.parts_files[key][:parameters].each { |f| model.instance_eval(f.read, f.to_s); loaded = true }
                 end
               end
             end
@@ -84,13 +89,14 @@ module Origen
             if app.parts_files[key]
               app.parts_files[key].each do |type, files|
                 unless type == :parameters || (only && !only.include?(type)) || (except && except.include?(type))
-                  files.each { |f| model.instance_eval(f.read, f.to_s) }
+                  files.each { |f| model.instance_eval(f.read, f.to_s); loaded = true }
                 end
               end
             end
           end
         end
       end
+      loaded
     end
 
     # This is inspired by Rails' ActiveSupport::Dependencies module.

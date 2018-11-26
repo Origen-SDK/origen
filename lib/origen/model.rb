@@ -83,7 +83,8 @@ module Origen
       @app ||= Origen::Application.from_namespace(self.class.to_s)
     end
 
-    # Load the part definitions from the given path to the model
+    # Load the part definitions from the given path to the model.
+    # Returns true if a part is found and loaded, otherwise nil.
     def load_part(path, options = {})
       options[:path] = path
       Origen::Loader.load_part(self, options)

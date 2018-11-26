@@ -8,6 +8,10 @@ describe "code generators (origen new command)" do
     FileUtils.rm_rf(@app_dir) if @app_dir.exist?
   end
 
+  before :each do
+    reload!
+  end
+
   after :each do
     Origen.app.unload_target!
   end
@@ -20,8 +24,12 @@ describe "code generators (origen new command)" do
     end
   end
 
-  def load_falcon
+  def reload!
     Origen::Loader.unload
+  end
+
+  def load_falcon
+    reload!
     Origen.target.temporary = -> { Origen::DUT::Falcon.new }
     Origen.target.load!
   end
@@ -61,14 +69,14 @@ describe "code generators (origen new command)" do
   end
 
   it 'can add a module to a DUT model' do
-    # Grab the command to execute from the Falcon model user advice to test that it
-    # actually works
+    # Grab the command to add a module to the Falcon model from the user advice within the
+    # model file to test that it works
     f = Origen.root.join('app', 'parts', 'dut', 'derivatives', 'falcon', 'model.rb')
     cmd = f.open.find { |line| line =~ /origen new module/ }.gsub('#', '').strip
 
     system! cmd
 
-    # Add a method to the new module so that we can test it
+    # add a method to the new module so that we can test it
     f = Origen.root.join('app', 'parts', 'dut', 'derivatives', 'falcon', 'model', 'my_module_name.rb')
     f.write(f.read.gsub('# def my_method', "def yo; 'yo!'; end\n"))
 
@@ -77,8 +85,8 @@ describe "code generators (origen new command)" do
   end
 
   it 'can add a module to a DUT controller' do
-    # Grab the command to execute from the Falcon model user advice to test that it
-    # actually works
+    # Grab the command to add a module to the Falcon model from the user advice within the
+    # model file to test that it works
     f1 = Origen.root.join('app', 'parts', 'dut', 'derivatives', 'falcon', 'controller.rb')
     cmd = f1.open.find { |line| line =~ /origen new module/ }.gsub('#', '').strip
 
@@ -91,4 +99,49 @@ describe "code generators (origen new command)" do
     load_falcon
     dut.yo_from_c.should == 'yo!'
   end
+
+  it 'can create a part' do
+    module Origen
+      class PartTest
+        include Origen::Model
+      end
+    end
+
+    system! 'origen new part my_part'
+
+    # Uncomment the examples from the parameter file so that we can test it
+    f = Origen.root.join('app', 'parts', 'my_part', 'parameters.rb')
+    f.write(f.read.gsub(/^# (\s*(params|define_params|end))/, '\1'))
+
+    model = Origen::PartTest.new
+    model.load_part('my_part').should == true
+    model.params.tprog.should == 20.uS
+  end
+
+  it 'can create a model without a controller' do
+    system! 'origen new model my_model', 'n'
+
+    model = Origen::MyModel.new
+    model.is_an_origen_model?.should == true
+    model.is_a_model_and_controller?.should == false
+  end
+
+  it 'can create a model with a controller' do
+    system! 'origen new model my_model', 'y'
+
+    model = Origen::MyModel.new
+    model.is_an_origen_model?.should == true
+    model.is_a_model_and_controller?.should == true
+  end
+
+  it 'can create add a module to a model'
+
+  it 'can create a class' do
+    system! 'origen new class my_class'
+
+    model = Origen::MyClass.new
+    model.try(:is_an_origen_model?).should == nil
+  end
+
+  it 'can create add a module to a class'
 end

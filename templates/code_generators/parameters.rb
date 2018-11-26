@@ -13,7 +13,7 @@
 # end
 
 # Example of how to inherit and modify the defaults to create an alternative parameters set
-# define_params :probe, inherit: :default do |parent, params|
+# define_params :probe, inherit: :default do |params, parent|
 #   params.tprog = parent.tprog / 2
 #   params.terase = 20.mS
 # end
