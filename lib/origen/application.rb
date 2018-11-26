@@ -155,7 +155,8 @@ module Origen
       fields.delete('derivatives')
       path = fields.join('/')
       files[path] ||= {}
-      current_dir.glob('*.rb').each do |file|
+      Dir.glob(current_dir.join('*.rb')).each do |file|
+        file = Pathname.new(file)
         type = file.basename('.rb').to_s.to_sym
         unless type == :model || type == :controller
           files[path][type] ||= []
