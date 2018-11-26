@@ -134,7 +134,17 @@ describe "code generators (origen new command)" do
     model.is_a_model_and_controller?.should == true
   end
 
-  it 'can create add a module to a model'
+  it 'can create add a module to a model' do
+    system! 'origen new module my_module app/lib/origen/my_model.rb'
+
+    # add a method to the new module so that we can test it
+    f = Origen.root.join('app', 'lib', 'origen', 'my_model', 'my_module.rb')
+    f.write(f.read.gsub('# def my_method', "def yo; 'yo!'; end\n"))
+    reload!
+
+    model = Origen::MyModel.new
+    model.yo.should == 'yo!'
+  end
 
   it 'can create a class' do
     system! 'origen new class my_class'
@@ -143,5 +153,15 @@ describe "code generators (origen new command)" do
     model.try(:is_an_origen_model?).should == nil
   end
 
-  it 'can create add a module to a class'
+  it 'can create add a module to a class' do
+    system! 'origen new module my_module app/lib/origen/my_class.rb'
+
+    # add a method to the new module so that we can test it
+    f = Origen.root.join('app', 'lib', 'origen', 'my_class', 'my_module.rb')
+    f.write(f.read.gsub('# def my_method', "def yo; 'yo!'; end\n"))
+    reload!
+
+    model = Origen::MyClass.new
+    model.yo.should == 'yo!'
+  end
 end
