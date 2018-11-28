@@ -52,6 +52,8 @@ module Origen
           template 'templates/code_generators/registers.rb', f unless File.exist?(f)
           f = File.join(dir, 'sub_blocks.rb')
           template 'templates/code_generators/sub_blocks.rb', f unless File.exist?(f)
+          f = File.join(dir, 'attributes.rb')
+          template 'templates/code_generators/attributes.rb', f unless File.exist?(f)
           dir = File.join(dir, 'derivatives')
           @namespaces << [:class, path]
           @root_class = false
@@ -74,6 +76,7 @@ module Origen
         template 'templates/code_generators/parameters.rb', File.join(dir, 'parameters.rb')
         template 'templates/code_generators/registers.rb', File.join(dir, 'registers.rb')
         template 'templates/code_generators/sub_blocks.rb', File.join(dir, 'sub_blocks.rb')
+        template 'templates/code_generators/attributes.rb', File.join(dir, 'attributes.rb')
       end
 
       def class_name

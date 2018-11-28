@@ -43,6 +43,12 @@ module Origen
       end
     end
 
+    # Returns a frozen hash containing any attributes that were
+    # derived from a part definition
+    def attributes
+      @attributes ||= {}.freeze
+    end
+
     def inspect
       if controller
         "<Model/Controller: #{self.class}:#{object_id}/#{controller.class}:#{controller.object_id}>"

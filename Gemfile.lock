@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/Origen-SDK/origen_core_support.git
-  revision: 061d88132e6dd0066787db6960b8eebbdfca5cf2
+  revision: 166bacadb2d748de5f41739385ade1e9a69cff5b
   branch: app_dir
   specs:
     origen_core_support (0.2.3)

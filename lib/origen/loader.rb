@@ -52,6 +52,44 @@ module Origen
       end
     end
 
+    # @api private
+    def self.load_attributes(file, model)
+      if model.respond_to?(:is_an_origen_model?)
+        attributes = model.attributes.dup
+      else
+        attributes = {}
+      end
+      vars = model.instance_variables
+      model.instance_eval(file.read, file.to_s)
+      # Update the value of any pre-existing attribute that could have just changed
+      attributes.each do |a, v|
+        attributes[a] = model.instance_variable_get("@#{a}")
+      end
+      # And add any new ones that were encountered for the first time
+      (model.instance_variables - vars).each do |var|
+        val = model.instance_variable_get(var)
+        attribute = var.to_s.sub('@', '')
+        attributes[attribute.to_sym] = val
+        unless model.respond_to?(attribute)
+          model.define_singleton_method(attribute) do
+            instance_variable_get(var)
+          end
+        end
+        if val == true || val == false
+          attribute += '?'
+          unless model.respond_to?(attribute)
+            model.define_singleton_method(attribute) do
+              instance_variable_get(var)
+            end
+          end
+        end
+      end
+      if model.respond_to?(:is_an_origen_model?)
+        attributes.freeze
+        model.instance_variable_set(:@attributes, attributes)
+      end
+    end
+
     # If a part definition exists for the given model, then this will load it and apply it to
     # the model.
     # Returns true if a part is found and loaded, otherwise nil.
@@ -71,7 +109,18 @@ module Origen
           key = ''
           only = Array(options[:only]) if options[:only]
           except = Array(options[:except]) if options[:except]
-          # Load all parameters first so that they may be referenced in the other files
+
+          # Load all attributes first so that they may be referenced in the other files
+          unless (only && !only.include?(:attributes)) || (except && except.include?(:attributes))
+            paths.each_with_index do |path, i|
+              key = i == 0 ? path.underscore : "#{key}/#{path.underscore}"
+              if app.parts_files[key] && app.parts_files[key][:attributes]
+                app.parts_files[key][:attributes].each { |f| load_attributes(f, model); loaded = true }
+              end
+            end
+          end
+
+          # Then all parameters so that they too may be referenced in the other files
           unless (only && !only.include?(:parameters)) || (except && except.include?(:parameters))
             Origen::Parameters.transaction do
               paths.each_with_index do |path, i|
@@ -157,7 +206,7 @@ module Origen
               return model
             end
             # Is this a reference to a controller?
-            if dirs.last =~ /_controller$/
+            if dirs.last.to_s =~ /_controller$/
               dirs << dirs.pop.sub(/_controller$/, '')
               if File.exist?(f = File.join(*dirs, 'controller.rb'))
                 return _load_const(f, name)
@@ -172,7 +221,7 @@ module Origen
             #    [..., "my_model", "controller"] + "my_module.rb"
             filename = dirs.pop + '.rb'
             dirs.pop # Lose 'derivatives'
-            if dirs.last =~ /_controller$/
+            if dirs.last.to_s =~ /_controller$/
               dirs << dirs.pop.sub(/_controller$/, '')
               dirs << 'controller'
             else
