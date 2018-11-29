@@ -135,6 +135,11 @@ module Origen
     #
     # Returns a lookup table for all part definitions (app/parts) that the app contains
     def parts_files
+      # There seems to be some issue with this cache being corrupted when running the test suite
+      # in Travis, but don't believe that this is really an issue in practice and cannot replicate
+      # it locally. Therefore maintaining the cache of this potentially expensive operation apart
+      # from when running in CI.
+      @parts_files = nil if ENV['CONTINUOUS_INTEGRATION']
       @parts_files ||= begin
         files = {}
         part_dir = Pathname.new(File.join(root, 'app', 'parts'))

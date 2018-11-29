@@ -60,34 +60,41 @@ module Origen
         attributes = {}
       end
       vars = model.instance_variables
-      model.instance_eval(file.read, file.to_s)
-      # Update the value of any pre-existing attribute that could have just changed
-      attributes.each do |a, v|
-        attributes[a] = model.instance_variable_get("@#{a}")
-      end
-      # And add any new ones that were encountered for the first time
-      (model.instance_variables - vars).each do |var|
-        val = model.instance_variable_get(var)
-        attribute = var.to_s.sub('@', '')
-        attributes[attribute.to_sym] = val
-        unless model.respond_to?(attribute)
-          model.define_singleton_method(attribute) do
-            instance_variable_get(var)
-          end
+      if load_part_file(file, model)
+        # Update the value of any pre-existing attribute that could have just changed
+        attributes.each do |a, v|
+          attributes[a] = model.instance_variable_get("@#{a}")
         end
-        if val == true || val == false
-          attribute += '?'
+        # And add any new ones that were encountered for the first time
+        (model.instance_variables - vars).each do |var|
+          val = model.instance_variable_get(var)
+          attribute = var.to_s.sub('@', '')
+          attributes[attribute.to_sym] = val
           unless model.respond_to?(attribute)
             model.define_singleton_method(attribute) do
               instance_variable_get(var)
             end
           end
+          if val == true || val == false
+            attribute += '?'
+            unless model.respond_to?(attribute)
+              model.define_singleton_method(attribute) do
+                instance_variable_get(var)
+              end
+            end
+          end
         end
+        if model.respond_to?(:is_an_origen_model?)
+          attributes.freeze
+          model.instance_variable_set(:@attributes, attributes)
+        end
+        true
       end
-      if model.respond_to?(:is_an_origen_model?)
-        attributes.freeze
-        model.instance_variable_set(:@attributes, attributes)
-      end
+    end
+
+    def self.load_part_file(file, model)
+      model.instance_eval(file.read, file.to_s) if File.exist?(file.to_s)
+      true
     end
 
     # If a part definition exists for the given model, then this will load it and apply it to
@@ -115,7 +122,7 @@ module Origen
             paths.each_with_index do |path, i|
               key = i == 0 ? path.underscore : "#{key}/#{path.underscore}"
               if app.parts_files[key] && app.parts_files[key][:attributes]
-                app.parts_files[key][:attributes].each { |f| load_attributes(f, model); loaded = true }
+                app.parts_files[key][:attributes].each { |f| success = load_attributes(f, model); loaded ||= success }
               end
             end
           end
@@ -126,7 +133,7 @@ module Origen
               paths.each_with_index do |path, i|
                 key = i == 0 ? path.underscore : "#{key}/#{path.underscore}"
                 if app.parts_files[key] && app.parts_files[key][:parameters]
-                  app.parts_files[key][:parameters].each { |f| model.instance_eval(f.read, f.to_s); loaded = true }
+                  app.parts_files[key][:parameters].each { |f| success = load_part_file(f, model); loaded ||= success }
                 end
               end
             end
@@ -138,7 +145,7 @@ module Origen
             if app.parts_files[key]
               app.parts_files[key].each do |type, files|
                 unless type == :parameters || (only && !only.include?(type)) || (except && except.include?(type))
-                  files.each { |f| model.instance_eval(f.read, f.to_s); loaded = true }
+                  files.each { |f| success = load_part_file(f, model); loaded ||= success }
                 end
               end
             end
