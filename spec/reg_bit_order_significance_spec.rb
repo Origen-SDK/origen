@@ -14,6 +14,16 @@ describe "Register bit order significance" do
         r.bit 0..15,  :high_word, res: 0xaaaa
         r.bit 16..31, :low_word, res: 0
       end
+      add_reg :msb0_2, 0x8, bit_order: msb0, size: 32 do |r|
+        r.bit 31,     :bit0_in_lsb0
+        r.bit 30,     :bit1_in_lsb0
+        r.bit 29,     :bit2_in_lsb0
+        r.bit 28,     :bit3_in_lsb0
+        r.bit 27,     :bit4_in_lsb0
+        r.bit 26,     :bit5_in_lsb0
+        r.bit 25,     :bit6_in_lsb0
+        r.bit 24,     :bit7_in_lsb0
+      end
     end
   end
 
@@ -36,5 +46,9 @@ describe "Register bit order significance" do
     dut.lsb0.copy_all(dut.msb0)
     dut.lsb0.high_word.data.should == 0xaaaa
     dut.lsb0.low_word.data.should == 0x5555
+    
+    dut.msb0_2.bit0_in_lsb0.write 1
+    dut.lsb0.copy_all(dut.msb0_2)
+    dut.lsb0.data.should == 1
   end
 end
