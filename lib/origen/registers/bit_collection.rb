@@ -284,16 +284,9 @@ module Origen
       #   reg(:control).data         #  => 0x55, assuming the reg has the required bits to store that
       def data
         data = 0
-        if bit_order == :msb0
-          reverse_shift_out_with_index do |bit, i|
-            return undefined if bit.is_a?(Origen::UndefinedClass)
-            data |= bit.data << i
-          end
-        else
-          shift_out_with_index do |bit, i|
-            return undefined if bit.is_a?(Origen::UndefinedClass)
-            data |= bit.data << i
-          end
+        shift_out_with_index do |bit, i|
+          return undefined if bit.is_a?(Origen::UndefinedClass)
+          data |= bit.data << i
         end
         data
       end
@@ -309,16 +302,9 @@ module Origen
       # Returns the reverse of the data value held by the collection
       def data_reverse
         data = 0
-        if bit_order == :msb0
-          shift_out_with_index do |bit, i|
-            return undefined if bit.is_a?(Origen::UndefinedClass)
-            data |= bit.data << i
-          end
-        else
-          reverse_shift_out_with_index do |bit, i|
-            return undefined if bit.is_a?(Origen::UndefinedClass)
-            data |= bit.data << i
-          end
+        reverse_shift_out_with_index do |bit, i|
+          return undefined if bit.is_a?(Origen::UndefinedClass)
+          data |= bit.data << i
         end
         data
       end
@@ -345,14 +331,8 @@ module Origen
         end
         value = value.data if value.respond_to?('data')
 
-        if bit_order == :msb0
-          size.times do |i|
-            self[i].write(value[size - i - 1], options)
-          end
-        else
-          size.times do |i|
-            self[i].write(value[i], options)
-          end
+        size.times do |i|
+          self[i].write(value[i], options)
         end
         self
       end

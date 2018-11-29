@@ -90,6 +90,14 @@ module Origen
         @size.times do |n|
           @bits << Bit.new(self, n, writable: @init_as_writable, undefined: true)
         end
+
+        # Internally re-map msb0 register descriptions as lsb0
+        if @bit_order == :msb0
+          options.each_key do |bit_id|
+            options[bit_id][:pos] = @size - options[bit_id][:pos] - options[bit_id][:bits]
+          end
+        end
+
         add_bits_from_options(options)
       end
 
@@ -1004,17 +1012,12 @@ module Origen
 
         @lookup[id] = { pos: position, bits: size }
         size.times do |n|
-          if bit_order == :msb0
-            ndx = size - n - 1
-          else
-            ndx = n
-          end
           bit_options = options.dup
-          bit_options[:data] = options[:data][ndx]
+          bit_options[:data] = options[:data][n]
           if options[:res].is_a?(Symbol)
             bit_options[:res]  = options[:res]
           else
-            bit_options[:res]  = options[:res][ndx]
+            bit_options[:res]  = options[:res][n]
           end
           @bits.delete_at(position + n)
           @bits.insert(position + n, Bit.new(self, position + n, bit_options))
@@ -1041,14 +1044,9 @@ module Origen
           @lookup[id] = [] if @lookup[id].nil?
           @lookup[id] = @lookup[id].push(pos: position, bits: size)
           size.times do |n|
-            if bit_order == :msb0
-              ndx = size - n - 1
-            else
-              ndx = n
-            end
             bit_options = options.dup
-            bit_options[:data] = options[:data][ndx]
-            bit_options[:res]  = options[:res][ndx]
+            bit_options[:data] = options[:data][n]
+            bit_options[:res]  = options[:res][n]
             @bits.delete_at(position + n)
             @bits.insert(position + n, Bit.new(self, position + n, bit_options))
           end

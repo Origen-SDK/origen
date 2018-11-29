@@ -68,7 +68,7 @@ module Origen
         end
       end
 
-      # Not sure if this is the right way to fix the infinite loop
+      # Prevent infinite loop if a child bit collection checks bit_order
       def bit_order
         parent.bit_order
       end

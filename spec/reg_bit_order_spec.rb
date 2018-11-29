@@ -126,13 +126,11 @@ describe "Register bit order control" do
     data = 0x1122_3344
     dut.msb0.write(data)
     dut.msb0.data.should == data
-    # bit significance doesn not change with msb0, only the labeling of the bits
-    # bits should come out in same order as lsb0 register
     dut.msb0.shift_out_right_with_index do |bit, i|
-      bit.data.should == data[i]
+      bit.data.should == data[31 - i]
     end
     dut.msb0.shift_out_left_with_index do |bit, i|
-      bit.data.should == data[31 - i]
+      bit.data.should == data[i]
     end
   end
 
@@ -143,10 +141,8 @@ describe "Register bit order control" do
     lsb0_reg[0].data.should == 1
     msb0_reg.write(0x0001)
     msb0_reg.data.should == 0x0001
-    # with msb0, bit 31 of a 32 bit register is the least significant bit
-    msb0_reg[31].data.should == 1
-    # with msb0, bit 0 is always the most significant bit
-    msb0_reg[0].data.should == 0
+    msb0_reg[31].data.should == 0
+    msb0_reg[0].data.should == 1
   end
 
   it "Bit level bit-access assigns data to the correct bit" do
@@ -158,12 +154,11 @@ describe "Register bit order control" do
     lsb0_reg[21].data.should == 0
     msb0_reg.PKG.write(0x01)
     msb0_reg.PKG.data.should == 1
-    # for msb0, bit 0 is the MSB
-    msb0_reg.PKG[0].data.should == 0
-    msb0_reg.PKG[4].data.should == 1
-    # for msb0, bit 17 (MSB of the field) is higher than bit 21
-    msb0_reg[17].data.should == 0
-    msb0_reg[21].data.should == 1
+    msb0_reg.PKG[0].data.should == 1
+    msb0_reg.PKG[4].data.should == 0
+    # with reg def remapped from msb0 format to lsb0 format PKG becomes bits[14..10]
+    msb0_reg[10].data.should == 1
+    msb0_reg[14].data.should == 0
   end
 
   it "inverse and reverse data methods work with msb0 regs" do
