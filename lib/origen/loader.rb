@@ -92,9 +92,21 @@ module Origen
       end
     end
 
+    # @api private
     def self.load_part_file(file, model)
       model.instance_eval(file.read, file.to_s) if File.exist?(file.to_s)
       true
+    end
+
+    # @api private
+    def self.with_parameters_transaction(type)
+      if type == :parameters
+        Origen::Parameters.transaction do
+          yield
+        end
+      else
+        yield
+      end
     end
 
     # If a part definition exists for the given model, then this will load it and apply it to
@@ -117,23 +129,28 @@ module Origen
           only = Array(options[:only]) if options[:only]
           except = Array(options[:except]) if options[:except]
 
-          # Load all attributes first so that they may be referenced in the other files
-          unless (only && !only.include?(:attributes)) || (except && except.include?(:attributes))
-            paths.each_with_index do |path, i|
-              key = i == 0 ? path.underscore : "#{key}/#{path.underscore}"
-              if app.parts_files[key] && app.parts_files[key][:attributes]
-                app.parts_files[key][:attributes].each { |f| success = load_attributes(f, model); loaded ||= success }
-              end
-            end
-          end
+          # These will be loaded first, followed by the rest in an un-defined order.
+          # Attributes and parameters are first so that they may be referenced in the other files.
+          # Sub-blocks was added early due to a corner case issue that could be encountered if the pins or
+          # regs imported an Origen exported file that defined a module with the same name as a sub-block
+          # class, in that case the sub-block class would not be auto-loaded.
+          load_first = [:attributes, :parameters, :sub_blocks]
 
-          # Then all parameters so that they too may be referenced in the other files
-          unless (only && !only.include?(:parameters)) || (except && except.include?(:parameters))
-            Origen::Parameters.transaction do
-              paths.each_with_index do |path, i|
-                key = i == 0 ? path.underscore : "#{key}/#{path.underscore}"
-                if app.parts_files[key] && app.parts_files[key][:parameters]
-                  app.parts_files[key][:parameters].each { |f| success = load_part_file(f, model); loaded ||= success }
+          load_first.each do |type|
+            unless (only && !only.include?(type)) || (except && except.include?(type))
+              with_parameters_transaction(type) do
+                paths.each_with_index do |path, i|
+                  key = i == 0 ? path.underscore : "#{key}/#{path.underscore}"
+                  if app.parts_files[key] && app.parts_files[key][type]
+                    app.parts_files[key][type].each do |f|
+                      if type == :attributes
+                        success = load_attributes(f, model)
+                      else
+                        success = load_part_file(f, model)
+                      end
+                      loaded ||= success
+                    end
+                  end
                 end
               end
             end
@@ -144,7 +161,7 @@ module Origen
             key = i == 0 ? path.underscore : "#{key}/#{path.underscore}"
             if app.parts_files[key]
               app.parts_files[key].each do |type, files|
-                unless type == :parameters || (only && !only.include?(type)) || (except && except.include?(type))
+                unless load_first.include?(type) || (only && !only.include?(type)) || (except && except.include?(type))
                   files.each { |f| success = load_part_file(f, model); loaded ||= success }
                 end
               end

@@ -2,6 +2,10 @@ require 'spec_helper'
 
 describe "An application's app/ dir" do
 
+  after :all do
+    Origen.app.unload_target!
+  end
+
   it "can load an app's models without a require" do
     m = OrigenCoreSupport::MySimpleModel.new
     m.test_model.should == "model"
@@ -45,4 +49,5 @@ describe "An application's app/ dir" do
                                has_feature_y: false,
                                has_feature_z: true}
   end
+
 end
