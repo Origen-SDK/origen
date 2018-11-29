@@ -92,7 +92,7 @@ module Origen
         end
 
         # Internally re-map msb0 register descriptions as lsb0
-        if @bit_order == :msb0
+        if bit_order == :msb0
           options.each_key do |bit_id|
             options[bit_id][:pos] = @size - options[bit_id][:pos] - options[bit_id][:bits]
           end
