@@ -39,6 +39,9 @@ describe "Register bit order significance" do
   it "bit significance is maintained" do
     dut.lsb0.data.should == 0xaaaa_0000
     dut.msb0.data.should == 0xaaaa_0000
+    
+    dut.msb0_2.bit0_in_lsb0.write 1
+    dut.msb0_2.data.should == 1
   end
 
   it "copy_all maintains bit significance" do
@@ -46,7 +49,7 @@ describe "Register bit order significance" do
     dut.lsb0.copy_all(dut.msb0)
     dut.lsb0.high_word.data.should == 0xaaaa
     dut.lsb0.low_word.data.should == 0x5555
-    
+
     dut.msb0_2.bit0_in_lsb0.write 1
     dut.lsb0.copy_all(dut.msb0_2)
     dut.lsb0.data.should == 1
