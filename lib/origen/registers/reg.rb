@@ -137,7 +137,7 @@ module Origen
       end
 
       def inspect(options = {})
-        # options[:with_bit_order] = true
+        options[:with_bit_order] = true
         wbo = options[:with_bit_order] || false
         domsb0 = wbo && bit_order == :msb0
         dolsb0 = !domsb0
@@ -205,13 +205,13 @@ module Origen
         num_bytes.times do |byte_index|
           # Need to add support for little endian regs here?
           byte_number = num_bytes - byte_index
-          if true # dolsb0
+            # if true # dolsb0
             max_bit = (byte_number * 8) - 1
             min_bit = max_bit - 8 + 1
-          else
-            min_bit = (byte_index * 8)
-            max_bit = min_bit + 7
-          end
+          # else
+          #   min_bit = (byte_index * 8)
+          #   max_bit = min_bit + 7
+          # end
 
           # BIT INDEX ROW
           line = '  '
@@ -601,24 +601,24 @@ module Origen
         @lookup.each { |_k, v| split_bits = true if v.is_a? Array }
 
         if split_bits == false
-          if true # bit_order == :lsb0
+            # if true # bit_order == :lsb0
             current_pos = size
-          else
-            current_pos = 0
-          end
+          # else
+          #   current_pos = 0
+          # end
           # Sort by position
           @lookup.sort_by { |_name, details| -details[:pos] }.each do |name, details|
-            if true # bit_order == :lsb0
+              # if true # bit_order == :lsb0
               pos = details[:bits] + details[:pos]
-            else
-              pos = details[:pos]
-            end
+            # else
+            #   pos = details[:pos]
+            # end
             if options[:include_spacers] && (pos != current_pos)
-              if true # bit_order == :lsb0
+                # if true # bit_order == :lsb0
                 collection = BitCollection.dummy(self, nil, size: current_pos - pos, pos: pos)
-              else
-                collection = BitCollection.dummy(self, nil, size: pos - current_pos, pos: current_pos)
-              end
+              # else
+              #   collection = BitCollection.dummy(self, nil, size: pos - current_pos, pos: current_pos)
+              # end
               unless collection.size == 0
                 if block_given?
                   yield nil, collection
@@ -638,18 +638,18 @@ module Origen
                 result << [name, collection]
               end
             end
-            if true # bit_order == :lsb0
+              # if true # bit_order == :lsb0
               current_pos = details[:pos]
-            else
-              current_pos = details[:bits] + details[:pos]
-            end
+            # else
+            #   current_pos = details[:bits] + details[:pos]
+            # end
           end
           if options[:include_spacers] && (current_pos != 0)
-            if true # bit_order == :lsb0
+              # if true # bit_order == :lsb0
               collection = BitCollection.dummy(self, nil, size: current_pos, pos: 0)
-            else
-              collection = BitCollection.dummy(self, nil, size: size - current_pos, pos: current_pos)
-            end
+            # else
+            #   collection = BitCollection.dummy(self, nil, size: size - current_pos, pos: current_pos)
+            # end
             unless collection.size == 0
               if block_given?
                 yield nil, collection
