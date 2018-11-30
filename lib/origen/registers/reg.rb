@@ -254,11 +254,11 @@ module Origen
 
                 if name
                   if bitcounter.nil?
-                    if dolsb0
-                      bit_name = "#{name}[#{_max_bit_in_range(bit, max_bit, min_bit)}:#{_min_bit_in_range(bit, max_bit, min_bit)}]"
-                    else
-                      bit_name = "#{name}[#{_min_bit_in_range(bit, max_bit, min_bit)}:#{_max_bit_in_range(bit, max_bit, min_bit)}]"
-                    end
+                      # if dolsb0
+                      bit_name = "#{name}[#{_max_bit_in_range(bit, max_bit, min_bit, options)}:#{_min_bit_in_range(bit, max_bit, min_bit, options)}]"
+                    # else
+                    #   bit_name = "#{name}[#{_min_bit_in_range(bit, max_bit, min_bit, options)}:#{_max_bit_in_range(bit, max_bit, min_bit, options)}] - #{max_bit} #{min_bit} #{bit.position}"
+                    # end
                     bit_span = _num_bits_in_range(bit, max_bit, min_bit)
 
                   else
@@ -1571,14 +1571,24 @@ module Origen
         end
       end
 
-      def _max_bit_in_range(bits, max, _min)
-        upper = bits.position + bits.size - 1
-        [upper, max].min - bits.position
+      def _max_bit_in_range(bits, max, _min, options = {with_bit_order: false})
+        if options[:with_bit_order] && bit_order == :msb0
+          upper = bits.position + bits.size - 1
+          bits.size - ([upper, max].min - bits.position) -1
+        else
+          upper = bits.position + bits.size - 1
+          [upper, max].min - bits.position
+        end
       end
 
-      def _min_bit_in_range(bits, _max, min)
-        lower = bits.position
-        [lower, min].max - bits.position
+      def _min_bit_in_range(bits, _max, min, options = {with_bit_order: false})
+        if options[:with_bit_order] && bit_order == :msb0
+          lower = bits.position
+          bits.size - ([lower, min].max - lower) - 1
+        else
+          lower = bits.position
+          [lower, min].max - bits.position
+        end
       end
 
       # Returns true if some portion of the given bits falls
