@@ -19,7 +19,7 @@ module Origen
       end
 
       def inspect
-        @reg_object.inspect with_bit_order: true
+        @reg_object.inspect with_bit_order: :msb0
       end
     end
     

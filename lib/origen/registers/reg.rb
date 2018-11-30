@@ -104,6 +104,10 @@ module Origen
         @msb0_delegator
       end
 
+      def lsb0
+        self
+      end
+
       # Returns the bit order attribute of the register (either :msb0 or :lsb0). If
       # not explicitly defined on this register it will be inherited from the parent
       # and will default to :lsb0 at the top-level
@@ -144,17 +148,16 @@ module Origen
       end
 
       def inspect(options = {})
-        wbo = options[:with_bit_order] || false
-        domsb0 = wbo && bit_order == :msb0
+        wbo = options[:with_bit_order] || :lsb0
+        domsb0 = wbo == :msb0
         dolsb0 = !domsb0
-        if !wbo && bit_order == :msb0
-          Origen.log.warn 'Register displayed with lsb0 numbering (default bit access), but defined with msb0 numbering'
-          Origen.log.warn 'Access (and display) this register with msb0 numbering like this:'
+        if wbo != bit_order
+          Origen.log.warn "Register displayed with #{wbo} numbering, but defined with #{bit_order} numbering"
+          Origen.log.warn 'Access (and display) this register with explicit numbering like this:'
           Origen.log.warn ''
-          Origen.log.warn "   reg(:#{name}).with_bit_order"
-        end
-        if wbo && bit_order == :lsb0
-          Origen.log.warn 'Register with bit order was requested, but this register was defined with lsb0 numbering'
+          Origen.log.warn "   reg(:#{name}).msb0        # bit numbering scheme is msb0"
+          Origen.log.warn "   reg(:#{name}).lsb0        # bit numbering scheme is lsb0 (default)"
+          Origen.log.warn "   reg(:#{name})             # bit numbering scheme is lsb0 (default)"
         end
 
         # This fancy_output option is passed in via option hash
@@ -1578,21 +1581,19 @@ module Origen
       end
 
       def _max_bit_in_range(bits, max, _min, options = {with_bit_order: false})
-        if options[:with_bit_order] && bit_order == :msb0
           upper = bits.position + bits.size - 1
+        if options[:with_bit_order] == :msb0
           bits.size - ([upper, max].min - bits.position) -1
         else
-          upper = bits.position + bits.size - 1
           [upper, max].min - bits.position
         end
       end
 
       def _min_bit_in_range(bits, _max, min, options = {with_bit_order: false})
-        if options[:with_bit_order] && bit_order == :msb0
           lower = bits.position
+        if options[:with_bit_order] == :msb0
           bits.size - ([lower, min].max - lower) - 1
         else
-          lower = bits.position
           [lower, min].max - bits.position
         end
       end
