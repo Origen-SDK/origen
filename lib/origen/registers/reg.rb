@@ -1,4 +1,5 @@
 require 'json'
+require 'origen/registers/msb0_delegator'
 module Origen
   module Registers
     # The register class can be used to represent not only h/ware resgisters,
@@ -95,6 +96,12 @@ module Origen
         options.each_value { |bit_desc| bit_desc[:pos] = @size - bit_desc[:pos] - bit_desc[:bits] } if bit_order == :msb0
 
         add_bits_from_options(options)
+
+        @msb0_delegator = Msb0Delegator.new(self)
+      end
+
+      def msb0
+        @msb0_delegator
       end
 
       # Returns the bit order attribute of the register (either :msb0 or :lsb0). If
@@ -137,7 +144,6 @@ module Origen
       end
 
       def inspect(options = {})
-        options[:with_bit_order] = true
         wbo = options[:with_bit_order] || false
         domsb0 = wbo && bit_order == :msb0
         dolsb0 = !domsb0
