@@ -1046,10 +1046,6 @@ module Origen
         end
       end
 
-      def new_bit_collection
-        BitCollection.new(self, :unknown)
-      end
-
       # Returns the bit object(s) responding to the given name, wrapped in a BitCollection.
       # This method also accepts multiple name possibilities, if neither bit exists in
       # the register it will raise an error, otherwise it will return the first match.
@@ -1079,11 +1075,7 @@ module Origen
           constraint = :default
         end
 
-        if wbo == :msb0
-          collection = BitCollection.new(self, :unknown, [], with_bit_order: :msb0)
-        else
-          collection = BitCollection.new(self, :unknown)
-        end
+        collection = BitCollection.new(self, :unknown, [], with_bit_order: wbo)
 
         if args.size == 0
           collection.add_name(name)
@@ -1282,11 +1274,7 @@ module Origen
           if BitCollection.instance_methods.include?(method)
             to_bit_collection(with_bit_order: wbo).send(method, *args, &block)
           elsif has_bits?(method)
-            # if options[:with_bit_order] == :msb0
-            #   @msb0_delegator.bits(method)
-            # else
             bits(method, with_bit_order: wbo)
-            # end
           else
             super
           end
