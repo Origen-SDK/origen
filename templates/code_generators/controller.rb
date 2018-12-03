@@ -17,6 +17,37 @@
 <%= indent %>  include Origen::Controller
 <%= indent %>
 <% end -%>
+<%= indent %>
+<%= indent %>  # If implemented, this method will be called automatically at the start of every pattern.
+<% if @top_level -%>
+<%= indent %>  # Since this is the top-level/DUT controller, it will be called first and it is normally used
+<%= indent %>  # to define a mode entry sequence.
+<% else-%>
+<%= indent %>  # Since this is a sub-block controller, it will be called after the top-level/DUT controller's
+<%= indent %>  # startup method, though the calling order with relation to other sub-blocks is undefined.
+<% end -%>
+<%= indent %>  # Any option arguments passed into Pattern.create will be passed into here.
+<%= indent %>  # def startup(options = {})
+<%= indent %>  #   tester.set_timeset('func', 100)
+<%= indent %>  # end
+<% if @top_level -%>
+<%= indent %>
+<%= indent %>  # If implemented, this method will be called automatically at the start of every simulation.
+<%= indent %>  # If the simulation run contains multiple patterns run back to back, then this method will
+<%= indent %>  # be called only once at the very start, and then the startup method will be called multiple
+<%= indent %>  # as it is invoked before each individual pattern.
+<%= indent %>  # def simulation_startup(options = {})
+<%= indent %>  #   tester.set_timeset('func', 100)
+<%= indent %>  # end
+<%= indent %>
+<%= indent %>  # If implemented, this method will be called automatically at the start of every interactive
+<%= indent %>  # console session (origen i). It is commonly used to startup the simulator if the tester is
+<%= indent %>  # an OrigenSim driver as shown in the example below.
+<%= indent %>  # def interactive_startup(options = {})
+<%= indent %>  #   tester.start if tester.sim?
+<%= indent %>  # end
+<% end -%>
+<%= indent %>
 <%= indent %>  # All requests to read a register will be passed in here, this is where you define
 <%= indent %>  # how registers should be read (e.g. via JTAG) for this particular DUT
 <%= indent %>  def read_register(reg, options = {})
