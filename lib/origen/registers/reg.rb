@@ -199,14 +199,10 @@ module Origen
         bit_width = 13
         desc = ["\n0x%X - :#{name}" % address]
         r = size % 8
-        if r == 0 || (size > 8 && domsb0)
+        if r == 0 # || (size > 8 && domsb0)
           desc << ('  ' + corner_double_up_left + ((horiz_double_line * bit_width + horiz_double_tee_down) * 8)).chop + corner_double_up_right
         else
-          if dolsb0
-            desc << ('  ' + (' ' * (bit_width + 1) * (8 - r)) + corner_double_up_left + ((horiz_double_line * bit_width + horiz_double_tee_down) * r)).chop + corner_double_up_right
-          else
-            desc << ('  ' + corner_double_up_left + ((horiz_double_line * bit_width + horiz_double_tee_down) * r)).chop + corner_double_up_right
-          end
+          desc << ('  ' + (' ' * (bit_width + 1) * (8 - r)) + corner_double_up_left + ((horiz_double_line * bit_width + horiz_double_tee_down) * r)).chop + corner_double_up_right
         end
 
         # "<#{self.class}: #{self.name}>"
@@ -214,32 +210,22 @@ module Origen
         num_bytes.times do |byte_index|
           # Need to add support for little endian regs here?
           byte_number = num_bytes - byte_index
-          # if true # dolsb0
           max_bit = (byte_number * 8) - 1
           min_bit = max_bit - 8 + 1
-          # else
-          #   min_bit = (byte_index * 8)
-          #   max_bit = min_bit + 7
-          # end
 
           # BIT INDEX ROW
           line = '  '
           line_complete = false
           8.times do |i|
-            if dolsb0
-              bit_num = (byte_number * 8) - i - 1
-            else
-              bit_num = (byte_index * 8) + i
-            end
+            bit_num = (byte_number * 8) - i - 1
             if bit_num > size - 1
-              if domsb0 && bit_num == size
-                line += vert_single_line
-                line_complete = true
-              else
-                line << ' ' + ''.center(bit_width) unless line_complete
-              end
+              line << ' ' + ''.center(bit_width) unless line_complete
             else
-              line << vert_single_line + "#{bit_num}".center(bit_width)
+              if dolsb0
+                line << vert_single_line + "#{bit_num}".center(bit_width)
+              else
+                line << vert_single_line + "#{size - bit_num - 1}".center(bit_width)
+              end
             end
           end
           line += vert_single_line unless line_complete
@@ -251,11 +237,9 @@ module Origen
           line_complete = false
           named_bits include_spacers: true do |name, bit, bitcounter|
             if _bit_in_range?(bit, max_bit, min_bit)
-              if dolsb0
-                if max_bit > (size - 1) && !first_done
-                  (max_bit - (size - 1)).times do
-                    line << ' ' * (bit_width + 1)
-                  end
+              if max_bit > (size - 1) && !first_done
+                (max_bit - (size - 1)).times do
+                  line << ' ' * (bit_width + 1)
                 end
               end
 
@@ -263,16 +247,12 @@ module Origen
 
                 if name
                   if bitcounter.nil?
-                    # if dolsb0
                     bit_name = "#{name}[#{_max_bit_in_range(bit, max_bit, min_bit, options)}:#{_min_bit_in_range(bit, max_bit, min_bit, options)}]"
-                    # else
-                    #   bit_name = "#{name}[#{_min_bit_in_range(bit, max_bit, min_bit, options)}:#{_max_bit_in_range(bit, max_bit, min_bit, options)}] - #{max_bit} #{min_bit} #{bit.position}"
-                    # end
                     bit_span = _num_bits_in_range(bit, max_bit, min_bit)
 
                   else
-                    upper = _max_bit_in_range(bit, max_bit, min_bit) + bitcounter - bit.size
-                    lower = _min_bit_in_range(bit, max_bit, min_bit) + bitcounter - bit.size
+                    upper = _max_bit_in_range(bit, max_bit, min_bit, options) + bitcounter - bit.size
+                    lower = _min_bit_in_range(bit, max_bit, min_bit, options) + bitcounter - bit.size
                     if dolsb0
                       bit_name = "#{name}[#{upper}:#{lower}]"
                     else
@@ -319,11 +299,9 @@ module Origen
           first_done = false
           named_bits include_spacers: true do |name, bit, _bitcounter|
             if _bit_in_range?(bit, max_bit, min_bit)
-              if dolsb0
-                if max_bit > (size - 1) && !first_done
-                  (max_bit - (size - 1)).times do
-                    line << ' ' * (bit_width + 1)
-                  end
+              if max_bit > (size - 1) && !first_done
+                (max_bit - (size - 1)).times do
+                  line << ' ' * (bit_width + 1)
                 end
               end
 
@@ -374,12 +352,8 @@ module Origen
 
           if size >= 8
             r = size % 8
-            if byte_index == 0 && r != 0 && dolsb0
+            if byte_index == 0 && r != 0
               desc << ('  ' + corner_double_up_left + ((horiz_double_line * bit_width + horiz_double_tee_down) * (8 - r)).chop + horiz_double_cross + (horiz_single_line * (bit_width + 1) * r)).chop + vert_single_tee_left
-            elsif (byte_index == num_bytes - 1) && r != 0 && domsb0
-              desc << ('  ' + corner_single_down_left + ((horiz_single_line * bit_width + horiz_single_tee_up) * r)).chop + corner_single_down_right
-            elsif (byte_index == num_bytes - 2) && r != 0 && domsb0
-              desc << '  ' + vert_single_tee_right + ((horiz_single_line * bit_width + horiz_single_cross) * r) + ((horiz_single_line * bit_width + horiz_single_tee_up) * (8 - r)).chop + corner_single_down_right
             else
               if byte_index == num_bytes - 1
                 desc << ('  ' + corner_single_down_left + ((horiz_single_line * bit_width + horiz_single_tee_up) * 8)).chop + corner_single_down_right
@@ -388,11 +362,7 @@ module Origen
               end
             end
           else
-            if dolsb0
-              desc << ('  ' + (' ' * (bit_width + 1) * (8 - size)) + corner_single_down_left + ((horiz_single_line * bit_width + horiz_single_tee_up) * size)).chop + corner_single_down_right
-            else
-              desc << ('  ' + corner_single_down_left + ((horiz_single_line * bit_width + horiz_single_tee_up) * size)).chop + corner_single_down_right
-            end
+            desc << ('  ' + (' ' * (bit_width + 1) * (8 - size)) + corner_single_down_left + ((horiz_single_line * bit_width + horiz_single_tee_up) * size)).chop + corner_single_down_right
           end
         end
         desc.join("\n")

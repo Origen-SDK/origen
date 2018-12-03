@@ -23,8 +23,9 @@ module Origen
         @reg_object = obj
       end
 
-      def inspect
-        @reg_object.inspect with_bit_order: :msb0
+      def inspect(options = {})
+        options[:with_bit_order] = :msb0
+        @reg_object.inspect(options)
       end
 
       def method_missing(method, *args, &block)
