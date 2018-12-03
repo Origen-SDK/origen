@@ -57,4 +57,37 @@ describe "Register bit order significance" do
     dut.lsb0_reg.copy_all(dut.msb0_2)
     dut.lsb0_reg.data.should == 1
   end
+
+  it "handles access using msb0 bit numbering" do
+    dut.msb0_reg.write 0
+    dut.msb0_reg.with_msb0[0..3].write 7
+    dut.msb0_reg.data.should == 0x7000_0000
+
+    dut.msb0_reg.with_msb0.high_word[0..3].write 3
+    dut.msb0_reg.data.should == 0x3000_0000
+
+    dut.msb0_reg.with_msb0.high_word[2..5].write 0xf
+    dut.msb0_reg.data.should == 0x3c00_0000
+
+    dut.reg(:msb0_reg).with_msb0.bits(:low_word).bits(0..2).write 3
+    dut.msb0_reg.data.should == 0x3c00_6000
+  end
+
+  it "correctly handles bit number interpretation on bit collections" do
+    dut.lsb0_reg.write 0
+    dut.lsb0_reg.high_word.with_msb0[0..1].write 2
+    dut.lsb0_reg.data.should == 0x8000_0000
+
+    dut.lsb0_reg.high_word[15..14].write 1
+    dut.lsb0_reg.data.should == 0x4000_0000
+  end
+
+  it "with_msb0 is not sticky" do
+    dut.lsb0_reg.with_msb0.high_word.with_bit_order.should == :msb0
+    dut.lsb0_reg.high_word.with_bit_order.should == :lsb0
+
+    dut.lsb0_reg.high_word.with_msb0[0..2].with_bit_order.should == :lsb0
+    dut.lsb0_reg.high_word[0..2].with_bit_order.should == :lsb0
+    dut.lsb0_reg.high_word[15..14].with_bit_order.should == :lsb0
+  end
 end

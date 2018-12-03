@@ -19,12 +19,13 @@ module Origen
       attr_accessor :name
       alias_method :id, :name
 
-      def initialize(reg, name, data = []) # :nodoc:
+      def initialize(reg, name, data = [], options = {}) # :nodoc:
         if reg.respond_to?(:has_bits_enabled_by_feature?) && reg.has_parameter_bound_bits?
           reg.update_bound_bits unless reg.updating_bound_bits?
         end
         @reg = reg
         @name = name
+        @with_bit_order = options[:with_bit_order] || :lsb0
         [data].flatten.each { |item| self << item }
       end
 
@@ -33,6 +34,23 @@ module Origen
         parent.bit_order
       end
 
+      # Returns the bit numbering order to use when interpreting indeces
+      def with_bit_order
+        @with_bit_order
+      end
+
+      # Allow bit number interpreting to be explicitly set to msb0
+      def with_msb0
+        @with_bit_order = :msb0
+        self
+      end
+
+      # Allow bit number interpreting to be explicitly set to lsb0
+      def with_lsb0
+        @with_bit_order = :lsb0
+        self
+      end
+      
       def terminal?
         true
       end
@@ -985,7 +1003,12 @@ module Origen
             ixs << index
           end
         end
-        ixs.flatten.sort
+        ixs.flatten!
+        # convert msb0 numbering (if provided) to lsb0 numbering to get the correct bits
+        if with_bit_order == :msb0
+          ixs.each_index { |i| ixs[i] = self.size - ixs[i] - 1 }
+        end
+        ixs.sort
       end
     end
   end

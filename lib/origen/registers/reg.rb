@@ -97,14 +97,14 @@ module Origen
 
         add_bits_from_options(options)
 
-        @msb0_delegator = Msb0Delegator.new(self)
+        @msb0_delegator = Msb0Delegator.new(self, @bits)
       end
 
-      def msb0
+      def with_msb0
         @msb0_delegator
       end
 
-      def lsb0
+      def with_lsb0
         self
       end
 
@@ -155,9 +155,9 @@ module Origen
           Origen.log.warn "Register displayed with #{wbo} numbering, but defined with #{bit_order} numbering"
           Origen.log.warn 'Access (and display) this register with explicit numbering like this:'
           Origen.log.warn ''
-          Origen.log.warn "   reg(:#{name}).msb0        # bit numbering scheme is msb0"
-          Origen.log.warn "   reg(:#{name}).lsb0        # bit numbering scheme is lsb0 (default)"
-          Origen.log.warn "   reg(:#{name})             # bit numbering scheme is lsb0 (default)"
+          Origen.log.warn "   reg(:#{name}).with_msb0        # bit numbering scheme is msb0"
+          Origen.log.warn "   reg(:#{name}).with_lsb0        # bit numbering scheme is lsb0 (default)"
+          Origen.log.warn "   reg(:#{name})                  # bit numbering scheme is lsb0 (default)"
         end
 
         # This fancy_output option is passed in via option hash
@@ -1095,6 +1095,10 @@ module Origen
         end
       end
 
+      def new_bit_collection
+        BitCollection.new(self, :unknown)
+      end
+      
       # Returns the bit object(s) responding to the given name, wrapped in a BitCollection.
       # This method also accepts multiple name possibilities, if neither bit exists in
       # the register it will raise an error, otherwise it will return the first match.
@@ -1111,13 +1115,25 @@ module Origen
       #   reg(:control).bit(1)                  # => Returns a BitCollection containing status bit
       #   reg(:control).bit(1,2)                # => Returns a BitCollection containing both status bits
       def bit(*args)
+        # allow msb0 bit numbering if requested
+        wbo = :lsb0
+        if args.last.is_a?(Hash)
+          wbo = args.last[:with_bit_order] || :lsb0
+        end
+
         multi_bit_names = false
         # return get_bits_with_constraint(nil,:default) if args.size == 0
         constraint = extract_feature_params(args)
         if constraint.nil?
           constraint = :default
         end
-        collection = BitCollection.new(self, :unknown)
+
+        if wbo == :msb0
+          collection = BitCollection.new(self, :unknown, [], with_bit_order: :msb0)
+        else
+          collection = BitCollection.new(self, :unknown)
+        end
+
         if args.size == 0
           collection.add_name(name)
           @bits.each do |bit|
@@ -1128,11 +1144,11 @@ module Origen
           args.sort!
           args.each do |arg_item|
             if arg_item.is_a?(Integer)
-              b = get_bits_with_constraint(arg_item, constraint)
+              b = get_bits_with_constraint(arg_item, constraint, with_bit_order: wbo)
               collection << b if b
             elsif arg_item.is_a?(Range)
               expand_range(arg_item) do |bit_number|
-                collection << get_bits_with_constraint(bit_number, constraint)
+                collection << get_bits_with_constraint(bit_number, constraint, with_bit_order: wbo)
               end
             else
               multi_bit_names = args.size > 1
@@ -1172,7 +1188,14 @@ module Origen
       alias_method :bits, :bit
       alias_method :[], :bit
 
-      def get_bits_with_constraint(number, params)
+      def get_bits_with_constraint(number, params, options = {})
+        options = {with_bit_order: :lsb0}.merge(options)
+
+        # remap to lsb0 number to grab correct bit
+        if options[:with_bit_order] == :msb0
+          number = @size - number - 1
+        end
+        
         return nil unless @bits[number]
         if (params == :default || !params) && @bits[number].enabled?
           @bits[number]
@@ -1293,23 +1316,34 @@ module Origen
 
       # All other Reg methods are delegated to BitCollection
       def method_missing(method, *args, &block) # :nodoc:
+        # Flatten the args in case this method was called through delegation
+        args.flatten!
+        wbo = :lsb0
+        if args.last.is_a?(Hash)
+          wbo = args.last[:with_bit_order] if args.last.key?(:with_bit_order)
+        end
+        
         if method.to_sym == :to_ary || method.to_sym == :to_hash
           nil
         elsif meta_data_method?(method)
           extract_meta_data(method, *args)
         else
           if BitCollection.instance_methods.include?(method)
-            to_bit_collection.send(method, *args, &block)
+            to_bit_collection(with_bit_order: wbo).send(method, *args, &block)
           elsif has_bits?(method)
-            bits(method)
+            # if options[:with_bit_order] == :msb0
+            #   @msb0_delegator.bits(method)
+            # else
+              bits(method, with_bit_order: wbo)
+            # end
           else
             super
           end
         end
       end
 
-      def to_bit_collection
-        BitCollection.new(self, name, @bits)
+      def to_bit_collection(options = {})
+        BitCollection.new(self, name, @bits, options)
       end
 
       # Recognize that Reg responds to all BitCollection methods methods based on
