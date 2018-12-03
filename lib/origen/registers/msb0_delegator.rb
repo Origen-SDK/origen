@@ -31,14 +31,12 @@ module Origen
         args << { with_bit_order: :msb0 }
         @reg_object.method_missing(method, args, &block)
       end
-      
+
       def bit(*args)
         @reg_object.bit(args, with_bit_order: :msb0)
       end
       alias_method :bits, :bit
       alias_method :[], :bit
     end
-    
   end
 end
-  

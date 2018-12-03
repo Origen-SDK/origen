@@ -50,7 +50,7 @@ module Origen
         @with_bit_order = :lsb0
         self
       end
-      
+
       def terminal?
         true
       end
@@ -1006,7 +1006,7 @@ module Origen
         ixs.flatten!
         # convert msb0 numbering (if provided) to lsb0 numbering to get the correct bits
         if with_bit_order == :msb0
-          ixs.each_index { |i| ixs[i] = self.size - ixs[i] - 1 }
+          ixs.each_index { |i| ixs[i] = size - ixs[i] - 1 }
         end
         ixs.sort
       end
