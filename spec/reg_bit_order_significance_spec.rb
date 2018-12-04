@@ -45,6 +45,12 @@ describe "Register bit order significance" do
 
     dut.msb0_2[1].write 1
     dut.msb0_2.data.should == 3
+
+    dut.lsb0_reg.read 0xfedc_9876
+    dut.lsb0_reg.data.should == 0xfedc_9876
+    dut.msb0_reg.with_msb0.bits(0..31).read 0x1234_5678
+    dut.msb0_reg.data.should == 0x1234_5678
+    dut.msb0_reg.with_msb0.bits(0..31).data.should == 0x1234_5678
   end
 
   it "copy_all maintains bit significance" do
