@@ -29,8 +29,12 @@ module Origen
       end
 
       def method_missing(method, *args, &block)
-        args << { with_bit_order: :msb0 }
-        @reg_object.method_missing(method, args, &block)
+        if args.last.is_a?(Hash)
+          args.last[:with_bit_order] = :msb0
+        else
+          args << { with_bit_order: :msb0 }
+        end
+        @reg_object.method_missing(method, *args, &block)
       end
 
       def bit(*args)

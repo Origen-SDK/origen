@@ -201,16 +201,18 @@ module Origen
             puts
             fail 'Mismatched size for bit collection copy'
           end
-          size.times do |i|
-            source_bit = reg.bit[i]
-            if source_bit
-              self[i].overlay(source_bit.overlay_str) if source_bit.has_overlay?
-              self[i].write(source_bit.data)
+          # safely handle collections with differing with_bit_order settings
+          with_lsb0 do
+            reg.shift_out_with_index do |source_bit, i|
+              if source_bit
+                self[i].overlay(source_bit.overlay_str) if source_bit.has_overlay?
+                self[i].write(source_bit.data)
 
-              self[i].read if source_bit.is_to_be_read?
-              self[i].store if source_bit.is_to_be_stored?
+                self[i].read if source_bit.is_to_be_read?
+                self[i].store if source_bit.is_to_be_stored?
+              end
             end
-          end
+          end # of with_lsb0
         else
           write(reg)
           clear_flags

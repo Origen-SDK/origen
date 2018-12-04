@@ -1263,8 +1263,6 @@ module Origen
 
       # All other Reg methods are delegated to BitCollection
       def method_missing(method, *args, &block) # :nodoc:
-        # Flatten the args in case this method was called through delegation
-        args.flatten!
         wbo = :lsb0
         if args.last.is_a?(Hash)
           wbo = args.last[:with_bit_order] if args.last.key?(:with_bit_order)

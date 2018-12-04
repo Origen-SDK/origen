@@ -177,4 +177,14 @@ describe "Register bit order significance" do
     dut.msb0_reg.bits(31..16).data.should == shift_out.to_i(2)
   end
 
+  it "corner cases pass" do
+    out_reg = Origen::Registers::Reg.dummy(16)
+    out_reg.with_msb0.bits(0..15).copy_all(dut.msb0_reg.high_word)
+    out_reg.data.should == 0xaaaa
+
+    dut.msb0_reg.with_msb0.high_word.position.should == dut.msb0_reg.high_word.position
+
+    dut.msb0_reg.with_msb0.high_word.setting(0xfa).should == dut.msb0_reg.high_word.setting(0xfa)
+  end
+
 end
