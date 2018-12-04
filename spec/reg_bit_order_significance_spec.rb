@@ -73,6 +73,15 @@ describe "Register bit order significance" do
     dut.msb0_reg.data.should == 0x3c00_6000
   end
 
+  it "handles explicit lsb0 numbering" do
+    dut.msb0_reg.write 0
+    dut.msb0_reg.with_lsb0[3..0].write 7
+    dut.msb0_reg.data.should == 7
+
+    dut.msb0_reg.low_word.with_msb0[8..15].with_lsb0[3..0].write 1
+    dut.msb0_reg.data.should == 1
+  end
+
   it "correctly handles bit number interpretation on bit collections" do
     dut.lsb0_reg.write 0
     dut.lsb0_reg.high_word.with_msb0[0..1].write 2
@@ -86,8 +95,10 @@ describe "Register bit order significance" do
     dut.lsb0_reg.with_msb0.high_word.with_bit_order.should == :msb0
     dut.lsb0_reg.high_word.with_bit_order.should == :lsb0
 
-    dut.lsb0_reg.high_word.with_msb0[0..2].with_bit_order.should == :lsb0
+    dut.lsb0_reg.high_word.with_msb0[0..2].with_bit_order.should == :msb0
     dut.lsb0_reg.high_word[0..2].with_bit_order.should == :lsb0
     dut.lsb0_reg.high_word[15..14].with_bit_order.should == :lsb0
+
+    dut.msb0_reg.low_word.with_msb0[8..15].with_lsb0[3..0].with_bit_order.should == :lsb0
   end
 end

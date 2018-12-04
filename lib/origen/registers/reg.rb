@@ -1037,10 +1037,12 @@ module Origen
       alias_method :delete_bits, :delete_bit
 
       # @api private
-      def expand_range(range)
+      def expand_range(range, wbo = :lsb0)
         if range.first > range.last
           range = Range.new(range.last, range.first)
         end
+        range = range.to_a
+        range.reverse! if wbo == :msb0
         range.each do |i|
           yield i
         end
@@ -1065,7 +1067,8 @@ module Origen
         # allow msb0 bit numbering if requested
         wbo = :lsb0
         if args.last.is_a?(Hash)
-          wbo = args.last[:with_bit_order] || :lsb0
+          wbo = args.last.delete(:with_bit_order) || :lsb0
+          args.pop if args.last.size == 0
         end
 
         multi_bit_names = false
@@ -1085,12 +1088,13 @@ module Origen
         else
           args.flatten!
           args.sort!
+          args.reverse! if wbo == :msb0
           args.each do |arg_item|
             if arg_item.is_a?(Integer)
               b = get_bits_with_constraint(arg_item, constraint, with_bit_order: wbo)
               collection << b if b
             elsif arg_item.is_a?(Range)
-              expand_range(arg_item) do |bit_number|
+              expand_range(arg_item, wbo) do |bit_number|
                 collection << get_bits_with_constraint(bit_number, constraint, with_bit_order: wbo)
               end
             else
@@ -1124,8 +1128,9 @@ module Origen
         else
           if multi_bit_names
             collection.sort_by!(&:position)
+            wbo == :msb0 ? collection.with_msb0 : collection.with_lsb0
           end
-          collection
+          wbo == :msb0 ? collection.with_msb0 : collection.with_lsb0
         end
       end
       alias_method :bits, :bit
@@ -1133,10 +1138,9 @@ module Origen
 
       def get_bits_with_constraint(number, params, options = {})
         options = { with_bit_order: :lsb0 }.merge(options)
-
         # remap to lsb0 number to grab correct bit
         if options[:with_bit_order] == :msb0
-          number = @size - number - 1
+          number = size - number - 1
         end
 
         return nil unless @bits[number]

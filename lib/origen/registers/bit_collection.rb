@@ -70,7 +70,8 @@ module Origen
         if b.size == 1
           b.first
         else
-          b
+          # maintain downstream bit numbering setting
+          @with_bit_order == :msb0 ? b.with_msb0 : b
         end
       end
       alias_method :bits, :[]
@@ -350,7 +351,11 @@ module Origen
         value = value.data if value.respond_to?('data')
 
         size.times do |i|
-          self[i].write(value[i], options)
+          if @with_bit_order == :msb0
+            self[i].write(value[size - i - 1], options)
+          else
+            self[i].write(value[i], options)
+          end
         end
         self
       end
@@ -1004,8 +1009,9 @@ module Origen
           end
         end
         ixs.flatten!
+        # ixs.sort!
         # convert msb0 numbering (if provided) to lsb0 numbering to get the correct bits
-        if with_bit_order == :msb0
+        if @with_bit_order == :msb0
           ixs.each_index { |i| ixs[i] = size - ixs[i] - 1 }
         end
         ixs.sort
