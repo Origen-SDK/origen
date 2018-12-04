@@ -47,8 +47,16 @@ module Origen
 
       # Allow bit number interpreting to be explicitly set to lsb0
       def with_lsb0
-        @with_bit_order = :lsb0
-        self
+        if block_given?
+          # run just the code block with lsb0 numbering (for internal methods)
+          saved_wbo = @with_bit_order
+          @with_bit_order = :lsb0
+          yield
+          @with_bit_order = saved_wbo
+        else
+          @with_bit_order = :lsb0
+          self
+        end
       end
 
       def terminal?
@@ -350,10 +358,8 @@ module Origen
         end
         value = value.data if value.respond_to?('data')
 
-        size.times do |i|
-          if @with_bit_order == :msb0
-            self[i].write(value[size - i - 1], options)
-          else
+        with_lsb0 do
+          size.times do |i|
             self[i].write(value[i], options)
           end
         end
@@ -425,38 +431,26 @@ module Origen
       #       bist_shift(bit)
       #   end
       def shift_out_left
-        if bit_order == :msb0
-          each { |bit| yield bit }
-        else
-          reverse_each { |bit| yield bit }
-        end
+        # This is functionally equivalent to reverse_shift_out
+        reverse_each { |bit| yield bit }
       end
 
       # Same as Reg#shift_out_left but includes the index counter
       def shift_out_left_with_index
-        if bit_order == :msb0
-          each.with_index { |bit, i| yield bit, i }
-        else
-          reverse_each.with_index { |bit, i| yield bit, i }
-        end
+        # This is functionally equivalent to reverse_shift_out_with_index
+        reverse_each.with_index { |bit, i| yield bit, i }
       end
 
       # Same as Reg#shift_out_left but starts from the MSB
       def shift_out_right
-        if bit_order == :msb0
-          reverse_each { |bit| yield bit }
-        else
-          each { |bit| yield bit }
-        end
+        # This is functionally equivalent to shift_out, actually sends LSB first
+        each { |bit| yield bit }
       end
 
       # Same as Reg#shift_out_right but includes the index counter
       def shift_out_right_with_index
-        if bit_order == :msb0
-          reverse_each.with_index { |bit, i| yield bit, i }
-        else
-          each_with_index { |bit, i| yield bit, i }
-        end
+        # This is functionally equivalent to shift_out_with_index
+        each_with_index { |bit, i| yield bit, i }
       end
 
       # Yields each bit in the register, LSB first.

@@ -123,14 +123,15 @@ describe "Register bit order control" do
       bit.data.should == data[31 - i]
     end
     # Regular MSB0 reg, with all bits the same bit order
+    # The order of the bits in the register does not change when :msb0, only the number that refers to the bit
     data = 0x1122_3344
     dut.msb0.write(data)
     dut.msb0.data.should == data
     dut.msb0.shift_out_right_with_index do |bit, i|
-      bit.data.should == data[31 - i]
+      bit.data.should == data[i]
     end
     dut.msb0.shift_out_left_with_index do |bit, i|
-      bit.data.should == data[i]
+      bit.data.should == data[31 - i]
     end
   end
 

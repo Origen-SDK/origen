@@ -93,6 +93,7 @@ describe "Register bit order significance" do
 
   it "with_msb0 is not sticky" do
     dut.lsb0_reg.with_msb0.high_word.with_bit_order.should == :msb0
+    dut.lsb0_reg.with_msb0.high_word.write 0
     dut.lsb0_reg.high_word.with_bit_order.should == :lsb0
 
     dut.lsb0_reg.high_word.with_msb0[0..2].with_bit_order.should == :msb0
@@ -101,4 +102,73 @@ describe "Register bit order significance" do
 
     dut.msb0_reg.low_word.with_msb0[8..15].with_lsb0[3..0].with_bit_order.should == :lsb0
   end
+
+  it "shift_out methods of bit_collection with_msb0 behave the same as with lsb0" do
+    dut.lsb0_reg.write 0xabcd_9876
+    shift_out = ''
+    dut.lsb0_reg.with_msb0.bits(0..31).shift_out do |bit|
+      shift_out = bit.data.to_s + shift_out
+    end
+    dut.lsb0_reg.data.should == shift_out.to_i(2)
+
+    shift_out = ''
+    index_counter = 0
+    dut.lsb0_reg.with_msb0.bits(0..15).shift_out_with_index do |bit, index|
+      shift_out = bit.data.to_s + shift_out
+      index.should == index_counter
+      index_counter += 1
+    end
+    dut.lsb0_reg.bits(31..16).data.should == shift_out.to_i(2)
+
+    shift_out = ''
+    dut.msb0_reg.write 0xabcd_9876
+    dut.msb0_reg.with_msb0.bits(0..31).reverse_shift_out do |bit|
+      shift_out = shift_out + bit.data.to_s
+    end
+    dut.msb0_reg.data.should == shift_out.to_i(2)
+
+    shift_out = ''
+    index_counter = 0
+    dut.msb0_reg.with_lsb0.bits(31..16).reverse_shift_out_with_index do |bit, index|
+      shift_out = shift_out + bit.data.to_s
+      index.should == index_counter
+      index_counter += 1
+    end
+    dut.msb0_reg.bits(31..16).data.should == shift_out.to_i(2)
+  end
+
+  it "shift_out_direction methods of bit_collection with_msb0 behave the same as with lsb0" do
+    dut.lsb0_reg.write 0xabcd_9876
+    shift_out = ''
+    dut.lsb0_reg.with_msb0.bits(0..31).shift_out_right do |bit|
+      shift_out = bit.data.to_s + shift_out
+    end
+    dut.lsb0_reg.data.should == shift_out.to_i(2)
+
+    shift_out = ''
+    index_counter = 0
+    dut.lsb0_reg.with_msb0.bits(0..15).shift_out_right_with_index do |bit, index|
+      shift_out = bit.data.to_s + shift_out
+      index.should == index_counter
+      index_counter += 1
+    end
+    dut.lsb0_reg.bits(31..16).data.should == shift_out.to_i(2)
+
+    shift_out = ''
+    dut.msb0_reg.write 0xabcd_9876
+    dut.msb0_reg.with_msb0.bits(0..31).shift_out_left do |bit|
+      shift_out = shift_out + bit.data.to_s
+    end
+    dut.msb0_reg.data.should == shift_out.to_i(2)
+
+    shift_out = ''
+    index_counter = 0
+    dut.msb0_reg.bits(31..16).shift_out_left_with_index do |bit, index|
+      shift_out = shift_out + bit.data.to_s
+      index.should == index_counter
+      index_counter += 1
+    end
+    dut.msb0_reg.bits(31..16).data.should == shift_out.to_i(2)
+  end
+
 end
