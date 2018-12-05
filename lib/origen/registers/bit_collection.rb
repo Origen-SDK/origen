@@ -67,6 +67,24 @@ module Origen
         parent.bind(name, live_parameter)
       end
 
+      # Access bits by index
+      #
+      # **Note** This method behaves differently depending on the setting of @with_bit_order
+      #
+      # If @with_bit_order == :lsb0 (default) index 0 refers to the lsb of the bit collection
+      # If @with_bit_order == :msb0 index 0 refers to the msb of the bit collection
+      #
+      # ==== Example
+      #   dut.reg(:some_reg).bits(:some_field).with_msb0[0..1] # returns 2 most significant bits
+      #   dut.reg(:some_reg).bits(:some_field)[0..1]           # returns 2 least significant bits
+      #
+      # **Note**  Internal methods should call this method using a with_lsb0 block around the code
+      # or alternatively use the shift_out methods
+      # ==== Example
+      #   with_lsb0 do
+      #     saved_bit = [index]
+      #     [index] = some_new_bit_or_operation
+      #   end
       def [](*indexes)
         return self if indexes.empty?
         b = BitCollection.new(parent, name)
@@ -443,7 +461,7 @@ module Origen
         reverse_each.with_index { |bit, i| yield bit, i }
       end
 
-      # Same as Reg#shift_out_left but starts from the MSB
+      # Same as Reg#shift_out_left but starts from the LSB
       def shift_out_right
         # This is functionally equivalent to shift_out, actually sends LSB first
         each { |bit| yield bit }
