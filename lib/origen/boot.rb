@@ -198,6 +198,29 @@ end
 ########################################################################################################################
 
 begin
+  require 'colored'
+  # Emit all broadcast messages before executing all commands
+  if Origen.site_config.broadcast_info
+    puts
+    Array(Origen.site_config.broadcast_info).each { |line| puts line }
+    puts
+  end
+  if Origen.site_config.broadcast_warning
+    puts
+    Array(Origen.site_config.broadcast_warning).each { |line| puts line.yellow }
+    puts
+  end
+  if Origen.site_config.broadcast_danger
+    puts
+    Array(Origen.site_config.broadcast_danger).each { |line| puts line.red }
+    puts
+  end
+  if Origen.site_config.broadcast_success
+    puts
+    Array(Origen.site_config.broadcast_success).each { |line| puts line.green }
+    puts
+  end
+
   # If this script has been invoked from within an Origen application then open
   # up all commands, if not then only allow the command to create a new Origen
   # application.
