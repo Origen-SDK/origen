@@ -120,6 +120,14 @@ class OrigenCoreApplication < Origen::Application
     end
   end
 
+  def before_release_gem
+    Dir.chdir Origen.root do
+      FileUtils.rm_rf('origen_app_generators') if File.exist?('origen_app_generators')
+      FileUtils.cp_r(Origen.app(:origen_app_generators).root, 'origen_app_generators')
+      FileUtils.rm_rf(File.join('origen_app_generators', '.git'))
+    end
+  end
+
   # Ensure that all tests pass before allowing a release to continue
   def validate_release
     if !system("origen specs") || !system("origen examples")

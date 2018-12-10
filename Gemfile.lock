@@ -1,4 +1,11 @@
 GIT
+  remote: https://github.com/Origen-SDK/origen_app_generators.git
+  revision: 2d776fbedd715275284382757ed04e6b4b5b329b
+  specs:
+    origen_app_generators (1.2.0)
+      origen (>= 0.23.0)
+
+GIT
   remote: https://github.com/Origen-SDK/origen_core_support.git
   revision: 88c6493f027ffbbdc9c108ca8f4f23f264297498
   specs:
@@ -199,6 +206,7 @@ DEPENDENCIES
   loco
   nokogiri
   origen!
+  origen_app_generators!
   origen_core_support!
   origen_debuggers (~> 0)
   origen_doc_helpers

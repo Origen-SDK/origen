@@ -6,6 +6,7 @@
 .byebug_history
 /vendor/lib/models/origen
 /spec/patterns
+/origen_app_generators
 
 # Editor cruft
 *.swp

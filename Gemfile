@@ -17,5 +17,9 @@ gem 'nokogiri'
 gem "origen_testers", git: "https://github.com/Origen-SDK/origen_testers.git"
 gem "origen_sim", git: "https://github.com/Origen-SDK/origen_sim.git"
 
+# Pull in the latest and greatest app generator templates so that they can be
+# packaged into Origen releases
+gem "origen_app_generators", git: "https://github.com/Origen-SDK/origen_app_generators.git"
+
 # Specify all runtime dependencies in origen.gemspec
 gemspec
