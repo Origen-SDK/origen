@@ -30,12 +30,12 @@ END
 
         if args.size > 1 || args.size == 0
           msg = args.size > 1 ? 'Only one' : 'One '
-          msg << "argument is expected by the sub-block generator, e.g. 'origen new atd/atd16bit'"
+          msg << "argument is expected by the sub-block generator, e.g. 'origen new sub_block atd/atd16bit'"
           Origen.log.error(msg)
           exit 1
         end
         if args.first.split('/').size == 1
-          msg = "You must supply a leading type to the name of the sub-block, e.g. 'origen new atd/atd16bit'"
+          msg = "You must supply a leading type to the name of the sub-block, e.g. 'origen new sub_block atd/atd16bit'"
           Origen.log.error(msg)
           exit 1
         end
@@ -43,7 +43,7 @@ END
 
       def setup
         @generate_model = true
-        @generate_pins = true
+        @generate_pins = false
         extract_model_name
         create_files
       end
@@ -54,8 +54,9 @@ END
         unless duts.empty?
           puts
           @dut_index = [nil]
+          index = 1
           duts.each do |name, children|
-            print_dut(name, 1, children, 0)
+            index = print_dut(name, index, children, 0)
           end
           puts
           puts 'DO YOU WANT TO INSTANTIATE THIS SUB-BLOCK IN YOUR DUT MODELS?'
@@ -108,8 +109,9 @@ END
         puts "#{index}".ljust(2) + ': ' + ('  ' * offset) + name
         index += 1
         children.each do |name, children|
-          print_dut(name, index, children, offset + 1)
+          index = print_dut(name, index, children, offset + 1)
         end
+        index
       end
 
       # Returns a look up table for all dut models defined in this application (only those defined
@@ -133,9 +135,9 @@ END
         if derivatives.exist?
           derivatives.children.each do |item|
             if item.directory?
-              name = "#{name}::#{item.basename.to_s.camelcase}"
-              duts[name] = {}
-              add_derivatives(duts[name], name, item)
+              child_name = "#{name}::#{item.basename.to_s.camelcase}"
+              duts[child_name] = {}
+              add_derivatives(duts[child_name], child_name, item)
             end
           end
         end
