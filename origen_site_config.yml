@@ -1,3 +1,15 @@
+# BROADCAST MESSAGES
+
+# All broadcast messages will output to the console for all users every time Origen is invoked
+#broadcast_info:
+# - These lines will be output to the console in regular text
+#broadcast_warning:
+# - These lines will be output to the console in amber text
+#broadcast_danger:
+# - These lines will be output to the console in red text
+#broadcast_success:
+# - These lines will be output to the console in green text
+
 # GENERAL SETUP
 
 # Application generator plugins can be used to extend the available new application templates
