@@ -9,6 +9,7 @@ options[:exclude] = []
 opt_parser = OptionParser.new do |opts|
   opts.banner = 'Usage: origen archive [options]'
   opts.on('--local', 'Install gems within your app so that it can run completely standalone, no archive is created') { options[:local] = true }
+  opts.on('--no-local', "Reverses a previously executed 'origen archive --local' operation, returning the app to use a conventional gem installation") { options[:no_local] = true }
   opts.on('-e', '--exclude DIR', 'Exclude the given directory from the archive, e.g. --exclude simulation') { |dir| options[:exclude] << dir }
 end
 opt_parser.parse! ARGV
@@ -22,6 +23,24 @@ unless  File.exist?(origen_binstub) && File.read(origen_binstub) =~ /This file w
   puts '  origen setup'
   puts
   exit 1
+end
+
+if options[:no_local]
+  Dir.chdir Origen.root do
+    dir = File.join('vendor', 'gems')
+    FileUtils.rm_rf(dir) if File.exist?(dir)
+  end
+  passed = true
+  Bundler.with_clean_env do
+    passed = system('origen -v')
+  end
+  if passed
+    Origen.log.success 'Local gems have been removed and your application has been restored to use a conventional gem installation.'
+    exit 0
+  else
+    Origen.log.error 'A problem was encountered when trying to boot your application after removing local gems!'
+    exit 1
+  end
 end
 
 Origen.log.info 'Preparing the workspace' unless options[:local]
@@ -128,8 +147,8 @@ end
 if options[:local]
   Origen.log.success 'Gems have been successfully installed to your application'
   Origen.log.success ''
-  Origen.log.success 'If you ran this in error or otherwise want to undo it, simply delete vendor/gems and re-run origen:'
-  Origen.log.success '  rm -fr vendor/gems && origen -v'
+  Origen.log.success 'If you ran this in error or otherwise want to undo it, run the following command:'
+  Origen.log.success '  origen archive --no-local'
   Origen.log.success ''
 else
   Origen.log.info 'Creating archive'
