@@ -10,8 +10,8 @@ end
 # by the site_config lookup.
 $_origen_invocation_pwd ||= Pathname.pwd
 
-require_relative 'operating_systems'
-require_relative 'site_config'
+load File.expand_path('../operating_systems.rb', __FILE__)
+load File.expand_path('../site_config.rb', __FILE__)
 
 # This will be referenced later in ruby_version_check, the origen used to launch
 # the process is different than the one that actually runs under bundler
@@ -43,6 +43,8 @@ else
   end
 end
 
+warnings = nil
+
 ########################################################################################################################
 ########################################################################################################################
 ## If running inside an application workspace
@@ -57,7 +59,7 @@ if origen_root
     puts 'Your application has been setup successfully'
     exit 0
   else
-    Origen::Boot.app!(origen_root)
+    warnings = Origen::Boot.app!(origen_root)
     boot_app = true
   end
 
@@ -198,6 +200,14 @@ end
 ########################################################################################################################
 
 begin
+  # Now that the runtime Origen version is loaded, we need to re-load the site config.
+  # This is because the version of the site_config that was originally loaded above has instantiated
+  # a site_config object, whereas earlier versions of Origen (which could now be loaded), instantiated
+  # a simple hash instead.
+  # Reloading now will ensure consistency between the site config object and the version of
+  # Origen that is now live.
+  Origen.instance_variable_set(:@site_config, nil)
+  load 'origen/site_config.rb'
   require 'colored'
   # Emit all broadcast messages before executing all commands
   if Origen.site_config.broadcast_info
@@ -225,6 +235,7 @@ begin
   # up all commands, if not then only allow the command to create a new Origen
   # application.
   if origen_root && boot_app
+    puts warnings if warnings && Origen.version >= '0.40.0'
     require 'origen/commands'
   else
     require 'origen/commands_global'
