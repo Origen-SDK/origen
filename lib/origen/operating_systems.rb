@@ -22,6 +22,10 @@ module Origen
       !windows?
     end
   end
+
+  # Blow this cache whenever this file is re-loaded
+  @operating_systems = nil
+
   def self.os
     @operating_systems ||= OperatingSystems.new
   end

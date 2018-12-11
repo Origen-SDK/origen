@@ -8,7 +8,7 @@ module Origen
 
     IGNORE_DIRS =  %w(
       .ws .lsf log output web coverage .ref .yardoc .collection .bin
-      .session .bundle .tpc pkg tmp lbin .git
+      .session .bundle .tpc pkg tmp .git
     )
 
     IGNORE_FILES = %w(

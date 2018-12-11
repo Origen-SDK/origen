@@ -38,7 +38,8 @@ class OrigenCoreApplication < Origen::Application
 
   #config.lsf.project = "origen core"
   
-  config.web_directory = "git@github.com:Origen-SDK/Origen-SDK.github.io.git/origen"
+  #config.web_directory = "git@github.com:Origen-SDK/Origen-SDK.github.io.git/origen"
+  config.web_directory = "https://github.com/Origen-SDK/Origen-SDK.github.io.git/origen"
   config.web_domain = "http://origen-sdk.org/origen"
   
   config.pattern_prefix = "nvm"
@@ -116,6 +117,14 @@ class OrigenCoreApplication < Origen::Application
                                  files:  File.join(plugin.root, plugin.config.shared[:origen_guides]),
                                  output: File.join('web', 'content', 'guides')
       end
+    end
+  end
+
+  def before_release_gem
+    Dir.chdir Origen.root do
+      FileUtils.rm_rf('origen_app_generators') if File.exist?('origen_app_generators')
+      FileUtils.cp_r(Origen.app(:origen_app_generators).root, 'origen_app_generators')
+      FileUtils.rm_rf(File.join('origen_app_generators', '.git'))
     end
   end
 
