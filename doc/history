@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_40_0"></a>
+<h1><a href="#v0_40_0">Tag: v0.40.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 11-Dec-2018 11:28AM
+
+
+Added site\_config broadcast system, new boot system which support application archive
+and extraction, and application sandbox gem configuration.
+
 <a class="anchor release_tag" name="v0_38_0"></a>
 <h1><a href="#v0_38_0">Tag: v0.38.0</a></h1>
 
