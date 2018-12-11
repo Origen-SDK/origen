@@ -230,7 +230,8 @@ end.compact
 
 case @command
 when 'generate', 'program', 'compile', 'merge', 'interactive', 'target', 'environment',
-     'save', 'lsf', 'web', 'time', 'dispatch', 'rc', 'lint', 'plugin', 'fetch', 'mode', 'gem' # , 'add'
+     'save', 'lsf', 'web', 'time', 'dispatch', 'rc', 'lint', 'plugin', 'fetch', 'mode', 'gem',
+     'archive'
 
   require "origen/commands/#{@command}"
   exit 0 unless @command == 'interactive'
@@ -275,12 +276,14 @@ The core origen commands are:
  compile      Compile a template file or directory (short-cut alias: "c")
  exec         Execute any Ruby file with access to your app environment
 
+ setup        Setup an app workspace for the first time, or fix if it can't boot
  rc           Revision control commands, see -h for details
  save         Save the new or changed files from the last run or a given log file
  lsf          Monitor and manage LSF jobs (short-cut alias: "l")
  web          Web page tools, see -h for details
  time         Tools for test time analysis and forecasting
  lint         Lint and style check (and correct) your application code
+ archive      Create an archive of your current application state
  site         Monitor and manage the Origen site configuration
  new          Generate a new model, timing, pattern, etc. for your application
   EOT

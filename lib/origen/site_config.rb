@@ -8,7 +8,7 @@ module Origen
     require_relative 'site_config/config'
 
     # Require some useful methods from Origen without requiring the entire module
-    require_relative './boot_api'
+    require_relative 'boot/api'
 
     TRUE_VALUES = ['true', 'TRUE', '1', 1]
     FALSE_VALUES = ['false', 'FALSE', '0', 0]
@@ -427,6 +427,9 @@ module Origen
       @configs
     end
   end
+
+  # Blow this cache whenever this file is re-loaded
+  @site_config = nil
 
   def self.site_config
     @site_config ||= SiteConfig.new
