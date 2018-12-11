@@ -302,6 +302,7 @@ module Origen
       # @api_private
       def _load_const(file, name, altname = nil)
         load file
+        @@pre_loading_controller ||= false
         return if @@pre_loading_controller
         @_checking_name = altname || name
         const = eval(altname || name)
