@@ -10,9 +10,6 @@ end
 # by the site_config lookup.
 $_origen_invocation_pwd ||= Pathname.pwd
 
-load File.expand_path('../operating_systems.rb', __FILE__)
-load File.expand_path('../site_config.rb', __FILE__)
-
 # This will be referenced later in ruby_version_check, the origen used to launch
 # the process is different than the one that actually runs under bundler
 $origen_launch_root = Pathname.new(File.dirname(__FILE__)).parent
@@ -24,7 +21,11 @@ ENV['LC_ALL'] = nil
 ENV['LANG'] = nil
 ENV['LANG'] = 'en_US.UTF-8'
 
+load File.expand_path('../operating_systems.rb', __FILE__)
+
 # Are we inside an Origen application workspace?
+# If ORIGEN_ROOT is defined it means that we were launched within an app from the new style Origen binstub,
+# so all is well
 if defined?(ORIGEN_ROOT)
   origen_root = ORIGEN_ROOT
 else
@@ -41,7 +42,20 @@ else
       end
     end
   end
+  # If we are in an app and we have not been invoked through a Bundler binstub, then check if one exists and
+  # if so re-launch through it, otherwise create one and then re-launch through that
+  if origen_root && !ENV['BUNDLE_BIN_PATH']
+    binstub = File.join(origen_root, 'lbin', 'origen')
+    unless File.exist?(binstub)
+      require_relative 'boot/app'
+      Origen::Boot.create_origen_binstub(origen_root)
+    end
+    exec Gem.ruby, binstub, *ARGV
+  end
 end
+
+# Defer loading this until we have re-launched above to save time
+load File.expand_path('../site_config.rb', __FILE__)
 
 warnings = nil
 
