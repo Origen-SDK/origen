@@ -70,11 +70,7 @@ if ARGV.delete('-d') || ARGV.delete('--debug')
       caller[0] =~ /.*\/(\w+\.rb):(\d+).*/
       puts 'The debugger gem is not installed, add the following to your Gemfile:'
       puts
-      puts "if RUBY_VERSION >= '2.0.0'"
-      puts "  gem 'byebug', '~>3.5'"
-      puts 'else'
-      puts "  gem 'debugger', '~>1.6'"
-      puts 'end'
+      puts "  gem 'byebug', '~>8'"
       puts
     end
   end
