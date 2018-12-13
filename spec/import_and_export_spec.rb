@@ -72,6 +72,16 @@ describe "Model import and export" do
         reg.bit 5, :diff
         reg.bit 4..0, :adch, reset: 0x1F
       end
+
+      # ** A MSB0 Test Case **
+      # Blah-ba-bi-blah
+      # just following the comment pattern above
+      reg :msb0_test, 0x0028, size: 16, bit_order: :msb0 do |reg|
+        reg.bit 8,  :ale
+        reg.bit 9,  :xsfg
+        reg.bit 10, :yml
+        reg.bit 11..15, :field, reset: 0x1f
+      end
     end
   end
 
@@ -175,6 +185,15 @@ describe "Model import and export" do
     reg.adch.reset_val.should == 0x1F
     reg.diff.bit_value_descriptions[0].should == "It's off"
     reg.diff.bit_value_descriptions[1].should == "It's on"
+  end
+
+  it "handles msb0 registers" do
+    load_import_model
+    reg = dut.block1.x.msb0_test
+    reg.bit_order.should == :msb0
+    reg.bit(:ale).position.should == 7
+    reg.bit(:field).position.should == 0
+    reg.bit(:field).size.should == 5
   end
 
   it "gracefully adds to existing sub-blocks without instantiating them" do

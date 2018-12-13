@@ -247,16 +247,21 @@ module Origen
         unless reg.description.empty?
           reg.description.each { |l| lines << indent + "# #{l}" }
         end
-        lines << indent + "model.add_reg :#{id}, #{reg.offset.to_hex}, size: #{reg.size} do |reg|"
+        lines << indent + "model.add_reg :#{id}, #{reg.offset.to_hex}, size: #{reg.size} #{reg.bit_order == :msb0 ? ', bit_order: :msb0' : ''} do |reg|"
         indent = ' ' * ((options[:indent] || 0) + 2)
         reg.named_bits.each do |name, bits|
           unless bits.description.empty?
             bits.description.each { |l| lines << indent + "# #{l}" }
           end
+          position = reg.bit_order == :msb0 ? (reg.size - bits.position - 1) : bits.position
           if bits.size == 1
-            line = indent + "reg.bit #{bits.position}, :#{name}"
+            line = indent + "reg.bit #{position}, :#{name}"
           else
-            line = indent + "reg.bit #{bits.position + bits.size - 1}..#{bits.position}, :#{name}"
+            if reg.bit_order == :msb0
+              line = indent + "reg.bit #{position - bits.size + 1}..#{position}, :#{name}"
+            else
+              line = indent + "reg.bit #{position + bits.size - 1}..#{position}, :#{name}"
+            end
           end
           unless bits.access == :rw
             line << ", access: :#{bits.access}"
