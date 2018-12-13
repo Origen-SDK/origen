@@ -273,7 +273,6 @@ end
       end
 
       def copy_system_gems(origen_root, bundle_path)
-        require 'byebug'
         if Origen.site_config.gem_use_from_system
           local_gem_dir = "#{bundle_path}/ruby/#{Pathname.new(Gem.dir).basename}"
           gem_dir = Pathname.new(Gem.dir)
