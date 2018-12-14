@@ -67,11 +67,23 @@ END
       def include_module
         if @class_file
           klass = resource_path_to_class(@class_file)
-          indent = '  ' * klass.split('::').size
-          lines = []
-          lines << indent + "include #{@module_name}"
-          lines << ''
-          inject_into_class @class_file, klass.split('::').last, lines.join("\n") + "\n"
+
+          # Does file have a nested namespace structure
+          snippet = File.foreach(@class_file).first(50)
+          if snippet.any? { |line| line =~ /\s*class #{klass.split('::').last}/ }
+            indent = '  ' * klass.split('::').size
+            lines = []
+            lines << indent + "include #{@module_name}"
+            lines << ''
+            inject_into_class @class_file, klass.split('::').last, lines.join("\n") + "\n"
+
+          # Else assume it is the compact style (class MyApp::DUT::Falcon)
+          else
+            lines = []
+            lines << "  include #{@module_name}"
+            lines << ''
+            inject_into_class @class_file, klass, lines.join("\n") + "\n"
+          end
         end
       end
     end
