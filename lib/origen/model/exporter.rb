@@ -247,7 +247,7 @@ module Origen
         unless reg.description.empty?
           reg.description.each { |l| lines << indent + "# #{l}" }
         end
-        lines << indent + "model.add_reg :#{id}, #{reg.offset.to_hex}, size: #{reg.size} #{reg.bit_order == :msb0 ? ', bit_order: :msb0' : ''} do |reg|"
+        lines << indent + "model.add_reg :#{id}, #{reg.offset.to_hex}, size: #{reg.size} #{reg.bit_order == :msb0 ? ', bit_order: :msb0' : ''}#{build_reg_meta(reg)} do |reg|"
         indent = ' ' * ((options[:indent] || 0) + 2)
         reg.named_bits.each do |name, bits|
           unless bits.description.empty?
@@ -276,6 +276,20 @@ module Origen
         indent = ' ' * (options[:indent] || 0)
         lines << indent + 'end'
         lines.join("\n")
+      end
+
+      def build_reg_meta(reg)
+        ret_str = ''
+        reg.meta.each do |key, value|
+          if value.is_a?(Symbol)
+            ret_str += ", #{key}: :#{value}"
+          elsif value.is_a?(String)
+            ret_str += ", #{key}: '#{value}'"
+          else
+            ret_str += ", #{key}: #{value}" unless value.nil?
+          end
+        end
+        ret_str
       end
     end
   end
