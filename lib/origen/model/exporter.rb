@@ -234,7 +234,7 @@ module Origen
           elsif value.is_a?(String)
             line << ", #{key}: '#{value}'"
           else
-            line << ", #{key}: #{value}"
+            line << ", #{key}: #{value}" unless value.nil?
           end
         end
         block.export(id, options.merge(file_path: file_path, dir_path: dir_path))
