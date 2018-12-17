@@ -309,6 +309,7 @@ module Origen
             from_part_dir_path = true
           end
           if from_part_dir_path
+            path.delete('sub_blocks')
             path.pop if path.last == 'model'
             if path.last == 'controller'
               path.pop
@@ -352,7 +353,11 @@ module Origen
             if i == 0
               dir = dir.join(n.underscore)
             else
-              dir = dir.join('derivatives', n.underscore)
+              if dir.join('sub_blocks', n.underscore).exist?
+                dir = dir.join('sub_blocks', n.underscore)
+              else
+                dir = dir.join('derivatives', n.underscore)
+              end
             end
           end
           dir

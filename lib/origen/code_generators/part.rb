@@ -42,6 +42,8 @@ END
       def setup
         @generate_model = false
         @generate_pins = true
+        @generate_timesets = true
+        @generate_parameters = true
         extract_model_name
         create_files
       end

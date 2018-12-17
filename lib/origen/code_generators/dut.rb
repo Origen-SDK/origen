@@ -35,6 +35,8 @@ END
       def setup
         @generate_model = true
         @generate_pins = true
+        @generate_timesets = true
+        @generate_parameters = true
         @top_level = true
         extract_model_name
         create_files

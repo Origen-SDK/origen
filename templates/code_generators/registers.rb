@@ -1,6 +1,8 @@
 # ********************************************************************************
 # Any registers defined in this file will be added to <%= @fullname %>
+<% unless @nested -%>
 # and all of its derivatives (if any).
+<% end -%>
 # ********************************************************************************
 
 # For more examples see: https://origen-sdk.org/origen/guides/models/registers/

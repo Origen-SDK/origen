@@ -349,6 +349,11 @@ module Origen
 
       # Make this appear like a sub-block to any application code
       def is_a?(klass)
+        # Because sub_blocks are stored in a hash.with_indifferent_access, the value is tested
+        # against being a Hash or Array when it is added to the hash. This prevents the class being
+        # looking up and loaded by the autoload system straight away, especially if the sub-block
+        # has been specified to lazy load
+        return false if klass == Hash || klass == Array
         klass == self.klass || klass == Placeholder
       end
 

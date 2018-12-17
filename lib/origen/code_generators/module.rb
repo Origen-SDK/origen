@@ -23,11 +23,11 @@ Examples:
   origen new module helpers/math     # Creates app/lib/my_application/helpers/math.rb
 
   # Creates app/lib/parts/dut/derivatives/falcon/model/helpers.rb
-  origen new module helpers parts/dut/derivatives/falcon/model.rb
+  origen new module parts/dut/derivatives/falcon/model.rb helpers
 END
 
       def validate_args
-        @resource_path = validate_resource_path(args.first)
+        @resource_path = validate_resource_path(args.last)
 
         if args.size > 2 || args.size == 0
           msg = args.size == 0 ? 'At least one argument is ' : 'No more than two arguments are '
@@ -37,7 +37,7 @@ END
         end
 
         if args.size == 2
-          @class_file = args[1]
+          @class_file = args.first
           unless File.exist?(@class_file)
             Origen.log.error("This class file does not exist: #{@class_file}")
             exit 1

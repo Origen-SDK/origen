@@ -128,8 +128,12 @@ module Origen
           key = ''
           only = Array(options[:only]) if options[:only]
           except = Array(options[:except]) if options[:except]
-
-          # These will be loaded first, followed by the rest in an un-defined order.
+          path = paths.map(&:underscore).join('/')
+          # If the path refers to a nested sub-block then don't load the full hierarchy since they
+          # don't support inheritance or derivatives, modify the paths array so that only the sub-block
+          # level will be loaded and nothing else.
+          paths = [path] if app.parts_files[path] && app.parts_files[path][:_sub_block]
+          # These will be loaded first, followed by the rest in an undefined order.
           # Attributes and parameters are first so that they may be referenced in the other files.
           # Sub-blocks was added early due to a corner case issue that could be encountered if the pins or
           # regs imported an Origen exported file that defined a module with the same name as a sub-block
@@ -161,7 +165,7 @@ module Origen
             key = i == 0 ? path.underscore : "#{key}/#{path.underscore}"
             if app.parts_files[key]
               app.parts_files[key].each do |type, files|
-                unless load_first.include?(type) || (only && !only.include?(type)) || (except && except.include?(type))
+                unless type == :_sub_block || load_first.include?(type) || (only && !only.include?(type)) || (except && except.include?(type))
                   files.each { |f| success = load_part_file(f, model); loaded ||= success }
                 end
               end
@@ -191,15 +195,28 @@ module Origen
         end
       end
 
-      # Allows models and controllers to be defined in app/models and app/controllers without
-      # needing to require them and without needing to put everything under a namespace directory
-      # like you do with app/lib.
+      # @api private
+      # Substitutes a single occurrence of 'derivatives' in the given dirs array, starting
+      # from the end of it and replacing it with the given new value.
+      # Returns true if a substitution is made, else false.
+      def _sub_derivatives_from_end(new_val, dirs)
+        subbed = false
+        size = dirs.size - 1
+        dirs.reverse_each.with_index do |val, i|
+          if val == 'derivatives'
+            dirs[size - i] = new_val
+            subbed = true
+            break
+          end
+        end
+        dirs if subbed
+      end
+
+      # Allows classes and modules to be defined in app/parts and app/lib without needing to
+      # require them and in the case of app/parts to use a custom directory structure.
       #
-      # The first time a reference is made to a model or controller name it will trigger this hook,
+      # The first time a reference is made to a class or module name it will trigger this hook,
       # and we then work out what the file name should be and require it.
-      #
-      # Since we are handling this anyway, it will also try to consider references to files in the
-      # app/lib directory.
       def const_missing(name)
         if Origen.in_app_workspace?
           if self == Object
@@ -212,14 +229,15 @@ module Origen
           namespace = names.shift
           if app = Origen::Application.from_namespace(namespace)
             # First we are going to check for a match in the app/parts directory, this needs to be handled
-            # specially since it follows a non-std structure, e.g. use of derivatives folders for organization
-            # without having them as part of the class name-spacing
+            # specially since it follows a non-std structure, e.g. use of derivatives/ and sub_blocks/ folders
+            # for organization without having them as part of the class name-spacing
             altname = nil
             dirs = [app.root, 'app', 'parts']
             names.each_with_index do |name, i|
               dirs << 'derivatives' unless i == 0
               dirs << name.underscore
             end
+
             # Is this a reference to a model?
             if File.exist?(f = File.join(*dirs, 'model.rb'))
               model = _load_const(f, name)
@@ -229,13 +247,33 @@ module Origen
               end
               return model
             end
+
             # Is this a reference to a controller?
             if dirs.last.to_s =~ /_controller$/
+              controller_reference = true
               dirs << dirs.pop.sub(/_controller$/, '')
               if File.exist?(f = File.join(*dirs, 'controller.rb'))
                 return _load_const(f, name)
               end
             end
+
+            # Is this a reference to a sub-block model or controller that is nested within a part?
+            dirs_ = dirs.dup
+            while dirs_ = _sub_derivatives_from_end('sub_blocks', dirs_)
+              if controller_reference
+                if File.exist?(f = File.join(*dirs_, 'controller.rb'))
+                  return _load_const(f, name)
+                end
+              elsif File.exist?(f = File.join(*dirs_, 'model.rb'))
+                model = _load_const(f, name)
+                # Also load the model's controller if it exists
+                if File.exist?(f = File.join(*dirs_, 'controller.rb'))
+                  controller = _load_const(f, name + 'Controller')
+                end
+                return model
+              end
+            end
+
             # Is this a reference to a module that has been added to a model or controller?
             # In this case dirs contains something like:
             #    [..., "my_model", "derivatives", "my_module"]

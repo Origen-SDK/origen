@@ -135,7 +135,7 @@ describe "code generators (origen new command)" do
   end
 
   it 'can create add a module to a model' do
-    system! 'origen new module my_module app/lib/origen/my_cg_model.rb'
+    system! 'origen new module app/lib/origen/my_cg_model.rb my_module'
 
     # add a method to the new module so that we can test it
     f = Origen.root.join('app', 'lib', 'origen', 'my_cg_model', 'my_module.rb')
@@ -154,7 +154,7 @@ describe "code generators (origen new command)" do
   end
 
   it 'can create add a module to a class' do
-    system! 'origen new module my_module app/lib/origen/my_class.rb'
+    system! 'origen new module app/lib/origen/my_class.rb my_module'
 
     # add a method to the new module so that we can test it
     f = Origen.root.join('app', 'lib', 'origen', 'my_class', 'my_module.rb')
@@ -163,5 +163,89 @@ describe "code generators (origen new command)" do
 
     model = Origen::MyClass.new
     model.yo.should == 'yo!'
+  end
+
+  describe "nested sub_blocks" do
+    it "can be added to a derivative part" do
+      # Grab the command to add a module to the Falcon model from the user advice within the
+      # model file to test that it works
+      f1 = Origen.root.join('app', 'parts', 'dut', 'derivatives', 'falcon', 'sub_blocks.rb')
+      cmd = f1.open.find { |line| line =~ /origen new sub_block app/ }.gsub('#', '').sub('my_sub_block_name', 'derivative_sub_block').strip
+
+      system! cmd
+
+      load_falcon
+      dut.derivative_sub_block.should be
+      dut.derivative_sub_block.is_a?(Origen::DUT::Falcon::DerivativeSubBlock).should == true
+      dut.derivative_sub_block.is_a_model_and_controller?.should == true
+    end
+
+    it "can be added to a parent part" do
+      f1 = Origen.root.join('app', 'parts', 'dut', 'sub_blocks.rb')
+      cmd = f1.open.find { |line| line =~ /origen new sub_block app/ }.gsub('#', '').sub('my_sub_block_name', 'parent_sub_block').strip
+
+      system! cmd
+
+      load_falcon
+      dut.parent_sub_block.should be
+      dut.parent_sub_block.is_a?(Origen::DUT::Falcon::ParentSubBlock).should == true
+      dut.parent_sub_block.is_a_model_and_controller?.should == true
+    end
+
+    it "attributes can be added to sub-blocks" do
+      f = Origen.root.join('app', 'parts', 'dut', 'sub_blocks', 'parent_sub_block', 'attributes.rb')
+      f.write(f.read.gsub('# @has_feature_x', "@has_feature_x"))
+
+      load_falcon
+
+      dut.parent_sub_block.has_feature_x?.should == true
+
+      f = Origen.root.join('app', 'parts', 'dut', 'derivatives', 'falcon', 'sub_blocks', 'derivative_sub_block', 'attributes.rb')
+      f.write(f.read.gsub('# @has_feature_x', "@has_feature_y"))
+
+      load_falcon
+
+      dut.parent_sub_block.has_feature_x?.should == true
+      dut.derivative_sub_block.has_feature_y?.should == true
+    end
+
+    it "registers can be added to sub-blocks" do
+      f = Origen.root.join('app', 'parts', 'dut', 'sub_blocks', 'parent_sub_block', 'registers.rb')
+      f.write(f.read.gsub('# Example', "add_reg :reg1, 0x1000 # Example"))
+
+      load_falcon
+
+      dut.parent_sub_block.reg1.address.should == 0x1000
+
+      f = Origen.root.join('app', 'parts', 'dut', 'derivatives', 'falcon', 'sub_blocks', 'derivative_sub_block', 'registers.rb')
+      f.write(f.read.gsub('# Example', "add_reg :reg2, 0x2000 # Example"))
+
+      load_falcon
+
+      dut.parent_sub_block.reg1.address.should == 0x1000
+      dut.derivative_sub_block.reg2.address.should == 0x2000
+    end
+
+    it "sub-blocks can be added to sub-blocks" do
+      f1 = Origen.root.join('app', 'parts', 'dut', 'derivatives', 'falcon', 'sub_blocks', 'derivative_sub_block', 'sub_blocks.rb')
+      cmd = f1.open.find { |line| line =~ /origen new sub_block app/ }.gsub('#', '').sub('my_sub_block_name', 'block1').strip
+
+      system! cmd
+
+      load_falcon
+      dut.derivative_sub_block.block1.should be
+      dut.derivative_sub_block.block1.is_a?(Origen::DUT::Falcon::DerivativeSubBlock::Block1).should == true
+      dut.derivative_sub_block.block1.is_a_model_and_controller?.should == true
+
+      # Quickly test adding a register to make sure the loading of the files works OK
+      f = Origen.root.join('app', 'parts', 'dut', 'derivatives', 'falcon', 'sub_blocks', 'derivative_sub_block', 'sub_blocks', 'block1', 'registers.rb')
+      f.write(f.read.gsub('# Example', "add_reg :reg3, 0x3000 # Example"))
+
+      load_falcon
+
+      dut.derivative_sub_block.block1.reg3.address.should == 0x3000
+      dut.derivative_sub_block.block1.has_reg?(:reg1).should == false
+      dut.derivative_sub_block.block1.has_reg?(:reg2).should == false
+    end
   end
 end

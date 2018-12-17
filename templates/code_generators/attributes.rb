@@ -1,6 +1,8 @@
 # ********************************************************************************
 # Any attributes defined in this file be added to <%= @fullname %>
+<% unless @nested -%>
 # and all of its derivatives (if any).
+<% end -%>
 # ********************************************************************************
 
 # Accessors will automatically be created for any attributes defined in this file:

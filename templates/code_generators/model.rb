@@ -2,9 +2,9 @@
 # command to add a module to it:
 #
 <% if @part -%>
-#   origen new module my_module_name <%= Pathname.new(resource_path_to_part_dir(@resource_path)).relative_path_from(Origen.root) %>/model.rb
+#   origen new module <%= Pathname.new(resource_path_to_part_dir(@resource_path)).relative_path_from(Origen.root) %>/model.rb my_module_name
 <% else -%>
-#   origen new module my_module_name <%= Pathname.new(resource_path_to_lib_file(@resource_path)).relative_path_from(Origen.root) %>
+#   origen new module <%= Pathname.new(resource_path_to_lib_file(@resource_path)).relative_path_from(Origen.root) %> my_module_name
 <% end -%>
 #
 class <%= @namespaces.map { |n| n[1].camelcase }.join('::') %>::<%= @name.camelcase %><%= @parent_class ? " < #{@parent_class}" : '' %>

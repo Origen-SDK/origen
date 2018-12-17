@@ -155,11 +155,13 @@ module Origen
     end
 
     # @api private
-    def _add_part_files(files, part_dir, current_dir)
+    def _add_part_files(files, part_dir, current_dir, sub_block = false)
       fields = current_dir.relative_path_from(part_dir).to_s.split('/')
       fields.delete('derivatives')
+      fields.delete('sub_blocks')
       path = fields.join('/')
       files[path] ||= {}
+      files[path][:_sub_block] = true if sub_block
       Dir.glob(current_dir.join('*.rb')).each do |file|
         file = Pathname.new(file)
         type = file.basename('.rb').to_s.to_sym
@@ -173,6 +175,14 @@ module Origen
         derivatives.children.each do |item|
           if item.directory?
             _add_part_files(files, part_dir, item)
+          end
+        end
+      end
+      sub_blocks = current_dir.join('sub_blocks')
+      if sub_blocks.exist?
+        sub_blocks.children.each do |item|
+          if item.directory?
+            _add_part_files(files, part_dir, item, true)
           end
         end
       end

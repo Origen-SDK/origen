@@ -7,7 +7,7 @@ module Origen
       # class_option :instance, desc: 'The main NAME argument will be the name given to the model and the instantiated sub-block, optionally provide a different name for the instance'
 
       def self.banner
-        'origen new sub_block TYPE/DERIVATIVE'
+        'origen new sub_block [TYPE/]DERIVATIVE [PART]'
       end
 
       desc <<-END
@@ -17,25 +17,43 @@ resources for it, e.g. a model, controller, timesets, parameters, etc.
 The TYPE and DERIVATIVE names should be given in lower case (e.g. flash/flash2kb, atd/atd16), optionally with
 additional parent sub-block names after the initial type.
 
+Alternatively, a reference to an existing PART can be added, in which case a nested sub-block will be created
+within that part, rather than a primary sub-block.
+Note that nested sub-blocks do not support derivatives or inheritance and should therefore only be used for
+relatively simple sub-blocks which are tightly coupled to a parent part.
+
 All parent sub-blocks will be created if they don't exist, but they will not be modified if they do.
 
 Examples:
   origen new sub_block atd/atd8bit          # Creates app/parts/atd/derivatives/atd8bit/...
   origen new sub_block atd/atd16bit         # Creates app/parts/atd/derivatives/atd16bit/...
   origen new sub_block nvm/flash/flash2kb   # Creates app/parts/nvm/derivatives/flash/derivatives/flash2kb/...
+
+  # Example of creating a nested sub-block
+  origen new sub_block nvm/flash/flash2kb bist   # Creates app/parts/nvm/derivatives/flash/derivatives/flash2kb/sub_blocks/bist/...
 END
 
       def validate_args
-        validate_args_common
+        if args.size == 2
+          validate_args_common(args.last)
+        else
+          validate_args_common
+        end
 
-        if args.size > 1 || args.size == 0
-          msg = args.size > 1 ? 'Only one' : 'One '
-          msg << "argument is expected by the sub-block generator, e.g. 'origen new sub_block atd/atd16bit'"
+        if args.size > 2 || args.size == 0
+          msg = args.size == 0 ? 'At least one argument is ' : 'No more than two arguments are '
+          msg << "expected by the sub-block generator, e.g. 'origen new sub_block atd/atd16bit', 'origen new sub_block sampler app/parts/atd/derivatives/atd16bit"
           Origen.log.error(msg)
           exit 1
         end
-        if args.first.split('/').size == 1
+        @nested = args.size == 2
+        if !@nested && args.first.split('/').size == 1
           msg = "You must supply a leading type to the name of the sub-block, e.g. 'origen new sub_block atd/atd16bit'"
+          Origen.log.error(msg)
+          exit 1
+        end
+        if @nested && args.last.split('/').size != 1
+          msg = "No leading type is allowed when generating a nested sub-block, e.g. 'origen new sub_block sampler app/parts/atd/derivatives/atd16bit"
           Origen.log.error(msg)
           exit 1
         end
@@ -44,46 +62,78 @@ END
       def setup
         @generate_model = true
         @generate_pins = false
-        extract_model_name
+        @generate_timesets = !@nested
+        @generate_parameters = !@nested
+        if @nested
+          @final_name = args.last
+          @fullname = resource_path_to_class(args.first)
+          @dir = resource_path_to_part_dir(args.first).join('sub_blocks', @final_name)
+          @namespaces = add_type_to_namespaces(@fullname.split('::').map(&:underscore))
+        else
+          extract_model_name
+        end
         create_files
       end
 
       def instantiate_sub_block
-        @line = "sub_block :#{@final_namespaces[1]}, class_name: '#{class_name}'#, base_address: 0x4000_0000"
-
-        unless duts.empty?
-          puts
-          @dut_index = [nil]
-          index = 1
-          duts.each do |name, children|
-            index = print_dut(name, index, children, 0)
+        if @nested
+          # First create the parent's sub_blocks.rb file if it doesn't exist
+          f = "#{@dir.parent}.rb"
+          unless File.exist?(f)
+            @nested = false
+            orig_fullname = @fullname
+            orig_resouce_path = @resource_path
+            @fullname = @fullname.split('::')
+            @fullname.pop
+            @fullname = @fullname.join('::')
+            @resource_path = @resource_path.split('/')
+            @resource_path.pop
+            @resource_path = @resource_path.join('/')
+            template 'templates/code_generators/sub_blocks.rb', f
+            @fullname = orig_fullname
+            @resource_path = orig_resouce_path
+            @nested = true
           end
-          puts
-          puts 'DO YOU WANT TO INSTANTIATE THIS SUB-BLOCK IN YOUR DUT MODELS?'
-          puts
-          puts 'If so enter the number(s) of the DUT(s) you wish to add it to from the list above, separating multiple entries with a space'
-          puts '(note that adding it to a parent DUT in the hierarchy will already be adding it to all of its children).'
-          puts
-          response = ask 'Enter the DUT number(s), or just press return to skip:'
 
-          done = []
-          response.strip.split(/\s+/).each do |index|
-            index = index.to_i
-            target = @dut_index[index]
-            if target
-              # Don't add the sub-block to children if we've already added it to the parent, this will
-              # cause an already defined sub-block error since it will be added by both instantiations
-              unless done.any? { |c| target =~ /^#{c}::/ }
-                done << target
-                sub_blocks = class_name_to_part_dir(target).join('sub_blocks.rb')
-                unless sub_blocks.exist?
-                  orig = @fullname
-                  @fullname = target
-                  template 'templates/code_generators/sub_blocks.rb', sub_blocks
-                  @fullname = orig
+          line = "sub_block :#{@final_name}, class_name: '#{@fullname}'#, base_address: 0x4000_0000"
+          append_to_file f, "\n#{line}"
+        else
+          @line = "sub_block :#{@final_namespaces[1]}, class_name: '#{class_name}'#, base_address: 0x4000_0000"
+
+          unless duts.empty?
+            puts
+            @dut_index = [nil]
+            index = 1
+            duts.each do |name, children|
+              index = print_dut(name, index, children, 0)
+            end
+            puts
+            puts 'DO YOU WANT TO INSTANTIATE THIS SUB-BLOCK IN YOUR DUT MODELS?'
+            puts
+            puts 'If so enter the number(s) of the DUT(s) you wish to add it to from the list above, separating multiple entries with a space'
+            puts '(note that adding it to a parent DUT in the hierarchy will already be adding it to all of its children).'
+            puts
+            response = ask 'Enter the DUT number(s), or just press return to skip:'
+
+            done = []
+            response.strip.split(/\s+/).each do |index|
+              index = index.to_i
+              target = @dut_index[index]
+              if target
+                # Don't add the sub-block to children if we've already added it to the parent, this will
+                # cause an already defined sub-block error since it will be added by both instantiations
+                unless done.any? { |c| target =~ /^#{c}::/ }
+                  done << target
+                  sub_blocks = class_name_to_part_dir(target).join('sub_blocks.rb')
+                  unless sub_blocks.exist?
+                    orig = @fullname
+                    @fullname = target
+                    template 'templates/code_generators/sub_blocks.rb', sub_blocks
+                    @fullname = orig
+                  end
+                  @sub_block_instantiated = true
+                  append_to_file sub_blocks, "\n#{@line}"
                 end
-                @sub_block_instantiated = true
-                append_to_file sub_blocks, @line
               end
             end
           end
@@ -92,12 +142,16 @@ END
 
       def completed
         puts
-        if @sub_block_instantiated
-          puts 'New sub-block created and instantiated within your DUT(s) as:'.green + "  dut.#{@final_namespaces[1]}"
+        if @nested
+          puts 'New sub-block created and instantiated.'.green
         else
-          puts 'New sub-block created, you can instantiate it within your models like this:'.green
-          puts
-          puts "  #{@line}"
+          if @sub_block_instantiated
+            puts 'New sub-block created and instantiated within your DUT(s) as:'.green + "  dut.#{@final_namespaces[1]}"
+          else
+            puts 'New sub-block created, you can instantiate it within your models like this:'.green
+            puts
+            puts "  #{@line}"
+          end
         end
         puts
       end
