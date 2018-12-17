@@ -76,7 +76,7 @@ describe "Model import and export" do
       # ** A MSB0 Test Case **
       # Blah-ba-bi-blah
       # just following the comment pattern above
-      reg :msb0_test, 0x0028, size: 16, bit_order: :msb0 do |reg|
+      reg :msb0_test, 0x0028, size: 16, bit_order: :msb0, some_attr: true, another_attr: :testing, third_attr: nil, fourth_attr: 'string_attr' do |reg|
         reg.bit 8,  :ale
         reg.bit 9,  :xsfg
         reg.bit 10, :yml
@@ -194,6 +194,15 @@ describe "Model import and export" do
     reg.bit(:ale).position.should == 7
     reg.bit(:field).position.should == 0
     reg.bit(:field).size.should == 5
+  end
+
+  it "handles register metadata" do
+    load_import_model
+    reg = dut.block1.x.msb0_test
+    reg.meta[:some_attr].should == true
+    reg.meta[:another_attr].should == :testing
+    reg.meta[:third_attr].should == nil
+    reg.meta[:fourth_attr].should == 'string_attr'
   end
 
   it "gracefully adds to existing sub-blocks without instantiating them" do
