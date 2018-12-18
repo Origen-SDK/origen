@@ -61,7 +61,7 @@ describe "Model import and export" do
       # ** Some Control Register **
       # Blah, blah,
       # and some more blah
-      reg :ctrl, 0x0024, size: 16 do |reg|
+      reg :ctrl, 0x0024, size: 16, str_meta: "a's", str_meta2: '"works?"'  do |reg|
         reg.bit 7, :coco, access: :ro
         reg.bit 6, :aien
         # **Some Diff Bit** - This is a...
@@ -203,6 +203,10 @@ describe "Model import and export" do
     reg.meta[:another_attr].should == :testing
     reg.meta[:third_attr].should == nil
     reg.meta[:fourth_attr].should == 'string_attr'
+
+    reg = dut.block1.x.ctrl
+    reg.meta[:str_meta].should == "a's"
+    reg.meta[:str_meta2].should == '"works?"'
   end
 
   it "gracefully adds to existing sub-blocks without instantiating them" do
