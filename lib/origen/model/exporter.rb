@@ -114,7 +114,7 @@ module Origen
                   attr_end_str = (attr == pin_pkg_meta.keys.last) ? ' }' : ', '
                   case attr_val
                   when String
-                    str << "'#{attr_val}'#{attr_end_str}"
+                    str << "\"#{attr_val.gsub('"', '\"')}\"#{attr_end_str}"
                   else
                     str << "#{attr_val}#{attr_end_str}"
                   end
@@ -232,7 +232,7 @@ module Origen
           if value.is_a?(Symbol)
             line << ", #{key}: :#{value}"
           elsif value.is_a?(String)
-            line << ", #{key}: '#{value}'"
+            line << ", #{key}: \"#{value.gsub('"', '\"')}\""
           else
             line << ", #{key}: #{value}" unless value.nil?
           end
@@ -284,7 +284,7 @@ module Origen
           if value.is_a?(Symbol)
             ret_str += ", #{key}: :#{value}"
           elsif value.is_a?(String)
-            ret_str += ", #{key}: '#{value}'"
+            ret_str += ", #{key}: \"#{value.gsub('"', '\"')}\""
           else
             ret_str += ", #{key}: #{value}" unless value.nil?
           end
