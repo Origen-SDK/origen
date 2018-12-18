@@ -148,7 +148,8 @@ module Origen
       # Returns true if the current user can checkin to the given repo (means has permission
       # to push in Git terms)
       def can_checkin?
-        git('push --dry-run', verbose: false)
+        # dry run attempting to create a new remote branch named OrigenWritePermissionsTest
+        git('push --dry-run origin origin:refs/heads/OrigenWritePermissionsTest', verbose: false)
         true
       rescue
         false
