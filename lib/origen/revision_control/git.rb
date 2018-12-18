@@ -11,6 +11,25 @@ module Origen
         nil
       end
 
+      # Returns the Git version number from the current runtime environment (as a string)
+      def self.version
+        @version ||= begin
+          version = nil
+          git('--version', verbose: false).each do |line|
+            if line =~ /git version (\d+(\.\d+)+)/
+              version = Regexp.last_match(1)
+              break
+            end
+          end
+          if version
+            version
+          else
+            Origen.log.warning 'Failed to determine the current Git version, proceeding by assuming version 2.0.0'
+            '2.0.0'
+          end
+        end
+      end
+
       def build(options = {})
         if Dir["#{local}/*"].empty? || options[:force]
           FileUtils.rm_rf(local.to_s)
@@ -262,7 +281,7 @@ module Origen
         end
         File.exist?("#{local}/.git") &&
           git('remote -v', verbose: false).any? { |r| r =~ /#{remote_without_protocol_and_user}/ || r =~ /#{remote_without_protocol_and_user.to_s.gsub(':', "\/")}/ } &&
-          !git('status', verbose: false).any? { |l| l =~ /^#? ?Initial commit$/ }
+          !git('status', verbose: false).any? { |l| l =~ /^#? ?(Initial commit|No commits yet)$/ }
       end
 
       # Delete everything in the given directory, or the whole repo
