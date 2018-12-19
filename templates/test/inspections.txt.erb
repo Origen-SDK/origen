@@ -24,6 +24,10 @@ Test of an MSB0 bit-order register
 % dut.nvm.add_msb0_regs
 <%= dut.nvm.regs(:SIUL2_MIDR1).inspect %>
 
+Test of an MSB0 bit-order register displayed with msb0 numbering
+
+<%= dut.nvm.regs(:SIUL2_MIDR1).with_msb0.inspect %>
+
 Test of regs with non byte aligned number of bits
 
 % dut.nvm.add_non_byte_aligned_regs
@@ -36,3 +40,10 @@ Test of regs with non byte aligned number of bits
 
 <%= dut.nvm.regs(:non_aligned_big_msb0).inspect %>
 <%= dut.nvm.regs(:non_aligned_big_msb0).inspect(fancy_output: false) %>
+
+Test of non byte aligned msb0 regs displayed with msb0 numbering
+
+<%= dut.nvm.regs(:non_aligned_small_msb0).with_msb0.inspect %>
+
+<%= dut.nvm.regs(:non_aligned_big_msb0).with_msb0.inspect %>
+<%= dut.nvm.regs(:non_aligned_big_msb0).with_msb0.inspect(fancy_output: false) %>

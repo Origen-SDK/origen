@@ -114,7 +114,7 @@ module Origen
                   attr_end_str = (attr == pin_pkg_meta.keys.last) ? ' }' : ', '
                   case attr_val
                   when String
-                    str << "'#{attr_val}'#{attr_end_str}"
+                    str << "\"#{attr_val.gsub('"', '\"')}\"#{attr_end_str}"
                   else
                     str << "#{attr_val}#{attr_end_str}"
                   end
@@ -232,9 +232,9 @@ module Origen
           if value.is_a?(Symbol)
             line << ", #{key}: :#{value}"
           elsif value.is_a?(String)
-            line << ", #{key}: '#{value}'"
+            line << ", #{key}: \"#{value.gsub('"', '\"')}\""
           else
-            line << ", #{key}: #{value}"
+            line << ", #{key}: #{value}" unless value.nil?
           end
         end
         block.export(id, options.merge(file_path: file_path, dir_path: dir_path))
@@ -247,16 +247,21 @@ module Origen
         unless reg.description.empty?
           reg.description.each { |l| lines << indent + "# #{l}" }
         end
-        lines << indent + "model.add_reg :#{id}, #{reg.offset.to_hex}, size: #{reg.size} do |reg|"
+        lines << indent + "model.add_reg :#{id}, #{reg.offset.to_hex}, size: #{reg.size} #{reg.bit_order == :msb0 ? ', bit_order: :msb0' : ''}#{build_reg_meta(reg)} do |reg|"
         indent = ' ' * ((options[:indent] || 0) + 2)
         reg.named_bits.each do |name, bits|
           unless bits.description.empty?
             bits.description.each { |l| lines << indent + "# #{l}" }
           end
+          position = reg.bit_order == :msb0 ? (reg.size - bits.position - 1) : bits.position
           if bits.size == 1
-            line = indent + "reg.bit #{bits.position}, :#{name}"
+            line = indent + "reg.bit #{position}, :#{name}"
           else
-            line = indent + "reg.bit #{bits.position + bits.size - 1}..#{bits.position}, :#{name}"
+            if reg.bit_order == :msb0
+              line = indent + "reg.bit #{position - bits.size + 1}..#{position}, :#{name}"
+            else
+              line = indent + "reg.bit #{position + bits.size - 1}..#{position}, :#{name}"
+            end
           end
           unless bits.access == :rw
             line << ", access: :#{bits.access}"
@@ -271,6 +276,20 @@ module Origen
         indent = ' ' * (options[:indent] || 0)
         lines << indent + 'end'
         lines.join("\n")
+      end
+
+      def build_reg_meta(reg)
+        ret_str = ''
+        reg.meta.each do |key, value|
+          if value.is_a?(Symbol)
+            ret_str += ", #{key}: :#{value}"
+          elsif value.is_a?(String)
+            ret_str += ", #{key}: \"#{value.gsub('"', '\"')}\""
+          else
+            ret_str += ", #{key}: #{value}" unless value.nil?
+          end
+        end
+        ret_str
       end
     end
   end

@@ -61,7 +61,7 @@ describe "Model import and export" do
       # ** Some Control Register **
       # Blah, blah,
       # and some more blah
-      reg :ctrl, 0x0024, size: 16 do |reg|
+      reg :ctrl, 0x0024, size: 16, str_meta: "a's", str_meta2: '"works?"'  do |reg|
         reg.bit 7, :coco, access: :ro
         reg.bit 6, :aien
         # **Some Diff Bit** - This is a...
@@ -71,6 +71,16 @@ describe "Model import and export" do
         # 1 | It's on
         reg.bit 5, :diff
         reg.bit 4..0, :adch, reset: 0x1F
+      end
+
+      # ** A MSB0 Test Case **
+      # Blah-ba-bi-blah
+      # just following the comment pattern above
+      reg :msb0_test, 0x0028, size: 16, bit_order: :msb0, some_attr: true, another_attr: :testing, third_attr: nil, fourth_attr: 'string_attr' do |reg|
+        reg.bit 8,  :ale
+        reg.bit 9,  :xsfg
+        reg.bit 10, :yml
+        reg.bit 11..15, :field, reset: 0x1f
       end
     end
   end
@@ -175,6 +185,28 @@ describe "Model import and export" do
     reg.adch.reset_val.should == 0x1F
     reg.diff.bit_value_descriptions[0].should == "It's off"
     reg.diff.bit_value_descriptions[1].should == "It's on"
+  end
+
+  it "handles msb0 registers" do
+    load_import_model
+    reg = dut.block1.x.msb0_test
+    reg.bit_order.should == :msb0
+    reg.bit(:ale).position.should == 7
+    reg.bit(:field).position.should == 0
+    reg.bit(:field).size.should == 5
+  end
+
+  it "handles register metadata" do
+    load_import_model
+    reg = dut.block1.x.msb0_test
+    reg.meta[:some_attr].should == true
+    reg.meta[:another_attr].should == :testing
+    reg.meta[:third_attr].should == nil
+    reg.meta[:fourth_attr].should == 'string_attr'
+
+    reg = dut.block1.x.ctrl
+    reg.meta[:str_meta].should == "a's"
+    reg.meta[:str_meta2].should == '"works?"'
   end
 
   it "gracefully adds to existing sub-blocks without instantiating them" do

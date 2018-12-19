@@ -1,4 +1,5 @@
 require 'json'
+require 'origen/registers/msb0_delegator'
 module Origen
   module Registers
     # The register class can be used to represent not only h/ware resgisters,
@@ -91,7 +92,20 @@ module Origen
           @bits << Bit.new(self, n, writable: @init_as_writable, undefined: true)
         end
 
+        # Internally re-map msb0 register descriptions as lsb0
+        options.each_value { |bit_desc| bit_desc[:pos] = @size - bit_desc[:pos] - bit_desc[:bits] } if bit_order == :msb0
+
         add_bits_from_options(options)
+
+        @msb0_delegator = Msb0Delegator.new(self, @bits)
+      end
+
+      def with_msb0
+        @msb0_delegator
+      end
+
+      def with_lsb0
+        self
       end
 
       # Returns the bit order attribute of the register (either :msb0 or :lsb0). If
@@ -134,6 +148,18 @@ module Origen
       end
 
       def inspect(options = {})
+        wbo = options[:with_bit_order] || :lsb0
+        domsb0 = wbo == :msb0
+        dolsb0 = !domsb0
+        if wbo != bit_order
+          Origen.log.warn "Register displayed with #{wbo} numbering, but defined with #{bit_order} numbering"
+          Origen.log.warn 'Access (and display) this register with explicit numbering like this:'
+          Origen.log.warn ''
+          Origen.log.warn "   reg(:#{name}).with_msb0        # bit numbering scheme is msb0"
+          Origen.log.warn "   reg(:#{name}).with_lsb0        # bit numbering scheme is lsb0 (default)"
+          Origen.log.warn "   reg(:#{name})                  # bit numbering scheme is lsb0 (default)"
+        end
+
         # This fancy_output option is passed in via option hash
         #  Even better, the output could auto-detect 7-bit vs 8-bit terminal output and adjust the parameter, but that's for another day
         fancy_output = options[:fancy_output].nil? ? true : options[:fancy_output]
@@ -173,14 +199,10 @@ module Origen
         bit_width = 13
         desc = ["\n0x%X - :#{name}" % address]
         r = size % 8
-        if r == 0 || (size > 8 && bit_order == :msb0)
+        if r == 0 # || (size > 8 && domsb0)
           desc << ('  ' + corner_double_up_left + ((horiz_double_line * bit_width + horiz_double_tee_down) * 8)).chop + corner_double_up_right
         else
-          if bit_order == :lsb0
-            desc << ('  ' + (' ' * (bit_width + 1) * (8 - r)) + corner_double_up_left + ((horiz_double_line * bit_width + horiz_double_tee_down) * r)).chop + corner_double_up_right
-          else
-            desc << ('  ' + corner_double_up_left + ((horiz_double_line * bit_width + horiz_double_tee_down) * r)).chop + corner_double_up_right
-          end
+          desc << ('  ' + (' ' * (bit_width + 1) * (8 - r)) + corner_double_up_left + ((horiz_double_line * bit_width + horiz_double_tee_down) * r)).chop + corner_double_up_right
         end
 
         # "<#{self.class}: #{self.name}>"
@@ -188,32 +210,22 @@ module Origen
         num_bytes.times do |byte_index|
           # Need to add support for little endian regs here?
           byte_number = num_bytes - byte_index
-          if bit_order == :lsb0
-            max_bit = (byte_number * 8) - 1
-            min_bit = max_bit - 8 + 1
-          else
-            min_bit = (byte_index * 8)
-            max_bit = min_bit + 7
-          end
+          max_bit = (byte_number * 8) - 1
+          min_bit = max_bit - 8 + 1
 
           # BIT INDEX ROW
           line = '  '
           line_complete = false
           8.times do |i|
-            if bit_order == :lsb0
-              bit_num = (byte_number * 8) - i - 1
-            else
-              bit_num = (byte_index * 8) + i
-            end
+            bit_num = (byte_number * 8) - i - 1
             if bit_num > size - 1
-              if bit_order == :msb0 && bit_num == size
-                line += vert_single_line
-                line_complete = true
-              else
-                line << ' ' + ''.center(bit_width) unless line_complete
-              end
+              line << ' ' + ''.center(bit_width) unless line_complete
             else
-              line << vert_single_line + "#{bit_num}".center(bit_width)
+              if dolsb0
+                line << vert_single_line + "#{bit_num}".center(bit_width)
+              else
+                line << vert_single_line + "#{size - bit_num - 1}".center(bit_width)
+              end
             end
           end
           line += vert_single_line unless line_complete
@@ -225,11 +237,9 @@ module Origen
           line_complete = false
           named_bits include_spacers: true do |name, bit, bitcounter|
             if _bit_in_range?(bit, max_bit, min_bit)
-              if bit_order == :lsb0
-                if max_bit > (size - 1) && !first_done
-                  (max_bit - (size - 1)).times do
-                    line << ' ' * (bit_width + 1)
-                  end
+              if max_bit > (size - 1) && !first_done
+                (max_bit - (size - 1)).times do
+                  line << ' ' * (bit_width + 1)
                 end
               end
 
@@ -237,17 +247,13 @@ module Origen
 
                 if name
                   if bitcounter.nil?
-                    if bit_order == :lsb0
-                      bit_name = "#{name}[#{_max_bit_in_range(bit, max_bit, min_bit)}:#{_min_bit_in_range(bit, max_bit, min_bit)}]"
-                    else
-                      bit_name = "#{name}[#{_min_bit_in_range(bit, max_bit, min_bit)}:#{_max_bit_in_range(bit, max_bit, min_bit)}]"
-                    end
+                    bit_name = "#{name}[#{_max_bit_in_range(bit, max_bit, min_bit, options)}:#{_min_bit_in_range(bit, max_bit, min_bit, options)}]"
                     bit_span = _num_bits_in_range(bit, max_bit, min_bit)
 
                   else
-                    upper = _max_bit_in_range(bit, max_bit, min_bit) + bitcounter - bit.size
-                    lower = _min_bit_in_range(bit, max_bit, min_bit) + bitcounter - bit.size
-                    if bit_order == :lsb0
+                    upper = _max_bit_in_range(bit, max_bit, min_bit, options) + bitcounter - bit.size
+                    lower = _min_bit_in_range(bit, max_bit, min_bit, options) + bitcounter - bit.size
+                    if dolsb0
                       bit_name = "#{name}[#{upper}:#{lower}]"
                     else
                       bit_name = "#{name}[#{upper}:#{lower}]"
@@ -293,11 +299,9 @@ module Origen
           first_done = false
           named_bits include_spacers: true do |name, bit, _bitcounter|
             if _bit_in_range?(bit, max_bit, min_bit)
-              if bit_order == :lsb0
-                if max_bit > (size - 1) && !first_done
-                  (max_bit - (size - 1)).times do
-                    line << ' ' * (bit_width + 1)
-                  end
+              if max_bit > (size - 1) && !first_done
+                (max_bit - (size - 1)).times do
+                  line << ' ' * (bit_width + 1)
                 end
               end
 
@@ -348,12 +352,8 @@ module Origen
 
           if size >= 8
             r = size % 8
-            if byte_index == 0 && r != 0 && bit_order == :lsb0
+            if byte_index == 0 && r != 0
               desc << ('  ' + corner_double_up_left + ((horiz_double_line * bit_width + horiz_double_tee_down) * (8 - r)).chop + horiz_double_cross + (horiz_single_line * (bit_width + 1) * r)).chop + vert_single_tee_left
-            elsif (byte_index == num_bytes - 1) && r != 0 && bit_order == :msb0
-              desc << ('  ' + corner_single_down_left + ((horiz_single_line * bit_width + horiz_single_tee_up) * r)).chop + corner_single_down_right
-            elsif (byte_index == num_bytes - 2) && r != 0 && bit_order == :msb0
-              desc << '  ' + vert_single_tee_right + ((horiz_single_line * bit_width + horiz_single_cross) * r) + ((horiz_single_line * bit_width + horiz_single_tee_up) * (8 - r)).chop + corner_single_down_right
             else
               if byte_index == num_bytes - 1
                 desc << ('  ' + corner_single_down_left + ((horiz_single_line * bit_width + horiz_single_tee_up) * 8)).chop + corner_single_down_right
@@ -362,11 +362,7 @@ module Origen
               end
             end
           else
-            if bit_order == :lsb0
-              desc << ('  ' + (' ' * (bit_width + 1) * (8 - size)) + corner_single_down_left + ((horiz_single_line * bit_width + horiz_single_tee_up) * size)).chop + corner_single_down_right
-            else
-              desc << ('  ' + corner_single_down_left + ((horiz_single_line * bit_width + horiz_single_tee_up) * size)).chop + corner_single_down_right
-            end
+            desc << ('  ' + (' ' * (bit_width + 1) * (8 - size)) + corner_single_down_left + ((horiz_single_line * bit_width + horiz_single_tee_up) * size)).chop + corner_single_down_right
           end
         end
         desc.join("\n")
@@ -584,24 +580,13 @@ module Origen
         @lookup.each { |_k, v| split_bits = true if v.is_a? Array }
 
         if split_bits == false
-          if bit_order == :lsb0
-            current_pos = size
-          else
-            current_pos = 0
-          end
+          current_pos = size
+
           # Sort by position
-          @lookup.sort_by { |_name, details| bit_order == :lsb0 ? -details[:pos] : details[:pos] }.each do |name, details|
-            if bit_order == :lsb0
-              pos = details[:bits] + details[:pos]
-            else
-              pos = details[:pos]
-            end
+          @lookup.sort_by { |_name, details| -details[:pos] }.each do |name, details|
+            pos = details[:bits] + details[:pos]
             if options[:include_spacers] && (pos != current_pos)
-              if bit_order == :lsb0
-                collection = BitCollection.dummy(self, nil, size: current_pos - pos, pos: pos)
-              else
-                collection = BitCollection.dummy(self, nil, size: pos - current_pos, pos: current_pos)
-              end
+              collection = BitCollection.dummy(self, nil, size: current_pos - pos, pos: pos)
               unless collection.size == 0
                 if block_given?
                   yield nil, collection
@@ -621,19 +606,10 @@ module Origen
                 result << [name, collection]
               end
             end
-            if bit_order == :lsb0
-              current_pos = details[:pos]
-            else
-              current_pos = details[:bits] + details[:pos]
-            end
+            current_pos = details[:pos]
           end
-          if options[:include_spacers] && ((bit_order == :lsb0 && current_pos != 0) ||
-                                            bit_order == :msb0 && current_pos != size)
-            if bit_order == :lsb0
-              collection = BitCollection.dummy(self, nil, size: current_pos, pos: 0)
-            else
-              collection = BitCollection.dummy(self, nil, size: size - current_pos, pos: current_pos)
-            end
+          if options[:include_spacers] && (current_pos != 0)
+            collection = BitCollection.dummy(self, nil, size: current_pos, pos: 0)
             unless collection.size == 0
               if block_given?
                 yield nil, collection
@@ -1061,10 +1037,12 @@ module Origen
       alias_method :delete_bits, :delete_bit
 
       # @api private
-      def expand_range(range)
+      def expand_range(range, wbo = :lsb0)
         if range.first > range.last
           range = Range.new(range.last, range.first)
         end
+        range = range.to_a
+        range.reverse! if wbo == :msb0
         range.each do |i|
           yield i
         end
@@ -1086,13 +1064,22 @@ module Origen
       #   reg(:control).bit(1)                  # => Returns a BitCollection containing status bit
       #   reg(:control).bit(1,2)                # => Returns a BitCollection containing both status bits
       def bit(*args)
+        # allow msb0 bit numbering if requested
+        wbo = :lsb0
+        if args.last.is_a?(Hash)
+          wbo = args.last.delete(:with_bit_order) || :lsb0
+          args.pop if args.last.size == 0
+        end
+
         multi_bit_names = false
         # return get_bits_with_constraint(nil,:default) if args.size == 0
         constraint = extract_feature_params(args)
         if constraint.nil?
           constraint = :default
         end
-        collection = BitCollection.new(self, :unknown)
+
+        collection = BitCollection.new(self, :unknown, [], with_bit_order: wbo)
+
         if args.size == 0
           collection.add_name(name)
           @bits.each do |bit|
@@ -1101,13 +1088,14 @@ module Origen
         else
           args.flatten!
           args.sort!
+          args.reverse! if wbo == :msb0
           args.each do |arg_item|
             if arg_item.is_a?(Integer)
-              b = get_bits_with_constraint(arg_item, constraint)
+              b = get_bits_with_constraint(arg_item, constraint, with_bit_order: wbo)
               collection << b if b
             elsif arg_item.is_a?(Range)
-              expand_range(arg_item) do |bit_number|
-                collection << get_bits_with_constraint(bit_number, constraint)
+              expand_range(arg_item, wbo) do |bit_number|
+                collection << get_bits_with_constraint(bit_number, constraint, with_bit_order: wbo)
               end
             else
               multi_bit_names = args.size > 1
@@ -1140,14 +1128,21 @@ module Origen
         else
           if multi_bit_names
             collection.sort_by!(&:position)
+            wbo == :msb0 ? collection.with_msb0 : collection.with_lsb0
           end
-          collection
+          wbo == :msb0 ? collection.with_msb0 : collection.with_lsb0
         end
       end
       alias_method :bits, :bit
       alias_method :[], :bit
 
-      def get_bits_with_constraint(number, params)
+      def get_bits_with_constraint(number, params, options = {})
+        options = { with_bit_order: :lsb0 }.merge(options)
+        # remap to lsb0 number to grab correct bit
+        if options[:with_bit_order] == :msb0
+          number = size - number - 1
+        end
+
         return nil unless @bits[number]
         if (params == :default || !params) && @bits[number].enabled?
           @bits[number]
@@ -1268,23 +1263,28 @@ module Origen
 
       # All other Reg methods are delegated to BitCollection
       def method_missing(method, *args, &block) # :nodoc:
+        wbo = :lsb0
+        if args.last.is_a?(Hash)
+          wbo = args.last[:with_bit_order] if args.last.key?(:with_bit_order)
+        end
+
         if method.to_sym == :to_ary || method.to_sym == :to_hash
           nil
         elsif meta_data_method?(method)
           extract_meta_data(method, *args)
         else
           if BitCollection.instance_methods.include?(method)
-            to_bit_collection.send(method, *args, &block)
+            to_bit_collection(with_bit_order: wbo).send(method, *args, &block)
           elsif has_bits?(method)
-            bits(method)
+            bits(method, with_bit_order: wbo)
           else
             super
           end
         end
       end
 
-      def to_bit_collection
-        BitCollection.new(self, name, @bits)
+      def to_bit_collection(options = {})
+        BitCollection.new(self, name, @bits, options)
       end
 
       # Recognize that Reg responds to all BitCollection methods methods based on
@@ -1555,14 +1555,22 @@ module Origen
         end
       end
 
-      def _max_bit_in_range(bits, max, _min)
+      def _max_bit_in_range(bits, max, _min, options = { with_bit_order: false })
         upper = bits.position + bits.size - 1
-        [upper, max].min - bits.position
+        if options[:with_bit_order] == :msb0
+          bits.size - ([upper, max].min - bits.position) - 1
+        else
+          [upper, max].min - bits.position
+        end
       end
 
-      def _min_bit_in_range(bits, _max, min)
+      def _min_bit_in_range(bits, _max, min, options = { with_bit_order: false })
         lower = bits.position
-        [lower, min].max - bits.position
+        if options[:with_bit_order] == :msb0
+          bits.size - ([lower, min].max - lower) - 1
+        else
+          [lower, min].max - bits.position
+        end
       end
 
       # Returns true if some portion of the given bits falls
