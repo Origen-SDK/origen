@@ -2,6 +2,7 @@
 # is done here (i.e. options that apply to all commands) before handing
 # over to the specific command handlers
 require 'optparse'
+require 'fileutils'
 
 ARGV << '--help' if ARGV.empty?
 
@@ -28,6 +29,14 @@ ORIGEN_COMMAND_ALIASES = {
 
 # Moved here so boot.rb file can know the current command
 Origen.send :current_command=, @command
+
+# Do some housekeeping, remove all .git directories in vendor/gems, this allows gems
+# that have been vendored via a Git reference to be checked in as normal
+if File.exist?(Origen.root.join('vendor', 'gems'))
+  Dir.glob("#{Origen.root}/vendor/gems/ruby/*/bundler/gems/*/.git").each do |f|
+    FileUtils.rm_rf(f)
+  end
+end
 
 # Don't log to file during the save command since we need to preserve the last log,
 # this is done as early in the process as possible so any deprecation warnings during
