@@ -36,6 +36,10 @@ if File.exist?(Origen.root.join('vendor', 'gems'))
   Dir.glob("#{Origen.root}/vendor/gems/ruby/*/bundler/gems/*/.git").each do |f|
     FileUtils.rm_rf(f)
   end
+  # Also remove any nested vendor/gems folders to save space
+  Dir.glob("#{Origen.root}/vendor/gems/ruby/*/bundler/gems/*/vendor/gems").each do |f|
+    FileUtils.rm_rf(f)
+  end
 end
 
 # Don't log to file during the save command since we need to preserve the last log,
