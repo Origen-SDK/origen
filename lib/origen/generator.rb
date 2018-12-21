@@ -1,15 +1,16 @@
 module Origen
   class Generator
-    autoload :Pattern,         'origen/generator/pattern'
-    autoload :Flow,            'origen/generator/flow'
-    autoload :Resources,       'origen/generator/resources'
-    autoload :Job,             'origen/generator/job'
-    autoload :PatternFinder,   'origen/generator/pattern_finder'
-    autoload :PatternIterator, 'origen/generator/pattern_iterator'
-    autoload :Stage,           'origen/generator/stage'
-    autoload :Compiler,        'origen/generator/compiler'
-    autoload :Comparator,      'origen/generator/comparator'
-    autoload :Renderer,        'origen/generator/renderer'
+    autoload :Pattern,          'origen/generator/pattern'
+    autoload :Flow,             'origen/generator/flow'
+    autoload :Resources,        'origen/generator/resources'
+    autoload :Job,              'origen/generator/job'
+    autoload :PatternFinder,    'origen/generator/pattern_finder'
+    autoload :PatternIterator,  'origen/generator/pattern_iterator'
+    autoload :PatternSequencer, 'origen/generator/pattern_sequencer'
+    autoload :Stage,            'origen/generator/stage'
+    autoload :Compiler,         'origen/generator/compiler'
+    autoload :Comparator,       'origen/generator/comparator'
+    autoload :Renderer,         'origen/generator/renderer'
 
     def pattern
       @pattern ||= Pattern.new
