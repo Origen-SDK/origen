@@ -8,13 +8,20 @@ module Origen
           if active?
             s = nil
             # Just to make sure there are no races with creating the block specific semaphores
-            with_semaphore do
+            with_sole_access do
               @semaphores ||= {}
               @semaphores[caller[0]] ||= Concurrent::Semaphore.new(1)
               s = @semaphores[caller[0]]
-              s.acquire
             end
-            yield
+            completed = false
+            until completed
+              if s.try_acquire
+                yield
+                completed = true
+              else
+                thread.waiting_for_serialize
+              end
+            end
             s.release
           else
             yield
@@ -25,13 +32,13 @@ module Origen
         def active?
           true
         end
-        alias :open? :active?
-        alias :runnng? :active?
+        alias_method :open?, :active?
+        alias_method :runnng?, :active?
 
         # Returns true if called from the main thread
-        def primary?
-          !sequence_active? || !thread || thread.primary?
-        end
+        # def primary?
+        #  !sequence_active? || !thread || thread.primary?
+        # end
 
         # Returns the PatternThread object for the current thread
         def thread
@@ -43,8 +50,7 @@ module Origen
           @semaphore ||= Concurrent::Semaphore.new(1)
         end
 
-        # @api private
-        def with_semaphore
+        def with_sole_access
           semaphore.acquire
           yield
           semaphore.release
