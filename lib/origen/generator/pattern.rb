@@ -83,7 +83,7 @@ module Origen
         pattern_wrapper([], [], options) do
           @pattern_sequence = true
 
-          PatternSequencer.new(job.output_pattern_filename, block).send(:execute)
+          PatternSequence.new(job.output_pattern_filename, block).send(:execute)
 
           @pattern_sequence = false
         end

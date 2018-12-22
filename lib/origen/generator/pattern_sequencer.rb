@@ -1,12 +1,13 @@
 require 'concurrent'
 module Origen
   class Generator
+    # Provides APIs to enable applications to support concurrency
     class PatternSequencer
       class << self
         def serialize
-          if sequence_active?
-            # Just to make sure there are no races with creating the block specific semaphores
+          if active?
             s = nil
+            # Just to make sure there are no races with creating the block specific semaphores
             with_semaphore do
               @semaphores ||= {}
               @semaphores[caller[0]] ||= Concurrent::Semaphore.new(1)
@@ -21,8 +22,20 @@ module Origen
         end
 
         # Returns true if a pattern sequence is currently open/active
-        def sequence_active?
+        def active?
           true
+        end
+        alias :open? :active?
+        alias :runnng? :active?
+
+        # Returns true if called from the main thread
+        def primary?
+          !sequence_active? || !thread || thread.primary?
+        end
+
+        # Returns the PatternThread object for the current thread
+        def thread
+          @thread.value
         end
 
         # @api private
@@ -36,37 +49,17 @@ module Origen
           yield
           semaphore.release
         end
-      end
 
-      def initialize(name, main_body)
-        @name = name
-        @main_body = main_body
-      end
+        private
 
-      def run(pattern_name)
-        pattern = Origen.generator.pattern_finder.find(pattern_name.to_s, {})
-        pattern = pattern[:pattern] if pattern.is_a?(Hash)
-        load pattern
-      end
-
-      def in_parallel
-        threads << Thread.new do
-          yield
+        def thread=(t)
+          @thread ||= Concurrent::ThreadLocalVar.new(nil)
+          @thread.value = t
         end
-      end
-
-      private
-
-      def execute
-        @main_body.call(self)
-        threads.each(&:join)
-      end
-
-      def threads
-        @threads ||= []
       end
     end
   end
 end
 PatSeq = Origen::Generator::PatternSequencer
 PatSeq.semaphore  # Just to make sure there are no races to instantiate this later
+PatSeq.send(:thread=, nil)

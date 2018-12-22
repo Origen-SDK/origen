@@ -7,6 +7,8 @@ module Origen
     autoload :PatternFinder,    'origen/generator/pattern_finder'
     autoload :PatternIterator,  'origen/generator/pattern_iterator'
     autoload :PatternSequencer, 'origen/generator/pattern_sequencer'
+    autoload :PatternSequence,  'origen/generator/pattern_sequence'
+    autoload :PatternThread,    'origen/generator/pattern_thread'
     autoload :Stage,            'origen/generator/stage'
     autoload :Compiler,         'origen/generator/compiler'
     autoload :Comparator,       'origen/generator/comparator'
