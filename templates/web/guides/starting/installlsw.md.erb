@@ -1,0 +1,53 @@
+% render "layouts/guides.html" do
+
+Origen can be installed on Linux, Windows or Windows Subsystem for Linux, this guide refers to the Windows Subsystem for Linux installation.
+
+If you want to run on Linux Subsystem for Windows then please see this guide instead:
+[How to Install Origen on Linux](<%= path "guides/starting/install" %>)
+
+If running on windows is of interest then please see this guide instead:
+[How to Install Origen on Windows](<%= path "guides/starting/installwin" %>)
+
+#### Install Ubuntu
+
+With Windows 10, Microsoft has allowed for a Linux Subsystem to be installed when you will need to change the security mode to 'Developer Mode'
+
+1.  Start Menu -> Settings -> Update and Security
+2.  Select *_For developers_* on the left menu
+3.  Under 'Use developer features', select 'Developer Mode'
+
+Now we will enable enable the 'Linux Subsystem for Windows'
+
+1.  Open up Control Panel
+2.  Go to Programs
+3.  Select 'Turn Windows features on or off'
+4.  Select 'Windows Subsystem for Linux'
+5.  Press OK
+6.  Follow prompts and you might have to reboot.
+
+When this finishes, you will now be able to load a Linux distribution from the Windows Store.  For this guide, we will install the Ubuntu version of Linux.
+
+1.  Open up the Microsoft Store
+2.  Search for 'Linux' and select 'Apps'
+3.  Choose 'Ubuntu'
+4.  Follow prompts and install Ubuntu
+5.  It will ask for a username and password.  This will be the System Adminsitrator account.  When you run 'sudo' commands, it will ask for this password.
+
+This version of Ubuntu might be out of date.  To get things up-to-date, you will need to update Ubuntu.  To do this, run the following command:
+~~~
+sudo apt-get update
+~~~
+This will update Ubuntu and all of the packages to the latest.  At this point, if you do not want any graphical user interfaces, you can go to [Install Pre-Requisites](<%= path "guides/starting/install/#Install_Pre-Requisites" %>) for 'Installing Origen on Linux'
+
+#### Setting the PATH
+The following PATH changes will need to be updated:
+~~~
+export PATH="$HOME/.rbenv/bin:$HOME/.rbenv/shims:$PATH"
+~~~
+This will allow the Ruby Environment to run.
+
+#### Graphical User Interface
+The Windows Subsystem for Linux is only command line base.  If you would like to have Graphical Support, you will need to add an X Server.
+
+*  Download and install [VcXsvr](https://sourceforge.net/projects/vcxsrv/)
+% end
