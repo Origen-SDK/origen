@@ -4,14 +4,13 @@ module Origen
     # created for every Pattern.sequence do ... end block
     class PatternSequence
       def initialize(name, block)
+        @number_of_threads = 1
         @name = name
         # The contents of the main Pattern.sequence block will be executed as a thread and treated
         # like any other parallel block
-        thread = PatternThread.new(self, block, true)
+        thread = PatternThread.new(:main, self, block, true)
         threads << thread
         active_threads << thread
-        @number_of_completed_threads = 0
-        @number_of_threads = 1
       end
 
       # Execute the given pattern
@@ -22,26 +21,18 @@ module Origen
       end
       alias_method :call, :run
 
-      def in_parallel(&block)
-        # To ensure deterministic behavior the block won't be started until the next cycle rather
-        # than letting it get underway asynchronously
-        PatSeq.with_sole_access do
-          @parallel_blocks_waiting_to_start ||= []
-          @parallel_blocks_waiting_to_start << block
-        end
+      def in_parallel(id = nil, &block)
+        @number_of_threads += 1
+        id ||= "thread#{@number_of_threads}".to_sym
+        # Just stage the request for now, it will be started by the next execute loop
+        @parallel_blocks_waiting_to_start ||= []
+        @parallel_blocks_waiting_to_start << [id, block]
       end
 
       private
 
-      # Called by a thread when it is ready to cycle
-      def thread_ready_to_cycle
-        @latch.count_down
-      end
-
       def thread_completed(thread)
-        @number_of_completed_threads += 1
         active_threads.delete(thread)
-        @latch.count_down
       end
 
       def threads
@@ -53,29 +44,36 @@ module Origen
       end
 
       def execute
-        active_threads.first.execute
-        @latch = Concurrent::CountDownLatch.new(1)
-        until @number_of_threads == @number_of_completed_threads
-          @latch.wait
-          cycs = active_threads.map { |t| t.pending_cycles || 1 }.min
-          cycs.cycles if cycs
+        active_threads.first.start
+        until active_threads.empty?
+          # Advance all threads to their next cycle point in sequential order. Keeping tight control of
+          # when threads are running in this way ensures that the output is deterministic no matter what
+          # computer it is running on, and ensures that the application code does not have to worry about
+          # race conditions.
+          cycs = active_threads.map do |t|
+            t.advance
+            t.pending_cycles
+          end.compact.min
+
+          if cycs
+            # Now generate the required number of cycles which is defined by the thread that has the least
+            # amount of cycles ready to go.
+            # Since tester.cycle is being called by the master process here it will generate as normal (as
+            # opposed to when called from a thread in which case it causes the thread to wait).
+            cycs.cycles
+
+            # Now let each thread know how many cycles we just generated, so they can decide whether they
+            # need to wait for more cycles or if they can start preparing the next one
+            active_threads.each { |t| t.executed_cycles(cycs) }
+          end
+
           if @parallel_blocks_waiting_to_start
-            new_threads = @parallel_blocks_waiting_to_start.map do |block|
-              @number_of_threads += 1
-              thread = PatternThread.new(self, block)
-              threads << thread
-              thread
+            @parallel_blocks_waiting_to_start.each do |id, block|
+              thread = PatternThread.new(id, self, block)
+              active_threads << thread
+              thread.start
             end
             @parallel_blocks_waiting_to_start = nil
-          end
-          @latch = Concurrent::CountDownLatch.new(@number_of_threads - @number_of_completed_threads)
-          active_threads.each { |t| t.resume(cycs) }
-          if new_threads
-            new_threads.each do |t|
-              active_threads << t
-              t.execute
-            end
-            new_threads = nil
           end
         end
       end

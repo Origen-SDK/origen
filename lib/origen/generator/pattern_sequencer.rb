@@ -4,22 +4,20 @@ module Origen
     # Provides APIs to enable applications to support concurrency
     class PatternSequencer
       class << self
-        def serialize
+        def serialize(id = nil)
           if active?
             s = nil
-            # Just to make sure there are no races with creating the block specific semaphores
-            with_sole_access do
-              @semaphores ||= {}
-              @semaphores[caller[0]] ||= Concurrent::Semaphore.new(1)
-              s = @semaphores[caller[0]]
-            end
+            id ||= caller[0]
+            @semaphores ||= {}
+            @semaphores[id] ||= Concurrent::Semaphore.new(1)
+            s = @semaphores[id]
             completed = false
             until completed
               if s.try_acquire
                 yield
                 completed = true
               else
-                thread.waiting_for_serialize
+                thread.waiting_for_serialize(id)
               end
             end
             s.release
@@ -45,17 +43,6 @@ module Origen
           @thread.value
         end
 
-        # @api private
-        def semaphore
-          @semaphore ||= Concurrent::Semaphore.new(1)
-        end
-
-        def with_sole_access
-          semaphore.acquire
-          yield
-          semaphore.release
-        end
-
         private
 
         def thread=(t)
@@ -67,5 +54,4 @@ module Origen
   end
 end
 PatSeq = Origen::Generator::PatternSequencer
-PatSeq.semaphore  # Just to make sure there are no races to instantiate this later
 PatSeq.send(:thread=, nil)
