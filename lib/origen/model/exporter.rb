@@ -13,8 +13,6 @@ module Origen
         # want to change where the exported files are
         file = options[:file_path] || export_path(name, options)
         dir = options[:dir_path] || export_dir(options)
-        # to print path link to Origen.root top level 
-        options[:dir_print] = options[:dir_path] || export_dir_print(options)  
         path_to_file = Pathname.new(File.join(dir, file))
         FileUtils.rm_rf(path_to_file.sub_ext('').to_s) if File.exist?(path_to_file.sub_ext('').to_s)
         FileUtils.rm_rf(path_to_file.to_s) if File.exist?(path_to_file.to_s)
@@ -170,11 +168,6 @@ module Origen
         options[:dir] || File.join(Origen.root, 'vendor', 'lib', 'models')
       end
 
-      # Similar to export_dir but returns path with Origen.roots instaed of full fixed path.
-      def export_dir_print(options = {})
-        options[:dir] || File.join('#{Origen.root}/', 'vendor', 'lib', 'models')
-      end
-
       def export_pin(id, pin, options = {})
         indent = ' ' * (options[:indent] || 0)
         line = indent + "model.#{options[:method] || 'add_pin'} :#{id}"
@@ -231,7 +224,8 @@ module Origen
         indent = ' ' * (options[:indent] || 0)
         file_path = File.join(Pathname.new(options[:file_path]).sub_ext(''), "#{id}.rb")
         dir_path = options[:dir_path]
-        line = indent + "model.sub_block :#{id}, file: '#{file_path}', dir: \"#{options[:dir_print]}\", lazy: true"
+        dir_path_print = options[:dir_path].sub(Origen.root, 'Origen.root')
+        line = indent + "model.sub_block :#{id}, file: '#{file_path}', dir: \"#{dir_path_print}\", lazy: true"
         unless block.base_address == 0
           line << ", base_address: #{block.base_address.to_hex}"
         end
