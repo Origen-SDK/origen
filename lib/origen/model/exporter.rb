@@ -224,7 +224,7 @@ module Origen
         indent = ' ' * (options[:indent] || 0)
         file_path = File.join(Pathname.new(options[:file_path]).sub_ext(''), "#{id}.rb")
         dir_path = options[:dir_path]
-        dir_path_print = options[:dir_path].sub(Origen.root, 'Origen.root')
+        dir_path_print = options[:dir_path].sub(Origen.root.to_s, '#{Origen.root}')
         line = indent + "model.sub_block :#{id}, file: '#{file_path}', dir: \"#{dir_path_print}\", lazy: true"
         unless block.base_address == 0
           line << ", base_address: #{block.base_address.to_hex}"
