@@ -24,7 +24,7 @@ module Origen
       def in_parallel(id = nil, &block)
         @number_of_threads += 1
         id ||= "thread#{@number_of_threads}".to_sym
-        # Just stage the request for now, it will be started by the next execute loop
+        # Just stage the request for now, it will be started at the end of the current execute loop
         @parallel_blocks_waiting_to_start ||= []
         @parallel_blocks_waiting_to_start << [id, block]
       end

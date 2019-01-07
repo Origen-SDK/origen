@@ -8,6 +8,7 @@ module Origen
       attr_reader :sequence
       attr_reader :pending_cycles
       attr_reader :id
+      attr_reader :reservations
 
       def initialize(id, sequence, block, primary = false)
         @id = id
@@ -18,6 +19,7 @@ module Origen
         @waiting = Concurrent::Event.new
         @pending_cycles = nil
         @completed = false
+        @reservations = {}
       end
 
       # Returns true if this is main thread (the one from which all in_parallel threads
