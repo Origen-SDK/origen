@@ -45,17 +45,14 @@ module Origen
             thread.reservations[id] = { count: 1, semaphore: nil }
           end
           yield
-          # Unless the block never actually encountered a serialize block with the given ID
-          if thread.reservations[id]
-            if thread.reservations[id][:count] == 1
-              # Could not be set if the application reserved the resource but never hit it
-              if s = thread.reservations[id][:semaphore]
-                s.release
-              end
-              thread.reservations[id] = nil
-            else
-              thread.reservations[id][:count] -= 1
+          if thread.reservations[id][:count] == 1
+            # May not be set if the application reserved the resource but never hit it
+            if s = thread.reservations[id][:semaphore]
+              s.release
             end
+            thread.reservations[id] = nil
+          else
+            thread.reservations[id][:count] -= 1
           end
         end
 
