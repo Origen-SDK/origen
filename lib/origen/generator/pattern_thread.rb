@@ -9,8 +9,18 @@ module Origen
       attr_reader :pending_cycles
       attr_reader :id
       attr_reader :reservations
+      attr_reader :cycle_count_start
+      attr_reader :cycle_count_stop
+      # A record of when the thread is active to construct the execution profile
+      attr_reader :events
 
       def initialize(id, sequence, block, primary = false)
+        if primary
+          @cycle_count_start = 0
+        else
+          @cycle_count_start = current_cycle_count
+        end
+        @events = [[:active, cycle_count_start]]
         @id = id
         @sequence = sequence
         @block = block
@@ -24,9 +34,9 @@ module Origen
 
       # Returns true if this is main thread (the one from which all in_parallel threads
       # have been branched from)
-      # def primary?
-      #  @primary
-      # end
+      def primary?
+        @primary
+      end
 
       # @api private
       #
@@ -38,16 +48,66 @@ module Origen
           wait
           @block.call(sequence)
           sequence.send(:thread_completed, self)
+          record_cycle_count_stop
           @completed = true
           wait
         end
         @waiting.wait
       end
 
+      def record_cycle_count_stop
+        @cycle_count_stop = current_cycle_count
+        events << [:stopped, cycle_count_stop]
+        events.freeze
+      end
+
+      def record_active
+        events << [:active, current_cycle_count]
+      end
+
+      def current_cycle_count
+        tester.try(:cycle_count) || 0
+      end
+
+      def execution_profile(start, stop, step)
+        events = @events.dup
+        cycles = start
+        state = :inactive
+        line = ''
+        ((stop - start) / step).times do |i|
+          active_cycles = 0
+          while events.first && events.first[1] >= cycles && events.first[1] < cycles + step
+            event = events.shift
+            # Bring the current cycles up to this event point applying the current state
+            if state == :active
+              active_cycles += event[1] - cycles
+            end
+            state = event[0] == :active ? :active : :inactive
+            cycles = event[1]
+          end
+
+          # Bring the current cycles up to the end of this profile tick
+          if state == :active
+            active_cycles += ((i + 1) * step) - cycles
+          end
+          cycles = ((i + 1) * step)
+
+          if active_cycles == 0
+            line += '_'
+          elsif active_cycles > (step * 0.5)
+            line += '█'
+          else
+            line += '▄'
+          end
+        end
+        line
+      end
+
       # Will be called when the thread can't execute its next cycle because it is waiting to obtain a
       # lock on a serialized block
-      def waiting_for_serialize(serialize_id)
+      def waiting_for_serialize(serialize_id, skip_event = false)
         # puts "Thread #{id} is blocked waiting for #{serialize_id}"
+        events << [:waiting, current_cycle_count] unless skip_event
         wait
       end
 

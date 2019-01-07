@@ -80,13 +80,12 @@ module Origen
         #  job.output_pattern_filename = job.output_pattern_filename.sub(job.output_postfix + job.output_extension, "_#{options[:pat_postfix]}" + job.output_postfix + job.output_extension)
         # end
 
+        @pattern_sequence = true
         pattern_wrapper([], [], options) do
-          @pattern_sequence = true
-
-          PatternSequence.new(job.output_pattern_filename, block).send(:execute)
-
-          @pattern_sequence = false
+          @pattern_sequence = PatternSequence.new(job.output_pattern_filename, block)
+          @pattern_sequence.send(:execute)
         end
+        @pattern_sequence = false
         @create_options = nil
       end
 
@@ -497,6 +496,9 @@ module Origen
           log.info ' '
           log.info "Pattern vectors: #{stats.number_of_vectors_for(job.output_pattern).to_s.ljust(10)}"
           log.info 'Execution time'.ljust(15) + ': %.6f' % stats.execution_time_for(job.output_pattern)
+          if @pattern_sequence
+            @pattern_sequence.send(:log_execution_profile)
+          end
           log.info '----------------------------------------------------------------------'
           check_for_changes(job.output_pattern, job.reference_pattern) unless tester.try(:disable_pattern_diffs)
           stats.record_pattern_completion(job.output_pattern)

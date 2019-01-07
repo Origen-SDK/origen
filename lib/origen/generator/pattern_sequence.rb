@@ -1,3 +1,5 @@
+require 'io/console'
+
 module Origen
   class Generator
     # Manages a single pattern sequence, i.e. an instance of PatternSequence is
@@ -30,6 +32,33 @@ module Origen
       end
 
       private
+
+      def log_execution_profile
+        if threads.size > 1
+          thread_id_size = threads.map { |t| t.id.to_s.size }.max
+          line_size = IO.console.winsize[1] - 35 - thread_id_size
+          cycles_per_tick = (@cycle_count_stop / (line_size * 1.0)).ceil
+          execution_time = Origen.app.stats.execution_time_for(Origen.app.current_job.output_pattern)
+          Origen.log.info ''
+          tick_size = execution_time / line_size
+          if tick_size < 1.us
+            tick_size = '%.0fns' % (tick_size * 1_000_000_000)
+          elsif tick_size < 1.ms
+            tick_size = '%.0fus' % (tick_size * 1_000_000)
+          elsif tick_size < 1.s
+            tick_size = '%.0fms' % (tick_size * 1_000)
+          else
+            tick_size = '%.1f' % tick_size
+          end
+          Origen.log.info "Concurrent execution profile (#{tick_size}/increment):"
+          threads.each do |thread|
+            line = thread.execution_profile(0, @cycle_count_stop, cycles_per_tick)
+            Origen.log.info ''
+            Origen.log.info "#{thread.id}: ".ljust(thread_id_size + 2) + line
+          end
+          Origen.log.info ''
+        end
+      end
 
       def thread_completed(thread)
         active_threads.delete(thread)
@@ -70,12 +99,14 @@ module Origen
           if @parallel_blocks_waiting_to_start
             @parallel_blocks_waiting_to_start.each do |id, block|
               thread = PatternThread.new(id, self, block)
+              threads << thread
               active_threads << thread
               thread.start
             end
             @parallel_blocks_waiting_to_start = nil
           end
         end
+        @cycle_count_stop = threads.first.current_cycle_count
       end
     end
   end

@@ -12,13 +12,16 @@ module Origen
             @semaphores[id] ||= Concurrent::Semaphore.new(1)
             s = @semaphores[id]
             completed = false
+            blocked = false
             until completed
               # If already acquired or available
               if (thread.reservations[id] && thread.reservations[id][:semaphore]) || s.try_acquire
+                thread.record_active if blocked
                 yield
                 completed = true
               else
-                thread.waiting_for_serialize(id)
+                thread.waiting_for_serialize(id, blocked)
+                blocked = true
               end
             end
             # If the thread has reserved access to this serialized resource then don't release it now, but
