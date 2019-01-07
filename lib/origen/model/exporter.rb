@@ -14,8 +14,6 @@ module Origen
         file = options[:file_path] || export_path(name, options)
         dir = options[:dir_path] || export_dir(options)
         path_to_file = Pathname.new(File.join(dir, file))
-        FileUtils.rm_rf(path_to_file.sub_ext('').to_s) if File.exist?(path_to_file.sub_ext('').to_s)
-        FileUtils.rm_rf(path_to_file.to_s) if File.exist?(path_to_file.to_s)
         FileUtils.mkdir_p(path_to_file.dirname)
         File.open(path_to_file, 'w') do |f|
           export_wrap_with_namespaces(f, options) do |indent|
