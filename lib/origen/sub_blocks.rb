@@ -273,6 +273,8 @@ module Origen
 
     def sub_block(name, options = {})
       if i = options.delete(:instances)
+        # permit creating multiple instances of a particular sub_block class
+        # can pass array for base_address, which will be processed above
         a = []
         options[:_instance] = i
         i.times do |j|
@@ -302,6 +304,9 @@ module Origen
         define_singleton_method name do
           get_sub_block(name)
         end
+        unless @current_group.nil?  # a group is currently open, store sub_block id only
+          @current_group << name
+        end
         if options.key?(:lazy)
           lazy = options[:lazy]
         else
@@ -310,6 +315,35 @@ module Origen
         lazy ? block : block.materialize
       end
     end
+
+    # Create a group of associated sub_blocks under a group name
+    # permits each sub_block to be of a different class
+    # e.g.
+    # sub_block_group :my_ip_group do
+    #   sub_block :ip0, class_name: 'IP0', base_address: 0x000000
+    #   sub_block :ip1, class_name: 'IP1', base_address: 0x000200
+    #   sub_block :ip2, class_name: 'IP2', base_address: 0x000400
+    #   sub_block :ip3, class_name: 'IP3', base_address: 0x000600
+    # end
+    #
+    # creates an array referenced by method called 'my_ip_group'
+    # which contains the sub_blocks 'ip0', 'ip1', 'ip2', 'ip3'.
+    #
+    def sub_block_group(id, options = {})
+      @current_group = []    # open group
+      yield                  # any sub_block calls within this block will have their ID added to @current_group
+      b = []
+      @current_group.each do |group_id|
+        b << send(group_id)  # instantiate the sub_block here, as created lazily above
+      end
+      define_singleton_method "#{id}" do
+        b                         # return array inside new singleton method
+      end
+      @current_group = nil   # close group
+    end
+    alias_method :sub_block_groups, :sub_block_group
+    alias_method :sub_blocks_groups, :sub_block_group
+    alias_method :sub_blocks_group, :sub_block_group
 
     def namespace
       self.class.to_s.sub(/::[^:]*$/, '')
