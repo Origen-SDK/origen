@@ -315,7 +315,7 @@ module Origen
 
               # Don't waste time looking up the namespace hierarchy for the controller, if it exists it
               # should be within the exact same namespace as the model
-              return nil if @@pre_loading_controller
+              return nil if defined?(@@pre_loading_controller) && @@pre_loading_controller
 
               # Remove the highest level namespace and then search again in the parent namespace
               if discarded_namespace = names.delete_at(-2)
