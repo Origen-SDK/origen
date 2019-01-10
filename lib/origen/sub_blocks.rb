@@ -329,14 +329,32 @@ module Origen
     # creates an array referenced by method called 'my_ip_group'
     # which contains the sub_blocks 'ip0', 'ip1', 'ip2', 'ip3'.
     #
+    # Can also indicate a custom class container to hold these.
+    # This custom class container MUST support a '<<' method in
+    # order to add new sub_blocks to the container instance.
+    #
+    # e.g.
+    # sub_block_group :my_ip_group, class_name: 'MYGRP' do
+    #   sub_block :ip0, class_name: 'IP0', base_address: 0x000000
+    #   sub_block :ip1, class_name: 'IP1', base_address: 0x000200
+    #   sub_block :ip2, class_name: 'IP2', base_address: 0x000400
+    #   sub_block :ip3, class_name: 'IP3', base_address: 0x000600
+    # end
+    #
+    #
     def sub_block_group(id, options = {})
       @current_group = []    # open group
       yield                  # any sub_block calls within this block will have their ID added to @current_group
-      b = []
-      @current_group.each do |group_id|
-        b << send(group_id)  # instantiate the sub_block here, as created lazily above
-      end
+      my_group = @current_group.dup
       define_singleton_method "#{id}" do
+        if options[:class_name]
+          b = Object.const_get(options[:class_name]).new
+        else
+          b = []
+        end
+        my_group.each do |group_id|
+          b << send(group_id)
+        end
         b                         # return array inside new singleton method
       end
       @current_group = nil   # close group
