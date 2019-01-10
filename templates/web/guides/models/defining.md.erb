@@ -188,6 +188,110 @@ $dut.nvm.reg1.address        # => 0x30
 $dut.nvm.reg1.data           # => 0xFFFF_FFFF
 ~~~
 
+#### Adding Multiple Sub Blocks
+
+##### Multi-Instance Sub Blocks
+
+If you have several similar sub_blocks, you can use the `instances:` option when defining
+a sub_block.
+
+~~~ruby
+# lib/soc/eagle_m352.rb
+def initialize(options={})
+  sub_blocks :memory,        class_name: "MEMORY_128_B954", instances: 4
+end
+
+$dut = SOC::EAGLE_M352.new
+$dut.memory0.reg1.address        # => 0x30
+$dut.memory1.reg1.address        # => 0x30
+$dut.memory2.reg1.address        # => 0x30
+$dut.memory3.reg1.address        # => 0x30
+$dut.memorys                     # => Array of all 4 memory sub_blocks
+~~~
+
+This assumes that the instances are using the same class.
+
+A different base_address can also be defined for each instance by passing an array of size equal to the number
+of instances to the base_address option:
+
+~~~ruby
+# lib/soc/eagle_m352.rb
+def initialize(options={})
+  sub_blocks :memory, class_name: "MEMORY_128_B954", instances: 4, base_address: [0x000, 0x200, 0x400, 0x800]
+end
+
+$dut = SOC::EAGLE_M352.new
+$dut.memory0.base_address        # => 0x000
+$dut.memory1.base_address        # => 0x200
+$dut.memory2.base_address        # => 0x400
+$dut.memory3.base_address        # => 0x800
+$dut.memorys                     # => Array of all 4 memory sub_blocks
+~~~
+
+
+##### Adding Sub Block Groups
+If needing to add several similar sub blocks that use different classes, a `sub_block_group` can be used.
+
+~~~ruby
+# lib/soc/eagle_m352.rb
+def initialize(options={})
+  sub_block_group :memories
+    sub_block :memory0,        class_name: "MEMORY_128_B954"
+    sub_block :memory1,        class_name: "MEMORY_64_B954"
+    sub_block :memory2,        class_name: "MEMORY_32_B954"
+  end
+end
+
+$dut = SOC::EAGLE_M352.new
+$dut.memory0.class               # MEMORY_128_B954
+$dut.memory1.class               # MEMORY_64_B954
+$dut.memory2.class               # MEMORY_32_B954
+$dut.memories.class              # Array (Array of all 3 memory sub_blocks)
+~~~
+
+In addition, a unique container class can also be used instead of an Array to contain the sub_block objects if desired.
+
+The only requirement is that the method `<<` exist for this container class.
+
+Example of using defining a sub_block_group with a custom container class:
+
+~~~ruby
+# lib/soc/eagle_m352.rb
+def initialize(options={})
+  sub_block_group :memories, class_name: "MEMORIES_B294"
+    sub_block :memory0,        class_name: "MEMORY_128_B954"
+    sub_block :memory1,        class_name: "MEMORY_64_B954"
+    sub_block :memory2,        class_name: "MEMORY_32_B954"
+  end
+end
+
+
+$dut = SOC::EAGLE_M352.new
+$dut.memory0.class               # MEMORY_128_B954
+$dut.memory1.class               # MEMORY_64_B954
+$dut.memory2.class               # MEMORY_32_B954
+$dut.memories.class              # MEMORIES_B954 (custom class containing all 3 memory sub_blocks)
+
+~~~
+
+Here's an example of a custom container class like this:
+
+~~~ruby
+# lib/memories.rb
+class MEMORIES_B294 < ::Array
+
+  def <<(sub_block)   # to meet sub_block_group requirement
+    push (sub_block)
+  end
+
+end
+~~~
+
+Although nothing special is done in this example class, this `<<` method could be used here to do any special things as part of managing multiple sub_blocks
+at the memory level.
+
+
+
 #### Wash, Rinse, Repeat
 
 This process can now be repeated to model the complete design hierarchy, the <code>sub_block</code> method
@@ -216,6 +320,11 @@ module NVM
       sub_block  :analog,        class_name: "ANALOG_T921"
       sub_blocks :memory,        class_name: "MEMORY_128_B954", instances: 4
       sub_block  :state_machine, class_name: "CONTROL_D345"
+      sub_block_group :srams,    class_name: "SRAMS"
+        sub_block :sram0,        class_name: "SRAM512K"
+        sub_block :sram1,        class_name: "SRAM256K"
+        sub_block :sram2,        class_name: "SRAM256K"
+      end
     end
 
     # Origen is not yet smart enough to correctly pluralize 'memory', but we
