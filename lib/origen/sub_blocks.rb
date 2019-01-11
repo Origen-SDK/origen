@@ -17,7 +17,7 @@ module Origen
         # address API, but will accept any of these
         @reg_base_address = options.delete(:reg_base_address) ||
                             options.delete(:base_address) || options.delete(:base) || 0
-        if options[:_instance]
+        if options[:_instance]                # to be deprecated as part of multi-instance removal below
           if @reg_base_address.is_a?(Array)
             @reg_base_address = @reg_base_address[options[:_instance]]
           elsif options[:base_address_step]
@@ -275,17 +275,17 @@ module Origen
       if i = options.delete(:instances)
         # permit creating multiple instances of a particular sub_block class
         # can pass array for base_address, which will be processed above
-        a = []
-        options[:_instance] = i
-        i.times do |j|
-          o = options.dup
-          o[:_instance] = j
-          a << sub_block("#{name}#{j}", o)
+        Origen.deprecate 'instances: option to sub_block is deprecated, use sub_block_groups instead'
+        group_name = name =~ /s$/ ? name : "#{name}s"  # take care if name already with 's' is passed
+        unless respond_to?(group_name)
+          sub_block_groups group_name do
+            i.times do |j|
+              o = options.dup
+              o[:_instance] = j
+              sub_block("#{name}#{j}", o)
+            end
+          end
         end
-        define_singleton_method "#{name}s" do
-          a
-        end
-        a
       else
         block = Placeholder.new(self, name, options)
         if sub_blocks[name]
