@@ -207,13 +207,15 @@ $dut.memory0.class               # MEMORY_128_B954
 $dut.memory1.class               # MEMORY_64_B954
 $dut.memory2.class               # MEMORY_32_B954
 $dut.memories.class              # Array (Array of all 3 memory sub_blocks)
+
+# By default uses sub_block_group uses Array class, so all Array methods are available
+memories                         # => [<memory 0 instance>, <memory 1 instance>, <memory 2 instance>]
+memories.size                    # => 3
+memories.first                   # => <memory 0 instance>
 ~~~
 
-In addition, a unique container class can also be used instead of an Array to contain the sub_block objects if desired.
-
-The only requirement is that the method `<<` exist for this container class.
-
-Example of using defining a sub_block_group with a custom container class:
+In addition, a custom container class can also be used instead of an Array to contain the sub_block objects if desired.
+To do this, pass the desired container class as follows:
 
 ~~~ruby
 # lib/soc/eagle_m352.rb
@@ -234,23 +236,59 @@ $dut.memories.class              # MEMORIES_B954 (custom class containing all 3 
 
 ~~~
 
-Here's an example of a custom container class like this:
+The recommended way to create a custom container class is to sub-class the Array class, then add additional methods, like this:
 
 ~~~ruby
 # lib/memories.rb
 class MEMORIES_B294 < ::Array
-
-  def <<(sub_block)   # to meet sub_block_group requirement
-    push (sub_block)
+  # Example of a custom method to print the names of all contained memories
+  def print_ids
+    # Since this class is based on Array, we can use all Array methods like 'each'
+    # on the contained objects
+    each { |mem| puts mem.id }
   end
-
 end
+
+# All conventional Array methods are supported since we sub-classed Array
+memories.size                   # => 3
+memories.first                  # => <memory 0 instance>
+memories.map { |mem| mem.id }   # => [:memory0, :memory1, :memory2]
+
+# Plus we have our custom method(s)
+memories.print_ids
+=>
+memory0
+memory1
+memory2
 ~~~
 
-Although nothing special is done in this example class, this `<<` method could be used here to do any special things as part of managing multiple sub_blocks
-at the memory level.
+If you do not sub-class Array, then you will need to be sure to define a `<<` push type method:
 
+~~~ruby
+# lib/memories.rb
+class MEMORIES_B294
+  def initialize
+    @sub_blocks = {}
+  end
+  # Example of a custom << method to permit adding sub_blocks to container
+  # Required for use with sub_block_group
+  def <<(sub_block)
+    @sub_blocks[sub_block.id] = sub_block
+  end
+  # Example of a custom method to print the names of all contained memories
+  def print_ids
+    each { |mem| puts mem.id }
+  end
+  # Example of custom 'each' method
+  def each
+    @sub_blocks.each_value do |sub_block|
+      yield sub_block
+    end
+  end
+end
 
+# Drawback is you only have methods defined in this class.
+~~~
 
 #### Wash, Rinse, Repeat
 
@@ -334,11 +372,9 @@ end
 
 # lib/memories.rb
 class MEMORIES_B294 < ::Array
-
-  def <<(sub_block)   # to meet sub_block_group requirement
-    push (sub_block)
+  def print_ids
+    each { |mem| puts mem.id }
   end
-
 end
 
 # file: lib/nvm/control_d345.rb
