@@ -104,6 +104,17 @@ describe "Model import and export" do
     File.exist?("#{Origen.root}/vendor/lib/models/origen/export1.rb").should == true
   end
 
+  it "export optionally only clobbers rb files" do
+    FileUtils.rm_rf(File.join(Origen.root, 'vendor', 'lib'))
+    load_export_model
+    File.exist?("#{Origen.root}/vendor/lib/models/origen/export1.rb").should == false
+    dut.export 'export1', include_timestamp: false
+    File.exist?("#{Origen.root}/vendor/lib/models/origen/non_origen_meta_data.md").should == false
+    File.open("#{Origen.root}/vendor/lib/models/origen/non_origen_meta_data.md", "w") { |f| f.puts 'pretend metadata file' }
+    dut.export 'export1', include_timestamp: false, rm_rb_only: true
+    File.exist?("#{Origen.root}/vendor/lib/models/origen/non_origen_meta_data.md").should == true    
+  end
+
   it "import is alive" do
     load_import_model
     dut.is_a?(ImportModel).should == true
