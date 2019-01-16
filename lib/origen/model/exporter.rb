@@ -165,7 +165,7 @@ module Origen
       end
 
       def export_dir(options = {})
-        options[:dir] || File.join(Origen.root, 'vendor', 'lib', 'models')
+        options[:dir] || File.join(Origen.root!, 'vendor', 'lib', 'models')
       end
 
       def export_pin(id, pin, options = {})
@@ -224,7 +224,7 @@ module Origen
         indent = ' ' * (options[:indent] || 0)
         file_path = File.join(Pathname.new(options[:file_path]).sub_ext(''), "#{id}.rb")
         dir_path = options[:dir_path]
-        line = indent + "model.sub_block :#{id}, file: '#{file_path}', dir: '#{dir_path}', lazy: true"
+        line = indent + "model.sub_block :#{id}, file: '#{file_path}', dir: \"#{dir_path.gsub(Origen.root!.to_s, '#{Origen.root!}')}\", lazy: true"
         unless block.base_address == 0
           line << ", base_address: #{block.base_address.to_hex}"
         end
