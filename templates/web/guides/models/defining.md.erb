@@ -188,6 +188,108 @@ $dut.nvm.reg1.address        # => 0x30
 $dut.nvm.reg1.data           # => 0xFFFF_FFFF
 ~~~
 
+#### Adding Sub Block Groups
+
+If needing to add several similar sub blocks, a `sub_block_group` can be used.
+
+~~~ruby
+# lib/soc/eagle_m352.rb
+def initialize(options={})
+  sub_block_group :memories
+    sub_block :memory0,        class_name: "MEMORY_128_B954"
+    sub_block :memory1,        class_name: "MEMORY_64_B954"
+    sub_block :memory2,        class_name: "MEMORY_32_B954"
+  end
+end
+
+$dut = SOC::EAGLE_M352.new
+$dut.memory0.class               # MEMORY_128_B954
+$dut.memory1.class               # MEMORY_64_B954
+$dut.memory2.class               # MEMORY_32_B954
+$dut.memories.class              # Array (Array of all 3 memory sub_blocks)
+
+# By default uses sub_block_group uses Array class, so all Array methods are available
+memories                         # => [<memory 0 instance>, <memory 1 instance>, <memory 2 instance>]
+memories.size                    # => 3
+memories.first                   # => <memory 0 instance>
+~~~
+
+In addition, a custom container class can also be used instead of an Array to contain the sub_block objects if desired.
+To do this, pass the desired container class as follows:
+
+~~~ruby
+# lib/soc/eagle_m352.rb
+def initialize(options={})
+  sub_block_group :memories, class_name: "MEMORIES_B294"
+    sub_block :memory0,        class_name: "MEMORY_128_B954"
+    sub_block :memory1,        class_name: "MEMORY_64_B954"
+    sub_block :memory2,        class_name: "MEMORY_32_B954"
+  end
+end
+
+
+$dut = SOC::EAGLE_M352.new
+$dut.memory0.class               # MEMORY_128_B954
+$dut.memory1.class               # MEMORY_64_B954
+$dut.memory2.class               # MEMORY_32_B954
+$dut.memories.class              # MEMORIES_B954 (custom class containing all 3 memory sub_blocks)
+
+~~~
+
+The recommended way to create a custom container class is to sub-class the Array class, then add additional methods, like this:
+
+~~~ruby
+# lib/memories.rb
+class MEMORIES_B294 < ::Array
+  # Example of a custom method to print the names of all contained memories
+  def print_ids
+    # Since this class is based on Array, we can use all Array methods like 'each'
+    # on the contained objects
+    each { |mem| puts mem.id }
+  end
+end
+
+# All conventional Array methods are supported since we sub-classed Array
+memories.size                   # => 3
+memories.first                  # => <memory 0 instance>
+memories.map { |mem| mem.id }   # => [:memory0, :memory1, :memory2]
+
+# Plus we have our custom method(s)
+memories.print_ids
+=>
+memory0
+memory1
+memory2
+~~~
+
+If you do not sub-class Array, then you will need to be sure to define a `<<` push type method:
+
+~~~ruby
+# lib/memories.rb
+class MEMORIES_B294
+  def initialize
+    @sub_blocks = {}
+  end
+  # Example of a custom << method to permit adding sub_blocks to container
+  # Required for use with sub_block_group
+  def <<(sub_block)
+    @sub_blocks[sub_block.id] = sub_block
+  end
+  # Example of a custom method to print the names of all contained memories
+  def print_ids
+    each { |mem| puts mem.id }
+  end
+  # Example of custom 'each' method
+  def each
+    @sub_blocks.each_value do |sub_block|
+      yield sub_block
+    end
+  end
+end
+
+# Drawback is you only have methods defined in this class.
+~~~
+
 #### Wash, Rinse, Repeat
 
 This process can now be repeated to model the complete design hierarchy, the <code>sub_block</code> method
@@ -214,15 +316,14 @@ module NVM
 
     def initialize(options={})
       sub_block  :analog,        class_name: "ANALOG_T921"
-      sub_blocks :memory,        class_name: "MEMORY_128_B954", instances: 4
+      sub_block_group :memories, class_name: "MEMORIES_B294"
+        sub_block :memory0,        class_name: "MEMORY_128_B954"
+        sub_block :memory1,        class_name: "MEMORY_64_B954"
+        sub_block :memory2,        class_name: "MEMORY_32_B954"
+      end
       sub_block  :state_machine, class_name: "CONTROL_D345"
     end
 
-    # Origen is not yet smart enough to correctly pluralize 'memory', but we
-    # can manually add this method to create a better experience for our users
-    def memories
-      memorys
-    end
   end
 end
 
@@ -242,7 +343,37 @@ module NVM
     include Origen::Model
 
     def initialize(options={})
+      @size_in_kB = 128
     end
+  end
+end
+
+# lib/nvm/memory_64_b954.rb
+module NVM
+  class MEMORY_64_B954
+    include Origen::Model
+
+    def initialize(options={})
+      @size_in_kB = 64
+    end
+  end
+end
+
+# lib/nvm/memory_32_b954.rb
+module NVM
+  class MEMORY_32_B954
+    include Origen::Model
+
+    def initialize(options={})
+      @size_in_kB = 32
+    end
+  end
+end
+
+# lib/memories.rb
+class MEMORIES_B294 < ::Array
+  def print_ids
+    each { |mem| puts mem.id }
   end
 end
 
@@ -261,13 +392,9 @@ A couple of points are worth noting from the above code:
 
 * The namespace reference is not required when making references to other models/classes within the
   same namespace.
-* Multiple instances have been specified for the *memory* sub-block. By convention use the
-  singular for the name, i.e. <code>:memory</code>, and then Origen will automatically create
-  accessors called <code>memory0</code>, <code>memory1</code>, etc., and a method to get an
-  array of all sub-blocks called <code>memorys</code>. Origen is not yet smart enough to generate
-  the correct English pluralization in this case, *memories*, but hopefully in future it will.
-  In the meantime we have manually created a <code>memories</code> method which will simply call
-  the <code>memorys</code> method that Origen created.
+* Multiple instances of the *memory* sub-block have been defined. By convention use the
+  plural for the group name, i.e. <code>:memories</code> and singular with an incrementing digit
+  for the sub_blocks contained therein:  <code>memory0</code>, <code>memory1</code>, etc.
 * The classes for the various NVM sub-blocks are all empty right now and as such they did
   not really need to be defined, however these are placeholders for us to go on and add more
   logic in the future.
