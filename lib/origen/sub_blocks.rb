@@ -288,21 +288,22 @@ module Origen
         end
       else
         block = Placeholder.new(self, name, options)
-        if sub_blocks[name]
-          # Allow additional attributes to be added to an existing sub-block if it hasn't
-          # been instantiated yet. This is not supported yet for instantiated sub-blocks since
-          # there are probably a lot more corner-cases to consider, and hopefully no one will
-          # really need this anyway.
-          if sub_blocks[name].is_a?(Placeholder)
-            sub_blocks[name].add_attributes(options)
-          else
-            fail "You have already defined a sub-block named #{name} within class #{self.class}"
+        # Allow additional attributes to be added to an existing sub-block if it hasn't
+        # been instantiated yet. This is not supported yet for instantiated sub-blocks since
+        # there are probably a lot more corner-cases to consider, and hopefully no one will
+        # really need this anyway.
+        if sub_blocks[name] && !sub_blocks[name].is_a?(Placeholder)
+          fail "You have already defined a sub-block named #{name} within class #{self.class}"
+        end
+        unless respond_to?(name)
+          define_singleton_method name do
+            get_sub_block(name)
           end
+        end
+        if sub_blocks[name] && sub_blocks[name].is_a?(Placeholder)
+          sub_blocks[name].add_attributes(options)
         else
           sub_blocks[name] = block
-        end
-        define_singleton_method name do
-          get_sub_block(name)
         end
         unless @current_group.nil?  # a group is currently open, store sub_block id only
           @current_group << name
