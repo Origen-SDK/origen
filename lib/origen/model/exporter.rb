@@ -8,8 +8,7 @@ module Origen
       #   include_registers:  true
       #   include_sub_blocks: true
       #   include_timestamp:  true
-      #   file_path:          nil     # default path is Origen.root!/vendor/lib/models/name
-      #   rm_rb_only:         nil     # delete only .rb files, default is rm -rf * Origen.root!/vendor/lib/models/name
+      #   rm_rb_only:         nil     # delete only .rb files, default is rm -rf * Origen.root/vendor/lib/models/name
       #
       # Use the rm_rb_only option if the export dir is under revision control and the dir contains revision control metadata
       def export(name, options = {})
