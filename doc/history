@@ -1,3 +1,17 @@
+<a class="anchor release_tag" name="v0_42_0"></a>
+<h1><a href="#v0_42_0">Tag: v0.42.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 22-Jan-2019 15:29PM
+
+
+* Robustness improvement to Git driver (Paul Derouen)
+* Improved help for no tester instantiated (Chao Yang)
+* Added `sub\_block\_group` API (Daniel Hadad)
+* Model exporter bug fixes (Paul Derouen)
+
+
 <a class="anchor release_tag" name="v0_41_2"></a>
 <h1><a href="#v0_41_2">Tag: v0.41.2</a></h1>
 
