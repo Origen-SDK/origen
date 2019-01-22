@@ -195,7 +195,7 @@ If needing to add several similar sub blocks, a `sub_block_group` can be used.
 ~~~ruby
 # lib/soc/eagle_m352.rb
 def initialize(options={})
-  sub_block_group :memories
+  sub_block_group :memories do
     sub_block :memory0,        class_name: "MEMORY_128_B954"
     sub_block :memory1,        class_name: "MEMORY_64_B954"
     sub_block :memory2,        class_name: "MEMORY_32_B954"
@@ -220,7 +220,7 @@ To do this, pass the desired container class as follows:
 ~~~ruby
 # lib/soc/eagle_m352.rb
 def initialize(options={})
-  sub_block_group :memories, class_name: "MEMORIES_B294"
+  sub_block_group :memories, class_name: "MEMORIES_B294" do
     sub_block :memory0,        class_name: "MEMORY_128_B954"
     sub_block :memory1,        class_name: "MEMORY_64_B954"
     sub_block :memory2,        class_name: "MEMORY_32_B954"
@@ -316,7 +316,7 @@ module NVM
 
     def initialize(options={})
       sub_block  :analog,        class_name: "ANALOG_T921"
-      sub_block_group :memories, class_name: "MEMORIES_B294"
+      sub_block_group :memories, class_name: "MEMORIES_B294" do
         sub_block :memory0,        class_name: "MEMORY_128_B954"
         sub_block :memory1,        class_name: "MEMORY_64_B954"
         sub_block :memory2,        class_name: "MEMORY_32_B954"

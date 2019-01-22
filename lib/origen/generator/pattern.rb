@@ -65,7 +65,7 @@ module Origen
           puts 'The current target has not instantiated a tester and pattern generation cannot run.'
           puts 'Add something like this to your target file:'
           puts ''
-          puts '  $tester = Origen::Tester::J750.new'
+          puts '  $tester = OrigenTesters::J750.new'
           puts ''
           exit 1
         end
