@@ -62,9 +62,11 @@ module Origen
             dir = File.join(dir, 'derivatives')
             @namespaces << [:class, path]
             @root_class = false
+
+            @parent_class = @namespaces.map { |type, name| name.camelcase }.join('::')
           end
 
-          @parent_class = @namespaces.map { |type, name| name.camelcase }.join('::')
+          @parent_class ||= @namespaces.map { |type, name| name.camelcase }.join('::')
         end
 
         @name = @final_name

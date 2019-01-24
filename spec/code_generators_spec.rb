@@ -55,6 +55,17 @@ describe "code generators (origen new command)" do
     dut.is_a?(Origen::DUT::Falcon).should == true
   end
 
+  it "can generate a DUT within a family" do
+    @generated_files << Origen.root.join('target', 'first.rb')
+    system! 'origen new dut family/first'
+
+    reload!
+    Origen.target.temporary = -> { Origen::DUT::Family::First.new }
+    Origen.target.load!
+
+    dut.is_a?(Origen::DUT::Family::First).should == true
+  end
+
   it 'can generate a sub-block' do
     system! 'origen new sub_block nvm/flash2k', ' '
     nvm = Origen::NVM::Flash2k.new
