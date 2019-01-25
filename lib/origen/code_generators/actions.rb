@@ -46,7 +46,7 @@ module Origen
           if File.exist?(top_level_file)
             require_origen = "require 'origen'\n"
             prepend_to_file top_level_file, require_origen
-            comment = "# The following acronyms are required to ensure that auto-loading works\n# properly with some of the this application's model/class names\n"
+            comment = "# The following acronyms are required to ensure that auto-loading works\n# properly with some of this application's model/class names\n"
             insert_into_file top_level_file, comment, after: require_origen
             @required_acronyms.each do |acronym|
               insert_into_file top_level_file, "Origen.register_acronym '#{acronym}'\n", after: comment
