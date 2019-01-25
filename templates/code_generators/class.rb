@@ -3,7 +3,7 @@
 #
 #   origen new module my_module_name <%= Pathname.new(resource_path_to_lib_file(@resource_path)).relative_path_from(Origen.root) %>
 #
-class <%= @namespaces.map { |n| n[1].camelcase }.join('::') %>::<%= @name.camelcase %><%= @parent_class ? " < #{@parent_class}" : '' %>
+class <%= @namespaces.map { |n| camelcase(n[1]) }.join('::') %>::<%= camelcase(@name) %><%= @parent_class ? " < #{@parent_class}" : '' %>
   def initialize(options = {})
   end
 end

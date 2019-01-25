@@ -141,6 +141,7 @@ END
       end
 
       def completed
+        add_acronyms
         puts
         if @nested
           puts 'New sub-block created and instantiated.'.green
@@ -189,7 +190,7 @@ END
         if derivatives.exist?
           derivatives.children.each do |item|
             if item.directory?
-              child_name = "#{name}::#{item.basename.to_s.camelcase}"
+              child_name = "#{name}::#{camelcase(item.basename)}"
               duts[child_name] = {}
               add_derivatives(duts[child_name], child_name, item)
             end

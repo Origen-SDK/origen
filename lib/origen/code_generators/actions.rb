@@ -1,4 +1,5 @@
 require 'open-uri'
+require 'set'
 
 module Origen
   module CodeGenerators
@@ -11,6 +12,7 @@ module Origen
         if args.last.is_a?(Hash)
           @config = args.last.delete(:config) || {}
         end
+        @required_acronyms = Set.new
         super
         @in_group = nil
       end
@@ -21,6 +23,36 @@ module Origen
 
       def underscored_app_namespace
         Origen.app.namespace.to_s.underscore
+      end
+
+      # Equivalent to calling name.camelcase, but this will identify the need to register any acronyms
+      # necessary to ensure the camelcased name can be translated back to the original name by the
+      # underscore method.
+      # The required acronyms will be saved to an instance variable, @required_acronyms, and calling
+      # the add_acronyms will add the code to register them to the current application.
+      def camelcase(name)
+        name = name.to_s
+        name.split('_').each do |n|
+          # Numbers won't be recognized as a split point when going back to underscore, so need to
+          # register this field beginning with a number as an acronym
+          @required_acronyms << n if n =~ /^\d/
+        end
+        name.camelcase
+      end
+
+      def add_acronyms
+        unless @required_acronyms.empty?
+          top_level_file = File.join('app', 'lib', "#{underscored_app_namespace}.rb")
+          if File.exist?(top_level_file)
+            require_origen = "require 'origen'\n"
+            prepend_to_file top_level_file, require_origen
+            comment = "# The following acronyms are required to ensure that auto-loading works\n# properly with some of the this application's model/class names\n"
+            insert_into_file top_level_file, comment, after: require_origen
+            @required_acronyms.each do |acronym|
+              insert_into_file top_level_file, "Origen.register_acronym '#{acronym}'\n", after: comment
+            end
+          end
+        end
       end
 
       # Adds an autoload statement for the given resource name into +app/lib/my_app_name.rb+
@@ -34,9 +66,8 @@ module Origen
         # Remove the app namespace if present, we will add the autoload inside the top-level module block
         namespaces.shift if namespaces.first == app_namespace
         top_level_file = File.join('app', 'lib', "#{underscored_app_namespace}.rb")
-
         if namespaces.empty?
-          line = "  autoload :#{name.to_s.camelcase}, '#{underscored_app_namespace}/#{name}'\n"
+          line = "  autoload :#{camelcase(name)}, '#{underscored_app_namespace}/#{name}'\n"
           insert_into_file top_level_file, line, after: /module #{Origen.app.namespace}\n/
         else
           contents = File.read(top_level_file)
@@ -44,15 +75,15 @@ module Origen
           indent = ''
           namespaces.each do |namespace|
             indent += '  '
-            new_regex = regex + "(\n|.)*^\s*module #{namespace.to_s.camelcase}\s*(#.*)?\n"
+            new_regex = regex + "(\n|.)*^\s*module #{camelcase(namespace)}\s*(#.*)?\n"
             unless contents =~ Regexp.new(new_regex)
-              lines = "#{indent}module #{namespace.to_s.camelcase}\n"
+              lines = "#{indent}module #{camelcase(namespace)}\n"
               lines << "#{indent}end\n"
               insert_into_file top_level_file, lines, after: Regexp.new(regex), force: true
             end
             regex = new_regex
           end
-          line = "#{indent}  autoload :#{name.to_s.camelcase}, '#{underscored_app_namespace}/#{namespaces.join('/')}/#{name}'\n"
+          line = "#{indent}  autoload :#{camelcase(name)}, '#{underscored_app_namespace}/#{namespaces.join('/')}/#{name}'\n"
           insert_into_file top_level_file, line, after: Regexp.new(regex)
         end
       end
@@ -375,7 +406,7 @@ module Origen
         def resource_path_to_class(path)
           name = resource_path(path).split('/')   # Ensure this is clean, don't care about performance here
           name.unshift(underscored_app_namespace)
-          name.map(&:camelcase).join('::')
+          name.map { |n| camelcase(n) }.join('::')
         end
 
         # Adds :class and :module identifiers to an array of namespaces
@@ -386,9 +417,9 @@ module Origen
           identifier = nil
           namespaces.map do |namespace|
             if identifier
-              identifier += "::#{namespace.camelcase}"
+              identifier += "::#{camelcase(namespace)}"
             else
-              identifier = namespace.camelcase
+              identifier = camelcase(namespace)
             end
             begin
               const = identifier.constantize

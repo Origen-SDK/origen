@@ -46,6 +46,7 @@ END
         @generate_parameters = true
         extract_model_name
         create_files
+        add_acronyms
       end
     end
   end

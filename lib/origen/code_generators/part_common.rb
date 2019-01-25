@@ -32,7 +32,7 @@ module Origen
           @model_path.each do |path|
             dir = File.join(dir, path)
             @name = path
-            @fullname += "::#{@name.camelcase}"
+            @fullname += "::#{camelcase(@name)}"
             @resource_path = resource_path(dir)
 
             if @generate_model
@@ -63,14 +63,14 @@ module Origen
             @namespaces << [:class, path]
             @root_class = false
 
-            @parent_class = @namespaces.map { |type, name| name.camelcase }.join('::')
+            @parent_class = @namespaces.map { |type, name| camelcase(name) }.join('::')
           end
 
-          @parent_class ||= @namespaces.map { |type, name| name.camelcase }.join('::')
+          @parent_class ||= @namespaces.map { |type, name| camelcase(name) }.join('::')
         end
 
         @name = @final_name
-        @fullname += "::#{@name.camelcase}"
+        @fullname += "::#{camelcase(@name)}"
         dir = @dir || File.join(dir, @name)
         @resource_path = resource_path(dir)
 
@@ -93,7 +93,7 @@ module Origen
       end
 
       def class_name
-        (@final_namespaces + Array(@name)).map(&:camelcase).join('::')
+        (@final_namespaces + Array(@name)).map { |n| camelcase(n) }.join('::')
       end
     end
   end

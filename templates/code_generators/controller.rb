@@ -7,7 +7,7 @@
 #   origen new module <%= Pathname.new(resource_path_to_lib_file(@resource_path)).relative_path_from(Origen.root) %> my_module_name
 <% end -%>
 #
-class <%= @namespaces.map { |n| n[1].camelcase }.join('::') %>::<%= @name.camelcase %>Controller<%= @parent_class ? " < #{@parent_class}Controller" : '' %>
+class <%= @namespaces.map { |n| camelcase(n[1]) }.join('::') %>::<%= camelcase(@name) %>Controller<%= @parent_class ? " < #{@parent_class}Controller" : '' %>
 <% if @root_class -%>
   include Origen::Controller
 

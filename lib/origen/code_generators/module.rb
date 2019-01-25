@@ -53,7 +53,7 @@ END
           paths.shift  # Lose the app namespace
           @namespaces += paths
           file = File.join(@class_file.sub('.rb', ''), "#{@name}.rb")
-          @module_name = (@namespaces + [@name]).map(&:camelcase).join('::')
+          @module_name = (@namespaces + [@name]).map { |n| camelcase(n) }.join('::')
         else
           @module_name = resource_path_to_class(@resource_path)
           @namespaces = @module_name.split('::').map(&:underscore)
@@ -85,6 +85,7 @@ END
             inject_into_class @class_file, klass, lines.join("\n") + "\n"
           end
         end
+        add_acronyms
       end
     end
   end

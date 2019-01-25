@@ -40,6 +40,7 @@ END
           file = file.to_s.sub(/\.rb/, '_controller.rb')
           template 'templates/code_generators/controller.rb', file
         end
+        add_acronyms
       end
     end
   end

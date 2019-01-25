@@ -1,4 +1,4 @@
-module <%= @namespaces.map { |n| n[1].camelcase }.join('::') %>::<%= @name.camelcase %>
+module <%= @namespaces.map { |n| camelcase(n[1]) }.join('::') %>::<%= camelcase(@name) %>
   # def my_method
   # end
 end

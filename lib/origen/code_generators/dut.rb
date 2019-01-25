@@ -44,13 +44,14 @@ END
 
       def create_target
         contents = ''
-        contents << @final_namespaces.map { |n| n.to_s.camelcase }.join('::')
-        contents << "::#{@name.to_s.camelcase}.new\n"
+        contents << @final_namespaces.map { |n| camelcase(n) }.join('::')
+        contents << "::#{camelcase(@name)}.new\n"
 
         create_file "#{Origen.root}/target/#{@name}.rb", contents
       end
 
       def completed
+        add_acronyms
         puts
         puts 'New DUT part created, run the following command to select it in your workspace:'.green
         puts
