@@ -172,21 +172,7 @@ module ParametersSpec
     end
 
     it "with_params method works" do
-      $dut.params.tprog.should == 20else
-              if val.is_a?(Set)
-                val
-              else
-                if live?
-                  Live.new(owner: owner, path: path, name: method)
-                else
-                  if val.is_a?(Proc)
-                    val.call(*args)
-                  else
-                    val
-                  end
-                end
-              end
-            end
+      $dut.params.tprog.should == 20
       $dut.params.context.should == :default
       $dut.with_params :probe do
         $dut.params.context.should == :probe
@@ -315,8 +301,8 @@ module ParametersSpec
     end
     
     it "all available parameter contexts can be returned as an array" do
-      $dut.params.available_contexts.should == [:default, :ate, :probe, :ft, :set1, :set2, :set3]
-      $dut.params.contexts.should == [:default, :ate, :probe, :ft, :set1, :set2, :set3]
+      $dut.params.available_contexts.should == [:default, :ate, :probe, :ft, :set1, :set2, :set3, :boolean_check]
+      $dut.params.contexts.should == [:default, :ate, :probe, :ft, :set1, :set2, :set3, :boolean_check]
     end
     
     it "objects that own parameter sets can tell if they do or not" do
@@ -324,7 +310,7 @@ module ParametersSpec
     end
     
     it 'can pass inheritance between objects' do
-      $dut.params.contexts.should == [:default, :ate, :probe, :ft, :set1, :set2, :set3]
+      $dut.params.contexts.should == [:default, :ate, :probe, :ft, :set1, :set2, :set3, :boolean_check]
       $dut.ip_with_params.params.contexts.should == [:default]
       $dut.params(:default).keys.should == [:tprog, :erase, :test, :vdd, :measurement0, :measurement1]
       $dut.ip_with_params.params(:default).keys.should == [:tprog, :erase, :test, :vdd, :measurement0, :measurement1]
