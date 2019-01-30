@@ -56,6 +56,10 @@ module ParametersSpec
           params.y = @y * 4
         end
 
+        define_params :boolean_check do |params|
+          params.boolean = false
+        end
+
         reg :erase, 0x0 do
           bits 7..4, :time, bind: params.live.erase.time
           bits 3..0, :pulses
@@ -168,7 +172,21 @@ module ParametersSpec
     end
 
     it "with_params method works" do
-      $dut.params.tprog.should == 20
+      $dut.params.tprog.should == 20else
+              if val.is_a?(Set)
+                val
+              else
+                if live?
+                  Live.new(owner: owner, path: path, name: method)
+                else
+                  if val.is_a?(Proc)
+                    val.call(*args)
+                  else
+                    val
+                  end
+                end
+              end
+            end
       $dut.params.context.should == :default
       $dut.with_params :probe do
         $dut.params.context.should == :probe
@@ -323,6 +341,10 @@ module ParametersSpec
       $dut.param?(:tprog).should == 20
       $dut.param?('tprog_does_not_exist').should == nil
       $dut.param?(:tprog_does_not_exist).should == nil
+    end
+
+    it 'parameter sets can set values to boolean false' do
+      $dut.params(:boolean_check).boolean.should == false
     end
   end
 end

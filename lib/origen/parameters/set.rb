@@ -61,7 +61,7 @@ module Origen
             super
           else
             val = self[method]
-            if !val
+            if val.nil?
               super
             else
               if val.is_a?(Set)
