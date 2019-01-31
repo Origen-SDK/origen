@@ -271,7 +271,9 @@ module Origen
       tests.empty? ? false : true
     end
 
-    def sub_block(name, options = {})
+    def sub_block(name = nil, options = {})
+      name, options = nil, name if name.is_a?(Hash)
+      return sub_blocks unless name
       if i = options.delete(:instances)
         # permit creating multiple instances of a particular sub_block class
         # can pass array for base_address, which will be processed above
@@ -295,10 +297,12 @@ module Origen
         if sub_blocks[name] && !sub_blocks[name].is_a?(Placeholder)
           fail "You have already defined a sub-block named #{name} within class #{self.class}"
         end
-        unless respond_to?(name)
-          define_singleton_method name do
-            get_sub_block(name)
-          end
+        if respond_to?(name)
+          callers = caller[0].split(':')
+          Origen.log.warning "The sub_block defined at #{Pathname.new(callers[0]).relative_path_from(Pathname.pwd)}:#{callers[1]} is overridding and existing method called #{name}"
+        end
+        define_singleton_method name do
+          get_sub_block(name)
         end
         if sub_blocks[name] && sub_blocks[name].is_a?(Placeholder)
           sub_blocks[name].add_attributes(options)
@@ -347,6 +351,10 @@ module Origen
       @current_group = []    # open group
       yield                  # any sub_block calls within this block will have their ID added to @current_group
       my_group = @current_group.dup
+      if respond_to?(id)
+        callers = caller[0].split(':')
+        Origen.log.warning "The sub_block_group defined at #{Pathname.new(callers[0]).relative_path_from(Pathname.pwd)}:#{callers[1]} is overridding an existing method called #{id}"
+      end
       define_singleton_method "#{id}" do
         if options[:class_name]
           b = Object.const_get(options[:class_name]).new

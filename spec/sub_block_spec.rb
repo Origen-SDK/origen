@@ -538,6 +538,40 @@ module SubBlocksSpec
           d.subgroups[2].is_a?(SubItem2).should == true
         end
 
+        it "adding a sub_block_group should override an existing method of that name" do
+          class SB1
+            include Origen::Model
+
+            def blah
+              1
+            end
+          end
+
+          m = SB1.new
+          m.blah.should == 1
+          m.sub_block_group :blah do
+            m.sub_block :my_blah
+          end
+          m.blah.should_not == 1
+        end
+      end
+
+      it "adding a sub_block should not override an existing method of that name" do
+        class SB2
+          include Origen::Model
+
+          def blah
+            1
+          end
+        end
+
+        m = SB2.new
+        m.blah.should == 1
+        m.sub_block :blah
+        m.blah.should_not == 1
+        m.blah.is_a?(Origen::SubBlock).should == true
+        m.sub_block[:blah].is_a?(Origen::SubBlock).should == true
+        m.sub_blocks[:blah].is_a?(Origen::SubBlock).should == true
       end
     end
   end
