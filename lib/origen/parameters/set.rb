@@ -60,10 +60,10 @@ module Origen
           if args.length != 0
             super
           else
-            val = self[method]
-            if val.nil?
+            if !key?(method)
               super
             else
+              val = self[method]
               if val.is_a?(Set)
                 val
               else
