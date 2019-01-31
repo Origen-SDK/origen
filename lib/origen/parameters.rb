@@ -27,7 +27,7 @@ module Origen
 
     def define_params(name, options = {}, &block)
       if _parameter_sets[name]
-        fail 'Parameter sets cannot be re-opened once originally defined!'
+        fail "Parameter set '#{name}' cannot be re-opened once originally defined!"
       else
         _parameter_sets[name] = Set.new(top_level: true, owner: self)
         if options[:inherit]
