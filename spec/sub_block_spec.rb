@@ -556,7 +556,7 @@ module SubBlocksSpec
         end
       end
 
-      it "adding a sub_block should not override an existing method of that name" do
+      it "adding a sub_block should override an existing method of that name" do
         class SB2
           include Origen::Model
 

@@ -299,7 +299,7 @@ module Origen
         end
         if respond_to?(name)
           callers = caller[0].split(':')
-          Origen.log.warning "The sub_block defined at #{Pathname.new(callers[0]).relative_path_from(Pathname.pwd)}:#{callers[1]} is overridding and existing method called #{name}"
+          Origen.log.warning "The sub_block defined at #{Pathname.new(callers[0]).relative_path_from(Pathname.pwd)}:#{callers[1]} is overriding an existing method called #{name}"
         end
         define_singleton_method name do
           get_sub_block(name)
@@ -353,7 +353,7 @@ module Origen
       my_group = @current_group.dup
       if respond_to?(id)
         callers = caller[0].split(':')
-        Origen.log.warning "The sub_block_group defined at #{Pathname.new(callers[0]).relative_path_from(Pathname.pwd)}:#{callers[1]} is overridding an existing method called #{id}"
+        Origen.log.warning "The sub_block_group defined at #{Pathname.new(callers[0]).relative_path_from(Pathname.pwd)}:#{callers[1]} is overriding an existing method called #{id}"
       end
       define_singleton_method "#{id}" do
         if options[:class_name]
