@@ -103,7 +103,7 @@ module Origen
     def define_params(name, options = {}, &block)
       name = name.to_sym
       if _parameter_sets[name] && !Origen::Parameters.transaction_open
-        fail 'Parameter sets cannot be re-opened once originally defined!'
+        fail "Parameter set '#{name}' cannot be re-opened once originally defined!"
       else
         if Origen::Parameters.transaction_open && !Origen::Parameters.transaction_redefine
           define_params_transaction[self] ||= {}

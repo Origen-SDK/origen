@@ -51,7 +51,8 @@ module Origen
       end
 
       def relative_path_to(file)
-        p = Pathname(file).relative_path_from(Pathname.pwd).to_s
+        file = Pathname.new(file) unless file.is_a?(Pathname)
+        p = file.expand_path.relative_path_from(Pathname.pwd).to_s
         p.gsub!('/', '\\') if Origen.running_on_windows?
         p
       end

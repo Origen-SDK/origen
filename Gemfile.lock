@@ -35,7 +35,7 @@ GIT
 PATH
   remote: .
   specs:
-    origen (0.42.0)
+    origen (0.42.1)
       activesupport (~> 4.1)
       bootsnap (>= 1.3.2)
       bundler (~> 1.7)
@@ -197,7 +197,7 @@ GEM
       polyglot (~> 0.3)
     tzinfo (1.2.5)
       thread_safe (~> 0.1)
-    yard (0.9.16)
+    yard (0.9.18)
 
 PLATFORMS
   ruby
