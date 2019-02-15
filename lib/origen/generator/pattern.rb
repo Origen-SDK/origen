@@ -2,6 +2,7 @@ module Origen
   class Generator
     class Pattern
       include Comparator
+      include Utility::InputCapture
 
       class DummyIterator
         def invoke(*_args)
@@ -57,6 +58,54 @@ module Origen
 
       def close(options = {})
         pattern_close(options)
+      end
+
+      def create_with_sub_block(sub_block, options = {})
+        create(options) do
+          yield(sub_block)
+        end
+      end
+
+      def create_with_sub_block_group(group, options = {})
+        unless group.is_a? Array
+          puts 'The current target has not instantiated this sub_block_group'
+          exit 1
+        end
+
+        # By default, if group size > 1 then add pat_postfix, otherwise don't.
+        # But can also be forced with options[:add_pat_postfix]
+        add_pat_postfix = (group.size > 1) ? true : false
+        add_pat_postfix = options[:add_pat_postfix] unless options[:add_pat_postfix].nil?
+
+        # In case of simulation, prompt user to determine if want to simulate only single sub_block
+        if tester.sim? && group.size > 1
+          @sub_block_for_sim = nil
+          get_sub_block_for_sim(group)
+          unless @sub_block_for_sim == 'all'
+            group = [group[valid_sub_block_names(group).find_index(@sub_block_for_sim.to_sym)]]
+          end
+        end
+
+        group.each do |sub_block|
+          options[:pat_postfix] = sub_block.name if add_pat_postfix
+          create(options) do
+            yield(sub_block)
+          end
+        end
+      end
+
+      def valid_sub_block_names(group)
+        group.map(&:name).push(:all)
+      end
+
+      def get_sub_block_for_sim(group)
+        puts ''
+        puts "WHICH SUB_BLOCK DO YOU WANT TO SIMULATE (#{valid_sub_block_names(group).join(', ')}):"
+        @sub_block_for_sim = get_text(default: valid_sub_block_names(group).first, single: true)
+        unless @sub_block_for_sim
+          puts 'Sorry, but that sub_block name is not valid!'
+          get_sub_block_for_sim
+        end
       end
 
       def create(options = {})
