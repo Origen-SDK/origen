@@ -363,9 +363,7 @@ module Origen
           unless job.test?
             File.delete(job.output_pattern) if File.exist?(job.output_pattern)
 
-            if options[:inhibit]
-              log.info "Generating...  #{job.output_pattern_directory}/#{job.output_pattern_filename}".ljust(50)
-            else
+            unless tester.try(:sim?)
               log.info "Generating...  #{job.output_pattern_directory}/#{job.output_pattern_filename}".ljust(50)
             end
           end
@@ -459,11 +457,13 @@ module Origen
             end
           end
 
-          log.info ' '
-          log.info "Pattern vectors: #{stats.number_of_vectors_for(job.output_pattern).to_s.ljust(10)}"
-          log.info 'Execution time'.ljust(15) + ': %.6f' % stats.execution_time_for(job.output_pattern)
-          log.info '----------------------------------------------------------------------'
-          check_for_changes(job.output_pattern, job.reference_pattern) unless tester.try(:disable_pattern_diffs)
+          unless tester.try(:sim?)
+            log.info ' '
+            log.info "Pattern vectors: #{stats.number_of_vectors_for(job.output_pattern).to_s.ljust(10)}"
+            log.info 'Execution time'.ljust(15) + ': %.6f' % stats.execution_time_for(job.output_pattern)
+            log.info '----------------------------------------------------------------------'
+            check_for_changes(job.output_pattern, job.reference_pattern) unless tester.try(:disable_pattern_diffs)
+          end
           stats.record_pattern_completion(job.output_pattern)
         end
 

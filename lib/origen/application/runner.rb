@@ -46,7 +46,9 @@ module Origen
             Origen.log.info 'Monitor status of remote jobs via:'
             Origen.log.info '  origen l'
           else
-            Origen.log.info '*' * 70 unless options[:quiet]
+            unless tester && tester.try(:sim?)
+              Origen.log.info '*' * 70 unless options[:quiet]
+            end
             Origen.app.listeners_for(:before_generate).each do |listener|
               if listener.class.instance_method(:before_generate).arity == 0
                 listener.before_generate
@@ -104,7 +106,7 @@ module Origen
               end
             end
 
-            unless options[:quiet]
+            unless options[:quiet] || (tester && tester.try(:sim?))
               Origen.log.info '*' * 70
               stats.print_summary unless options[:action] == :merge
             end
