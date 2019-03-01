@@ -125,6 +125,15 @@ module Origen
                               end
                             end
 
+                            # Allow custom pattern prefix
+                            unless options[:pat_prefix].to_s.empty?
+                              if job.output_prefix.empty?
+                                job.output_pattern_filename = "#{options[:pat_prefix]}_" + job.output_pattern_filename
+                              else
+                                job.output_pattern_filename = job.output_pattern_filename.sub(job.output_prefix, job.output_prefix + "#{options[:pat_prefix]}_")
+                              end
+                            end
+
                             # Allow custom pattern postfix
                             unless options[:pat_postfix].to_s.empty?
                               job.output_pattern_filename = job.output_pattern_filename.sub(job.output_postfix + job.output_extension, "_#{options[:pat_postfix]}" + job.output_postfix + job.output_extension)
