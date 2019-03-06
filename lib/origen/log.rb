@@ -192,22 +192,23 @@ module Origen
       level == :verbose
     end
 
-    # Used to force logger to write any buffered output under an earlier implementation, now does nothing
+    # Force the logger to write any buffered output to the log files
     def flush
-      # No such API provided by the underlying logger, method kept around for compatibility with application
-      # code which was built for a previous version of this logger where flushing was required
+      @open_logs.each do |logger, file|
+        file.flush
+      end
     end
 
     # Mainly intended for testing the logger, this will return the log level to the default (:normal)
     # and close all log files, such that any further logging will be done to a new file(s)
     def reset
       self.level = :normal
-      @last_file.close if @last_file
+      close_log(@last_file)
       @last_file = nil
-      @job_file.close if @job_file
+      close_log(@job_file)
       @job_file = nil
       @custom_logs.each do |name, log|
-        log.close
+        close_log(log)
       end
       @custom_logs = {}
     end
@@ -222,7 +223,16 @@ module Origen
         dir = File.join(dir, env)
       end
       FileUtils.mkdir_p dir unless File.exist?(dir)
+      @@job_file_paths = {} unless defined?(@@job_file_paths)
+      # Make sure the log name is unique in this run, duplication and overwrite can occur in cases where
+      # a pattern is run multiple times during a simulation
       @job_file_path = File.join(dir, "#{name}.txt")
+      if n = @@job_file_paths[@job_file_path]
+        @@job_file_paths[@job_file_path] += 1
+        @job_file_path = File.join(dir, "#{name}_#{n}.txt")
+      else
+        @@job_file_paths[@job_file_path] = 1
+      end
       FileUtils.rm_f(@job_file_path) if File.exist?(@job_file_path)
       @job_file = open_log(@job_file_path)
     end
@@ -235,7 +245,7 @@ module Origen
         else
           Origen.log.info "Log file written to: #{@job_file_path}"
         end
-        @job_file.close
+        close_log(@job_file)
         @job_file = nil
       end
     end
@@ -326,11 +336,23 @@ module Origen
     end
 
     def open_log(file)
+      @open_logs ||= {}
+      unless file.class == IO
+        file = File.open(file, File::WRONLY | File::APPEND | File::CREAT)
+      end
       l = Logger.new(file)
       l.formatter = proc do |severity, dateime, progname, msg|
         msg
       end
+      @open_logs[l] = file
       l
+    end
+
+    def close_log(logger)
+      if logger
+        @open_logs.delete(logger)
+        logger.close
+      end
     end
 
     def relog(msg)

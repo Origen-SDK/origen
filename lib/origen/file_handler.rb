@@ -15,7 +15,10 @@ module Origen
     # This will also take care of recursively expanding any embedded
     # list references.
     def expand_list(files, options = {})
-      [files].flatten.map do |file|
+      options = {
+        preserve_duplicates: tester && tester.try(:sim?)
+      }.merge(options)
+      list_of_files = [files].flatten.map do |file|
         f = file.strip
         # Takes care of blank or comment lines in a list file
         if f.empty? || f =~ /^\s*#/
@@ -28,7 +31,12 @@ module Origen
         else
           f
         end
-      end.flatten.compact.uniq
+      end.flatten.compact
+      if options[:preserve_duplicates]
+        list_of_files
+      else
+        list_of_files.uniq
+      end
     end
 
     # Returns the contents of the given list file in an array, if it
