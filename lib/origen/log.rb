@@ -204,6 +204,7 @@ module Origen
     # and close all log files, such that any further logging will be done to a new file(s)
     def reset
       self.level = :normal
+      flush
       close_log(@last_file)
       @last_file = nil
       close_log(@job_file)
@@ -246,6 +247,7 @@ module Origen
         else
           Origen.log.info "Log file written to: #{@job_file_path}"
         end
+        flush
         close_log(@job_file)
         @job_file = nil
       end
