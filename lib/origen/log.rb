@@ -351,9 +351,8 @@ module Origen
 
     def close_log(logger)
       if logger
-        file = @open_logs.delete(logger)
+        @open_logs.delete(logger)
         logger.close
-        file.close
       end
     end
 
