@@ -197,6 +197,7 @@ module Origen
       @open_logs.each do |logger, file|
         file.flush
       end
+      nil
     end
 
     # Mainly intended for testing the logger, this will return the log level to the default (:normal)
@@ -338,7 +339,7 @@ module Origen
     def open_log(file)
       @open_logs ||= {}
       unless file.class == IO
-        file = File.open(file, File::WRONLY | File::APPEND | File::CREAT)
+        file = File.open(file, 'w+')
       end
       l = Logger.new(file)
       l.formatter = proc do |severity, dateime, progname, msg|
@@ -350,8 +351,9 @@ module Origen
 
     def close_log(logger)
       if logger
-        @open_logs.delete(logger)
+        file = @open_logs.delete(logger)
         logger.close
+        file.close
       end
     end
 
