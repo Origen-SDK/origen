@@ -11,6 +11,8 @@ module Origen
     autoload :Comparator,      'origen/generator/comparator'
     autoload :Renderer,        'origen/generator/renderer'
 
+    class AbortError < StandardError; end
+
     def pattern
       @pattern ||= Pattern.new
     end
