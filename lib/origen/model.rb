@@ -44,7 +44,7 @@ module Origen
     end
 
     # Returns a frozen hash containing any attributes that were
-    # derived from a part definition
+    # derived from a model definition
     def attributes
       @attributes ||= {}.freeze
     end
@@ -89,11 +89,11 @@ module Origen
       @app ||= Origen::Application.from_namespace(self.class.to_s)
     end
 
-    # Load the part definitions from the given path to the model.
-    # Returns true if a part is found and loaded, otherwise nil.
-    def load_part(path, options = {})
+    # Load the model definitions from the given path to the model.
+    # Returns true if a model is found and loaded, otherwise nil.
+    def load_model(path, options = {})
       options[:path] = path
-      Origen::Loader.load_part(self, options)
+      Origen::Loader.load_model(self, options)
     end
 
     def ==(obj)

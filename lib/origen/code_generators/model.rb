@@ -7,10 +7,22 @@ module Origen
 
       desc <<-END
 This generator creates a model and optionally a controller for it within your application's
-lib directory.
+app/lib directory.
 
 The NAME of the model should be given, in lower case, optionally indicating the presence
 of any namespacing you want it to be created under.
+
+If the model is intended to represent a top-level DUT or a primary sub-block/IP (e.g. RAM,
+ATD, PLL, Flash, etc) then use `origen new dut` or `origen new sub_block` instead.
+
+If the model is intended to represent a sub-component of an existing sub-block then the
+sub_block generator should be used to create a nested model - see the comments within
+sub_blocks.rb of the existing sub-block model for an example.
+
+Otherwise, models in the app/lib directory as produced by this generator and good for when
+your model is representing some abstract concept which may not map directly to hardware, or
+if you need to model a minor sub-component which needs to be shared by multuple higher level
+models.
 
 Examples:
   origen new model sequencer       # Creates app/lib/my_application/sequencer.rb

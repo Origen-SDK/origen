@@ -47,7 +47,7 @@ describe "code generators (origen new command)" do
     Origen::CodeGenerators.invoke name, args
   end
   
-  it "can generate a DUT part" do
+  it "can generate a DUT model" do
     @generated_files << Origen.root.join('target', 'falcon.rb')
     system! 'origen new dut falcon'
 
@@ -82,13 +82,13 @@ describe "code generators (origen new command)" do
   it 'can add a module to a DUT model' do
     # Grab the command to add a module to the Falcon model from the user advice within the
     # model file to test that it works
-    f = Origen.root.join('app', 'parts', 'dut', 'derivatives', 'falcon', 'model.rb')
+    f = Origen.root.join('app', 'models', 'dut', 'derivatives', 'falcon', 'model.rb')
     cmd = f.open.find { |line| line =~ /origen new module/ }.gsub('#', '').strip
 
     system! cmd
 
     # add a method to the new module so that we can test it
-    f = Origen.root.join('app', 'parts', 'dut', 'derivatives', 'falcon', 'model', 'my_module_name.rb')
+    f = Origen.root.join('app', 'models', 'dut', 'derivatives', 'falcon', 'model', 'my_module_name.rb')
     f.write(f.read.gsub('# def my_method', "def yo; 'yo!'; end\n"))
 
     load_falcon
@@ -98,34 +98,34 @@ describe "code generators (origen new command)" do
   it 'can add a module to a DUT controller' do
     # Grab the command to add a module to the Falcon model from the user advice within the
     # model file to test that it works
-    f1 = Origen.root.join('app', 'parts', 'dut', 'derivatives', 'falcon', 'controller.rb')
+    f1 = Origen.root.join('app', 'models', 'dut', 'derivatives', 'falcon', 'controller.rb')
     cmd = f1.open.find { |line| line =~ /origen new module/ }.gsub('#', '').strip
 
     system! cmd
 
     # Add a method to the new module so that we can test it
-    f = Origen.root.join('app', 'parts', 'dut', 'derivatives', 'falcon', 'controller', 'my_module_name.rb')
+    f = Origen.root.join('app', 'models', 'dut', 'derivatives', 'falcon', 'controller', 'my_module_name.rb')
     f.write(f.read.gsub('# def my_method', "def yo_from_c; 'yo!'; end\n"))
 
     load_falcon
     dut.yo_from_c.should == 'yo!'
   end
 
-  it 'can create a part' do
+  it 'can create a feature' do
     module Origen
       class PartTest
         include Origen::Model
       end
     end
 
-    system! 'origen new part my_part'
+    system! 'origen new feature my_feature'
 
     # Uncomment the examples from the parameter file so that we can test it
-    f = Origen.root.join('app', 'parts', 'my_part', 'parameters.rb')
+    f = Origen.root.join('app', 'models', 'my_feature', 'parameters.rb')
     f.write(f.read.gsub(/^# (\s*(params|define_params|end))/, '\1'))
 
     model = Origen::PartTest.new
-    model.load_part('my_part').should == true
+    model.load_model('my_feature').should == true
     model.params.tprog.should == 20.uS
   end
 
@@ -177,10 +177,10 @@ describe "code generators (origen new command)" do
   end
 
   describe "nested sub_blocks" do
-    it "can be added to a derivative part" do
+    it "can be added to a derivative model" do
       # Grab the command to add a module to the Falcon model from the user advice within the
       # model file to test that it works
-      f1 = Origen.root.join('app', 'parts', 'dut', 'derivatives', 'falcon', 'sub_blocks.rb')
+      f1 = Origen.root.join('app', 'models', 'dut', 'derivatives', 'falcon', 'sub_blocks.rb')
       cmd = f1.open.find { |line| line =~ /origen new sub_block app/ }.gsub('#', '').sub('my_sub_block_name', 'derivative_sub_block').strip
 
       system! cmd
@@ -191,8 +191,8 @@ describe "code generators (origen new command)" do
       dut.derivative_sub_block.is_a_model_and_controller?.should == true
     end
 
-    it "can be added to a parent part" do
-      f1 = Origen.root.join('app', 'parts', 'dut', 'sub_blocks.rb')
+    it "can be added to a parent model" do
+      f1 = Origen.root.join('app', 'models', 'dut', 'sub_blocks.rb')
       cmd = f1.open.find { |line| line =~ /origen new sub_block app/ }.gsub('#', '').sub('my_sub_block_name', 'parent_sub_block').strip
 
       system! cmd
@@ -204,14 +204,14 @@ describe "code generators (origen new command)" do
     end
 
     it "attributes can be added to sub-blocks" do
-      f = Origen.root.join('app', 'parts', 'dut', 'sub_blocks', 'parent_sub_block', 'attributes.rb')
+      f = Origen.root.join('app', 'models', 'dut', 'sub_blocks', 'parent_sub_block', 'attributes.rb')
       f.write(f.read.gsub('# @has_feature_x', "@has_feature_x"))
 
       load_falcon
 
       dut.parent_sub_block.has_feature_x?.should == true
 
-      f = Origen.root.join('app', 'parts', 'dut', 'derivatives', 'falcon', 'sub_blocks', 'derivative_sub_block', 'attributes.rb')
+      f = Origen.root.join('app', 'models', 'dut', 'derivatives', 'falcon', 'sub_blocks', 'derivative_sub_block', 'attributes.rb')
       f.write(f.read.gsub('# @has_feature_x', "@has_feature_y"))
 
       load_falcon
@@ -221,14 +221,14 @@ describe "code generators (origen new command)" do
     end
 
     it "registers can be added to sub-blocks" do
-      f = Origen.root.join('app', 'parts', 'dut', 'sub_blocks', 'parent_sub_block', 'registers.rb')
+      f = Origen.root.join('app', 'models', 'dut', 'sub_blocks', 'parent_sub_block', 'registers.rb')
       f.write(f.read.gsub('# Example', "add_reg :reg1, 0x1000 # Example"))
 
       load_falcon
 
       dut.parent_sub_block.reg1.address.should == 0x1000
 
-      f = Origen.root.join('app', 'parts', 'dut', 'derivatives', 'falcon', 'sub_blocks', 'derivative_sub_block', 'registers.rb')
+      f = Origen.root.join('app', 'models', 'dut', 'derivatives', 'falcon', 'sub_blocks', 'derivative_sub_block', 'registers.rb')
       f.write(f.read.gsub('# Example', "add_reg :reg2, 0x2000 # Example"))
 
       load_falcon
@@ -238,7 +238,7 @@ describe "code generators (origen new command)" do
     end
 
     it "sub-blocks can be added to sub-blocks" do
-      f1 = Origen.root.join('app', 'parts', 'dut', 'derivatives', 'falcon', 'sub_blocks', 'derivative_sub_block', 'sub_blocks.rb')
+      f1 = Origen.root.join('app', 'models', 'dut', 'derivatives', 'falcon', 'sub_blocks', 'derivative_sub_block', 'sub_blocks.rb')
       cmd = f1.open.find { |line| line =~ /origen new sub_block app/ }.gsub('#', '').sub('my_sub_block_name', 'block1').strip
 
       system! cmd
@@ -249,7 +249,7 @@ describe "code generators (origen new command)" do
       dut.derivative_sub_block.block1.is_a_model_and_controller?.should == true
 
       # Quickly test adding a register to make sure the loading of the files works OK
-      f = Origen.root.join('app', 'parts', 'dut', 'derivatives', 'falcon', 'sub_blocks', 'derivative_sub_block', 'sub_blocks', 'block1', 'registers.rb')
+      f = Origen.root.join('app', 'models', 'dut', 'derivatives', 'falcon', 'sub_blocks', 'derivative_sub_block', 'sub_blocks', 'block1', 'registers.rb')
       f.write(f.read.gsub('# Example', "add_reg :reg3, 0x3000 # Example"))
 
       load_falcon

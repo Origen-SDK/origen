@@ -1,7 +1,7 @@
 module Origen
   module CodeGenerators
     class SubBlock < Origen::CodeGenerators::Base
-      include PartCommon
+      include ModelCommon
 
       # class_option :duts, type: :boolean, desc: 'Instantiate the new sub-block in all DUT models', default: true
       # class_option :instance, desc: 'The main NAME argument will be the name given to the model and the instantiated sub-block, optionally provide a different name for the instance'
@@ -11,26 +11,26 @@ module Origen
       end
 
       desc <<-END
-This generator creates a primary sub-block part (e.g. RAM, ATD, Flash, DAC, etc.) and all of the associated
+This generator creates a primary sub-block model (e.g. RAM, ATD, Flash, DAC, etc.) and all of the associated
 resources for it, e.g. a model, controller, timesets, parameters, etc.
 
 The TYPE and DERIVATIVE names should be given in lower case (e.g. flash/flash2kb, atd/atd16), optionally with
 additional parent sub-block names after the initial type.
 
 Alternatively, a reference to an existing PART can be added, in which case a nested sub-block will be created
-within that part, rather than a primary sub-block.
+within that model, rather than a primary sub-block.
 Note that nested sub-blocks do not support derivatives or inheritance and should therefore only be used for
-relatively simple sub-blocks which are tightly coupled to a parent part.
+relatively simple sub-blocks which are tightly coupled to a parent model.
 
 All parent sub-blocks will be created if they don't exist, but they will not be modified if they do.
 
 Examples:
-  origen new sub_block atd/atd8bit          # Creates app/parts/atd/derivatives/atd8bit/...
-  origen new sub_block atd/atd16bit         # Creates app/parts/atd/derivatives/atd16bit/...
-  origen new sub_block nvm/flash/flash2kb   # Creates app/parts/nvm/derivatives/flash/derivatives/flash2kb/...
+  origen new sub_block atd/atd8bit          # Creates app/models/atd/derivatives/atd8bit/...
+  origen new sub_block atd/atd16bit         # Creates app/models/atd/derivatives/atd16bit/...
+  origen new sub_block nvm/flash/flash2kb   # Creates app/models/nvm/derivatives/flash/derivatives/flash2kb/...
 
   # Example of creating a nested sub-block
-  origen new sub_block nvm/flash/flash2kb bist   # Creates app/parts/nvm/derivatives/flash/derivatives/flash2kb/sub_blocks/bist/...
+  origen new sub_block nvm/flash/flash2kb bist   # Creates app/models/nvm/derivatives/flash/derivatives/flash2kb/sub_blocks/bist/...
 END
 
       def validate_args
@@ -42,7 +42,7 @@ END
 
         if args.size > 2 || args.size == 0
           msg = args.size == 0 ? 'At least one argument is ' : 'No more than two arguments are '
-          msg << "expected by the sub-block generator, e.g. 'origen new sub_block atd/atd16bit', 'origen new sub_block sampler app/parts/atd/derivatives/atd16bit"
+          msg << "expected by the sub-block generator, e.g. 'origen new sub_block atd/atd16bit', 'origen new sub_block sampler app/models/atd/derivatives/atd16bit"
           Origen.log.error(msg)
           exit 1
         end
@@ -53,7 +53,7 @@ END
           exit 1
         end
         if @nested && args.last.split('/').size != 1
-          msg = "No leading type is allowed when generating a nested sub-block, e.g. 'origen new sub_block sampler app/parts/atd/derivatives/atd16bit"
+          msg = "No leading type is allowed when generating a nested sub-block, e.g. 'origen new sub_block sampler app/models/atd/derivatives/atd16bit"
           Origen.log.error(msg)
           exit 1
         end
@@ -67,7 +67,7 @@ END
         if @nested
           @final_name = args.last
           @fullname = resource_path_to_class(args.first)
-          @dir = resource_path_to_part_dir(args.first).join('sub_blocks', @final_name)
+          @dir = resource_path_to_models_dir(args.first).join('sub_blocks', @final_name)
           @namespaces = add_type_to_namespaces(@fullname.split('::').map(&:underscore))
         else
           extract_model_name
@@ -124,7 +124,7 @@ END
                 # cause an already defined sub-block error since it will be added by both instantiations
                 unless done.any? { |c| target =~ /^#{c}::/ }
                   done << target
-                  sub_blocks = class_name_to_part_dir(target).join('sub_blocks.rb')
+                  sub_blocks = class_name_to_models_dir(target).join('sub_blocks.rb')
                   unless sub_blocks.exist?
                     orig = @fullname
                     @fullname = target
@@ -170,12 +170,12 @@ END
       end
 
       # Returns a look up table for all dut models defined in this application (only those defined
-      # as parts, as they all should be now).
+      # as models, as they all should be now).
       # This is arranged by hierarchy.
       def duts
         @duts ||= begin
           duts = {}
-          dut_dir = Pathname.new(File.join(Origen.root, 'app', 'parts', 'dut'))
+          dut_dir = Pathname.new(File.join(Origen.root, 'app', 'models', 'dut'))
           if dut_dir.exist?
             name = "#{Origen.app.namespace}::DUT"
             duts[name] = {}

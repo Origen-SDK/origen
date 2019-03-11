@@ -48,7 +48,7 @@ module Origen
         end
         if x.respond_to?(:is_an_origen_model?)
           x.send(:_initialized)
-          Origen::Loader.load_part(x)
+          Origen::Loader.load_model(x)
         end
         if x.respond_to?(:register_callback_listener)
           Origen.after_app_loaded do |app|

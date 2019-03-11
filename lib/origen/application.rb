@@ -133,20 +133,20 @@ module Origen
 
     # @api private
     #
-    # Returns a lookup table for all part definitions (app/parts) that the app contains
-    def parts_files
+    # Returns a lookup table for all model definitions (app/models) that the app contains
+    def models_files
       # There seems to be some issue with this cache being corrupted when running the test suite
       # in Travis, but don't believe that this is really an issue in practice and cannot replicate
-      # it locally. Therefore maintaining the cache of this potentially expensive operation apart
+      # it locally. Therefore maintaining the cache of this potentially expensive operation except
       # from when running in CI.
-      @parts_files = nil if ENV['CONTINUOUS_INTEGRATION']
-      @parts_files ||= begin
+      @models_files = nil if ENV['CONTINUOUS_INTEGRATION']
+      @models_files ||= begin
         files = {}
-        part_dir = Pathname.new(File.join(root, 'app', 'parts'))
-        if part_dir.exist?
-          part_dir.children.each do |item|
+        model_dir = Pathname.new(File.join(root, 'app', 'models'))
+        if model_dir.exist?
+          model_dir.children.each do |item|
             if item.directory?
-              _add_part_files(files, part_dir, item)
+              _add_model_files(files, model_dir, item)
             end
           end
         end
@@ -155,8 +155,8 @@ module Origen
     end
 
     # @api private
-    def _add_part_files(files, part_dir, current_dir, sub_block = false)
-      fields = current_dir.relative_path_from(part_dir).to_s.split('/')
+    def _add_model_files(files, model_dir, current_dir, sub_block = false)
+      fields = current_dir.relative_path_from(model_dir).to_s.split('/')
       fields.delete('derivatives')
       fields.delete('sub_blocks')
       path = fields.join('/')
@@ -174,7 +174,7 @@ module Origen
       if derivatives.exist?
         derivatives.children.each do |item|
           if item.directory?
-            _add_part_files(files, part_dir, item)
+            _add_model_files(files, model_dir, item)
           end
         end
       end
@@ -182,7 +182,7 @@ module Origen
       if sub_blocks.exist?
         sub_blocks.children.each do |item|
           if item.directory?
-            _add_part_files(files, part_dir, item, true)
+            _add_model_files(files, model_dir, item, true)
           end
         end
       end

@@ -431,14 +431,14 @@ module Origen
       def materialize
         block = nil
         file = attributes.delete(:file)
-        load_part = attributes.delete(:load_part)
+        load_model = attributes.delete(:load_model)
         dir = attributes.delete(:dir) || owner.send(:export_dir)
         block = owner.send(:instantiate_sub_block, name, klass, attributes)
         if file
           require File.join(dir, file)
           block.extend owner.send(:export_module_names_from_path, file).join('::').constantize
         end
-        block.load_part(load_part) if load_part
+        block.load_model(load_model) if load_model
         block.owner = owner
         block
       end

@@ -2,7 +2,7 @@ module Origen
   # This module is responsible for enhancing how Ruby requires and loads files to support loading of
   # classes and modules from an application's app dir without having to require them.
   #
-  # It also implements the <model>.load_path method that loads files from app/parts.
+  # It also implements the <model>.load_path method that loads files from app/models.
   module Loader
     # @api private
     #
@@ -16,7 +16,7 @@ module Origen
       @consts_hierarchy = {}
       @loaded_consts = {}
       (Origen.app.plugins + [Origen.app]).each do |app|
-        app.instance_variable_set(:@parts_files, nil)
+        app.instance_variable_set(:@models_files, nil)
       end
       nil
     end
@@ -60,7 +60,7 @@ module Origen
         attributes = {}
       end
       vars = model.instance_variables
-      if load_part_file(file, model)
+      if load_model_file(file, model)
         # Update the value of any pre-existing attribute that could have just changed
         attributes.each do |a, v|
           attributes[a] = model.instance_variable_get("@#{a}")
@@ -93,7 +93,7 @@ module Origen
     end
 
     # @api private
-    def self.load_part_file(file, model)
+    def self.load_model_file(file, model)
       model.instance_eval(file.read, file.to_s) if File.exist?(file.to_s)
       true
     end
@@ -109,10 +109,10 @@ module Origen
       end
     end
 
-    # If a part definition exists for the given model, then this will load it and apply it to
+    # If a model definition exists for the given model, then this will load it and apply it to
     # the model.
-    # Returns true if a part is found and loaded, otherwise nil.
-    def self.load_part(model, options = {})
+    # Returns true if a model is found and loaded, otherwise nil.
+    def self.load_model(model, options = {})
       model = model.model  # Ensure we have a handle on the model and not its controller
       loaded = nil
       if app = options[:app] || model.app
@@ -132,7 +132,7 @@ module Origen
           # If the path refers to a nested sub-block then don't load the full hierarchy since they
           # don't support inheritance or derivatives, modify the paths array so that only the sub-block
           # level will be loaded and nothing else.
-          paths = [path] if app.parts_files[path] && app.parts_files[path][:_sub_block]
+          paths = [path] if app.models_files[path] && app.models_files[path][:_sub_block]
           # These will be loaded first, followed by the rest in an undefined order.
           # Attributes and parameters are first so that they may be referenced in the other files.
           # Sub-blocks was added early due to a corner case issue that could be encountered if the pins or
@@ -145,12 +145,12 @@ module Origen
               with_parameters_transaction(type) do
                 paths.each_with_index do |path, i|
                   key = i == 0 ? path.underscore : "#{key}/#{path.underscore}"
-                  if app.parts_files[key] && app.parts_files[key][type]
-                    app.parts_files[key][type].each do |f|
+                  if app.models_files[key] && app.models_files[key][type]
+                    app.models_files[key][type].each do |f|
                       if type == :attributes
                         success = load_attributes(f, model)
                       else
-                        success = load_part_file(f, model)
+                        success = load_model_file(f, model)
                       end
                       loaded ||= success
                     end
@@ -163,10 +163,10 @@ module Origen
           # Now load the rest
           paths.each_with_index do |path, i|
             key = i == 0 ? path.underscore : "#{key}/#{path.underscore}"
-            if app.parts_files[key]
-              app.parts_files[key].each do |type, files|
+            if app.models_files[key]
+              app.models_files[key].each do |type, files|
                 unless type == :_sub_block || load_first.include?(type) || (only && !only.include?(type)) || (except && except.include?(type))
-                  files.each { |f| success = load_part_file(f, model); loaded ||= success }
+                  files.each { |f| success = load_model_file(f, model); loaded ||= success }
                 end
               end
             end
@@ -212,8 +212,8 @@ module Origen
         dirs if subbed
       end
 
-      # Allows classes and modules to be defined in app/parts and app/lib without needing to
-      # require them and in the case of app/parts to use a custom directory structure.
+      # Allows classes and modules to be defined in app/models and app/lib without needing to
+      # require them and in the case of app/models to use a custom directory structure.
       #
       # The first time a reference is made to a class or module name it will trigger this hook,
       # and we then work out what the file name should be and require it.
@@ -228,11 +228,11 @@ module Origen
           names = name.split('::')
           namespace = names.shift
           if app = Origen::Application.from_namespace(namespace)
-            # First we are going to check for a match in the app/parts directory, this needs to be handled
+            # First we are going to check for a match in the app/models directory, this needs to be handled
             # specially since it follows a non-std structure, e.g. use of derivatives/ and sub_blocks/ folders
-            # for organization without having them as part of the class name-spacing
+            # for organization without having them as model of the class name-spacing
             altname = nil
-            dirs = [app.root, 'app', 'parts']
+            dirs = [app.root, 'app', 'models']
             names.each_with_index do |name, i|
               dirs << 'derivatives' unless i == 0
               dirs << name.underscore
@@ -257,7 +257,7 @@ module Origen
               end
             end
 
-            # Is this a reference to a sub-block model or controller that is nested within a part?
+            # Is this a reference to a sub-block model or controller that is nested within a model?
             dirs_ = dirs.dup
             while dirs_ = _sub_derivatives_from_end('sub_blocks', dirs_)
               if controller_reference
@@ -293,7 +293,7 @@ module Origen
               return _load_const(f, name)
             end
 
-            # Now that we have established that it is not a reference to a part (which has a non-std code
+            # Now that we have established that it is not a reference to a model (which has a non-std code
             # organization structure), we can now check for a match in the app/lib directory following std
             # Ruby code organization conventions
             until names.empty?

@@ -29,10 +29,10 @@ module Origen
     def self.load_generators
       return if @generators_loaded
       # Load Origen's generators
-      require_relative 'code_generators/part_common'
+      require_relative 'code_generators/model_common'
       require_relative 'code_generators/dut'
       require_relative 'code_generators/sub_block'
-      require_relative 'code_generators/part'
+      require_relative 'code_generators/feature'
       require_relative 'code_generators/model'
       require_relative 'code_generators/klass'
       require_relative 'code_generators/module'
@@ -80,9 +80,9 @@ module Origen
         end
         return gen if gen
       end
-      puts "Couldn't find a feature generator named: #{name}"
+      puts "Couldn't find a code generator named: #{name}"
       puts
-      puts 'This is the list of available features:'
+      puts 'This is the list of available generators:'
       puts
       print_generators
       puts

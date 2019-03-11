@@ -1,7 +1,7 @@
 module Origen
   module CodeGenerators
-    # Base generator for DUT and sub-block parts
-    module PartCommon
+    # Base generator for DUT and sub-block models
+    module ModelCommon
       def validate_args_common(arg = nil)
         validate_resource_name(arg || args.first)
       end
@@ -21,12 +21,12 @@ module Origen
 
       def create_files
         # @summary = ask 'Describe your plugin in a few words:'
-        @part = true
+        @model = true
         @root_class = true
 
         # Nested sub-blocks do not support inheritance
         unless @nested
-          dir = File.join(Origen.root, 'app', 'parts')
+          dir = File.join(Origen.root, 'app', 'models')
           @fullname = Origen.app.namespace.to_s
 
           @model_path.each do |path|

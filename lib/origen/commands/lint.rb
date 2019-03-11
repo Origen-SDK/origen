@@ -33,7 +33,7 @@ if ARGV.empty?
     files = Origen.config.lint_test[:files].map { |f| "#{Origen.root}/#{f}" }.join(' ')
   else
     files = []
-    ['lib', 'app/lib', 'app/parts'].each do |sub_dir|
+    ['lib', 'app/lib', 'app/models'].each do |sub_dir|
       dir = "#{Origen.root}/#{sub_dir}"
       files << dir if File.exist?(dir)
     end

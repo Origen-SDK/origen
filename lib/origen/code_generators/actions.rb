@@ -315,31 +315,31 @@ module Origen
 
         # Converts a path to a resource identifier, by performing the following operations on the given path:
         #   1) Convert any absolute paths to relative
-        #   2) Removes any leading part/, lib/ or application namespaces
+        #   2) Removes any leading models/, lib/ or application namespaces
         #   3) Remove any derivatives directories from the path
         #   3) Removes any trailing .rb
         #
         # Examples:
         #
-        #   /my/code/my_app/app/parts/dut/derivatives/falcon   => dut/falcon
+        #   /my/code/my_app/app/models/dut/derivatives/falcon   => dut/falcon
         #   app/lib/my_app/eagle.rb                            => eagle
         def resource_path(path)
           path = Pathname.new(path).expand_path.relative_path_from(Pathname.pwd).to_s
           path = path.sub('.rb', '')
           path = path.split('/')
-          from_part_dir_path = false
+          from_model_dir_path = false
           path.shift if path.first == 'app'
           path.shift if path.first == 'lib'
-          if path.first == 'parts'
+          if path.first == 'models'
             path.shift
-            from_part_dir_path = true
+            from_model_dir_path = true
           end
           path.shift if path.first == underscored_app_namespace
           if path.include?('derivatives')
             path.delete('derivatives')
-            from_part_dir_path = true
+            from_model_dir_path = true
           end
-          if from_part_dir_path
+          if from_model_dir_path
             path.delete('sub_blocks')
             path.pop if path.last == 'model'
             if path.last == 'controller'
@@ -350,12 +350,12 @@ module Origen
           path.join('/')
         end
 
-        # Returns a Pathname to the part directory that should contain the given class name. No checking is
+        # Returns a Pathname to the models directory that should contain the given class name. No checking is
         # done of the name and it is assumed that it is a valid class name including the application namespace.
-        def class_name_to_part_dir(name)
+        def class_name_to_models_dir(name)
           name = name.split('::')
           name.shift  # Drop the application name
-          dir = Origen.root.join('app', 'parts')
+          dir = Origen.root.join('app', 'models')
           name.each_with_index do |n, i|
             if i == 0
               dir = dir.join(n.underscore)
@@ -377,9 +377,9 @@ module Origen
           dir
         end
 
-        def resource_path_to_part_dir(path)
+        def resource_path_to_models_dir(path)
           name = resource_path(path).split('/')   # Ensure this is clean, don't care about performance here
-          dir = Origen.root.join('app', 'parts')
+          dir = Origen.root.join('app', 'models')
           name.each_with_index do |n, i|
             if i == 0
               dir = dir.join(n.underscore)
