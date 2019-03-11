@@ -1,3 +1,47 @@
+<a class="anchor release_tag" name="v0_43_0"></a>
+<h1><a href="#v0_43_0">Tag: v0.43.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 08-Mar-2019 02:07AM
+
+
+Added internal hooks to improve OrigenSim integration
+
+<a class="anchor release_tag" name="v0_42_2"></a>
+<h1><a href="#v0_42_2">Tag: v0.42.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Ronnie Lajaunie on 01-Mar-2019 11:39AM
+
+
+* Add pat\_prefix option to pattern generator.
+
+<a class="anchor release_tag" name="v0_42_1"></a>
+<h1><a href="#v0_42_1">Tag: v0.42.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 01-Feb-2019 09:09AM
+
+
+Various bug fixes (Brian Caquelin and Stephen McGinty)
+
+<a class="anchor release_tag" name="v0_42_0"></a>
+<h1><a href="#v0_42_0">Tag: v0.42.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 22-Jan-2019 15:29PM
+
+
+* Robustness improvement to Git driver (Paul Derouen)
+* Improved help for no tester instantiated (Chao Yang)
+* Added `sub\_block\_group` API (Daniel Hadad)
+* Model exporter bug fixes (Paul Derouen)
+
+
 <a class="anchor release_tag" name="v0_41_2"></a>
 <h1><a href="#v0_41_2">Tag: v0.41.2</a></h1>
 

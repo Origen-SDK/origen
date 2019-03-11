@@ -97,12 +97,7 @@ Origen.lsf.current_command = @command
 
 if ARGV.delete('-d') || ARGV.delete('--debug')
   begin
-    if RUBY_VERSION >= '2.0.0'
-      require 'byebug'
-    else
-      require 'rubygems'
-      require 'ruby-debug'
-    end
+    require 'byebug'
   rescue LoadError
     def debugger
       caller[0] =~ /.*\/(\w+\.rb):(\d+).*/

@@ -17,6 +17,7 @@ module Origen
       @log_time_0 = @t0 = Time.new
       self.level = :normal
       @custom_logs = {}
+      @interceptors = {}
     end
 
     def console_only?(options = {})
@@ -79,57 +80,94 @@ module Origen
       @level
     end
 
-    def debug(string = '', options = {})
-      string, options = sanitize_args(string, options)
-      msg = format_msg('DEBUG', string)
-      log_files(:debug, msg) unless console_only?(options)
-      console.debug msg
-      nil
+    # @api private
+    #
+    # @example of an interceptor:
+    #
+    #     # An interceptor ID is returned, this should be given to stop_intercepting
+    #     @log_intercept_id = Origen.log.start_intercepting do |msg, type, options, original|
+    #       if some_condition_is_true?
+    #         # Handling it ourselves
+    #         my_method(msg, type)
+    #       else
+    #         # Call the original Origen.log method (or the next interceptor in line)
+    #         original.call(msg, type, options)
+    #       end
+    #     end
+    def start_intercepting(&block)
+      id = block.object_id
+      @interceptors[id] = block
+      id
     end
 
-    def info(string = '', msg_type = nil)
+    # @api private
+    def stop_intercepting(id)
+      @interceptors.delete(id)
+    end
+
+    def debug(string = '', options = {})
       string, options = sanitize_args(string, options)
-      msg = format_msg('INFO', string)
-      log_files(:info, msg) unless console_only?(options)
-      console.info msg
-      nil
+      intercept(string, :debug, options) do |msg, type, options|
+        msg = format_msg('DEBUG', msg)
+        log_files(:debug, msg) unless console_only?(options)
+        console.debug msg
+        nil
+      end
+    end
+
+    def info(string = '', options = {})
+      string, options = sanitize_args(string, options)
+      intercept(string, :info, options) do |msg, type, options|
+        msg = format_msg('INFO', msg)
+        log_files(:info, msg) unless console_only?(options)
+        console.info msg
+        nil
+      end
     end
     # Legacy methods
     alias_method :lputs, :info
     alias_method :lprint, :info
 
-    def success(string = '', msg_type = nil)
+    def success(string = '', options = {})
       string, options = sanitize_args(string, options)
-      msg = format_msg('SUCCESS', string)
-      log_files(:info, msg) unless console_only?(options)
-      console.info color_unless_remote(msg, :green)
-      nil
+      intercept(string, :success, options) do |msg, type, options|
+        msg = format_msg('SUCCESS', msg)
+        log_files(:info, msg) unless console_only?(options)
+        console.info color_unless_remote(msg, :green)
+        nil
+      end
     end
 
-    def deprecate(string = '', msg_type = nil)
+    def deprecate(string = '', options = {})
       string, options = sanitize_args(string, options)
-      msg = format_msg('DEPRECATED', string)
-      log_files(:warn, msg) unless console_only?(options)
-      console.warn color_unless_remote(msg, :yellow)
-      nil
+      intercept(string, :deprecate, options) do |msg, type, options|
+        msg = format_msg('DEPRECATED', msg)
+        log_files(:warn, msg) unless console_only?(options)
+        console.warn color_unless_remote(msg, :yellow)
+        nil
+      end
     end
     alias_method :deprecated, :deprecate
 
-    def warn(string = '', msg_type = nil)
+    def warn(string = '', options = {})
       string, options = sanitize_args(string, options)
-      msg = format_msg('WARNING', string)
-      log_files(:warn, msg) unless console_only?(options)
-      console.warn color_unless_remote(msg, :yellow)
-      nil
+      intercept(string, :warn, options) do |msg, type, options|
+        msg = format_msg('WARNING', msg)
+        log_files(:warn, msg) unless console_only?(options)
+        console.warn color_unless_remote(msg, :yellow)
+        nil
+      end
     end
     alias_method :warning, :warn
 
-    def error(string = '', msg_type = nil)
+    def error(string = '', options = {})
       string, options = sanitize_args(string, options)
-      msg = format_msg('ERROR', string)
-      log_files(:error, msg) unless console_only?(options)
-      console.error color_unless_remote(msg, :red)
-      nil
+      intercept(string, :error, options) do |msg, type, options|
+        msg = format_msg('ERROR', msg)
+        log_files(:error, msg) unless console_only?(options)
+        console.error color_unless_remote(msg, :red)
+        nil
+      end
     end
 
     # Made these all class methods so that they can be read without
@@ -154,22 +192,25 @@ module Origen
       level == :verbose
     end
 
-    # Used to force logger to write any buffered output under an earlier implementation, now does nothing
+    # Force the logger to write any buffered output to the log files
     def flush
-      # No such API provided by the underlying logger, method kept around for compatibility with application
-      # code which was built for a previous version of this logger where flushing was required
+      @open_logs.each do |logger, file|
+        file.flush
+      end
+      nil
     end
 
     # Mainly intended for testing the logger, this will return the log level to the default (:normal)
     # and close all log files, such that any further logging will be done to a new file(s)
     def reset
       self.level = :normal
-      @last_file.close if @last_file
+      flush
+      close_log(@last_file)
       @last_file = nil
-      @job_file.close if @job_file
+      close_log(@job_file)
       @job_file = nil
       @custom_logs.each do |name, log|
-        log.close
+        close_log(log)
       end
       @custom_logs = {}
     end
@@ -184,7 +225,16 @@ module Origen
         dir = File.join(dir, env)
       end
       FileUtils.mkdir_p dir unless File.exist?(dir)
+      @@job_file_paths = {} unless defined?(@@job_file_paths)
+      # Make sure the log name is unique in this run, duplication and overwrite can occur in cases where
+      # a pattern is run multiple times during a simulation
       @job_file_path = File.join(dir, "#{name}.txt")
+      if n = @@job_file_paths[@job_file_path]
+        @@job_file_paths[@job_file_path] += 1
+        @job_file_path = File.join(dir, "#{name}_#{n}.txt")
+      else
+        @@job_file_paths[@job_file_path] = 1
+      end
       FileUtils.rm_f(@job_file_path) if File.exist?(@job_file_path)
       @job_file = open_log(@job_file_path)
     end
@@ -192,8 +242,13 @@ module Origen
     # @api private
     def stop_job
       if @job_file
-        Origen.log.info "Log file written to: #{@job_file_path}"
-        @job_file.close
+        if tester && tester.respond_to?(:log_file_written)
+          tester.log_file_written @job_file_path
+        else
+          Origen.log.info "Log file written to: #{@job_file_path}"
+        end
+        flush
+        close_log(@job_file)
         @job_file = nil
       end
     end
@@ -217,6 +272,24 @@ module Origen
     end
 
     private
+
+    def intercept(msg, type, options, &block)
+      if @interceptors.size > 0
+        call_interceptor(@interceptors.values, msg, type, options, &block)
+      else
+        yield(msg, type, options)
+      end
+    end
+
+    def call_interceptor(interceptors, msg, type, options, &original)
+      interceptor = interceptors.shift
+      if interceptors.empty?
+        func = -> (msg, type, options) { original.call(msg, type, options) }
+      else
+        func = -> (msg, type, options) { call_interceptor(interceptors, msg, type, options, &original) }
+      end
+      interceptor.call(msg, type, options, func)
+    end
 
     def sanitize_args(*args)
       message = ''
@@ -266,11 +339,23 @@ module Origen
     end
 
     def open_log(file)
+      @open_logs ||= {}
+      unless file.class == IO
+        file = File.open(file, 'w+')
+      end
       l = Logger.new(file)
       l.formatter = proc do |severity, dateime, progname, msg|
         msg
       end
+      @open_logs[l] = file
       l
+    end
+
+    def close_log(logger)
+      if logger
+        @open_logs.delete(logger)
+        logger.close
+      end
     end
 
     def relog(msg)

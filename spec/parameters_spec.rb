@@ -56,6 +56,10 @@ module ParametersSpec
           params.y = @y * 4
         end
 
+        define_params :boolean_check do |params|
+          params.boolean = false
+        end
+
         reg :erase, 0x0 do
           bits 7..4, :time, bind: params.live.erase.time
           bits 3..0, :pulses
@@ -297,8 +301,8 @@ module ParametersSpec
     end
     
     it "all available parameter contexts can be returned as an array" do
-      $dut.params.available_contexts.should == [:default, :ate, :probe, :ft, :set1, :set2, :set3]
-      $dut.params.contexts.should == [:default, :ate, :probe, :ft, :set1, :set2, :set3]
+      $dut.params.available_contexts.should == [:default, :ate, :probe, :ft, :set1, :set2, :set3, :boolean_check]
+      $dut.params.contexts.should == [:default, :ate, :probe, :ft, :set1, :set2, :set3, :boolean_check]
     end
     
     it "objects that own parameter sets can tell if they do or not" do
@@ -306,7 +310,7 @@ module ParametersSpec
     end
     
     it 'can pass inheritance between objects' do
-      $dut.params.contexts.should == [:default, :ate, :probe, :ft, :set1, :set2, :set3]
+      $dut.params.contexts.should == [:default, :ate, :probe, :ft, :set1, :set2, :set3, :boolean_check]
       $dut.ip_with_params.params.contexts.should == [:default]
       $dut.params(:default).keys.should == [:tprog, :erase, :test, :vdd, :measurement0, :measurement1]
       $dut.ip_with_params.params(:default).keys.should == [:tprog, :erase, :test, :vdd, :measurement0, :measurement1]
@@ -323,6 +327,10 @@ module ParametersSpec
       $dut.param?(:tprog).should == 20
       $dut.param?('tprog_does_not_exist').should == nil
       $dut.param?(:tprog_does_not_exist).should == nil
+    end
+
+    it 'parameter sets can set values to boolean false' do
+      $dut.params(:boolean_check).boolean.should == false
     end
   end
 end

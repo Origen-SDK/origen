@@ -1,6 +1,16 @@
 module Origen
   module Model
     module Exporter
+      # Export the model
+      #
+      # Options defaults:
+      #   include_pins:       true
+      #   include_registers:  true
+      #   include_sub_blocks: true
+      #   include_timestamp:  true
+      #   rm_rb_only:         nil     # delete only .rb files, default is rm -rf * Origen.root/vendor/lib/models/name
+      #
+      # Use the rm_rb_only option if the export dir is under revision control and the dir contains revision control metadata
       def export(name, options = {})
         options = {
           include_pins:       true,
@@ -14,7 +24,13 @@ module Origen
         file = options[:file_path] || export_path(name, options)
         dir = options[:dir_path] || export_dir(options)
         path_to_file = Pathname.new(File.join(dir, file))
-        FileUtils.rm_rf(path_to_file.sub_ext('').to_s) if File.exist?(path_to_file.sub_ext('').to_s)
+        if File.exist?(path_to_file.sub_ext('').to_s)
+          if options[:rm_rb_only]
+            Dir.glob(path_to_file.sub_ext('').to_s + '/**/*.rb').each { |f| FileUtils.rm_f(f) }
+          else
+            FileUtils.rm_rf(path_to_file.sub_ext('').to_s)
+          end
+        end
         FileUtils.rm_rf(path_to_file.to_s) if File.exist?(path_to_file.to_s)
         FileUtils.mkdir_p(path_to_file.dirname)
         File.open(path_to_file, 'w') do |f|
@@ -224,7 +240,7 @@ module Origen
         indent = ' ' * (options[:indent] || 0)
         file_path = File.join(Pathname.new(options[:file_path]).sub_ext(''), "#{id}.rb")
         dir_path = options[:dir_path]
-        line = indent + "model.sub_block :#{id}, file: '#{file_path}', dir: '#{dir_path}', lazy: true"
+        line = indent + "model.sub_block :#{id}, file: '#{file_path}', dir: \"#{dir_path.gsub(Origen.root.to_s, '#{Origen.root!}')}\", lazy: true"
         unless block.base_address == 0
           line << ", base_address: #{block.base_address.to_hex}"
         end

@@ -56,6 +56,14 @@ module Origen
       attr_accessor :description
       attr_accessor :notes
 
+      # Returns a hash containing any meta data associated with the current pin state
+      #
+      #   my_pin.read!(1, meta: { position: 10 })
+      #   my_pin.state_meta    # => { position: 10 }
+      #   my_pin.dont_care
+      #   my_pin.state_meta    # => {}
+      attr_reader :state_meta
+
       # Should be instantiated through the HasPins macros
       def initialize(id, owner, options = {}) # :nodoc:
         options = {
@@ -89,6 +97,7 @@ module Origen
         @clock = nil
         @meta = options[:meta] || {}
         @dib_meta = options[:dib_meta] || {}
+        @state_meta = {}
         @_saved_state = []
         @_saved_value = []
         @_saved_suspend = []
@@ -638,6 +647,11 @@ module Origen
         @repeat_previous
       end
 
+      def set_state_with_options(state, options = {})
+        @state_meta = options[:meta] || {}
+        set_state(state)
+      end
+
       def set_state(state)
         invalidate_vector_cache
         @repeat_previous = false
@@ -690,76 +704,77 @@ module Origen
 
       def state=(value)
         invalidate_vector_cache
+        @state_meta = {}
         @state = value
       end
 
       # Set the pin to drive a 1 on future cycles
-      def drive_hi
-        set_state(:drive)
+      def drive_hi(options = {})
+        set_state_with_options(:drive, options)
         set_value(1)
       end
       alias_method :write_hi, :drive_hi
 
-      def drive_hi!
-        drive_hi
+      def drive_hi!(options = {})
+        drive_hi(options)
         cycle
       end
       alias_method :write_hi!, :drive_hi!
 
       # Set the pin to drive a high voltage on future cycles (if the tester supports it).
       # For example on a J750 high-voltage channel the pin state would be set to "2"
-      def drive_very_hi
-        set_state(:drive_very_hi)
+      def drive_very_hi(options = {})
+        set_state_with_options(:drive_very_hi, options)
         set_value(1)
       end
 
-      def drive_very_hi!
-        drive_very_hi
+      def drive_very_hi!(options = {})
+        drive_very_hi(options)
         cycle
       end
 
       # Set the pin to drive a 0 on future cycles
-      def drive_lo
-        set_state(:drive)
+      def drive_lo(options = {})
+        set_state_with_options(:drive, options)
         set_value(0)
       end
       alias_method :write_lo, :drive_lo
 
-      def drive_lo!
-        drive_lo
+      def drive_lo!(options = {})
+        drive_lo(options)
         cycle
       end
       alias_method :write_lo!, :drive_lo!
 
-      def drive_mem
-        set_state(:drive_mem)
+      def drive_mem(options = {})
+        set_state_with_options(:drive_mem, options)
       end
 
-      def drive_mem!
-        drive_mem
+      def drive_mem!(options = {})
+        drive_mem(options)
         cycle
       end
 
-      def expect_mem
-        set_state(:expect_mem)
+      def expect_mem(options = {})
+        set_state_with_options(:expect_mem, options)
       end
 
-      def expect_mem!
-        expect_mem
+      def expect_mem!(options = {})
+        expect_mem(options)
         cycle
       end
 
       # Set the pin to expect a 1 on future cycles
-      def assert_hi(_options = {})
-        set_state(:compare)
+      def assert_hi(options = {})
+        set_state_with_options(:compare, options)
         set_value(1)
       end
       alias_method :expect_hi, :assert_hi
       alias_method :compare_hi, :assert_hi
       alias_method :read_hi, :assert_hi
 
-      def assert_hi!
-        assert_hi
+      def assert_hi!(options = {})
+        assert_hi(options)
         cycle
       end
       alias_method :expect_hi!, :assert_hi!
@@ -767,8 +782,8 @@ module Origen
       alias_method :read_hi!, :assert_hi!
 
       # Set the pin to expect a 0 on future cycles
-      def assert_lo(_options = {})
-        set_state(:compare)
+      def assert_lo(options = {})
+        set_state_with_options(:compare, options)
         set_value(0)
         # Planning to add the active load logic to the tester instead...
         # options = { :active => false    #if active true means to take tester active load capability into account
@@ -783,8 +798,8 @@ module Origen
       alias_method :compare_lo, :assert_lo
       alias_method :read_lo, :assert_lo
 
-      def assert_lo!
-        assert_lo
+      def assert_lo!(options = {})
+        assert_lo(options)
         cycle
       end
       alias_method :expect_lo!, :assert_lo!
@@ -792,12 +807,12 @@ module Origen
       alias_method :read_lo!, :assert_lo!
 
       # Set the pin to X on future cycles
-      def dont_care
-        set_state(:dont_care)
+      def dont_care(options = {})
+        set_state_with_options(:dont_care, options)
       end
 
-      def dont_care!
-        dont_care
+      def dont_care!(options = {})
+        dont_care(options)
         cycle
       end
 
@@ -807,14 +822,14 @@ module Origen
       #   [0,1,1,0].each do |level|
       #       $pin(:d_in).drive(level)
       #   end
-      def drive(value)
-        set_state(:drive)
+      def drive(value, options = {})
+        set_state_with_options(:drive, options)
         set_value(value)
       end
       alias_method :write, :drive
 
-      def drive!(value)
-        drive(value)
+      def drive!(value, options = {})
+        drive(value, options)
         cycle
       end
       alias_method :write!, :drive!
@@ -825,8 +840,8 @@ module Origen
       #   [0,1,1,0].each do |level|
       #       $pin(:d_in).assert(level)
       #   end
-      def assert(value, _options = {})
-        set_state(:compare)
+      def assert(value, options = {})
+        set_state_with_options(:compare, options)
         set_value(value)
       end
       alias_method :compare, :assert
@@ -841,15 +856,15 @@ module Origen
       alias_method :expect!, :assert!
       alias_method :read!, :assert!
 
-      def assert_midband
-        set_state(:compare_midband)
+      def assert_midband(options = {})
+        set_state_with_options(:compare_midband, options)
       end
       alias_method :compare_midband, :assert_midband
       alias_method :expect_midband, :assert_midband
       alias_method :read_midband, :assert_midband
 
-      def assert_midband!
-        assert_midband
+      def assert_midband!(options = {})
+        assert_midband(options)
         cycle
       end
       alias_method :compare_midband!, :assert_midband!
@@ -909,14 +924,14 @@ module Origen
       end
 
       # Mark the (data) from the pin to be captured
-      def capture
-        set_state(:capture)
+      def capture(options = {})
+        set_state_with_options(:capture, options)
       end
       alias_method :store, :capture
 
       # Mark the (data) from the pin to be captured and trigger a cycle
-      def capture!
-        capture
+      def capture!(options = {})
+        capture(options)
         cycle
       end
       alias_method :store!, :capture!

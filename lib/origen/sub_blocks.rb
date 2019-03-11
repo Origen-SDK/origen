@@ -17,7 +17,7 @@ module Origen
         # address API, but will accept any of these
         @reg_base_address = options.delete(:reg_base_address) ||
                             options.delete(:base_address) || options.delete(:base) || 0
-        if options[:_instance]
+        if options[:_instance]                # to be deprecated as part of multi-instance removal below
           if @reg_base_address.is_a?(Array)
             @reg_base_address = @reg_base_address[options[:_instance]]
           elsif options[:base_address_step]
@@ -271,36 +271,46 @@ module Origen
       tests.empty? ? false : true
     end
 
-    def sub_block(name, options = {})
+    def sub_block(name = nil, options = {})
+      name, options = nil, name if name.is_a?(Hash)
+      return sub_blocks unless name
       if i = options.delete(:instances)
-        a = []
-        options[:_instance] = i
-        i.times do |j|
-          o = options.dup
-          o[:_instance] = j
-          a << sub_block("#{name}#{j}", o)
+        # permit creating multiple instances of a particular sub_block class
+        # can pass array for base_address, which will be processed above
+        Origen.deprecate 'instances: option to sub_block is deprecated, use sub_block_groups instead'
+        group_name = name =~ /s$/ ? name : "#{name}s"  # take care if name already with 's' is passed
+        unless respond_to?(group_name)
+          sub_block_groups group_name do
+            i.times do |j|
+              o = options.dup
+              o[:_instance] = j
+              sub_block("#{name}#{j}", o)
+            end
+          end
         end
-        define_singleton_method "#{name}s" do
-          a
-        end
-        a
       else
         block = Placeholder.new(self, name, options)
-        if sub_blocks[name]
-          # Allow additional attributes to be added to an existing sub-block if it hasn't
-          # been instantiated yet. This is not supported yet for instantiated sub-blocks since
-          # there are probably a lot more corner-cases to consider, and hopefully no one will
-          # really need this anyway.
-          if sub_blocks[name].is_a?(Placeholder)
-            sub_blocks[name].add_attributes(options)
-          else
-            fail "You have already defined a sub-block named #{name} within class #{self.class}"
-          end
-        else
-          sub_blocks[name] = block
+        # Allow additional attributes to be added to an existing sub-block if it hasn't
+        # been instantiated yet. This is not supported yet for instantiated sub-blocks since
+        # there are probably a lot more corner-cases to consider, and hopefully no one will
+        # really need this anyway.
+        if sub_blocks[name] && !sub_blocks[name].is_a?(Placeholder)
+          fail "You have already defined a sub-block named #{name} within class #{self.class}"
+        end
+        if respond_to?(name)
+          callers = caller[0].split(':')
+          Origen.log.warning "The sub_block defined at #{Pathname.new(callers[0]).relative_path_from(Pathname.pwd)}:#{callers[1]} is overriding an existing method called #{name}"
         end
         define_singleton_method name do
           get_sub_block(name)
+        end
+        if sub_blocks[name] && sub_blocks[name].is_a?(Placeholder)
+          sub_blocks[name].add_attributes(options)
+        else
+          sub_blocks[name] = block
+        end
+        unless @current_group.nil?  # a group is currently open, store sub_block id only
+          @current_group << name
         end
         if options.key?(:lazy)
           lazy = options[:lazy]
@@ -310,6 +320,57 @@ module Origen
         lazy ? block : block.materialize
       end
     end
+
+    # Create a group of associated sub_blocks under a group name
+    # permits each sub_block to be of a different class
+    # e.g.
+    # sub_block_group :my_ip_group do
+    #   sub_block :ip0, class_name: 'IP0', base_address: 0x000000
+    #   sub_block :ip1, class_name: 'IP1', base_address: 0x000200
+    #   sub_block :ip2, class_name: 'IP2', base_address: 0x000400
+    #   sub_block :ip3, class_name: 'IP3', base_address: 0x000600
+    # end
+    #
+    # creates an array referenced by method called 'my_ip_group'
+    # which contains the sub_blocks 'ip0', 'ip1', 'ip2', 'ip3'.
+    #
+    # Can also indicate a custom class container to hold these.
+    # This custom class container MUST support a '<<' method in
+    # order to add new sub_blocks to the container instance.
+    #
+    # e.g.
+    # sub_block_group :my_ip_group, class_name: 'MYGRP' do
+    #   sub_block :ip0, class_name: 'IP0', base_address: 0x000000
+    #   sub_block :ip1, class_name: 'IP1', base_address: 0x000200
+    #   sub_block :ip2, class_name: 'IP2', base_address: 0x000400
+    #   sub_block :ip3, class_name: 'IP3', base_address: 0x000600
+    # end
+    #
+    #
+    def sub_block_group(id, options = {})
+      @current_group = []    # open group
+      yield                  # any sub_block calls within this block will have their ID added to @current_group
+      my_group = @current_group.dup
+      if respond_to?(id)
+        callers = caller[0].split(':')
+        Origen.log.warning "The sub_block_group defined at #{Pathname.new(callers[0]).relative_path_from(Pathname.pwd)}:#{callers[1]} is overriding an existing method called #{id}"
+      end
+      define_singleton_method "#{id}" do
+        if options[:class_name]
+          b = Object.const_get(options[:class_name]).new
+        else
+          b = []
+        end
+        my_group.each do |group_id|
+          b << send(group_id)
+        end
+        b                         # return array inside new singleton method
+      end
+      @current_group = nil   # close group
+    end
+    alias_method :sub_block_groups, :sub_block_group
+    alias_method :sub_blocks_groups, :sub_block_group
+    alias_method :sub_blocks_group, :sub_block_group
 
     def namespace
       self.class.to_s.sub(/::[^:]*$/, '')

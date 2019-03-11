@@ -919,7 +919,7 @@ module Origen
         else
           fail "Unknown operation (#{operation}), must be :read or :write"
         end
-        make_hex_like(str, size / 4)
+        make_hex_like(str, (size / 4.0).ceil)
       end
 
       # Shifts the data in the collection left by one place. The data held
@@ -972,11 +972,11 @@ module Origen
 
       # Converts a binary-like representation of a data value into a hex-like version.
       # e.g. input  => 010S0011SSSS0110   (where S, X or V represent store, don't care or overlay)
-      #      output => (010s)3S6    (i.e. nibbles that are not all of the same type are expanded)
+      #      output => [010s]3S6    (i.e. nibbles that are not all of the same type are expanded)
       def make_hex_like(regval, size_in_nibbles)
         outstr = ''
-        regex = '^'
-        size_in_nibbles.times { regex += '(....)' }
+        regex = '^(.?.?.?.)'
+        (size_in_nibbles - 1).times { regex += '(....)' }
         regex += '$'
         Regexp.new(regex) =~ regval
 
@@ -993,7 +993,7 @@ module Origen
               outstr += nibble[0, 1] # .to_s
             # Otherwise present this nibble in 'binary' format
             else
-              outstr += "(#{nibble.downcase})"
+              outstr += "[#{nibble.downcase}]"
             end
           # Otherwise if all 1s and 0s...
           else

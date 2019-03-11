@@ -61,6 +61,16 @@ module Origen
 
       def sequence(options = {}, &block)
         @create_options = options
+        unless Origen.tester
+          puts 'The current target has not instantiated a tester and pattern generation cannot run.'
+          puts 'Add something like this to an environment file:'
+          puts
+          puts '  Origen::Tester::J750.new'
+          puts 
+          puts
+          puts 'Then select it by running:  origen e <environment name>'
+          exit 1
+        end
         Origen.tester.generating = :pattern
 
         job.output_file_body = options.delete(:name).to_s if options[:name]
@@ -96,10 +106,12 @@ module Origen
           @create_options = options
           unless Origen.tester
             puts 'The current target has not instantiated a tester and pattern generation cannot run.'
-            puts 'Add something like this to your target file:'
-            puts ''
-            puts '  $tester = Origen::Tester::J750.new'
-            puts ''
+            puts 'Add something like this to an environment file:'
+            puts
+            puts '  Origen::Tester::J750.new'
+            puts 
+            puts
+            puts 'Then select it by running:  origen e <environment name>'
             exit 1
           end
           Origen.tester.generating = :pattern
@@ -155,6 +167,15 @@ module Origen
                                 if iterator.enabled?(options)
                                   job.output_pattern_filename =
                                     iterator.pattern_name.call(job.output_pattern_filename, args[i])
+                                end
+                              end
+
+                              # Allow custom pattern prefix
+                              unless options[:pat_prefix].to_s.empty?
+                                if job.output_prefix.empty?
+                                  job.output_pattern_filename = "#{options[:pat_prefix]}_" + job.output_pattern_filename
+                                else
+                                  job.output_pattern_filename = job.output_pattern_filename.sub(job.output_prefix, job.output_prefix + "#{options[:pat_prefix]}_")
                                 end
                               end
 
@@ -397,9 +418,7 @@ module Origen
           unless job.test?
             File.delete(job.output_pattern) if File.exist?(job.output_pattern)
 
-            if options[:inhibit]
-              log.info "Generating...  #{job.output_pattern_directory}/#{job.output_pattern_filename}".ljust(50)
-            else
+            unless tester.try(:sim?)
               log.info "Generating...  #{job.output_pattern_directory}/#{job.output_pattern_filename}".ljust(50)
             end
           end
@@ -493,6 +512,7 @@ module Origen
             end
           end
 
+<<<<<<< HEAD
           log.info ' '
           log.info "Pattern vectors: #{stats.number_of_vectors_for(job.output_pattern).to_s.ljust(10)}"
           log.info 'Execution time'.ljust(15) + ': %.6f' % stats.execution_time_for(job.output_pattern)
@@ -501,6 +521,15 @@ module Origen
           end
           log.info '----------------------------------------------------------------------'
           check_for_changes(job.output_pattern, job.reference_pattern) unless tester.try(:disable_pattern_diffs)
+=======
+          unless tester.try(:sim?)
+            log.info ' '
+            log.info "Pattern vectors: #{stats.number_of_vectors_for(job.output_pattern).to_s.ljust(10)}"
+            log.info 'Execution time'.ljust(15) + ': %.6f' % stats.execution_time_for(job.output_pattern)
+            log.info '----------------------------------------------------------------------'
+            check_for_changes(job.output_pattern, job.reference_pattern) unless tester.try(:disable_pattern_diffs)
+          end
+>>>>>>> master
           stats.record_pattern_completion(job.output_pattern)
         end
 

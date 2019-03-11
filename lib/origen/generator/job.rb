@@ -165,19 +165,22 @@ module Origen
             end
           end
         rescue Exception => e
-          if @options[:continue] || Origen.running_remotely?
-            Origen.log.error "FAILED - #{@requested_pattern} (for target #{Origen.target.name})"
-            Origen.log.error e.message
-            e.backtrace.each do |l|
-              Origen.log.error l
-            end
-            if @options[:compile]
-              Origen.app.stats.failed_files += 1
+          # Whoever has aborted the job is responsible for cleaning it up
+          unless e.is_a?(Origen::Generator::AbortError)
+            if @options[:continue] || Origen.running_remotely?
+              Origen.log.error "FAILED - #{@requested_pattern} (for target #{Origen.target.name})"
+              Origen.log.error e.message
+              e.backtrace.each do |l|
+                Origen.log.error l
+              end
+              if @options[:compile]
+                Origen.app.stats.failed_files += 1
+              else
+                Origen.app.stats.failed_patterns += 1
+              end
             else
-              Origen.app.stats.failed_patterns += 1
+              raise
             end
-          else
-            raise
           end
         end
         Origen.log.stop_job
