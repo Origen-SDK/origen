@@ -94,7 +94,8 @@ module Origen
 
     # @api private
     def self.load_model_file(file, model)
-      model.instance_eval(file.read, file.to_s) if File.exist?(file.to_s)
+      e = File.exist?(file.to_s)
+      model.instance_eval(file.read, file.to_s) if e
       true
     end
 
