@@ -796,7 +796,13 @@ module Origen
           object = writer
           (Origen.top_level || owner).write_register_missing!(self) unless object
         end
-        object.send(operation, self, options)
+        if tester && tester.respond_to?(operation)
+          tester.send(operation, self, options) do
+            object.send(operation, self, options)
+          end
+        else
+          object.send(operation, self, options)
+        end
         self
       end
 

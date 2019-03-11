@@ -111,9 +111,11 @@ describe 'The Origen logger' do
   it "Can log to a custom log file" do
     Origen.log.reset
     Origen.log.blah 'Test message 11'
+    Origen.log.flush
     File.read(File.join("log", "blah.txt")).should include("BLAH", "Test message 11")
     Origen.log.reset
     Origen.log.blah 'Test message 12', format: false
+    Origen.log.flush
     File.read(File.join("log", "blah.txt")).should_not include("BLAH")
     File.read(File.join("log", "blah.txt")).should include("Test message 12")
   end

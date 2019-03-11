@@ -666,7 +666,7 @@ module RegTest
       reg[7..4].overlay("overlayx")
       reg[15..8].write(0xAA)
       reg[10].overlay("overlayy")
-      reg.status_str(:write).should == "A(1v10)V5"
+      reg.status_str(:write).should == "A[1v10]V5"
       reg.reset
       reg.clear_flags
       reg.overlay(nil)
@@ -676,14 +676,26 @@ module RegTest
       reg.status_str(:read).should == "XX5X"
       reg[7..4].read(5)
       reg[14].read(0)
-      reg.status_str(:read).should == "(x0xx)X5X"
+      reg.status_str(:read).should == "[x0xx]X5X"
       reg[3..0].store
-      reg.status_str(:read).should == "(x0xx)X5S"
+      reg.status_str(:read).should == "[x0xx]X5S"
       reg[12..8].overlay("overlayx")
       reg[12..8].read
-      reg.status_str(:read).should == "(x0xv)V5S"
+      reg.status_str(:read).should == "[x0xv]V5S"
       reg[15].store
-      reg.status_str(:read).should == "(s0xv)V5S"
+      reg.status_str(:read).should == "[s0xv]V5S"
+    end
+
+    it "status_str works on non-nibble aligned regs" do
+      reg :mr1, 0 do
+        bits 10..0, :b1
+      end
+      mr1.b1.status_str(:write).should == "000"
+      mr1.b1.status_str(:read).should == "[xxx]XX"
+      mr1.b1.read
+      mr1.b1.status_str(:read).should == "000"
+      mr1.b1.read(0xFFF)
+      mr1.b1.status_str(:read).should == "7FF"
     end
 
     specify "the enable_mask method works" do

@@ -33,6 +33,7 @@ describe Origen::Application do
       }
 
       # Check the logger for some default output
+      Origen.log.flush
       File.read(File.join("log", "last.txt")).should include("Fail in origen_core")
     end
 
@@ -44,6 +45,7 @@ describe Origen::Application do
       }.to raise_error SystemExit
 
       # Check the logger
+      Origen.log.flush
       File.read(File.join("log", "last.txt")).should include("Fail in origen_core: Bye from fail!")
     end
 

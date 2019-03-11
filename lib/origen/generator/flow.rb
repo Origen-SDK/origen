@@ -31,7 +31,9 @@ module Origen
           end
           interface.close(flow: true, sub_flow: true)
         else
-          Origen.log.info "Generating... #{Origen.file_handler.current_file.basename}"
+          unless tester.try(:sim?)
+            Origen.log.info "Generating... #{Origen.file_handler.current_file.basename}"
+          end
           interface = Origen.reset_interface(options)
           Origen.interface.set_top_level_flow
           Origen.interface.flow_generator.set_flow_description(Origen.interface.consume_comments)

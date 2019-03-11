@@ -125,6 +125,15 @@ module Origen
                               end
                             end
 
+                            # Allow custom pattern prefix
+                            unless options[:pat_prefix].to_s.empty?
+                              if job.output_prefix.empty?
+                                job.output_pattern_filename = "#{options[:pat_prefix]}_" + job.output_pattern_filename
+                              else
+                                job.output_pattern_filename = job.output_pattern_filename.sub(job.output_prefix, job.output_prefix + "#{options[:pat_prefix]}_")
+                              end
+                            end
+
                             # Allow custom pattern postfix
                             unless options[:pat_postfix].to_s.empty?
                               job.output_pattern_filename = job.output_pattern_filename.sub(job.output_postfix + job.output_extension, "_#{options[:pat_postfix]}" + job.output_postfix + job.output_extension)
@@ -363,9 +372,7 @@ module Origen
           unless job.test?
             File.delete(job.output_pattern) if File.exist?(job.output_pattern)
 
-            if options[:inhibit]
-              log.info "Generating...  #{job.output_pattern_directory}/#{job.output_pattern_filename}".ljust(50)
-            else
+            unless tester.try(:sim?)
               log.info "Generating...  #{job.output_pattern_directory}/#{job.output_pattern_filename}".ljust(50)
             end
           end
@@ -459,11 +466,13 @@ module Origen
             end
           end
 
-          log.info ' '
-          log.info "Pattern vectors: #{stats.number_of_vectors_for(job.output_pattern).to_s.ljust(10)}"
-          log.info 'Execution time'.ljust(15) + ': %.6f' % stats.execution_time_for(job.output_pattern)
-          log.info '----------------------------------------------------------------------'
-          check_for_changes(job.output_pattern, job.reference_pattern) unless tester.try(:disable_pattern_diffs)
+          unless tester.try(:sim?)
+            log.info ' '
+            log.info "Pattern vectors: #{stats.number_of_vectors_for(job.output_pattern).to_s.ljust(10)}"
+            log.info 'Execution time'.ljust(15) + ': %.6f' % stats.execution_time_for(job.output_pattern)
+            log.info '----------------------------------------------------------------------'
+            check_for_changes(job.output_pattern, job.reference_pattern) unless tester.try(:disable_pattern_diffs)
+          end
           stats.record_pattern_completion(job.output_pattern)
         end
 
