@@ -66,7 +66,7 @@ module Origen
           puts 'Add something like this to an environment file:'
           puts
           puts '  Origen::Tester::J750.new'
-          puts 
+          puts
           puts
           puts 'Then select it by running:  origen e <environment name>'
           exit 1
@@ -109,7 +109,7 @@ module Origen
             puts 'Add something like this to an environment file:'
             puts
             puts '  Origen::Tester::J750.new'
-            puts 
+            puts
             puts
             puts 'Then select it by running:  origen e <environment name>'
             exit 1
@@ -512,16 +512,6 @@ module Origen
             end
           end
 
-<<<<<<< HEAD
-          log.info ' '
-          log.info "Pattern vectors: #{stats.number_of_vectors_for(job.output_pattern).to_s.ljust(10)}"
-          log.info 'Execution time'.ljust(15) + ': %.6f' % stats.execution_time_for(job.output_pattern)
-          if @pattern_sequence
-            @pattern_sequence.send(:log_execution_profile)
-          end
-          log.info '----------------------------------------------------------------------'
-          check_for_changes(job.output_pattern, job.reference_pattern) unless tester.try(:disable_pattern_diffs)
-=======
           unless tester.try(:sim?)
             log.info ' '
             log.info "Pattern vectors: #{stats.number_of_vectors_for(job.output_pattern).to_s.ljust(10)}"
@@ -529,7 +519,9 @@ module Origen
             log.info '----------------------------------------------------------------------'
             check_for_changes(job.output_pattern, job.reference_pattern) unless tester.try(:disable_pattern_diffs)
           end
->>>>>>> master
+          if @pattern_sequence
+            @pattern_sequence.send(:log_execution_profile)
+          end
           stats.record_pattern_completion(job.output_pattern)
         end
 
