@@ -39,26 +39,30 @@ module Origen
         # Once a lock is acquired on a serialize block with the given ID, it won't be released to
         # other parallel threads until the end of this block
         def reserve(id)
-          if thread.reservations[id]
-            thread.reservations[id][:count] += 1
-          else
-            thread.reservations[id] = { count: 1, semaphore: nil }
-          end
-          yield
-          if thread.reservations[id][:count] == 1
-            # May not be set if the application reserved the resource but never hit it
-            if s = thread.reservations[id][:semaphore]
-              s.release
+          if active?
+            if thread.reservations[id]
+              thread.reservations[id][:count] += 1
+            else
+              thread.reservations[id] = { count: 1, semaphore: nil }
             end
-            thread.reservations[id] = nil
+            yield
+            if thread.reservations[id][:count] == 1
+              # May not be set if the application reserved the resource but never hit it
+              if s = thread.reservations[id][:semaphore]
+                s.release
+              end
+              thread.reservations[id] = nil
+            else
+              thread.reservations[id][:count] -= 1
+            end
           else
-            thread.reservations[id][:count] -= 1
+            yield
           end
         end
 
         # Returns true if a pattern sequence is currently open/active
         def active?
-          true
+          !!@active
         end
         alias_method :open?, :active?
         alias_method :runnng?, :active?
@@ -74,6 +78,10 @@ module Origen
         end
 
         private
+
+        def active=(val)
+          @active = val
+        end
 
         def thread=(t)
           @thread ||= Concurrent::ThreadLocalVar.new(nil)

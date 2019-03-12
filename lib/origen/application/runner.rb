@@ -84,23 +84,29 @@ module Origen
                   Origen.app.listeners_for(:program_generated).each(&:program_generated)
                 else
                   temporary_plugin_from_options = options[:current_plugin]
-                  expand_lists_and_directories(options[:files], options).each do |file|
-                    if temporary_plugin_from_options
-                      Origen.app.plugins.temporary = temporary_plugin_from_options
-                    end
-                    case options[:action]
-                    when :compile
-                      Origen.generator.compile_file_or_directory(file, options)
-                    when :merge
-                      Origen.generator.merge_file_or_directory(file, options)
-                    when :import_test_time
-                      Origen.time.import_test_time(file, options)
-                    when :import_test_flow
-                      Origen.time.import_test_flow(file, options)
-                    else
-                      Origen.generator.generate_pattern(file, options)
-                    end
+                  if options[:action] == :pattern && options[:sequence]
+                    patterns = expand_lists_and_directories(options[:files], options.merge(preserve_duplicates: true))
+                    Origen.generator.generate_pattern(patterns, options)
                     Origen.app.plugins.temporary = nil if temporary_plugin_from_options
+                  else
+                    expand_lists_and_directories(options[:files], options).each do |file|
+                      if temporary_plugin_from_options
+                        Origen.app.plugins.temporary = temporary_plugin_from_options
+                      end
+                      case options[:action]
+                      when :compile
+                        Origen.generator.compile_file_or_directory(file, options)
+                      when :merge
+                        Origen.generator.merge_file_or_directory(file, options)
+                      when :import_test_time
+                        Origen.time.import_test_time(file, options)
+                      when :import_test_flow
+                        Origen.time.import_test_flow(file, options)
+                      else
+                        Origen.generator.generate_pattern(file, options)
+                      end
+                      Origen.app.plugins.temporary = nil if temporary_plugin_from_options
+                    end
                   end
                 end
               end

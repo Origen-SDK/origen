@@ -37,7 +37,7 @@ module Origen
         if threads.size > 1
           thread_id_size = threads.map { |t| t.id.to_s.size }.max
           line_size = IO.console.winsize[1] - 35 - thread_id_size
-          line_size -= 15 if tester.try(:sim?)
+          line_size -= 16 if tester.try(:sim?)
           cycles_per_tick = (@cycle_count_stop / (line_size * 1.0)).ceil
           if tester.try(:sim?)
             execution_time = tester.execution_time_in_ns / 1_000_000_000.0

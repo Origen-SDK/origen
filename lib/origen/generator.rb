@@ -33,6 +33,10 @@ module Origen
     end
 
     def generate_pattern(file, options)
+      if options[:sequence]
+        options[:patterns] = file
+        file = options[:sequence]
+      end
       Job.new(file, options).run
     end
 

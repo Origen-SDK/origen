@@ -92,8 +92,10 @@ module Origen
 
         @pattern_sequence = true
         pattern_wrapper([], [], options) do
+          PatternSequencer.send(:active=, true)
           @pattern_sequence = PatternSequence.new(job.output_pattern_filename, block)
           @pattern_sequence.send(:execute)
+          PatternSequencer.send(:active=, false)
         end
         @pattern_sequence = false
         @create_options = nil
