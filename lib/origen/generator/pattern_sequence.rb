@@ -37,8 +37,13 @@ module Origen
         if threads.size > 1
           thread_id_size = threads.map { |t| t.id.to_s.size }.max
           line_size = IO.console.winsize[1] - 35 - thread_id_size
+          line_size -= 15 if tester.try(:sim?)
           cycles_per_tick = (@cycle_count_stop / (line_size * 1.0)).ceil
-          execution_time = Origen.app.stats.execution_time_for(Origen.app.current_job.output_pattern)
+          if tester.try(:sim?)
+            execution_time = tester.execution_time_in_ns / 1_000_000_000.0
+          else
+            execution_time = Origen.app.stats.execution_time_for(Origen.app.current_job.output_pattern)
+          end
           Origen.log.info ''
           tick_time = execution_time / line_size
 
@@ -58,7 +63,11 @@ module Origen
           ticks_per_step = ticks_per_step.ceil
           step_size = tick_time * ticks_per_step
 
-          padding = ' ' * (thread_id_size + 2)
+          if tester.try(:sim?)
+            padding = '.' + (' ' * (thread_id_size + 1))
+          else
+            padding = ' ' * (thread_id_size + 2)
+          end
           scale_step = '|' + ('-' * (ticks_per_step - 1))
           number_of_steps = (number_of_ticks / ticks_per_step) + 1
           scale = scale_step * number_of_steps
