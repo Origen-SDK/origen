@@ -40,23 +40,57 @@ module Origen
           cycles_per_tick = (@cycle_count_stop / (line_size * 1.0)).ceil
           execution_time = Origen.app.stats.execution_time_for(Origen.app.current_job.output_pattern)
           Origen.log.info ''
-          tick_size = execution_time / line_size
-          if tick_size < 1.us
-            tick_size = '%.0fns' % (tick_size * 1_000_000_000)
-          elsif tick_size < 1.ms
-            tick_size = '%.0fus' % (tick_size * 1_000_000)
-          elsif tick_size < 1.s
-            tick_size = '%.0fms' % (tick_size * 1_000)
-          else
-            tick_size = '%.1f' % tick_size
+          tick_time = execution_time / line_size
+
+          Origen.log.info "Concurrent execution profile (#{pretty_time(tick_time)}/increment):"
+          Origen.log.info
+
+          number_of_ticks = @cycle_count_stop / cycles_per_tick
+
+          ticks_per_step = 0
+          step_size = 0.1.us
+
+          while ticks_per_step < 10
+            step_size = step_size * 10
+            ticks_per_step = step_size / tick_time
           end
-          Origen.log.info "Concurrent execution profile (#{tick_size}/increment):"
+
+          ticks_per_step = ticks_per_step.ceil
+          step_size = tick_time * ticks_per_step
+
+          padding = ' ' * (thread_id_size + 2)
+          scale_step = '|' + ('-' * (ticks_per_step - 1))
+          number_of_steps = (number_of_ticks / ticks_per_step) + 1
+          scale = scale_step * number_of_steps
+          scale = scale[0, number_of_ticks]
+          Origen.log.info padding + scale
+
+          scale = ''
+          number_of_steps.times do |i|
+            scale += pretty_time(i * step_size, 1).ljust(ticks_per_step)
+          end
+          scale = scale[0, number_of_ticks]
+          Origen.log.info padding + scale
+
           threads.each do |thread|
             line = thread.execution_profile(0, @cycle_count_stop, cycles_per_tick)
             Origen.log.info ''
             Origen.log.info "#{thread.id}: ".ljust(thread_id_size + 2) + line
           end
           Origen.log.info ''
+        end
+      end
+
+      def pretty_time(time, number_decimal_places = 0)
+        return '0' if time == 0
+        if time < 1.us
+          "%.#{number_decimal_places}fns" % (time * 1_000_000_000)
+        elsif time < 1.ms
+          "%.#{number_decimal_places}fus" % (time * 1_000_000)
+        elsif time < 1.s
+          "%.#{number_decimal_places}fms" % (time * 1_000)
+        else
+          "%.#{number_decimal_places}fs" % tick_time
         end
       end
 
