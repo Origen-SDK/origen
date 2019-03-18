@@ -67,14 +67,18 @@ module Origen
         alias_method :open?, :active?
         alias_method :runnng?, :active?
 
-        # Returns true if called from the main thread
-        # def primary?
-        #  !sequence_active? || !thread || thread.primary?
-        # end
-
         # Returns the PatternThread object for the current thread
         def thread
           @thread.value
+        end
+
+        # Prepends the given string with "[<current thread ID>] " unless it already contains it
+        def add_thread(str)
+          if active? && thread
+            id = "[#{thread.id}] "
+            str.prepend(id) unless str =~ /#{id}/
+          end
+          str
         end
 
         private
