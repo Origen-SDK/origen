@@ -14,7 +14,8 @@ GIT
 
 GIT
   remote: https://github.com/Origen-SDK/origen_sim.git
-  revision: 7f3889b6ecafd1db11dfcdd601974a04897fdc49
+  revision: 893fc37dc5848d7316196ac073bc1f425bf5d9f4
+  branch: concurrent
   specs:
     origen_sim (0.16.0)
       origen (>= 0.43.0)
@@ -23,7 +24,8 @@ GIT
 
 GIT
   remote: https://github.com/Origen-SDK/origen_testers.git
-  revision: 073d27fcbb3e3070d2cabe520aa3092a9c8f7e45
+  revision: b2665b9dcdb9afb33ee6cd9c90687ad27ff63440
+  branch: concurrent
   specs:
     origen_testers (0.20.0)
       atp (~> 1.1, >= 1.1.3)
@@ -136,6 +138,9 @@ GEM
       origen_testers (>= 0.5.0)
     origen_doc_helpers (0.8.0)
       origen (>= 0.7.15)
+    origen_jtag (0.20.0)
+      origen (~> 0.7, >= 0.7.35)
+      origen_testers (>= 0.13.2)
     origen_stil (0.2.1)
       ast (~> 2)
       origen (>= 0.33.3)
@@ -217,6 +222,7 @@ DEPENDENCIES
   origen_core_support!
   origen_debuggers (~> 0)
   origen_doc_helpers
+  origen_jtag
   origen_sim!
   origen_testers!
   ripper-tags
