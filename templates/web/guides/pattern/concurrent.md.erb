@@ -1,0 +1,171 @@
+% render "layouts/guides.html" do
+
+Concurrent patterns are those which test multiple IPs on a DUT at the same time,
+therefore saving test time vs. the conventional approach of sequentially testing each IP
+in turn.
+
+Testing multiple instances of the same IP at the same time is usually easy enough as long
+as the DUT's design-for-test (DFT) provides some sort of broadcast mode to allow the
+same sequence of instructions to be applied to all of the IPs at the same time.
+
+However, what if the DFT to do that is not in place, or if the IPs each require a slightly
+different instruction sequence, or in fact if the IPs to be tested in parallel are completely
+different and not related at all?
+In that case, the creation of concurrent test patterns is usually quite difficult to say
+the least!
+
+ATE vendors attempt to solve this problem in the only way they can, by telling test
+engineers to provide patterns which test each IP via a unique port (i.e. using different
+pins) and the ATE will provide the ability to execute both patterns at the same time.
+Origen provides no special features to support this case since such patterns are just regular
+patterns and all of the smarts to make them execute concurrently is provided by the ATE.
+
+However, such an approach is usually not very attractive since additional tester channels
+are required to communicate over multiple ports, and therefore DUT parallelism is sacrificed
+for IP parallelism - often with the net effect that not much test time is saved overall.
+This approach also requires significant upfront DFT planning to ensure that the IPs to be
+tested concurrently are accessible over unique ports.
+
+What would be more useful would be if IPs could be concurrently tested over the same
+shared port that would normally be used when testing them sequentially. Such an approach
+provides an optimum test time since the same amount of tester channels are used as per a
+sequential test approach, but now we are saving time from having IPs perform operations
+in parallel.
+The downside though, is that such patterns are normally very hard to create and it is not
+feasible for engineers to manually think through and implement how register transactions
+which target multiple IPs should be sequenced down a single communications port.
+
+The goal of an effective concurrent pattern creation tool therefore is to enable test engineers to
+write IP-level test patterns exactly as they do today,
+without any thought to concurrency, and then the tool will take care of sequencing operations
+for two or more IPs into a single concurrent test pattern.
+
+This is where Origen's pattern concurrency feature and APIs come in and these make the creation
+of single/shared-port concurrent test patterns easily accessible to test engineers.
+
+### Serializing Access to Shared Resources
+
+Normally, no changes are required within your IP-level models, controllers or test pattern source
+files in order to enable them to be combined with each other into a concurrent test pattern.
+Origen application architecture should naturally isolate these from each other such that they
+each have their own independent register models and methods which can be safely invoked concurrently.
+
+However, some thought should be given as to what top-level resources
+of the device will be shared when testing the desired IPs in parallel. Such resources will
+have to be managed by Origen to prevent collisions when multiple concurrent pattern threads
+try to access the same resources at the same time.
+The most common of these as discussed above will be the communications port, but on-chip
+parametric measurement systems and pins over which external references are provided
+could be other common considerations.
+
+Once these resources have been identified, some minor markup should be added to your application
+to make Origen aware of the places that it must serialize access.
+
+For example, consider that we have the following register transaction methods implemented in
+our top-level controller:
+
+~~~ruby
+def read_register(reg, options={})
+  arm_debug.mem_ap.read_register(reg, options)
+end
+
+def write_register(reg, options={})
+  arm_debug.mem_ap.write_register(reg, options)
+end
+~~~
+
+Here we have a single ARM debug system and physical port and only one transaction at a time
+can be handled.
+To make our transaction methods concurrent-ready they should be modified like this:
+
+~~~ruby
+def read_register(reg, options={})
+  # This will block concurrent threads, allowing only one at a time to execute this (while being ignored when
+  # generating a regular pattern).
+  # :arm_debug is just an identifier for this resource and the same ID should be used to block off access to the
+  # same resource in other places.
+  PatSeq.serialize :arm_debug do
+    arm_debug.mem_ap.read_register(reg, options)
+  end
+end
+
+def write_register(reg, options={})
+  # Here we use the same resource identifier, :arm_debug, to link this with the read serialize wrapper - meaning
+  # that if a thread is wanting to write, it will have to wait if another thread is currently performing a read.
+  PatSeq.serialize :arm_debug do
+    arm_debug.mem_ap.write_register(reg, options)
+  end
+end
+~~~
+
+Note that Origen does not automatically serialize access to the read/write register methods
+since some applications may choose to use different ports depending on what register/IP is being
+targeted.
+
+Exactly the same `PatSeq.serialize` wrapper should be added to any other methods which 
+
+
+### Creating Concurrent Sequences
+
+When 
+
+In this case Origen will automatically apply only a single pattern startup/shutdown 
+
+~~~text
+      |-------------------------|-------------------------|-------------------------|-------------------------|----
+      0                         10.0ms                    20.0ms                    30.0ms                    40.0m
+
+main: _____________________________________________________________________________________________________________
+
+ip1:  
+
+ip2:  ____________________________________________________
+~~~
+
+### Programming Concurrent Sequences
+
+
+### Reserving Serial Resources
+
+
+
+
+		○ A concurrent pattern is called a pattern sequence in Origen, and a single threaded sequence is created almost exactly like a standard pattern is (and this would generate the same output as the equivalent standard pattern):
+
+		Pattern.sequence do |seq|
+		  # Perform some test on IP1
+		  dut.ip1.do_something
+		end
+			
+		○ However, we now have access to the sequencer which allows concurrency to be programmed very easily:
+
+		Pattern.sequence do |seq|
+		  # Start a concurrent thread, :ip1 is just a name here to identify
+		  # this thread, it can be called anything
+		  seq.in_parallel :ip1 do
+			# Use the exact same code as you would use in a regular pattern
+			dut.ip1.do_something
+		  end
+		
+		  # Now start another thread to test a second IP in parallel
+		  seq.in_parallel :ip2 do
+		    dut.ip2.do_something_else
+		  end
+	    end
+
+		○ The sequencer also allows whole standard patterns to be called in-line (seq.run "some_pattern"), allowing IP-level patterns to be developed and debugged standalone, then sequenced into a concurrent pattern with other standard patterns. The generate command is also being updated to support this common use case without having to even create a dedicated sequence file: origen g pat1 pat2 pat3 --sequence my_sequence
+		○ APIs are provided to allow applications to serialize access to resources which should only be accessed by one thread at a time - e.g. a comms interface or an ADC for embedded measurements. It is envisaged that plugins will be updated to use these APIs to make them concurrent-ready in due course, and therefore typical applications will not need to do anything special to enable concurrency in the future.
+	
+	          def measure_voltage
+	      # This will block concurrent threads, allowing only one at a time
+	      # to execute this, while being ignored when generating a regular
+	      # pattern. :adc is just an identifier for this resource, and the
+	      # same ID should be used to block off access to the same resource
+	      # in other places.
+	      PatSeq.serialize :adc do
+	        dut.adc.do_something
+	      end
+	    end
+
+
+% end
