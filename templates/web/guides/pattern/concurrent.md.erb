@@ -43,6 +43,76 @@ for two or more IPs into a single concurrent test pattern.
 This is where Origen's pattern concurrency feature and APIs come in and these make the creation
 of single/shared-port concurrent test patterns easily accessible to test engineers.
 
+### Principles of Operation
+
+When working with the concurrency APIs it will help to have a basic understanding of how the
+system works, though it is not the intention of this document to go into too much detail about
+the underlying implementation.
+
+When generating a conventional test pattern with Origen, a single DUT model is instantiated
+and a single Ruby thread executes the pattern source to be generated.
+
+When generating a concurrent test pattern, a single DUT model is also instantiated, however
+multiple Ruby threads are then created to generate the sequence for each branch of concurrency.
+A branch of concurrency means a sequence of operations that should be executed sequentially
+but which can be run in parallel with other such sequences.
+
+In the simplest terms, if you have two existing patterns and you want to generate a concurrent
+pattern that runs them in parallel, then each source pattern is considered to be a branch of
+concurrency and two threads will be created when generating the concurrent pattern.
+
+As you will see later, APIs also exist to create threads on the fly and to fully control and define what
+happens in each one, so they don't always correspond directly to an existing conventional
+pattern sequence/source.
+
+Ruby threads share global and instance variables, which means that each thread is accessing
+and manipulating the same DUT (and tester) model during generation.
+
+During concurrent generation, the threads are not simply allowed to run asynchronously and as
+allocated by Ruby's thread sequencer.
+Instead, Origen tightly controls when each one is allowed to run in a deterministic sequence
+which guarantees that the output will be exactly the same each time the generator is run.
+The execution sequence can be summarized by this code snippet:
+
+~~~ruby
+# Keep going until all threads are finished (pattern is complete)
+until active_threads.empty?
+  # Allow each thread to advance until it is ready for the next cycle
+  active_threads.each do |thread|
+    thread.run_until_next_cycle
+  end
+  # All threads are now ready to cycle
+  tester.cycle
+  # Remove any threads that have now completed
+  active_threads.reject! { |thread| thread.completed? }
+end
+~~~
+
+It is important to understand that clobbering can occur because
+all threads are sharing access to a single DUT. For example, if
+thread A sets pin TDI to drive 1 and then thread B immediately sets pin TDI to drive 0 while
+preparing for the same cycle, then the last value applied wins and the generated pattern
+will not by functionally valid.
+
+Fortunately, dealing with this is a lot simpler than it sounds because each thread will normally
+be targeting a different IP and therefore they will naturally be dealing with resources and
+state that the other threads don't care about.
+Therefore, the main points of contention will normally be at the pins involved in creating register
+transactions and as will be discussed in the next section, Origen makes it very easy to serialize
+access to such shared resources during multi-threaded concurrent pattern generation.
+
+In the case of something like JTAG pins for example, a serialization wrapper can be placed around
+the transaction methods and this will block threads from starting a transaction if another thread
+currently has a transaction in progress.
+The net result is a pattern which serializes the transactions of multiple threads through the shared
+port.
+
+Note that it is also possible to reserve access to serialized resources, meaning that when a thread
+gains access it keeps a hold of it until it decides to release it.
+In the shared transaction port example, this can be useful if you have multiple transactions which
+must be guaranteed to run back-back. See [Reserving Serial Resources](#Reserving_Serial_Resources)
+for more information.
+
 ### Serializing Access to Shared Resources
 
 Normally, no changes are required within your IP-level models, controllers or test pattern source
@@ -55,11 +125,11 @@ of the device will be shared when testing the desired IPs in parallel. Such reso
 have to be managed by Origen to prevent collisions when multiple concurrent pattern threads
 try to access the same resources at the same time.
 The most common of these as discussed above will be the communications port, but on-chip
-parametric measurement systems and pins over which external references are provided
+parametric measurement systems and pins over which external references are supplied
 could be other common considerations.
 
 Once these resources have been identified, some minor markup should be added to your application
-to make Origen aware of the places that it must serialize access.
+to make Origen aware of the places that it must serialize thread access.
 
 For example, consider that we have the following register transaction methods implemented in
 our top-level controller:
@@ -76,7 +146,7 @@ end
 
 Here we have a single ARM debug system and physical port and only one transaction at a time
 can be handled.
-To make our transaction methods concurrent-ready they should be modified like this:
+To make our transaction methods should be modified like this to make them concurrent-ready:
 
 ~~~ruby
 def read_register(reg, options={})
@@ -99,17 +169,59 @@ end
 ~~~
 
 Note that Origen does not automatically serialize access to the read/write register methods
-since some applications may choose to use different ports depending on what register/IP is being
-targeted.
+since some applications may choose to use different ports/protocols depending on what register/IP is being
+targeted and therefore enforcing serialization at the read/write-register-method-level may not be
+desired in all cases.
 
 Exactly the same `PatSeq.serialize` wrapper should be added to any other methods which 
+utilize a single silicon resource which may be used by multiple concurrent threads. Here is another
+example of where a method exists to use an on-chip ADC to perform an embedded measurement:
 
+~~~ruby
+def measure_voltage
+  # This will block concurrent threads, allowing only one at a time to execute this, while being ignored when
+  # generating a regular pattern. Again, :adc is just an identifier for this resource, and the same ID should
+  # to this same resource in other places where it is used.
+  PatSeq.serialize :adc do
+    dut.adc.do_something
+  end
+end
+~~~
 
 ### Creating Concurrent Sequences
 
-When 
+Once your application has been made concurrent-ready by adding the necessary serialization points, the
+simplest way to create a concurrent pattern is to generate two or more existing patterns into a
+combined concurrent pattern.
 
-In this case Origen will automatically apply only a single pattern startup/shutdown 
+For example, say that we have two existing patterns called `ip1_test.rb` and `ip2_test.rb`, these
+could be generated as two separate patterns like this:
+
+~~~text
+origen g ip1_test ip2_test
+~~~
+
+To generate them as a concurrent pattern, what Origen calls a pattern sequence, then simply add the
+`--seq(uence)` option and give a name for the concurrent output pattern:
+
+~~~text
+origen g ip1_test ip2_test --seq my_concurrent_pattern
+~~~
+
+This approach to concurrency provides the key benefit that IP-level tests can be
+developed and validated on silicon as standalone patterns, and then once everything is working they can be
+re-generated into a concurrent version for production test time saving.
+
+After the concurrent sequence has been generated, Origen will provide a concurrency execution
+profile like the one shown below to give an indication of how efficient the combined pattern is.
+This shows the execution time profile of the final pattern on the ATE, so in this example we have a pattern
+which will take just over 40ms to execute, and we can see that the overall test time is driven by the
+test on IP1 and that the testing we are doing on IP2 comfortably fits within that.
+
+In this diagram an empty time interval means that no activity was taking place - which could mean that
+either the thread was finished or it was completely blocked while waiting to access a serialized resource.
+A half-block means that it was active for < 50% of that time interval and a full block means that it
+was active for > 50% of the given interval.
 
 ~~~text
       |-------------------------|-------------------------|-------------------------|-------------------------|----
@@ -122,7 +234,85 @@ ip1:  ████████████████████████�
 ip2:  __▄███████████████████████████████████████████████████████████████████████████████▄__________________________
 ~~~
 
+All patterns always have a main thread and when generating a concurrent pattern like this it never
+does very much. Most of the activity will occur in the threads that have been created to generate
+each of the individual patterns that are included in the sequence.
+
+Note that any arguments passed to `Pattern.create` by the individual patterns will be ignored
+when generating a concurrent sequence like this. If your application uses
+[startup and shutdown callbacks](<%= path "guides/misc/callbacks/#Pattern_Generation" %>)
+then those will be called only once and any activity from those will be in the main thread as
+shown at the start of the above example.
+
+If you need more control over this then a dedicated source file should be setup for the concurrent
+pattern as discussed in the next section.
+
 ### Programming Concurrent Sequences
+
+To have more control over the options that you would like to pass to your startup/shutdown methods or
+to create dedicated concurrent patterns which don't have conventional pattern equivalents, then
+it is possible to create pattern sources files which define a concurrent test sequence.
+
+Test sequence source files should be created in the conventional pattern directory, but internally
+they should call `Pattern.sequence` instead of `Pattern.create` as shown below:
+
+~~~ruby
+Pattern.sequence do |seq|
+
+end
+~~~
+
+Any options passed into `Pattern.sequence` will be passed into your startup/shutdown in the same
+way as per conventional patterns.
+
+In fact, conventional patterns can be written as conventional patterns if you want to, these will
+generate identical output patterns:
+
+~~~ruby
+Pattern.create do
+  dut.ip1.do_something
+end
+
+Pattern.sequence do |seq|
+  dut.ip1.do_something
+end
+~~~
+
+The sequencer option that is passed into the main block allows other pattern sources to be run. This
+next example will look for pattern sources called `ip1_test` and `ip2_test` and generate them to
+run sequentially within a single pattern. So aside from concurrency, pattern sequences can also be
+used to compose sequential patterns which are comprised of multiple conventional patterns.
+
+~~~ruby
+Pattern.sequence do |seq|
+  seq.run :ip1_test
+  seq.run :ip2_test
+end
+~~~
+
+To make these run concurrently we need to create parallel threads to run them in, and in fact
+this is exactly equivalent to what Origen will do when generating multiple patterns with the
+`--sequence` option:
+
+~~~ruby
+Pattern.sequence do |seq|
+  # Start a concurrent thread, :ip1 is just a name here to identify this thread,
+  # it can be called anything
+  seq.in_parallel :ip1 do
+    seq.run :ip1_test
+  end
+
+  # Start another parallel thread, note that since the above has created a parallel thread,
+  # it will not block the main thread's execution of this sequence, meaning that both of these
+  # threads are effectively launched at the same time
+  seq.in_parallel :ip2 do
+    seq.run :ip2_test
+  end
+end
+~~~
+
+
+
 
 
 ### Reserving Serial Resources
@@ -130,42 +320,6 @@ ip2:  __▄███████████████████████
 
 
 
-		○ A concurrent pattern is called a pattern sequence in Origen, and a single threaded sequence is created almost exactly like a standard pattern is (and this would generate the same output as the equivalent standard pattern):
-
-		Pattern.sequence do |seq|
-		  # Perform some test on IP1
-		  dut.ip1.do_something
-		end
-			
-		○ However, we now have access to the sequencer which allows concurrency to be programmed very easily:
-
-		Pattern.sequence do |seq|
-		  # Start a concurrent thread, :ip1 is just a name here to identify
-		  # this thread, it can be called anything
-		  seq.in_parallel :ip1 do
-			# Use the exact same code as you would use in a regular pattern
-			dut.ip1.do_something
-		  end
-		
-		  # Now start another thread to test a second IP in parallel
-		  seq.in_parallel :ip2 do
-		    dut.ip2.do_something_else
-		  end
-	    end
-
-		○ The sequencer also allows whole standard patterns to be called in-line (seq.run "some_pattern"), allowing IP-level patterns to be developed and debugged standalone, then sequenced into a concurrent pattern with other standard patterns. The generate command is also being updated to support this common use case without having to even create a dedicated sequence file: origen g pat1 pat2 pat3 --sequence my_sequence
-		○ APIs are provided to allow applications to serialize access to resources which should only be accessed by one thread at a time - e.g. a comms interface or an ADC for embedded measurements. It is envisaged that plugins will be updated to use these APIs to make them concurrent-ready in due course, and therefore typical applications will not need to do anything special to enable concurrency in the future.
-	
-	          def measure_voltage
-	      # This will block concurrent threads, allowing only one at a time
-	      # to execute this, while being ignored when generating a regular
-	      # pattern. :adc is just an identifier for this resource, and the
-	      # same ID should be used to block off access to the same resource
-	      # in other places.
-	      PatSeq.serialize :adc do
-	        dut.adc.do_something
-	      end
-	    end
 
 
 % end
