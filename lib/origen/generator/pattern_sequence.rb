@@ -115,6 +115,10 @@ module Origen
         @active_threads ||= []
       end
 
+      def threads_waiting_to_start?
+        @parallel_blocks_waiting_to_start
+      end
+
       def execute
         active_threads.first.start
         until active_threads.empty?

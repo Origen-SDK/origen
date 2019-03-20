@@ -114,7 +114,14 @@ module Origen
       # Will be called when the thread is ready for the next cycle
       def cycle(options)
         @pending_cycles = options[:repeat] || 1
+        # If there are threads pending start and we are about to enter a long delay, block for only
+        # one cycle to give them a change to get underway and make use of this delay
+        if @pending_cycles > 1 && sequence.send(:threads_waiting_to_start?)
+          remainder = @pending_cycles - 1
+          @pending_cycles = 1
+        end
         wait
+        @pending_cycles = remainder if remainder
         # If the sequence did not do enough cycles in that round to satisfy this thread, then go back
         # around to complete the remainder before continuing with the rest of the pattern
         if @pending_cycles == 0

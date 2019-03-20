@@ -231,7 +231,7 @@ main: ▄_______________________________________________________________________
 
 ip1:  █████████████████████████████████████████████████████████████████████████████████████████████████████████████
 
-ip2:  __▄███████████████████████████████████████████████████████████████████████████████▄__________________________
+ip2:  ▄███████████████████████████████████████████████████████████████████████████████▄____________________________
 ~~~
 
 All patterns always have a main thread and when generating a concurrent pattern like this it never
@@ -265,7 +265,7 @@ end
 Any options passed into `Pattern.sequence` will be passed into your startup/shutdown in the same
 way as per conventional patterns.
 
-In fact, conventional patterns can be written as conventional patterns if you want to, these will
+In fact, conventional patterns can be written as pattern sequences if you want to, these will
 generate identical output patterns:
 
 ~~~ruby
@@ -278,7 +278,7 @@ Pattern.sequence do |seq|
 end
 ~~~
 
-The sequencer option that is passed into the main block allows other pattern sources to be run. This
+The sequencer object that is passed into the main block allows other pattern sources to be run. This
 next example will look for pattern sources called `ip1_test` and `ip2_test` and generate them to
 run sequentially within a single pattern. So aside from concurrency, pattern sequences can also be
 used to compose sequential patterns which are comprised of multiple conventional patterns.
@@ -296,8 +296,7 @@ this is exactly equivalent to what Origen will do when generating multiple patte
 
 ~~~ruby
 Pattern.sequence do |seq|
-  # Start a concurrent thread, :ip1 is just a name here to identify this thread,
-  # it can be called anything
+  # Start a concurrent thread, :ip1 is just a name here to identify this thread, it can be called anything
   seq.in_parallel :ip1 do
     seq.run :ip1_test
   end
@@ -311,15 +310,95 @@ Pattern.sequence do |seq|
 end
 ~~~
 
+There is no requirement for a parallel thread to be associated with another pattern source, and
+you can program any operations that you like within the parallel blocks:
 
+~~~ruby
+Pattern.sequence do |seq|
+  # Since this is in the main thread it will block and this will fully generate before proceeding
+  dut.do_something
 
+  # Start a concurrent thread, this will not block which means that it will generate concurrently
+  # with anything that follows it
+  seq.in_parallel :th1 do
+    dut.do_something_else
+  end
 
+  # Another concurrent thread, there is no limit to the amount of these you can create, though there
+  # will be a sweet spot for efficiency if you have too many all competing for finite shared resources
+  seq.in_parallel :th2 do
+    dut.and_another_thing
+  end
+
+  # Let's do something else in the main thread for the sake of it, since the above two operations
+  # are in parallel threads we now have 3 operations running concurrentl
+  dut.one_more_for_fun
+end
+~~~
+
+To try and illustrate the above point, lets replicate it with some fixed delays:
+
+~~~ruby
+Pattern.sequence do |seq|
+  10.ms!
+
+  seq.in_parallel :th1 do
+    10.ms!
+  end
+
+  seq.in_parallel :th2 do
+    20.ms!
+  end
+
+  5.ms!
+end
+~~~
+
+How long should that pattern take to run?
+
+Answer: 30ms. The 10ms up front in the main thread blocks everything else, then the long pole is the
+20ms in thread 2:
+
+~~~text
+      |-------------------------|-------------------------|-------------------------|
+      0                         10.0ms                    20.0ms                    30.0ms
+
+main: ████████████████████████████████████████_______________________________________
+
+th1:  __________________________███████████████████████████__________________________
+
+th2:  __________________________█████████████████████████████████████████████████████
+~~~
 
 ### Reserving Serial Resources
 
+Access to serialized resources can be fully reserved by wrapping application logic in the following
+code:
 
+~~~ruby
+# This means that when a thread that executes this gets access to the ARM debug port, it won't release
+# it until the end of the block
+PatSeq.reserve :arm_debug do
 
+end
+~~~
 
+An example may be if you have multiple transactions and you want to be guaranteed that they occur
+within the time specified and are not spaced out by transactions from other threads:
 
+~~~ruby
+# When launching a command we want to verify that it started, so let's guarantee that the verify transaction
+# will occur after the specified 10 cycles, otherwise we risk the command starting and completing before
+# we check if it got underway
+PatSeq.reserve :arm_debug do
+  # Launch some command operation
+  cmd.write!(code)
+
+  10.cycles
+
+  # Verify the command started correctly
+  status.busy.read!(1)
+end
+~~~
 
 % end
