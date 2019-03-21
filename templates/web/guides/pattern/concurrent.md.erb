@@ -92,7 +92,7 @@ It is important to understand that clobbering can occur because
 all threads are sharing access to a single DUT. For example, if
 thread A sets pin TDI to drive 1 and then thread B immediately sets pin TDI to drive 0 while
 preparing for the same cycle, then the last value applied wins and the generated pattern
-will not by functionally valid.
+will not be functionally valid.
 
 Fortunately, dealing with this is a lot simpler than it sounds because each thread will normally
 be targeting a different IP and therefore they will naturally be dealing with resources and
@@ -146,7 +146,7 @@ end
 
 Here we have a single ARM debug system and physical port and only one transaction at a time
 can be handled.
-To make our transaction methods should be modified like this to make them concurrent-ready:
+Our transaction methods should be modified like this to make them concurrent-ready:
 
 ~~~ruby
 def read_register(reg, options={})
