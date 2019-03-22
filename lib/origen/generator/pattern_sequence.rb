@@ -8,6 +8,7 @@ module Origen
       def initialize(name, block)
         @number_of_threads = 1
         @name = name
+        @running_thread_ids = { main: true }
         # The contents of the main Pattern.sequence block will be executed as a thread and treated
         # like any other parallel block
         thread = PatternThread.new(:main, self, block, true)
@@ -23,15 +24,54 @@ module Origen
       end
       alias_method :call, :run
 
-      def in_parallel(id = nil, &block)
+      # Execute the given block in a new concurrent thread
+      def thread(id = nil, &block)
         @number_of_threads += 1
         id ||= "thread#{@number_of_threads}".to_sym
         # Just stage the request for now, it will be started at the end of the current execute loop
         @parallel_blocks_waiting_to_start ||= []
         @parallel_blocks_waiting_to_start << [id, block]
+        @running_thread_ids[id] = true
       end
+      alias_method :in_parallel, :thread
+
+      def wait_for_threads(*ids)
+        completed = false
+        blocked = false
+        ids = ids.map(&:to_sym)
+        all = ids.empty? || ids.include?(:all)
+        until completed
+          if all
+            limit = current_thread.id == :main ? 1 : 2
+            if @running_thread_ids.size > limit
+              current_thread.waiting_for_thread(blocked)
+              blocked = true
+            else
+              current_thread.record_active if blocked
+              completed = true
+            end
+          else
+            if ids.any? { |id| @running_thread_ids[id] }
+              current_thread.waiting_for_thread(blocked)
+              blocked = true
+            else
+              current_thread.record_active if blocked
+              completed = true
+            end
+          end
+        end
+      end
+      alias_method :wait_for_thread, :wait_for_threads
 
       private
+
+      def thread_running?(id)
+        @running_thread_ids[id]
+      end
+
+      def current_thread
+        PatSeq.thread
+      end
 
       def log_execution_profile
         if threads.size > 1
@@ -104,6 +144,7 @@ module Origen
       end
 
       def thread_completed(thread)
+        @running_thread_ids.delete(thread.id)
         active_threads.delete(thread)
       end
 

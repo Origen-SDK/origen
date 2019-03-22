@@ -6,8 +6,11 @@ Pattern.sequence do |seq|
   end
 
   seq.thread :th2 do
+    seq.wait_for_thread :th1
     20.ms!
   end
+
+  seq.wait_for_threads :all
 
   5.ms!
 end

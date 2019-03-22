@@ -21,7 +21,7 @@ module Origen
           @cycle_count_start = current_cycle_count
         end
         @events = [[:active, cycle_count_start]]
-        @id = id
+        @id = id.to_sym
         @sequence = sequence
         @block = block
         @primary = primary
@@ -107,6 +107,13 @@ module Origen
       # lock on a serialized block
       def waiting_for_serialize(serialize_id, skip_event = false)
         # puts "Thread #{id} is blocked waiting for #{serialize_id}"
+        events << [:waiting, current_cycle_count] unless skip_event
+        wait
+      end
+
+      # Will be called when the thread can't execute its next cycle because it is waiting for another
+      # thread to complete
+      def waiting_for_thread(skip_event = false)
         events << [:waiting, current_cycle_count] unless skip_event
         wait
       end

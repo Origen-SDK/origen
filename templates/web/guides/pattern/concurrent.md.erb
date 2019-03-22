@@ -272,7 +272,11 @@ generate identical output patterns:
 Pattern.create do
   dut.ip1.do_something
 end
+~~~
 
+is equivalent to:
+
+~~~ruby
 Pattern.sequence do |seq|
   dut.ip1.do_something
 end
@@ -297,14 +301,14 @@ this is exactly equivalent to what Origen will do when generating multiple patte
 ~~~ruby
 Pattern.sequence do |seq|
   # Start a concurrent thread, :ip1 is just a name here to identify this thread, it can be called anything
-  seq.in_parallel :ip1 do
+  seq.thread :ip1 do
     seq.run :ip1_test
   end
 
   # Start another parallel thread, note that since the above has created a parallel thread,
   # it will not block the main thread's execution of this sequence, meaning that both of these
   # threads are effectively launched at the same time
-  seq.in_parallel :ip2 do
+  seq.thread :ip2 do
     seq.run :ip2_test
   end
 end
@@ -320,13 +324,13 @@ Pattern.sequence do |seq|
 
   # Start a concurrent thread, this will not block which means that it will generate concurrently
   # with anything that follows it
-  seq.in_parallel :th1 do
+  seq.thread :th1 do
     dut.do_something_else
   end
 
   # Another concurrent thread, there is no limit to the amount of these you can create, though there
   # will be a sweet spot for efficiency if you have too many all competing for finite shared resources
-  seq.in_parallel :th2 do
+  seq.thread :th2 do
     dut.and_another_thing
   end
 
@@ -342,11 +346,11 @@ To try and illustrate the above point, lets replicate it with some fixed delays:
 Pattern.sequence do |seq|
   10.ms!
 
-  seq.in_parallel :th1 do
+  seq.thread :th1 do
     10.ms!
   end
 
-  seq.in_parallel :th2 do
+  seq.thread :th2 do
     20.ms!
   end
 
@@ -369,6 +373,25 @@ th1:  __________________________████████████████
 
 th2:  __________________________█████████████████████████████████████████████████████
 ~~~
+
+Note that the `5.ms!` from the main thread is running in parallel to the `10.ms!` and `20.ms!` from
+threads 1 and 2, respectively.
+
+### Syncing Up With Parallel Threads
+
+
+~~~text
+      |-------------------------|-------------------------|-------------------------|-------------
+      0                         10.0ms                    20.0ms                    30.0ms
+
+main: ██████████████████████████____________________________________________________██████████████
+
+th1:  __________________________███████████████████████████_______________________________________
+
+th2:  __________________________████████████████████████████████████████████████████______________
+~~~
+
+
 
 ### Reserving Serial Resources
 
