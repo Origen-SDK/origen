@@ -379,6 +379,45 @@ threads 1 and 2, respectively.
 
 ### Syncing Up With Parallel Threads
 
+Sometimes you may want to wait until threads have completed, a common example could be to wait at the
+end of a pattern for everything to finish before checking for a result.
+This can be done by making the following method call to block the thread from which it is called
+until all other threads complete:
+
+~~~ruby
+seq.wait_for_threads
+~~~
+
+or to wait for a specific thread(s):
+
+~~~ruby
+seq.wait_for_threads :th1, :th2
+~~~
+
+If we add that to our previous example, how long will it take to run now?
+
+
+~~~ruby
+Pattern.sequence do |seq|
+  10.ms!
+
+  seq.thread :th1 do
+    10.ms!
+  end
+
+  seq.thread :th2 do
+    20.ms!
+  end
+
+  seq.wait_for_threads
+
+  5.ms!
+end
+~~~
+
+The answer is 35ms, since the `5.ms!` in the main thread is now blocked until threads 1 and 2
+complete:
+
 
 ~~~text
       |-------------------------|-------------------------|-------------------------|-------------
@@ -395,7 +434,7 @@ th2:  __________________________████████████████
 
 ### Reserving Serial Resources
 
-Access to serialized resources can be fully reserved by wrapping application logic in the following
+Access to serialized resources can be reserved by wrapping application logic in the following
 code:
 
 ~~~ruby
@@ -407,7 +446,7 @@ end
 ~~~
 
 An example may be if you have multiple transactions and you want to be guaranteed that they occur
-within the time specified and are not spaced out by transactions from other threads:
+within the time specified and/or that they do not separated by transactions from other threads:
 
 ~~~ruby
 # When launching a command we want to verify that it started, so let's guarantee that the verify transaction
