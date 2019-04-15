@@ -16,10 +16,10 @@ GIT
 
 GIT
   remote: https://github.com/Origen-SDK/origen_sim.git
-  revision: 0a4c93d443f1a40cd58194fbb580841e4da762c2
+  revision: 7f3889b6ecafd1db11dfcdd601974a04897fdc49
   specs:
-    origen_sim (0.15.0)
-      origen (>= 0.41.0)
+    origen_sim (0.16.0)
+      origen (>= 0.43.0)
       origen_testers
       origen_verilog (>= 0.5.2)
 
@@ -67,7 +67,7 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (4.2.11)
+    activesupport (4.2.11.1)
       i18n (~> 0.7)
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
@@ -79,7 +79,7 @@ GEM
       ast (~> 2)
       origen (>= 0.2.3)
       sexpistol (~> 0.0)
-    bootsnap (1.4.1)
+    bootsnap (1.4.3)
       msgpack (~> 1.0)
     builder (3.2.3)
     byebug (8.2.5)
@@ -120,10 +120,10 @@ GEM
     method_source (0.9.2)
     mime-types (3.2.2)
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2018.0812)
+    mime-types-data (3.2019.0331)
     mini_portile2 (2.3.0)
     minitest (5.11.3)
-    msgpack (1.2.8)
+    msgpack (1.2.9)
     multi_xml (0.6.0)
     multipart-post (2.0.0)
     nanoc (3.7.5)
@@ -145,7 +145,7 @@ GEM
       ast (~> 2)
       origen (>= 0.41.0)
       treetop
-    parser (2.6.0.0)
+    parser (2.6.2.1)
       ast (~> 2.4.0)
     polyglot (0.3.5)
     powerpack (0.1.2)
@@ -203,7 +203,7 @@ GEM
       polyglot (~> 0.3)
     tzinfo (1.2.5)
       thread_safe (~> 0.1)
-    yard (0.9.18)
+    yard (0.9.19)
 
 PLATFORMS
   ruby
