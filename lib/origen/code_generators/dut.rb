@@ -22,14 +22,13 @@ Examples:
 END
 
       def validate_args
-        validate_args_common
-
         if args.size > 1 || args.size == 0
-          msg = args.size > 1 ? 'Only one' : 'One '
-          msg << "argument is expected by the DUT generator, e.g. 'origen new dut my_soc', 'origen new dut my_family/my_soc"
-          Origen.log.error(msg)
+          msg = args.size > 1 ? 'Only one' : 'One'
+          msg << " argument is expected by the DUT generator, e.g. 'origen new dut my_soc', 'origen new dut my_family/my_soc"
+          puts msg
           exit 1
         end
+        validate_args_common
       end
 
       def setup

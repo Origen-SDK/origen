@@ -27,22 +27,22 @@ Examples:
 END
 
       def validate_args
-        @resource_path = validate_resource_path(args.last)
-
         if args.size > 2 || args.size == 0
-          msg = args.size == 0 ? 'At least one argument is ' : 'No more than two arguments are '
-          msg << "expected by the module generator, e.g. 'origen new module helpers', 'origen new module helpers app/lib/my_app/my_class.rb'"
-          Origen.log.error(msg)
+          msg = args.size == 0 ? 'At least one argument is' : 'No more than two arguments are'
+          msg << " expected by the module generator, e.g. 'origen new module helpers', 'origen new module helpers app/lib/my_app/my_class.rb'"
+          puts msg
           exit 1
         end
 
         if args.size == 2
           @class_file = args.first
           unless File.exist?(@class_file)
-            Origen.log.error("This class file does not exist: #{@class_file}")
+            puts "This class file does not exist: #{@class_file}"
             exit 1
           end
         end
+
+        @resource_path = validate_resource_path(args.last)
       end
 
       def create_module_file

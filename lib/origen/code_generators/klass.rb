@@ -17,13 +17,13 @@ Examples:
 END
 
       def validate_args
-        validate_resource_name(args.first)
-
         if args.size > 1 || args.size == 0
-          msg = "Only one argument is expected by the class generator, e.g. 'origen new class counter', 'origen new class helpers/counter'"
-          Origen.log.error(msg)
+          msg = args.size > 1 ? 'Only one' : 'One'
+          msg << " argument is expected by the class generator, e.g. 'origen new class counter', 'origen new class helpers/counter'"
+          puts msg
           exit 1
         end
+        validate_resource_name(args.first)
       end
 
       def create_class_file

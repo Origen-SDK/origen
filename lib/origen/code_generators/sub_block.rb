@@ -34,27 +34,28 @@ Examples:
 END
 
       def validate_args
+        if args.size > 2 || args.size == 0
+          msg = args.size == 0 ? 'At least one argument is' : 'No more than two arguments are'
+          msg << " expected by the sub-block generator, e.g. 'origen new sub_block atd/atd16bit', 'origen new sub_block sampler app/models/atd/derivatives/atd16bit"
+          puts msg
+          exit 1
+        end
+
         if args.size == 2
           validate_args_common(args.last)
         else
           validate_args_common
         end
 
-        if args.size > 2 || args.size == 0
-          msg = args.size == 0 ? 'At least one argument is ' : 'No more than two arguments are '
-          msg << "expected by the sub-block generator, e.g. 'origen new sub_block atd/atd16bit', 'origen new sub_block sampler app/models/atd/derivatives/atd16bit"
-          Origen.log.error(msg)
-          exit 1
-        end
         @nested = args.size == 2
         if !@nested && args.first.split('/').size == 1
           msg = "You must supply a leading type to the name of the sub-block, e.g. 'origen new sub_block atd/atd16bit'"
-          Origen.log.error(msg)
+          puts msg
           exit 1
         end
         if @nested && args.last.split('/').size != 1
           msg = "No leading type is allowed when generating a nested sub-block, e.g. 'origen new sub_block sampler app/models/atd/derivatives/atd16bit"
-          Origen.log.error(msg)
+          puts msg
           exit 1
         end
       end

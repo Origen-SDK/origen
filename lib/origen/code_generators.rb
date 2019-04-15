@@ -120,6 +120,7 @@ END
         puts name
       end
       plugin_generators.each do |namespace, generators|
+        next if namespace.to_s == 'origen_app_generators'
         puts
         generators.each do |_name, gen|
           puts "#{namespace}:#{gen}"

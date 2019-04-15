@@ -30,13 +30,14 @@ Examples:
 END
 
       def validate_args
-        validate_resource_name(args.first)
-
         if args.size > 1 || args.size == 0
-          msg = "Only one argument is expected by the model generator, e.g. 'origen new model sequencer', 'origen new model bist/sequencer'"
-          Origen.log.error(msg)
+          msg = args.size > 1 ? 'Only one' : 'One'
+          msg << " argument is expected by the model generator, e.g. 'origen new model sequencer', 'origen new model bist/sequencer'"
+          puts msg
           exit 1
         end
+
+        validate_resource_name(args.first)
       end
 
       def create_model_file

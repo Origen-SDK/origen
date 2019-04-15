@@ -28,14 +28,13 @@ The above can then be loaded to models in your application code via:
 END
 
       def validate_args
-        validate_args_common
-
         if args.size > 1 || args.size == 0
-          msg = args.size > 1 ? 'Only one' : 'One '
-          msg << "argument is expected by the feature generator, e.g. 'origen new feature my_feature', 'origen new feature features/my_feature"
-          Origen.log.error(msg)
+          msg = args.size > 1 ? 'Only one' : 'One'
+          msg << " argument is expected by the feature generator, e.g. 'origen new feature my_feature', 'origen new feature features/my_feature"
+          puts msg
           exit 1
         end
+        validate_args_common
       end
 
       def setup
