@@ -77,17 +77,14 @@ unless defined? RGen::ORIGENTRANSITION
 
     APP_CONFIG = File.join('config', 'application.rb')
 
-    class OrigenError < StandardError
-      def self.status_code(code)
-        define_method(:status_code) { code }
-      end
-    end
-
-    class PerforceError < OrigenError;  status_code(11); end
-    class GitError < OrigenError; status_code(11); end
-    class DesignSyncError < OrigenError; status_code(12); end
-    class RevisionControlUninitializedError < OrigenError; status_code(13); end
-    class SyntaxError < OrigenError; status_code(14); end
+    class OrigenError < StandardError; end
+    class PerforceError < OrigenError; end
+    class GitError < OrigenError; end
+    class DesignSyncError < OrigenError; end
+    class RevisionControlUninitializedError < OrigenError; end
+    class SyntaxError < OrigenError; end
+    class BinStrValError < OrigenError; end
+    class HexStrValError < OrigenError; end
 
     class << self
       include Origen::Utility::TimeAndDate
