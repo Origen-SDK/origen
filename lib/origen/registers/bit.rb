@@ -97,6 +97,8 @@ module Origen
       # Returns the basic access string for a given access method.  Possible values: read-write, read-only,
       # write-only, writeOnce, read-writeOnce.  Used primarily by CrossOrigen IP-XACT import/export.
       attr_reader :base_access
+      # Can be set to indicate that the current state of the bit is unknown, e.g. after reading X from a simulation
+      attr_accessor :unknown
 
       def initialize(owner, position, options = {}) # rubocop:disable MethodLength
         options = {
@@ -290,7 +292,7 @@ module Origen
       # unknown in cases where the reset value is undefined or determined by a memory location
       # and where the bit has not been written or read to a specific value yet.
       def has_known_value?
-        !@reset_val.is_a?(Symbol) || @updated_post_reset
+        !@unknown && (!@reset_val.is_a?(Symbol) || @updated_post_reset)
       end
 
       # Set the data value of the bit to the given value (1 or 0)
