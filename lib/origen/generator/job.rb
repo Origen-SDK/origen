@@ -156,12 +156,36 @@ module Origen
               skip ||= !listener.before_pattern_lookup(@requested_pattern)
             end
             unless skip
-              @pattern = Origen.generator.pattern_finder.find(@requested_pattern, @options)
-              if @pattern.is_a?(Hash)
-                @output_file_body = @pattern[:output]
-                @pattern = @pattern[:pattern]
+              if @options[:sequence]
+                @pattern = @requested_pattern
+                Origen.pattern.sequence do |seq|
+                  # This splits the pattern name by "_" then removes all values that are common to all patterns
+                  # and then rejoins what is left.
+                  # The goal is to keep the thread ID concise for the log and rather than using the whole pattern
+                  # name only focussing on what is different.
+                  # e.g. if you combined patterns flash_read_ckbd_ip1_max.rb and flash_read_ckbd_ip2_max.rb into
+                  # a concurrent sequence then the two threads would be called 'ip1' and 'ip2'.
+                  ids = @options[:patterns].map do |pat|
+                    Pathname.new(pat).basename('.*').to_s.split('_')
+                  end
+                  ids = ids.map { |id| id.reject { |i| ids.all? { |id| id.include?(i) } }.join('_') }
+
+                  @options[:patterns].each_with_index do |pat, i|
+                    id = ids[i]
+                    id = i.to_s if id.empty?
+                    seq.in_parallel id do
+                      seq.run pat
+                    end
+                  end
+                end
+              else
+                @pattern = Origen.generator.pattern_finder.find(@requested_pattern, @options)
+                if @pattern.is_a?(Hash)
+                  @output_file_body = @pattern[:output]
+                  @pattern = @pattern[:pattern]
+                end
+                load @pattern unless @pattern == :skip  # Run the pattern
               end
-              load @pattern unless @pattern == :skip  # Run the pattern
             end
           end
         rescue Exception => e

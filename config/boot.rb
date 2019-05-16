@@ -6,3 +6,5 @@ require "c99/ate_interface"
 require_relative "../lib/c99/nvm"
 
 require_relative "../helpers/guides"
+
+require "#{Origen.root(:origen_sim)}/config/boot"

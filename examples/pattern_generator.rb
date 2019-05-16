@@ -17,3 +17,13 @@ load "origen/commands/generate.rb"
 # Verify other testers
 ARGV = %w(jlink.list -t jlink -r approved --plugin none)
 load "origen/commands/generate.rb"
+
+# Test the --sequence option to create a concurrent pattern
+ARGV = %W(#{Origen.root(:origen_sim)}/pattern/ip1_test.rb
+          #{Origen.root(:origen_sim)}/pattern/ip2_test.rb
+          --sequence concurrent -t origen_sim_dut -r approved --plugin origen_sim)
+load "origen/commands/generate.rb"
+
+# Other concurrent pattern tests
+ARGV = %w(concurrent.list -t origen_sim_dut -r approved --plugin none)
+load "origen/commands/generate.rb"

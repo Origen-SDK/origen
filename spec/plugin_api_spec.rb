@@ -8,7 +8,7 @@ describe "The plugins API" do
   end
 
   it "returns an enhanced array containing all plugin app instances" do
-    Origen.app.plugins.size.should == 7
+    Origen.app.plugins.size.should == 8
     Origen.app.plugins.is_a?(Origen::Application::Plugins).should == true
   end
 

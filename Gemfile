@@ -14,8 +14,11 @@ gem 'ripper-tags'
 gem 'nokogiri', '1.8.5'  # Lock to the version to enable testing in Ruby 2.2
 
 # Plugins that provide guide pages
-gem "origen_testers", git: "https://github.com/Origen-SDK/origen_testers.git"
-gem "origen_sim", git: "https://github.com/Origen-SDK/origen_sim.git"
+gem "origen_testers", git: "https://github.com/Origen-SDK/origen_testers.git", branch: "concurrent"
+gem "origen_sim", git: "https://github.com/Origen-SDK/origen_sim.git", branch: "concurrent"
+
+# Required to run the concurrent test case patterns from OrigenSim
+gem 'origen_jtag'
 
 # Pull in the latest and greatest app generator templates so that they can be
 # packaged into Origen releases
