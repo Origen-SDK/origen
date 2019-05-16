@@ -15,6 +15,7 @@ module Origen
       DONT_CARE_CHAR = 'X'
       OVERLAY_CHAR = 'V'
       STORE_CHAR = 'S'
+      UNKNOWN_CHAR = '?'
 
       attr_accessor :name
       alias_method :id, :name
@@ -388,6 +389,11 @@ module Origen
       alias_method :data=, :write
       alias_method :value=, :write
       alias_method :val=, :write
+
+      # Sets the unknown attribute on all contained bits
+      def unknown=(val)
+        each { |bit| bit.unknown = val }
+      end
 
       # Will tag all bits for read and if a data value is supplied it
       # will update the expected data for when the read is performed.
@@ -902,7 +908,11 @@ module Origen
               if bit.has_overlay? && options[:mark_overlays]
                 str += OVERLAY_CHAR
               else
-                str += bit.data.to_s
+                if bit.has_known_value?
+                  str += bit.data.to_s
+                else
+                  str += UNKNOWN_CHAR
+                end
               end
             else
               str += DONT_CARE_CHAR
@@ -913,7 +923,11 @@ module Origen
             if bit.has_overlay? && options[:mark_overlays]
               str += OVERLAY_CHAR
             else
-              str += bit.data.to_s
+              if bit.has_known_value?
+                str += bit.data.to_s
+              else
+                str += UNKNOWN_CHAR
+              end
             end
           end
         else
@@ -987,7 +1001,7 @@ module Origen
 
         nibbles.each_with_index do |nibble, i|
           # If contains any special chars...
-          if nibble =~ /[#{DONT_CARE_CHAR}#{STORE_CHAR}#{OVERLAY_CHAR}]/
+          if nibble =~ /[#{UNKNOWN_CHAR}#{DONT_CARE_CHAR}#{STORE_CHAR}#{OVERLAY_CHAR}]/
             # If all the same...
             if nibble[0] == nibble[1] && nibble[1] == nibble[2] && nibble[2] == nibble[3]
               outstr += nibble[0, 1] # .to_s
