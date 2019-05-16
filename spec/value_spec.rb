@@ -18,7 +18,7 @@ describe Origen::Value do
     end
 
     it "will reject invalid formatted values" do
-      expect { Origen::Value.new(:h12Y4) }.to raise_error(Origen::BinStrValError)
+      expect { Origen::Value.new(:h12Y4) }.to raise_error(Origen::HexStrValError)
     end
 
     it "converts to an integer and a string" do
@@ -68,7 +68,7 @@ describe Origen::Value do
     end
 
     it "will reject invalid formatted values" do
-      expect { Origen::Value.new(:b10yx) }.to raise_error(Origen::SyntaxError)
+      expect { Origen::Value.new(:b10yx) }.to raise_error(Origen::BinStrValError)
     end
 
     it "converts to an integer and a string" do

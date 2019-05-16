@@ -82,6 +82,7 @@ unless defined? RGen::ORIGENTRANSITION
     class RevisionControlUninitializedError < OrigenError; end
     class SyntaxError < OrigenError; end
     class BinStrValError < OrigenError; end
+    class HexStrValError < OrigenError; end
 
     class << self
       include Origen::Utility::TimeAndDate
