@@ -1,3 +1,15 @@
+<a class="anchor release_tag" name="v0_44_0"></a>
+<h1><a href="#v0_44_0">Tag: v0.44.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 16-May-2019 16:35PM
+
+
+* Added concurrent pattern generation capability, see dedicated guide page on this in the 
+  Pattern Generator section
+* Internal API updates to support OrigenSim 
+
 <a class="anchor release_tag" name="v0_43_0"></a>
 <h1><a href="#v0_43_0">Tag: v0.43.0</a></h1>
 
