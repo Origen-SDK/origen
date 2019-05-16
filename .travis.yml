@@ -4,6 +4,7 @@ rvm:
   - 2.4.0
   - 2.5.1
 script:
+  - gem update --system
   - gem install bundler
   - bundle exec origen -v
   - bundle exec origen m debug
