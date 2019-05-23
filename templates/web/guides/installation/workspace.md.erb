@@ -7,45 +7,6 @@ This advice is particularly critical when running in a corporate Linux environme
 the Linux distribution is older and/or you don't have permission to write to the
 system Ruby installation.
 
-#### Fix My Workspace
-
-The most important takeaway from this guide is to add the <code>origen_updater</code> plugin to your
-application, this provides a command which should fix your workspace if you ever end up
-in a situation where the <code>origen</code> or <code>bundle</code> commands are no longer working.
-
-Add it to your application's Gemfile like this:
-
-~~~ruby
-# Gemfile
-source 'https://rubygems.org'
-
-gem 'origen_updater'
-~~~
-
-Note that if your application is a plugin you should always add this to your Gemfile too,
-i.e. don't put it in the .gemspec.
-
-After adding it for the first time run:
-
-~~~text
-origen -v
-~~~
-
-This will invoke the plugin and it will create a new executable in your
-application - <code>bin/fix_my_workspace</code>.
-
-**This file should be committed to your revision control system to ensure that it is
-always available to you in the future**. It's contents may be changed automatically from time-to-time if you upgrade
-to a new version of the origen_updater plugin, in which case the changes should be committed
-to revision control too.
-
-To fix your workspace at any time simply run:
-
-~~~text
-./bin/fix_my_workspace
-~~~
-
-
 #### Creating a New Workspace
 
 Creating a new workspace means setting up an existing application within a new directory
@@ -54,14 +15,11 @@ for the first time.
 The most important thing to remember in this case is to **always run <code>origen -v</code>
 as the first step after importing the application files from your revision control system.**
 
-Doing this ensures that Origen provides some basic configuration of [Bundler](<%= path "guides/starting/gems" %>)
+Doing this ensures that Origen provides some basic configuration of [Bundler](<%= path "guides/installation/gems" %>)
 which will ensure that it runs well within a restricted corporate environment.
 
 After doing this for the first time, you can then safely run the <code>bundle</code> command
 directly if you want to.
-
-If you forget to do this and run <code>bundle</code> first, then you can recover by running
-the <code>fix_my_workspace</code> command as described above.
 
 #### Updating Dependencies
 
@@ -71,24 +29,24 @@ or .gemspec.
 In some cases (depending on what gems you already have installed locally), you can simply make
 the edit and then continue running the <code>origen</code> command without any problems.
 
-If you don't already have the gem version installed locally, you will get a [Bundler](<%= path "guides/starting/gems" %>)
+If you don't already have the gem version installed locally, you may get a [Bundler](<%= path "guides/installation/gems" %>)
 error which may or may not clearly describe the problem.
 
-The easiest way to resolve things at this point is to simply run the <code>fix_my_workspace</code>
-command as described above.
-
-Alternatively, following this sequence will create a working environment with the new dependency
-in most cases:
+In most cases, this can be resolve by running the following command, telling Bundler which gem you
+just changed the version of:
 
 ~~~text
-> bundle
-
-// If that doesn't work try this, where gem_name is the name of the gem you just updated in
-// your Gemfile/.gemspec
 > bundle update <gem_name>
 
-// If that doesn't work try this, this will completely re-build your gem bundle, which will pull in the
-// latest versions of all gems which satisfy the rules defined in your Gemfile
+// For example, say you just changed the version of the origen_testers gem, then run:
+> bundle update origen_testers
+~~~
+
+If that doesn't work, then the following command will completely re-build your gem bundle and pull in the
+latest versions of all gems which satisfy the rules defined in your Gemfile, solving any dependency conflict
+issues in the process:
+
+~~~text
 > bundle update
 ~~~
 
@@ -114,22 +72,20 @@ console, or be visiting the [bundler docs](https://bundler.io/v1.16/man/bundle-c
 
 ##### Relocating Your Gems
 
-<img src="<%= path "img/memes/push_it_somewhere_else_patrick_gems.png" %>" style="display: block; margin: auto; width: 250px; height: 500px;">
-
-Individually, you can control where your gems are installed by using either the [site configs](<%= path "guides/starting/company/" %>),
+Individually, you can control where your gems are installed by using either the [site configs](<%= path "guides/installation/company/" %>),
 or by setting an <code>environment variable</code>. This will build or rebuild all of your gems at that
 location, which is generally a project drive or somewhere else where space is less of an issue.
 
 You can set the site config variable <code>user_gem_dir</code> to point to the new location that you
 wish your gems to be installed at. Alternatively, you can set the <code>environment variable</code>
 <code>ORIGEN_USER_GEM_DIR</code> to accomplish the same in a more 'linux-like' way. Recall from the
-[site config page](<%= path "guides/starting/company/" %>) that environment variables will overrule
+[site config page](<%= path "guides/installation/company/" %>) that environment variables will overrule
 site config variables.
 
 <div class="alert alert-info">
   <strong>Info!</strong> This will only move the location of the downloaded gems. It will not change the
   full install directory, meaning that your <a href='<%= path "guides/misc/session/" %>'>Origen session</a>, 
-  logs, and <a href='<%= path "guides/starting/invoking/" %>'>global Gemfile</a> will stay in your <code>home_dir</code>.
+  logs, and <a href='<%= path "guides/installation/invoking/" %>'>global Gemfile</a> will stay in your <code>home_dir</code>.
   These items are small, and should not fill up even a minimal, corporate Linux home directory. For details on
   moving this as well, please see the <a href='<%= path "guides/advanced/invocations/" %>'>advanced topic here</a>.
 </div>
@@ -167,7 +123,7 @@ The workspace is divided into three sections:
 3. The User Gem Directory: Location to install the gems.
 
 The above list is a top-down listing of the sections, but we'll actually discuss in detail from the bottom-up view.
-Each of the sections can be customized using the [site config](<%= path "guides/starting/company/" %>).
+Each of the sections can be customized using the [site config](<%= path "guides/installation/company/" %>).
 
 #### Evaluating Paths
 

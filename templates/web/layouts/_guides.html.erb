@@ -7,17 +7,22 @@ title: Origen - Guides
 %# Add/edit sections here, the code below will expand this with the correct markup,
 %# pass in the topic you want selected via the :tab option.
 % i = OrigenDocHelpers::GuideIndex.new
-% i.section :starting, heading: "Getting Started with Origen" do |section|
+% i.section :installation, heading: "Installing Origen" do |section|
 %   section.page :introduction, heading: "Introduction"
-%   section.page :core, heading: "Core concepts"
 %   section.page :installing, heading: "How to Install"
 %   section.page :installwin, heading: "How to Install (Windows)"
 %   section.page :company, heading: "Company Customization"
 %   section.page :gems, heading: "Understanding Gems"
-%   section.page :app, heading: "Creating a New App"
 %   section.page :invoking, heading: "Invoking Considerations"
-%   section.page :commit, heading: "The Initial Commit"
 %   section.page :workspace, heading: "Workspace Management"
+% end
+% i.section :starting, heading: "Getting Started with Origen" do |section|
+%   section.page :core, heading: "Core concepts"
+%   section.page :app, heading: "Creating a New App"
+%   section.page :directory, heading: "Directory Structure"
+%   section.page :commit, heading: "The Initial Commit"
+%   section.page :files, heading: "Creating New Files"
+%   section.page :blocks, heading: "Understanding Blocks"
 %   section.page :architecture, heading: "Application Architecture"
 % end
 % i.section :runtime, heading: "Runtime Environment" do |section|

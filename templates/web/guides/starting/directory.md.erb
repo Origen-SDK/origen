@@ -1,0 +1,245 @@
+% render "layouts/guides.html", heading: "Application Directory Structure" do
+
+All Origen applications have the same directory structure which is setup when a new application
+is created by running the `origen new my_app` command.
+
+This guide provides an overview of what each directory is used for.
+
+<div class="alert alert-warning">
+  <strong>Note!</strong> This guide refers to applications created by Origen version `v0.50.0` onwards.
+  Prior to that, the contents of the <code>app/</code> directory were spread out between various top-level
+  directories and often in a less structured way.
+  While the old directories are still supported by Origen, all new applications should conform to the
+  newer structure described here.
+</div>
+
+### Top-Level Directories
+
+Here is the top-level directory structure of a typical Origen application:
+
+~~~text
+.
+├── app/    
+├── config/        
+├── doc/        
+├── environment/        
+├── lbin/        
+├── log/        
+├── output/        
+├── spec/        
+├── target/        
+├── tmp/        
+├── Gemfile
+├── Gemfile.lock
+├── Rakefile
+└── README.md
+~~~
+
+Here is a description of each component:
+
+
+##### app/
+
+This is where the bulk of your application resides and it is covered in [more detail below](#The_app/_Directory).
+You should think of the `app/` directory as being your application, while the rest of the directories and files
+at the top-level are mainly concerned with collecting output, managing your application's runtime environment,
+and hooking it into the Origen eco-system.
+
+##### config/
+
+This directory is for configuring Origen to your application's needs and it provides the hook points to add things
+like additional application-specific Origen commands.
+It contains a number of standard files and these are [discussed in more detail below](#The_config/_Diretory).
+
+##### doc/
+
+This directory is only used by Origen to store your application's release note history whenever you
+[tag/release your app through Origen.](<%= path "guides/starting/commit/#Commit_and_Tag" %>)
+You can also use it as a place to store any documentation associated with your application.
+
+##### environment/
+
+Environments refer to the runtime environment that is being targeted by whatever your Origen application is
+creating. For example, in a test engineering application an environment would exist for each ATE platform
+you support. A simulator is another common Origen environment.
+A file should exist in this directory for each target environment that your application supports.
+
+See here for more information on creating and setting environments - [Runtime Environment](<%= path "guides/runtime/environment" %>).
+
+To create a simulation environment, see here - [Simulation Environment Setup](<%= path "guides/simulation/environment" %>).
+
+##### lbin/
+
+This contains bin stubs which are executables that ensure that the given tool is invoked within
+your application's gem bundle.
+You should check this directory into your revision control system and you should add `./lbin` to your
+`PATH`, meaning that whenever you are running `origen` from your application workspace, you are really
+running `./lbin/origen`.
+
+##### log/
+
+All Origen log files will be created in here.
+
+##### output/
+
+This is the default Origen output directory, though the location of this is something that you can configure
+within your applications' `config/application.rb` file.
+
+##### spec/
+
+If your create unit tests for your application (meaning tests of the app itself) then they would go in
+here.
+
+##### target/
+
+Similar to the `environment/` directory, but concerned with specifying what silicon is being targeted by whatever
+your Origen application is creating.
+
+See here for more information on creating and setting targets - [Runtime Target](<%= path "guides/runtime/target" %>).
+
+##### tmp/
+
+Origen and plugins will store temporary data in here, it should not be added to your revision control system and
+it can be safely deleted at any time.
+
+##### Gemfile
+
+This specifies your application's dependencies, see [Understanding Gems](<%= path "guides/installation/gems" %>) for
+more information.
+
+##### Gemfile.lock
+
+This is a generated file that should be checked into your revision control system as part of your application.
+Gemfiles are often setup such that some dependencies do not have a hard version specified and therefore a range of
+versions could satisfy the requirements.
+However, when working as a team it is preferable to know that everyone is working with the same execution environment.
+This file records the dependency versions that were actually used the last time the gem bundle was created (the last time
+the Gemfile was changed), and all users that have the same `Gemfile.lock` in their workspace are guaranteed to be running the
+same execution environment.
+
+##### Rakefile
+
+Rake is the Ruby equivalent of the Unix program Make, if you are familiar with it, this is the Ruby equivalent of
+a `Makefile`.
+In practice, this is not used much within the Origen ecosystem and generally [application-specific Origen commands](<%= path "guides/misc/commands" %>)
+and [plugin commands](<%= "guides/plugins/creating/#Sharing_Application_Commands" %>) are preferred instead.
+However, if you want to use Rake within your application then this file is already setup to load Origen.
+
+##### README.md
+
+A good place to provide an introduction to your application for other developers.
+
+
+### The app/ Directory
+
+The `app/` directory typically contains the following sub-directories:
+
+~~~text
+.
+├── app/    
+    ├── blocks/
+    ├── flows/        
+    ├── lib/
+    │   ├── my_app_name/              
+    │   └── my_app_name.rb
+    ├── patterns/
+    └── templates/
+        └── web/
+~~~
+
+Here is a description of each of them:
+
+##### app/blocks/
+
+A "block" contains all of the Origen infrastructure to model and control a specific piece of silicon.
+Blocks can instantiate other blocks as sub-blocks, and therefore it is common to have a block that represents
+the top-level device, and then other blocks to represent the individual IPs that it contains.
+
+See the [dedicated guide on Understanding Blocks](<%= path "guides/starting/blocks" %>)
+
+##### app/flows/
+
+All [test program flow files](<%= path "guides/program/flows" %>) should be stored in here.
+
+##### app/lib/
+
+This is where to create any Ruby files that do not otherwise fall into one of the other standard directories.
+This directory is added to Ruby's load path, which means that files within it can be loaded with a relative path,
+e.g. `require "my_app_name/my_class"`, although as it also supports autoloading
+you should never have to manually load the files in here as long as you follow the 
+[autoloading naming conventions](<%= path "guides/starting/files/#Autoloading" %>).
+
+The file `app/lib/<my_app_name>.rb` is automatically loaded when your application boots and is therefore a convenient place to
+do any loading of any external libraries that your application depends on.
+
+Since this directory is in the Ruby's global load path, it is very important that all code you put in here is wrapped
+in your application's namespace, like this:
+
+~~~ruby
+module MyAppName
+  # Your code here
+end
+~~~
+
+and then placed within the `my_app_name` sub-directory to reflect that it lives within that namespace.
+
+##### app/patterns/
+
+All [test pattern source files](<%= path "guides/pattern/creating" %>) should be stored in here.
+
+##### app/templates/
+
+All [compiler template files](<%= path "guides/compiler/creating" %>) should be stored in here.
+
+The templates concerned with creating your application's online documentation should be stored in the
+sub-directory `app/templates/web`.
+
+
+### The app/blocks/ Directory
+
+A "block" contains all of the Origen infrastructure to model and control a specific piece of silicon.
+Blocks can instantiate other blocks as sub-blocks, and therefore it is common to have a block that represents
+the top-level device, and then other blocks to represent the individual IPs that it contains.
+
+
+
+~~~text
+├── app/    
+    ├── blocks/        
+        ├── dut/          
+            ├── derivatives/        
+            │   ├── falcon/  
+            │   │   ├── derivatives/       
+            │   │   ├── attributes.rb
+            │   │   ├── controller.rb
+            │   │   ├── model.rb
+            │   │   ├── parameters.rb
+            │   │   ├── pins.rb
+            │   │   ├── registers.rb    
+            │   │   ├── sub_blocks.rb    
+            │   │   └── timesets.rb
+            │   └── eagle/
+            │       ├── derivatives/              
+            │       ├── attributes.rb
+            │       ├── controller.rb
+            │       ├── model.rb
+            │       ├── parameters.rb
+            │       ├── pins.rb
+            │       ├── registers.rb    
+            │       ├── sub_blocks.rb    
+            │       └── timesets.rb
+            ├── attributes.rb
+            ├── controller.rb
+            ├── model.rb
+            ├── parameters.rb
+            ├── pins.rb
+            ├── registers.rb    
+            ├── sub_blocks.rb    
+            └── timesets.rb
+~~~
+
+
+
+### The config/ Directory
+
+% end
