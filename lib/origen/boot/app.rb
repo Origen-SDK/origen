@@ -193,10 +193,6 @@ end
           if BIN_DEPS.any? { |bin, gem| !File.exist?(File.join(lbin_dir, bin)) }
             system "bundle binstubs #{BIN_DEPS.map { |bin, gem| gem }.join(' ')} --path #{lbin_dir} --force"
           end
-          if Origen.site_config.use_bootsnap && !Origen.os.windows?
-            ENV['BOOTSNAP_CACHE_DIR'] ||= "#{origen_root}/tmp/cache"
-            require 'bootsnap/setup'
-          end
         end
         require 'origen'
         warnings
