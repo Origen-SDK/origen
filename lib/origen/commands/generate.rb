@@ -21,6 +21,7 @@ opt_parser = OptionParser.new do |opts|
   opts.on('--doc', 'Generate into doc format') { options[:doc] = true }
   opts.on('--html', 'Generate into html format') { options[:html] = true }
   opts.on('--nocom', 'No comments in the generated pattern') { options[:no_comments] = true }
+  opts.on('-seq', '--sequence NAME', String, 'Generate multiple patterns into a single concurrent pattern sequence') { |o| options[:sequence] = o }
   opts.on('-d', '--debugger', 'Enable the debugger') {  options[:debugger] = true }
   opts.on('-m', '--mode MODE', Origen::Mode::MODES, 'Force the Origen operating mode:', '  ' + Origen::Mode::MODES.join(', ')) { |_m| }
   # Apply any application option extensions to the OptionParser

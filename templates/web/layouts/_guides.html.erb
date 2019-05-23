@@ -61,6 +61,12 @@ title: Origen - Guides
 %   section.page :shadow, heading: "Shadow Controllers"
 %   section.page :direct, heading: "Direct Controllers"
 % end
+% # OrigenTesters owns the pattern pages now, but the concurrency API is mostly
+% # implemented in Origen core, so we'll keep the guide page for this in here and
+% # insert it at the end of the pattern section
+% i.section :pattern do |section|
+%   section.page :concurrent, heading: "Concurrent Patterns", after: :running
+% end
 % i.section :documentation, heading: "Documentation Generator" do |section|
 %   section.page :introduction, heading: "Introduction"
 %   section.page :markdown, heading: "Markdown"

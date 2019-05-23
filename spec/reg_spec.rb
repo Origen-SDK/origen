@@ -684,6 +684,8 @@ module RegTest
       reg.status_str(:read).should == "[x0xv]V5S"
       reg[15].store
       reg.status_str(:read).should == "[s0xv]V5S"
+      reg[7..4].unknown = true
+      reg.status_str(:read).should == "[s0xv]V?S"
     end
 
     it "status_str works on non-nibble aligned regs" do
