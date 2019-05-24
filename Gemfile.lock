@@ -7,7 +7,7 @@ GIT
 
 GIT
   remote: https://github.com/Origen-SDK/origen_core_support.git
-  revision: 666f5d0254299b268d99de00d1936ff05ca4dcd7
+  revision: 7f4e3520084b0eb15c660b5bf341fb5226ae9728
   branch: app_dir
   specs:
     origen_core_support (0.2.3)
@@ -16,20 +16,18 @@ GIT
 
 GIT
   remote: https://github.com/Origen-SDK/origen_sim.git
-  revision: 893fc37dc5848d7316196ac073bc1f425bf5d9f4
-  branch: concurrent
+  revision: 288cce75c0dfc4b03f016634e6dfba85224da587
   specs:
-    origen_sim (0.16.0)
+    origen_sim (0.16.1)
       origen (>= 0.43.0)
-      origen_testers
+      origen_testers (>= 0.21.0)
       origen_verilog (>= 0.5.2)
 
 GIT
   remote: https://github.com/Origen-SDK/origen_testers.git
-  revision: 3158709232979e725b7736f08fb5429a0202451b
-  branch: concurrent
+  revision: bbff2a296eaffbdcf696e16fb09f91444de80a4e
   specs:
-    origen_testers (0.20.0)
+    origen_testers (0.21.0)
       atp (~> 1.1, >= 1.1.3)
       origen (>= 0.44.0)
       origen_stil (>= 0.2.1)

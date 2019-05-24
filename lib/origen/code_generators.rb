@@ -29,9 +29,9 @@ module Origen
     def self.load_generators
       return if @generators_loaded
       # Load Origen's generators
-      require_relative 'code_generators/model_common'
+      require_relative 'code_generators/block_common'
       require_relative 'code_generators/dut'
-      require_relative 'code_generators/sub_block'
+      require_relative 'code_generators/block'
       require_relative 'code_generators/feature'
       require_relative 'code_generators/model'
       require_relative 'code_generators/klass'

@@ -1,8 +1,8 @@
 # If this class gets too big you may want to split it up into modules, run the following
 # command to add a module to it:
 #
-<% if @model -%>
-#   origen new module <%= Pathname.new(resource_path_to_models_dir(@resource_path)).relative_path_from(Origen.root) %>/controller.rb my_module_name
+<% if @block -%>
+#   origen new module <%= Pathname.new(resource_path_to_blocks_dir(@resource_path)).relative_path_from(Origen.root) %>/controller.rb my_module_name
 <% else -%>
 #   origen new module <%= Pathname.new(resource_path_to_lib_file(@resource_path)).relative_path_from(Origen.root) %> my_module_name
 <% end -%>

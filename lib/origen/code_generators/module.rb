@@ -8,7 +8,7 @@ module Origen
       desc <<-END
 This generator creates a plain old Ruby module within your application's lib directory,
 or if a CLASS argument is given, it will create it a child of that class in either the
-lib or models directory as appropriate.
+lib or blocks directory as appropriate.
 
 Where a CLASS argument is given, the new module will be automatically included in the
 class.
@@ -22,8 +22,8 @@ Examples:
   origen new module helpers          # Creates app/lib/my_application/helpers.rb
   origen new module helpers/math     # Creates app/lib/my_application/helpers/math.rb
 
-  # Creates app/lib/models/dut/derivatives/falcon/model/helpers.rb
-  origen new module models/dut/derivatives/falcon/model.rb helpers
+  # Creates app/lib/blocks/dut/derivatives/falcon/model/helpers.rb
+  origen new module blocks/dut/derivatives/falcon/model.rb helpers
 END
 
       def validate_args

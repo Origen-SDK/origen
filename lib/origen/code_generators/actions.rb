@@ -46,7 +46,7 @@ module Origen
           if File.exist?(top_level_file)
             require_origen = "require 'origen'\n"
             prepend_to_file top_level_file, require_origen
-            comment = "# The following acronyms are required to ensure that auto-loading works\n# properly with some of this application's model/class names\n"
+            comment = "# The following acronyms are required to ensure that auto-loading works\n# properly with some of this application's class names\n"
             insert_into_file top_level_file, comment, after: require_origen
             @required_acronyms.each do |acronym|
               insert_into_file top_level_file, "Origen.register_acronym '#{acronym}'\n", after: comment
@@ -315,31 +315,31 @@ module Origen
 
         # Converts a path to a resource identifier, by performing the following operations on the given path:
         #   1) Convert any absolute paths to relative
-        #   2) Removes any leading models/, lib/ or application namespaces
+        #   2) Removes any leading blocks/, lib/ or application namespaces
         #   3) Remove any derivatives directories from the path
         #   3) Removes any trailing .rb
         #
         # Examples:
         #
-        #   /my/code/my_app/app/models/dut/derivatives/falcon   => dut/falcon
+        #   /my/code/my_app/app/blocks/dut/derivatives/falcon   => dut/falcon
         #   app/lib/my_app/eagle.rb                            => eagle
         def resource_path(path)
           path = Pathname.new(path).expand_path.relative_path_from(Pathname.pwd).to_s
           path = path.sub('.rb', '')
           path = path.split('/')
-          from_model_dir_path = false
+          from_block_dir_path = false
           path.shift if path.first == 'app'
           path.shift if path.first == 'lib'
-          if path.first == 'models'
+          if path.first == 'blocks'
             path.shift
-            from_model_dir_path = true
+            from_block_dir_path = true
           end
           path.shift if path.first == underscored_app_namespace
           if path.include?('derivatives')
             path.delete('derivatives')
-            from_model_dir_path = true
+            from_block_dir_path = true
           end
-          if from_model_dir_path
+          if from_block_dir_path
             path.delete('sub_blocks')
             path.pop if path.last == 'model'
             if path.last == 'controller'
@@ -350,12 +350,12 @@ module Origen
           path.join('/')
         end
 
-        # Returns a Pathname to the models directory that should contain the given class name. No checking is
+        # Returns a Pathname to the blocks directory that should contain the given class name. No checking is
         # done of the name and it is assumed that it is a valid class name including the application namespace.
-        def class_name_to_models_dir(name)
+        def class_name_to_blocks_dir(name)
           name = name.split('::')
           name.shift  # Drop the application name
-          dir = Origen.root.join('app', 'models')
+          dir = Origen.root.join('app', 'blocks')
           name.each_with_index do |n, i|
             if i == 0
               dir = dir.join(n.underscore)
@@ -377,9 +377,9 @@ module Origen
           dir
         end
 
-        def resource_path_to_models_dir(path)
+        def resource_path_to_blocks_dir(path)
           name = resource_path(path).split('/')   # Ensure this is clean, don't care about performance here
-          dir = Origen.root.join('app', 'models')
+          dir = Origen.root.join('app', 'blocks')
           name.each_with_index do |n, i|
             if i == 0
               dir = dir.join(n.underscore)

@@ -44,7 +44,7 @@ module Origen
     end
 
     # Returns a frozen hash containing any attributes that were
-    # derived from a model definition
+    # derived from a block definition
     def attributes
       @attributes ||= {}.freeze
     end
@@ -89,11 +89,11 @@ module Origen
       @app ||= Origen::Application.from_namespace(self.class.to_s)
     end
 
-    # Load the model definitions from the given path to the model.
-    # Returns true if a model is found and loaded, otherwise nil.
-    def load_model(path, options = {})
+    # Load the block definitions from the given path to the model.
+    # Returns true if a block is found and loaded, otherwise nil.
+    def load_block(path, options = {})
       options[:path] = path
-      Origen::Loader.load_model(self, options)
+      Origen::Loader.load_block(self, options)
     end
 
     def ==(obj)

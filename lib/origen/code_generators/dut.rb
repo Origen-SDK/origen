@@ -1,14 +1,14 @@
 module Origen
   module CodeGenerators
     class Dut < Origen::CodeGenerators::Base
-      include ModelCommon
+      include BlockCommon
 
       def self.banner
         'origen new dut NAME'
       end
 
       desc <<-END
-This generator creates a top-level (DUT) model and all of the associated resources for it, e.g. a model,
+This generator creates a top-level (DUT) block and all of the associated resources for it, e.g. a model,
 controller, target, timesets, pins, etc.
 
 The NAME of the DUT should be given in lower case, optionally prefixed by parent DUT name(s) separated
@@ -17,8 +17,8 @@ by a forward slash.
 Any parent DUT(s) will be created if they don't exist, but they will not be modified if they do.
 
 Examples:
-  origen new dut falcon         # Creates app/models/dut/derivatives/falcon/...
-  origen new dut dsp/falcon     # Creates app/models/dut/derivatives/dsp/derivatives/falcon/...
+  origen new dut falcon         # Creates app/blocks/dut/derivatives/falcon/...
+  origen new dut dsp/falcon     # Creates app/blocks/dut/derivatives/dsp/derivatives/falcon/...
 END
 
       def validate_args
@@ -52,7 +52,7 @@ END
       def completed
         add_acronyms
         puts
-        puts 'New DUT model created, run the following command to select it in your workspace:'.green
+        puts 'New DUT created, run the following command to target it in your workspace:'.green
         puts
         puts "  origen t #{@name}"
         puts

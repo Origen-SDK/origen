@@ -289,7 +289,7 @@ The core origen commands are:
  lint         Lint and style check (and correct) your application code
  archive      Create an archive of your current application state
  site         Monitor and manage the Origen site configuration
- new          Generate a new model, flow, pattern, etc. for your application
+ new          Generate a new block, flow, pattern, etc. for your application
   EOT
   cmds.split(/\n/).each do |line|
     puts Origen.clean_help_line(line)

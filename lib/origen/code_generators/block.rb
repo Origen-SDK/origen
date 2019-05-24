@@ -1,42 +1,42 @@
 module Origen
   module CodeGenerators
-    class SubBlock < Origen::CodeGenerators::Base
-      include ModelCommon
+    class Block < Origen::CodeGenerators::Base
+      include BlockCommon
 
       # class_option :duts, type: :boolean, desc: 'Instantiate the new sub-block in all DUT models', default: true
       # class_option :instance, desc: 'The main NAME argument will be the name given to the model and the instantiated sub-block, optionally provide a different name for the instance'
 
       def self.banner
-        'origen new sub_block [TYPE/]DERIVATIVE [PART]'
+        'origen new block [TYPE/]DERIVATIVE [BLOCK]'
       end
 
       desc <<-END
-This generator creates a primary sub-block model (e.g. RAM, ATD, Flash, DAC, etc.) and all of the associated
+This generator creates a block (e.g. to represent RAM, ATD, Flash, DAC, etc.) and all of the associated
 resources for it, e.g. a model, controller, timesets, parameters, etc.
 
 The TYPE and DERIVATIVE names should be given in lower case (e.g. flash/flash2kb, atd/atd16), optionally with
 additional parent sub-block names after the initial type.
 
-Alternatively, a reference to an existing PART can be added, in which case a nested sub-block will be created
-within that model, rather than a primary sub-block.
+Alternatively, a reference to an existing BLOCK can be added, in which case a nested sub-block will be created
+within that block, rather than a primary block.
 Note that nested sub-blocks do not support derivatives or inheritance and should therefore only be used for
-relatively simple sub-blocks which are tightly coupled to a parent model.
+relatively simple entities which are tightly coupled to a parent block.
 
-All parent sub-blocks will be created if they don't exist, but they will not be modified if they do.
+Any parent block(s) will be created if they don't exist, but they will not be modified if they do.
 
 Examples:
-  origen new sub_block atd/atd8bit          # Creates app/models/atd/derivatives/atd8bit/...
-  origen new sub_block atd/atd16bit         # Creates app/models/atd/derivatives/atd16bit/...
-  origen new sub_block nvm/flash/flash2kb   # Creates app/models/nvm/derivatives/flash/derivatives/flash2kb/...
+  origen new block atd/atd8bit          # Creates app/blocks/atd/derivatives/atd8bit/...
+  origen new block atd/atd16bit         # Creates app/blocks/atd/derivatives/atd16bit/...
+  origen new block nvm/flash/flash2kb   # Creates app/blocks/nvm/derivatives/flash/derivatives/flash2kb/...
 
   # Example of creating a nested sub-block
-  origen new sub_block nvm/flash/flash2kb bist   # Creates app/models/nvm/derivatives/flash/derivatives/flash2kb/sub_blocks/bist/...
+  origen new block nvm/flash/flash2kb bist   # Creates app/blocks/nvm/derivatives/flash/derivatives/flash2kb/sub_blocks/bist/...
 END
 
       def validate_args
         if args.size > 2 || args.size == 0
           msg = args.size == 0 ? 'At least one argument is' : 'No more than two arguments are'
-          msg << " expected by the sub-block generator, e.g. 'origen new sub_block atd/atd16bit', 'origen new sub_block sampler app/models/atd/derivatives/atd16bit"
+          msg << " expected by the sub-block generator, e.g. 'origen new block atd/atd16bit', 'origen new block sampler app/blocks/atd/derivatives/atd16bit"
           puts msg
           exit 1
         end
@@ -49,12 +49,12 @@ END
 
         @nested = args.size == 2
         if !@nested && args.first.split('/').size == 1
-          msg = "You must supply a leading type to the name of the sub-block, e.g. 'origen new sub_block atd/atd16bit'"
+          msg = "You must supply a leading type to the name of the sub-block, e.g. 'origen new block atd/atd16bit'"
           puts msg
           exit 1
         end
         if @nested && args.last.split('/').size != 1
-          msg = "No leading type is allowed when generating a nested sub-block, e.g. 'origen new sub_block sampler app/models/atd/derivatives/atd16bit"
+          msg = "No leading type is allowed when generating a nested sub-block, e.g. 'origen new block sampler app/blocks/atd/derivatives/atd16bit"
           puts msg
           exit 1
         end
@@ -68,7 +68,7 @@ END
         if @nested
           @final_name = args.last
           @fullname = resource_path_to_class(args.first)
-          @dir = resource_path_to_models_dir(args.first).join('sub_blocks', @final_name)
+          @dir = resource_path_to_blocks_dir(args.first).join('sub_blocks', @final_name)
           @namespaces = add_type_to_namespaces(@fullname.split('::').map(&:underscore))
         else
           extract_model_name
@@ -125,7 +125,7 @@ END
                 # cause an already defined sub-block error since it will be added by both instantiations
                 unless done.any? { |c| target =~ /^#{c}::/ }
                   done << target
-                  sub_blocks = class_name_to_models_dir(target).join('sub_blocks.rb')
+                  sub_blocks = class_name_to_blocks_dir(target).join('sub_blocks.rb')
                   unless sub_blocks.exist?
                     orig = @fullname
                     @fullname = target
@@ -150,7 +150,7 @@ END
           if @sub_block_instantiated
             puts 'New sub-block created and instantiated within your DUT(s) as:'.green + "  dut.#{@final_namespaces[1]}"
           else
-            puts 'New sub-block created, you can instantiate it within your models like this:'.green
+            puts 'New sub-block created, you can instantiate it within your blocks like this:'.green
             puts
             puts "  #{@line}"
           end
@@ -170,13 +170,13 @@ END
         index
       end
 
-      # Returns a look up table for all dut models defined in this application (only those defined
-      # as models, as they all should be now).
+      # Returns a look up table for all dut blocks defined in this application (only those defined
+      # as blocks, as they all should be now).
       # This is arranged by hierarchy.
       def duts
         @duts ||= begin
           duts = {}
-          dut_dir = Pathname.new(File.join(Origen.root, 'app', 'models', 'dut'))
+          dut_dir = Pathname.new(File.join(Origen.root, 'app', 'blocks', 'dut'))
           if dut_dir.exist?
             name = "#{Origen.app.namespace}::DUT"
             duts[name] = {}
