@@ -1,5 +1,5 @@
 # ********************************************************************************
-# Any sub-blocks defined in this file be added to <%= @fullname %>
+# Any sub-blocks defined in this file will be added to <%= @fullname %>
 <% unless @nested -%>
 # and all of its derivatives (if any).
 <% end -%>

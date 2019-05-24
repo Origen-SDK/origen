@@ -17,9 +17,9 @@ resources for it, e.g. a model, controller, timesets, parameters, etc.
 The TYPE and DERIVATIVE names should be given in lower case (e.g. flash/flash2kb, atd/atd16), optionally with
 additional parent sub-block names after the initial type.
 
-Alternatively, a reference to an existing BLOCK can be added, in which case a nested sub-block will be created
-within that block, rather than a primary block.
-Note that nested sub-blocks do not support derivatives or inheritance and should therefore only be used for
+Alternatively, a reference to an existing BLOCK can be added, in which case a nested block will be created
+within that block's sub_blocks directory, rather than a primary block.
+Note that nested blocks do not support derivatives or inheritance and should therefore only be used for
 relatively simple entities which are tightly coupled to a parent block.
 
 Any parent block(s) will be created if they don't exist, but they will not be modified if they do.
@@ -36,7 +36,7 @@ END
       def validate_args
         if args.size > 2 || args.size == 0
           msg = args.size == 0 ? 'At least one argument is' : 'No more than two arguments are'
-          msg << " expected by the sub-block generator, e.g. 'origen new block atd/atd16bit', 'origen new block sampler app/blocks/atd/derivatives/atd16bit"
+          msg << " expected by the block generator, e.g. 'origen new block atd/atd16bit', 'origen new block sampler app/blocks/atd/derivatives/atd16bit"
           puts msg
           exit 1
         end
@@ -49,12 +49,12 @@ END
 
         @nested = args.size == 2
         if !@nested && args.first.split('/').size == 1
-          msg = "You must supply a leading type to the name of the sub-block, e.g. 'origen new block atd/atd16bit'"
+          msg = "You must supply a leading type to the name of the block, e.g. 'origen new block atd/atd16bit'"
           puts msg
           exit 1
         end
         if @nested && args.last.split('/').size != 1
-          msg = "No leading type is allowed when generating a nested sub-block, e.g. 'origen new block sampler app/blocks/atd/derivatives/atd16bit"
+          msg = "No leading type is allowed when generating a nested block, e.g. 'origen new block sampler app/blocks/atd/derivatives/atd16bit"
           puts msg
           exit 1
         end
