@@ -1,23 +1,25 @@
 require 'spec_helper'
 
 describe 'The Origen Scan Register model' do
-  class Block
-    include Origen::Model
+  module ModelsScanRegSpec
+    class Block
+      include Origen::Model
 
-    def initialize(options={})
-      sub_block :reg4, class_name: "Origen::Models::ScanRegister", size: 4, reset: options[:reset]
+      def initialize(options={})
+        sub_block :reg4, class_name: "Origen::Models::ScanRegister", size: 4, reset: options[:reset]
+      end
     end
   end
 
   it 'can be instantiated in a parent model' do
-    b = Block.new
+    b = ModelsScanRegSpec::Block.new
     b.reg4.is_a?(Origen::Models::ScanRegister).should == true
     b.reg4.parent.should == b
     b.reg4.size.should == 4
   end
 
   it 'can shift data in and out via a clock when SE is high' do
-    b = Block.new
+    b = ModelsScanRegSpec::Block.new
     sr = b.reg4
     sr.so.data.should == 0
     sr.si.drive(1)
@@ -44,7 +46,7 @@ describe 'The Origen Scan Register model' do
   end
 
   it 'can capture data when CE is high' do
-    b = Block.new(reset: 0b1111)
+    b = ModelsScanRegSpec::Block.new(reset: 0b1111)
     sr = b.reg4
     sr.sr.data.should == 0b1111
     sr.si.drive(0)
@@ -58,7 +60,7 @@ describe 'The Origen Scan Register model' do
   end
 
   it 'can update data when UE is high' do
-    b = Block.new(reset: 0b1010)
+    b = ModelsScanRegSpec::Block.new(reset: 0b1010)
     sr = b.reg4
     sr.data.should == 0b1010
 

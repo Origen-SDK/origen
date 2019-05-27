@@ -54,8 +54,9 @@ else
   end
 end
 
-# Defer loading this until we have re-launched above to save time
+# Defer loading these until we have re-launched above to save time
 load File.expand_path('../site_config.rb', __FILE__)
+load File.expand_path('../loader.rb', __FILE__)
 
 warnings = nil
 

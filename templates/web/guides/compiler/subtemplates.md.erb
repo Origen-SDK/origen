@@ -13,7 +13,7 @@ The underscore is used in the name to identify the file as a sub-template
 to Origen and this will prevent it from trying to compile the file standalone
 when it is working through a directory.
 
-Here is an example sub-template in file <code>templates/_sub_template.txt.erb</code>:
+Here is an example sub-template in file <code>app/templates/_sub_template.txt.erb</code>:
 
 ~~~eruby
 This is a sub-template.
@@ -27,7 +27,7 @@ The value of Y is: <%= "<" + "%= options[:y] %" + ">" %>
 
 Sub-templates are called from a top-level template by using the <code>render</code>
 method, here is an example top-level template that calls this sub-template, this file
-is <code>templates/example.txt.erb</code>:
+is <code>app/templates/example.txt.erb</code>:
 
 ~~~eruby
 This is a top-level template

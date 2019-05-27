@@ -3,7 +3,7 @@ sub1:
 sub1: This data value should be 0 to prove that it has not
 sub1: been influenced by the calling context:
 sub1: 
-sub1: Data: 0x<%= $nvm.reg(:data).val.to_s(16).upcase %>
+sub1: Data: 0x<%= dut.nvm.reg(:data).val.to_s(16).upcase %>
 sub1: 
 % if options[:data]
 sub1: Data values passed in: 0x<%= options[:data].to_s(16).upcase %>

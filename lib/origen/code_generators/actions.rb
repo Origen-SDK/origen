@@ -1,13 +1,18 @@
 require 'open-uri'
-require 'rbconfig'
+require 'set'
 
 module Origen
   module CodeGenerators
+    # Common helpers available to all Origen code generators.
+    # Some of these have been copied from Rails and don't make a lot of sense in an Origen context,
+    # however they are being kept around for now as they serve as good examples of how to write
+    # generator helpers.
     module Actions
       def initialize(*args) # :nodoc:
         if args.last.is_a?(Hash)
           @config = args.last.delete(:config) || {}
         end
+        @required_acronyms = Set.new
         super
         @in_group = nil
       end
@@ -16,13 +21,77 @@ module Origen
         @config
       end
 
+      def underscored_app_namespace
+        Origen.app.namespace.to_s.underscore
+      end
+
+      # Equivalent to calling name.camelcase, but this will identify the need to register any acronyms
+      # necessary to ensure the camelcased name can be translated back to the original name by the
+      # underscore method.
+      # The required acronyms will be saved to an instance variable, @required_acronyms, and calling
+      # the add_acronyms will add the code to register them to the current application.
+      def camelcase(name)
+        name = name.to_s
+        name.split('_').each do |n|
+          # Numbers won't be recognized as a split point when going back to underscore, so need to
+          # register this field beginning with a number as an acronym
+          @required_acronyms << n if n =~ /^\d/
+        end
+        name.camelcase
+      end
+
+      def add_acronyms
+        unless @required_acronyms.empty?
+          top_level_file = File.join('app', 'lib', "#{underscored_app_namespace}.rb")
+          if File.exist?(top_level_file)
+            require_origen = "require 'origen'\n"
+            prepend_to_file top_level_file, require_origen
+            comment = "# The following acronyms are required to ensure that auto-loading works\n# properly with some of this application's class names\n"
+            insert_into_file top_level_file, comment, after: require_origen
+            @required_acronyms.each do |acronym|
+              insert_into_file top_level_file, "Origen.register_acronym '#{acronym}'\n", after: comment
+            end
+          end
+        end
+      end
+
+      # Adds an autoload statement for the given resource name into +app/lib/my_app_name.rb+
+      #
+      # An array of namespaces can optionally be supplied in the arguments. The name and namespaces
+      # should all be lower cased and underscored.
+      #
+      #   add_autoload "my_model", namespaces: ["my_namespace", "my_other_namespace"]
+      def add_autoload(name, options = {})
+        namespaces = Array(options[:namespaces])
+        # Remove the app namespace if present, we will add the autoload inside the top-level module block
+        namespaces.shift if namespaces.first == app_namespace
+        top_level_file = File.join('app', 'lib', "#{underscored_app_namespace}.rb")
+        if namespaces.empty?
+          line = "  autoload :#{camelcase(name)}, '#{underscored_app_namespace}/#{name}'\n"
+          insert_into_file top_level_file, line, after: /module #{Origen.app.namespace}\n/
+        else
+          contents = File.read(top_level_file)
+          regex = "module #{Origen.app.namespace}\s*(#.*)?\n"
+          indent = ''
+          namespaces.each do |namespace|
+            indent += '  '
+            new_regex = regex + "(\n|.)*^\s*module #{camelcase(namespace)}\s*(#.*)?\n"
+            unless contents =~ Regexp.new(new_regex)
+              lines = "#{indent}module #{camelcase(namespace)}\n"
+              lines << "#{indent}end\n"
+              insert_into_file top_level_file, lines, after: Regexp.new(regex), force: true
+            end
+            regex = new_regex
+          end
+          line = "#{indent}  autoload :#{camelcase(name)}, '#{underscored_app_namespace}/#{namespaces.join('/')}/#{name}'\n"
+          insert_into_file top_level_file, line, after: Regexp.new(regex)
+        end
+      end
+
       # Removes (comments out) the specified configuration setting from +config/application.rb+
       #
       #   comment_config :semantically_version
-      def comment_config(*args)
-        options = args.extract_options!
-        name = args.first.to_s
-
+      def comment_config(name, options = {})
         # Set the message to be shown in logs
         log :comment, name
 
@@ -31,10 +100,7 @@ module Origen
       end
 
       # Adds an entry into +config/application.rb+
-      def add_config(*args)
-        options = args.extract_options!
-        name, value = args
-
+      def add_config(name, value, options = {})
         # Set the message to be shown in logs
         message = name.to_s
         if value ||= options.delete(:value)
@@ -53,10 +119,7 @@ module Origen
       #   gem "rspec", group: :test
       #   gem "technoweenie-restful-authentication", lib: "restful-authentication", source: "http://gems.github.com/"
       #   gem "rails", "3.0", git: "git://github.com/rails/rails"
-      def gem(*args)
-        options = args.extract_options!
-        name, version = args
-
+      def gem(name, version, options = {})
         # Set the message to be shown in logs. Uses the git repo if one is given,
         # otherwise use name (version).
         parts, message = [quote(name)], name
@@ -129,7 +192,7 @@ module Origen
         data = yield if !data && block_given?
 
         in_root do
-          if options[:env].nil?
+          if options[:env].nil?.map(&:camelcase).join('::')
             inject_into_file 'config/application.rb', "\n    #{data}", after: sentinel, verbose: false
           else
             Array(options[:env]).each do |env|
@@ -200,24 +263,174 @@ module Origen
         in_root { run_ruby_script("bin/rails generate #{what} #{argument}", verbose: false) }
       end
 
-      # Runs the supplied rake task
-      #
-      #   rake("db:migrate")
-      #   rake("db:migrate", env: "production")
-      #   rake("gems:install", sudo: true)
-      def rake(command, options = {})
-        log :rake, command
-        env  = options[:env] || ENV['RAILS_ENV'] || 'development'
-        sudo = options[:sudo] && RbConfig::CONFIG['host_os'] !~ /mswin|mingw/ ? 'sudo ' : ''
-        in_root { run("#{sudo}#{extify(:rake)} #{command} RAILS_ENV=#{env}", verbose: false) }
-      end
-
       # Reads the given file at the source root and prints it in the console.
       #
       #   readme "README"
       def readme(path)
         log File.read(find_in_source_paths(path))
       end
+
+      # Should probably move to its own file, these are general helpers rather than actions
+      module Helpers
+        # Returns the depth of the given file, where depth is the number of modules and classes it contains
+        def internal_depth(file)
+          depth = 0
+          File.readlines(file).each do |line|
+            if line =~ /^\s*(end|def)/
+              return depth
+            elsif line =~ /^\s*(module|class)/
+              depth += 1
+            end
+          end
+        end
+
+        # Only executes the given block if the given file does not already define the given method, where the
+        # block would normally go on to insert the method.
+        #
+        # See the ensure_define_sub_blocks method in the sub_blocks.rb generator for a usage example.
+        def unless_has_method(filepath, name)
+          unless File.read(filepath) =~ /^\s*def #{name}(\(|\s|\n)/
+            yield
+          end
+        end
+
+        # Executes the given block unless the given string is lower cased and underscored and doesn't start
+        # with a number of contain any special characters
+        def unless_valid_underscored_identifier(str)
+          if str =~ /[^0-9a-z_]/ || str =~ /^[0-9]/
+            yield
+          end
+        end
+
+        def validate_resource_path(name)
+          name.split('/').each do |n|
+            unless_valid_underscored_identifier(n) do
+              Origen.log.error "All parts of a resource name must be lower-cased, underscored and start with letter, '#{n}' is invalid"
+              exit 1
+            end
+          end
+          name
+        end
+        alias_method :validate_resource_name, :validate_resource_path
+
+        # Converts a path to a resource identifier, by performing the following operations on the given path:
+        #   1) Convert any absolute paths to relative
+        #   2) Removes any leading blocks/, lib/ or application namespaces
+        #   3) Remove any derivatives directories from the path
+        #   3) Removes any trailing .rb
+        #
+        # Examples:
+        #
+        #   /my/code/my_app/app/blocks/dut/derivatives/falcon   => dut/falcon
+        #   app/lib/my_app/eagle.rb                            => eagle
+        def resource_path(path)
+          path = Pathname.new(path).expand_path.relative_path_from(Pathname.pwd).to_s
+          path = path.sub('.rb', '')
+          path = path.split('/')
+          from_block_dir_path = false
+          path.shift if path.first == 'app'
+          path.shift if path.first == 'lib'
+          if path.first == 'blocks'
+            path.shift
+            from_block_dir_path = true
+          end
+          path.shift if path.first == underscored_app_namespace
+          if path.include?('derivatives')
+            path.delete('derivatives')
+            from_block_dir_path = true
+          end
+          if from_block_dir_path
+            path.delete('sub_blocks')
+            path.pop if path.last == 'model'
+            if path.last == 'controller'
+              path.pop
+              path << "#{path.pop}_controller"
+            end
+          end
+          path.join('/')
+        end
+
+        # Returns a Pathname to the blocks directory that should contain the given class name. No checking is
+        # done of the name and it is assumed that it is a valid class name including the application namespace.
+        def class_name_to_blocks_dir(name)
+          name = name.split('::')
+          name.shift  # Drop the application name
+          dir = Origen.root.join('app', 'blocks')
+          name.each_with_index do |n, i|
+            if i == 0
+              dir = dir.join(n.underscore)
+            else
+              dir = dir.join('derivatives', n.underscore)
+            end
+          end
+          dir
+        end
+
+        # Returns a Pathname to the lib directory file that should contain the given class name. No checking is
+        # done of the name and it is assumed that it is a valid class name including the application namespace.
+        def class_name_to_lib_file(name)
+          name = name.split('::')
+          dir = Origen.root.join('app', 'lib')
+          name.each_with_index do |n, i|
+            dir = dir.join(i == name.size - 1 ? "#{n.underscore}.rb" : n.underscore)
+          end
+          dir
+        end
+
+        def resource_path_to_blocks_dir(path)
+          name = resource_path(path).split('/')   # Ensure this is clean, don't care about performance here
+          dir = Origen.root.join('app', 'blocks')
+          name.each_with_index do |n, i|
+            if i == 0
+              dir = dir.join(n.underscore)
+            else
+              if dir.join('sub_blocks', n.underscore).exist?
+                dir = dir.join('sub_blocks', n.underscore)
+              else
+                dir = dir.join('derivatives', n.underscore)
+              end
+            end
+          end
+          dir
+        end
+
+        def resource_path_to_lib_file(path)
+          name = resource_path(path).split('/')   # Ensure this is clean, don't care about performance here
+          dir = Origen.root.join('app', 'lib', underscored_app_namespace)
+          name.each_with_index do |n, i|
+            dir = dir.join(i == name.size - 1 ? "#{n.underscore}.rb" : n.underscore)
+          end
+          dir
+        end
+
+        def resource_path_to_class(path)
+          name = resource_path(path).split('/')   # Ensure this is clean, don't care about performance here
+          name.unshift(underscored_app_namespace)
+          name.map { |n| camelcase(n) }.join('::')
+        end
+
+        # Adds :class and :module identifiers to an array of namespaces
+        #
+        #   ["my_app", "models", "bist"] => [[:module, "my_app"], [:module, "models"], [:class, "bist"]]
+        #
+        def add_type_to_namespaces(namespaces)
+          identifier = nil
+          namespaces.map do |namespace|
+            if identifier
+              identifier += "::#{camelcase(namespace)}"
+            else
+              identifier = camelcase(namespace)
+            end
+            begin
+              const = identifier.constantize
+              [const.is_a?(Class) ? :class : :module, namespace]
+            rescue NameError
+              [:module, namespace]
+            end
+          end
+        end
+      end
+      include Helpers
 
       protected
 
@@ -233,17 +446,14 @@ module Origen
         end
       end
 
-      # Add an extension to the given name based on the platform.
-      def extify(name)
-        if RbConfig::CONFIG['host_os'] =~ /mswin|mingw/
-          "#{name}.bat"
-        else
-          name
+      def in_root
+        Dir.chdir(Origen.root) do
+          yield
         end
       end
 
-      # Surround string with single quotes if there is no quotes.
-      # Otherwise fall back to double quotes
+      # Surround string with single quotes if there are no quotes,
+      # otherwise fall back to double quotes
       def quote(value)
         return value.inspect unless value.is_a? String
 

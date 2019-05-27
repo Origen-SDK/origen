@@ -3,6 +3,5 @@ module <%= Origen.app.namespace %>
   MINOR = <%= @version.minor %>
   BUGFIX = <%= @version.bugfix %>
   DEV = <%= @version.pre || "nil" %>
-
   VERSION = [MAJOR, MINOR, BUGFIX].join(".") + (DEV ? ".pre#{DEV}" : '')
 end

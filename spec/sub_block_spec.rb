@@ -470,6 +470,24 @@ module SubBlocksSpec
         end
       end
 
+      describe "block loading" do
+        it "can be done from within the sub-block class's initialize method" do
+          Origen.app.unload_target!
+          OrigenCoreSupport::MySOC.new
+          dut.my_sub_block_1.params.param1.should == 100
+          dut.my_sub_block_1.params.param2.should == 20
+          dut.my_sub_block_1.params.param3.should == 300
+        end
+
+        it "can be done via a load_block argument passed to sub_block" do
+          Origen.app.unload_target!
+          OrigenCoreSupport::MySOC.new
+          dut.my_sub_block_2.params.param1.should == 10
+          dut.my_sub_block_2.params.param2.should == 200
+          dut.my_sub_block_2.params.param3.should == 300
+        end
+      end
+
       describe "sub block groups" do
         before :all do
         end

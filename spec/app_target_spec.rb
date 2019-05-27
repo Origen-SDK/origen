@@ -29,8 +29,7 @@ describe "Application Target" do
   it "can be loaded" do
     Origen.target.temporary = "production"
     Origen.target.load!
-    $top.should be
-    $nvm.should be
+    dut.should be
   end
 
   it "reloading a target should not cause a duplicate pins error" do
@@ -78,11 +77,11 @@ describe "Application Target" do
   end
 
   specify "loading a target resets the mode" do
-    Origen.mode = :debug
-    Origen.mode.to_s.should == "debug"
-    Origen.target.temporary = "production"
-    Origen.target.load!
+    Origen.mode = :production
     Origen.mode.to_s.should == "production"
+    Origen.target.temporary = "debug"
+    Origen.target.load!
+    Origen.mode.to_s.should == "debug"
   end
 
   specify "recognizes moo numbers" do
@@ -91,19 +90,19 @@ describe "Application Target" do
     #  "2m79x" => "debug"
     Origen.target.temporary = "production"
     Origen.target.load!
-    Origen.mode.to_s.should == "production"
+    Origen.target.name.should == "production"
     Origen.target.temporary = "2m79x"
     Origen.target.load!
-    Origen.mode.to_s.should == "debug"
+    Origen.target.name.should == "debug"
     Origen.target.temporary = "1m79x"
     Origen.target.load!
-    Origen.mode.to_s.should == "production"
+    Origen.target.name.should == "production"
     Origen.target.temporary = "2M79X"
     Origen.target.load!
-    Origen.mode.to_s.should == "debug"
+    Origen.target.name.should == "debug"
     Origen.target.temporary = "1M79X"
     Origen.target.load!
-    Origen.mode.to_s.should == "production"
+    Origen.target.name.should == "production"
     puts "******************** Missing target error expected here for 'm79x' ********************"
     lambda { Origen.target.temporary = "m79x" }.should raise_error
     puts "******************** Missing target error expected here for 'n86b' ********************"
@@ -168,12 +167,12 @@ describe "Application Target" do
   end
 
   it "configurable targets work" do
-    Origen.load_target("configurable", tester: OrigenTesters::J750, dut: C99::SOC)
-    $tester.j750?.should == true
-    $top.is_a?(C99::SOC).should == true
-    Origen.load_target("configurable", tester: OrigenTesters::V93K, dut: C99::NVM)
-    $tester.v93k?.should == true
-    $top.is_a?(C99::NVM).should == true
+    Origen.load_target("configurable", tester: OrigenTesters::J750, dut: OrigenCoreSupport::SOC)
+    tester.j750?.should == true
+    dut.is_a?(OrigenCoreSupport::SOC).should == true
+    Origen.load_target("configurable", tester: OrigenTesters::V93K, dut: OrigenCoreSupport::MySOC)
+    tester.v93k?.should == true
+    dut.is_a?(OrigenCoreSupport::MySOC).should == true
   end
 
   it "caches are cleared between reloads of configurable targets with different options" do

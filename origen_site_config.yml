@@ -50,13 +50,6 @@ centralized_site_config_verify_ssl: true
 # user (recommended)
 gem_manage_bundler: true
 
-# Use the bootsnap gem (https://github.com/Shopify/bootsnap) to speed up the boot time of
-# your Origen applications. 
-# This creates an offline cache in your app's tmp/cache directory and it can also increase
-# the memory consumption of your app. As a reward, your app will load Ruby files significantly
-# faster, often taking many seconds off the time it takes your app to start up.
-use_bootsnap: false
-
 # WORKSPACE DIRECTORY SETUP
 
 # Defines where the home directory is

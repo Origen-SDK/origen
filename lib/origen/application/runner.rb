@@ -263,8 +263,15 @@ module Origen
           if Origen.mode.production? && Origen.app.rc
             unless Origen.app.rc.local_modifications.empty?
               puts <<-EOT
-    Your workspace has local modifications that are preventing the requested action
-      - run 'origen rc mods' to see them.
+    Your workspace is running in production mode and it has local modifications which are preventing
+    the requested action, run the following command to see what files have been modified:
+
+      origen rc mods
+
+    If you are currently developing this application and are not ready to check everything in yet,
+    then run the following command to switch your workspace to debug/development mode:
+
+      origen m debug
               EOT
               exit 1
             end

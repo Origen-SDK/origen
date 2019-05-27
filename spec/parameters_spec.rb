@@ -76,6 +76,11 @@ module ParametersSpec
           params.tprog = 30
           params.test2.blah = 40
         end
+
+        define_params :set1 do |params|
+          params.x = 100
+          params.z = 999   # Test adding a completely new parameter
+        end
       end
     end
   
@@ -121,7 +126,45 @@ module ParametersSpec
       -> { $dut.extend }.should raise_error
     end
 
+    it "param sets can be re-opened within a define transaction block" do
+      Origen.app.unload_target!
+      Origen::Parameters.transaction do
+        $dut = DUT.new
+        $dut.extend
+      end
+      $dut.params.tprog.should == 30
+
+      $dut.params = :set1
+      $dut.params.x.should == 100
+      $dut.params.y.should == 20
+      $dut.params.z.should == 999
+      $dut.params = :set2
+      $dut.params.x.should == 200
+      $dut.params.y.should == 40
+      $dut.params.z.should == 999
+      $dut.params = :set3
+      $dut.params.x.should == 400
+      $dut.params.y.should == 80
+      $dut.params.z.should == 999
+    end
+
     it "params cannot be modified or added outside of a define block" do
+      -> { $dut.params.tprog = 30 }.should raise_error
+      -> { $dut.params[:tprog] = 30 }.should raise_error
+      -> { $dut.params[:tprog2] = 30 }.should raise_error
+      -> { $dut.params.erase.time = 30 }.should raise_error
+      -> { $dut.params.erase.time2 = 30 }.should raise_error
+      -> { $dut.params.erase[:time] = 30 }.should raise_error
+      -> { $dut.params.erase[:time2] = 30 }.should raise_error
+    end
+
+    it "params cannot be modified or added outside of a define block when created in a transaction" do
+      Origen.app.unload_target!
+      Origen::Parameters.transaction do
+        $dut = DUT.new
+        $dut.extend
+      end
+
       -> { $dut.params.tprog = 30 }.should raise_error
       -> { $dut.params[:tprog] = 30 }.should raise_error
       -> { $dut.params[:tprog2] = 30 }.should raise_error

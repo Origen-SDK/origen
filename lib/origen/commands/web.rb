@@ -19,7 +19,7 @@ The following commands are available:
   serve           Start a webserver from the current directory
 
   compile [FILE]  Compile all web templates and start a server to view them, optionally supply a
-                  file argument to only update a single page e.g. 'origen web compile templates/web/index.md.erb'
+                  file argument to only update a single page e.g. 'origen web compile app/templates/web/index.md.erb'
                   Use the --remote option to copy the compiled files to a remote web server directory (the
                   location of which should be specified via Origen.config.web_directory). In this case when no
                   FILE argument is specified the entire site will be copied over to a fresh web server
@@ -104,7 +104,7 @@ The following options are available:
     puts "Web server directory created at: #{dir}"
     puts ''
     puts "Compile any files you want to test into the #{dir}/content directory, e.g.:"
-    puts "  origen c templates/file.md.erb -o #{dir}/content"
+    puts "  origen c app/templates/file.md.erb -o #{dir}/content"
     puts ''
     puts 'To turn them into web pages:'
     puts "  cd #{dir}"
@@ -149,9 +149,12 @@ The following options are available:
           Origen.app.listeners_for(:before_web_compile).each do |listener|
             listener.before_web_compile(options)
           end
-          Origen.app.runner.launch action: :compile,
-                                   files:  'templates/web',
-                                   output: 'web/content'
+          templates_web_dir = 'app/templates/web'
+          templates_web_dir = 'templates/web' unless File.exist?("#{Origen.root}/#{templates_web_dir}")
+          templates_web_dir =
+        Origen.app.runner.launch action: :compile,
+                                 files:  templates_web_dir,
+                                 output: 'web/content'
           Origen.app.listeners_for(:after_web_compile).each do |listener|
             listener.after_web_compile(options)
           end
@@ -168,7 +171,9 @@ The following options are available:
         ARGV.each do |file|
           path = Origen.file_handler.clean_path_to(file)
           if path.to_s =~ /origen_guides/
-            output = Origen.file_handler.sub_dir_of(path, "#{Origen.root}/templates/origen_guides")
+            origen_guides_dir = 'app/templates/origen_guides'
+            origen_guides_dir = 'templates/origen_guides' unless File.exist?("#{Origen.root}/#{origen_guides_dir}")
+            output = Origen.file_handler.sub_dir_of(path, "#{Origen.root}/#{origen_guides_dir}")
           else
             output = Origen.file_handler.sub_dir_of(path, "#{Origen.root}/templates/web")
           end

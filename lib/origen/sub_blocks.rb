@@ -407,6 +407,11 @@ module Origen
 
       # Make this appear like a sub-block to any application code
       def is_a?(klass)
+        # Because sub_blocks are stored in a hash.with_indifferent_access, the value is tested
+        # against being a Hash or Array when it is added to the hash. This prevents the class being
+        # looking up and loaded by the autoload system straight away, especially if the sub-block
+        # has been specified to lazy load
+        return false if klass == Hash || klass == Array
         klass == self.klass || klass == Placeholder
       end
 
@@ -424,13 +429,16 @@ module Origen
       end
 
       def materialize
+        block = nil
         file = attributes.delete(:file)
+        load_block = attributes.delete(:load_block)
         dir = attributes.delete(:dir) || owner.send(:export_dir)
         block = owner.send(:instantiate_sub_block, name, klass, attributes)
         if file
           require File.join(dir, file)
           block.extend owner.send(:export_module_names_from_path, file).join('::').constantize
         end
+        block.load_block(load_block) if load_block
         block.owner = owner
         block
       end
@@ -464,17 +472,17 @@ module Origen
         @klass ||= begin
           class_name = attributes.delete(:class_name)
           if class_name
-            if eval("defined? ::#{owner.namespace}::#{class_name}")
+            begin
               klass = eval("::#{owner.namespace}::#{class_name}")
-            else
-              if eval("defined? #{class_name}")
+            rescue NameError
+              begin
                 klass = eval(class_name)
-              else
-                if eval("defined? #{owner.class}::#{class_name}")
+              rescue NameError
+                begin
                   klass = eval("#{owner.class}::#{class_name}")
-                else
+                rescue NameError
                   puts "Could not find class: #{class_name}"
-                  fail 'Unknown sub block class!'
+                  raise 'Unknown sub block class!'
                 end
               end
             end
@@ -501,6 +509,12 @@ module Origen
   # This class includes support for registers, pins, etc.
   class SubBlock
     include Origen::Model
+
+    # Since no application defined this sub-block class, consider its parent's app to be
+    # the owning application
+    def app
+      parent.app
+    end
 
     # Used to create attribute accessors on the fly.
     #

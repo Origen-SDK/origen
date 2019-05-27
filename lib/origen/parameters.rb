@@ -1,4 +1,5 @@
 require 'active_support/concern'
+require 'set'
 module Origen
   module Parameters
     extend ActiveSupport::Concern
@@ -7,6 +8,75 @@ module Origen
     autoload :Missing, 'origen/parameters/missing'
 
     attr_accessor :current
+
+    # @api private
+    #
+    # Any define_params blocks contained within the given block will be allowed to be re-opened later
+    # in the block to override existing parameter settings or to add new ones.
+    #
+    # This is not allowed normally since already-defined child parameter sets could have referenced the
+    # original parameter and they would not reflect the final value after re-opening the parent parameter
+    # set.
+    #
+    # By defining the parameters within this block, Origen will keep track of relationships between parameter
+    # sets and any time a parent is changed the definitions of existing children will be re-executed to ensure
+    # that they reflect the new values.
+    #
+    # This is initially intended to support the concept of a app/parameters/application.rb being
+    # used to define baseline parameter sets, and then target-specific files can then override them.
+    def self.transaction
+      start_transaction
+      yield
+      stop_transaction
+    end
+
+    # @api private
+    def self.start_transaction
+      @transaction_data = {}
+      @transaction_open = true
+      @transaction_counter ||= 0
+      @transaction_counter += 1
+    end
+
+    # @api private
+    def self.stop_transaction
+      @transaction_counter -= 1
+      if @transaction_counter == 0
+        # Now finalize (freeze) all parameter sets we have just defined, this was deferred at define time due
+        # to running within a transaction
+        @transaction_data.each do |model, parameter_sets|
+          parameter_sets.keys.each do |name|
+            model._parameter_sets[name].finalize
+          end
+        end
+        @transaction_data = nil
+        @transaction_open = false
+      end
+    end
+
+    # @api private
+    def self.transaction_data
+      @transaction_data
+    end
+
+    # @api private
+    def self.transaction_open
+      @transaction_open
+    end
+
+    # @api private
+    def self.transaction_redefine
+      @transaction_redefine
+    end
+
+    # @api private
+    def self.redefine(model, name)
+      @transaction_redefine = true
+      model._parameter_sets.delete(name)
+      @transaction_data[model][name][:definitions].each { |options, block| model.define_params(name, options, &block) }
+      @transaction_data[model][name][:children].each { |model, name| redefine(model, name) }
+      @transaction_redefine = false
+    end
 
     module ClassMethods
       def parameters_context(obj = nil)
@@ -25,18 +95,40 @@ module Origen
       end
     end
 
+    # @api private
+    def define_params_transaction
+      Origen::Parameters.transaction_data
+    end
+
     def define_params(name, options = {}, &block)
-      if _parameter_sets[name]
+      name = name.to_sym
+      if _parameter_sets[name] && !Origen::Parameters.transaction_open
         fail "Parameter set '#{name}' cannot be re-opened once originally defined!"
       else
-        _parameter_sets[name] = Set.new(top_level: true, owner: self)
+        if Origen::Parameters.transaction_open && !Origen::Parameters.transaction_redefine
+          define_params_transaction[self] ||= {}
+          define_params_transaction[self][name] ||= { children: ::Set[], definitions: [] }
+          define_params_transaction[self][name][:definitions] << [options.dup, block]
+          redefine_children = define_params_transaction[self][name][:children] if _parameter_sets[name]
+        end
+        if _parameter_sets[name]
+          defaults_already_set = true
+        else
+          _parameter_sets[name] = Origen::Parameters::Set.new(top_level: true, owner: self)
+        end
         if options[:inherit]
           kontext = _validate_parameter_set_name(options[:inherit])
           parent = kontext[:obj]._parameter_sets[kontext[:context]]
-          _parameter_sets[name].copy_defaults_from(parent)
+          if Origen::Parameters.transaction_open && !Origen::Parameters.transaction_redefine
+            define_params_transaction[kontext[:obj]][kontext[:context]][:children] << [self, name]
+          end
+          _parameter_sets[name].copy_defaults_from(parent) unless defaults_already_set
           _parameter_sets[name].define(parent, &block)
         else
           _parameter_sets[name].define(&block)
+        end
+        if redefine_children
+          redefine_children.each { |model, set_name| Origen::Parameters.redefine(model, set_name) }
         end
       end
     end

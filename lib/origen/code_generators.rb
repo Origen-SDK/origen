@@ -29,11 +29,23 @@ module Origen
     def self.load_generators
       return if @generators_loaded
       # Load Origen's generators
-      Dir.glob("#{Origen.top}/lib/origen/code_generators/**/*.rb").sort.each do |file|
-        require file
-      end
-      # Load generators from plugins, TBD what the rules will be here
+      require_relative 'code_generators/block_common'
+      require_relative 'code_generators/dut'
+      require_relative 'code_generators/block'
+      require_relative 'code_generators/feature'
+      require_relative 'code_generators/model'
+      require_relative 'code_generators/klass'
+      require_relative 'code_generators/module'
+      # Load generators from plugins, TBD what the API will be here
       @generators_loaded = true
+    end
+
+    # Loaded separately so as not to pollute the generated list of generators available to users
+    def self.load_internal_generators
+      return if @internal_generators_loaded
+      require_relative 'code_generators/semver'
+      require_relative 'code_generators/timever'
+      @internal_generators_loaded = true
     end
 
     # Receives a namespace, arguments and the behavior to invoke the generator.
@@ -45,6 +57,13 @@ module Origen
         args << '--help' if args.empty? && klass.arguments.any?(&:required?)
         klass.start(args, config)
       end
+    end
+
+    # Like invoke, but will also make internal-use only generators available
+    # commands.
+    def self.invoke_internal(name, args = ARGV, config = {})
+      load_internal_generators
+      invoke(name, args, config)
     end
 
     def self.find_by_name(name)
@@ -61,20 +80,20 @@ module Origen
         end
         return gen if gen
       end
-      puts "Couldn't find a feature generator named: #{name}"
+      puts "Couldn't find a code generator named: #{name}"
       puts
-      puts 'This is the list of available features:'
+      puts 'This is the list of available generators:'
       puts
       print_generators
       puts
     end
 
     # Show help message with available generators.
-    def self.help(command = 'add')
+    def self.help(command = 'new')
       puts <<-END
-Add pre-built features and code snippets.
+Add pre-built features and code snippets to your application.
 
-This command will add pre-built code to your application to implement a given feature. In some
+This command will generate code for your application to implement a given feature. In some
 cases this will be a complete feature and in others it will provide a starting point for you
 to further customize.
 
@@ -88,7 +107,7 @@ END
       puts '  -s, [--skip]     # Skip files that already exist'
       puts '  -q, [--quiet]    # Suppress status output'
       puts
-      puts "The available features are listed below, run 'origen add <feature> -h' for more info."
+      puts "The available features are listed below, run 'origen new <feature> -h' for more info."
       puts
 
       print_generators
@@ -101,6 +120,7 @@ END
         puts name
       end
       plugin_generators.each do |namespace, generators|
+        next if namespace.to_s == 'origen_app_generators'
         puts
         generators.each do |_name, gen|
           puts "#{namespace}:#{gen}"

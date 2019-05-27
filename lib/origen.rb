@@ -13,6 +13,7 @@ unless defined? RGen::ORIGENTRANSITION
   $_origen_invocation_pwd ||= Pathname.pwd
   require 'fileutils'
   # Force these to re-load since they could have been loaded from an earlier version of Origen during boot
+  load 'origen/loader.rb'
   load 'origen/site_config.rb'
   load 'origen/operating_systems.rb'
   require 'origen/core_ext'
@@ -25,7 +26,7 @@ unless defined? RGen::ORIGENTRANSITION
   require 'origen/remote_manager'
   require 'origen/utility'
   require 'origen/logger_methods'
-  require 'option_parser/optparse'
+  require 'origen/core_ext/option_parser/optparse'
   require 'bundler'
   require 'origen/undefined'
   require 'origen/componentable'
@@ -290,6 +291,7 @@ unless defined? RGen::ORIGENTRANSITION
 
       # Returns true if Origen is running in an application workspace
       def in_app_workspace?
+        return @in_app_workspace if defined? @in_app_workspace
         @in_app_workspace ||= begin
           path = Pathname.new(Dir.pwd)
           until path.root? || File.exist?(File.join(path, APP_CONFIG))

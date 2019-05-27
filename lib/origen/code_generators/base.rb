@@ -27,7 +27,14 @@ module Origen
       # Sets the base_name taking into account the current class namespace.
       def self.name
         @name ||= begin
-          to_s.split('::').last.sub(/(CodeGenerator|Generator)$/, '').underscore
+          name = to_s.split('::').last.sub(/(CodeGenerator|Generator)$/, '').underscore
+          if name == 'klass'
+            'class'
+          elsif name == 'mod'
+            'module'
+          else
+            name
+          end
         end
       end
 
@@ -50,7 +57,7 @@ module Origen
       end
 
       def self.banner
-        "origen add #{namespace == 'origen' ? '' : namespace + ':'}#{name} [options]"
+        "origen new #{namespace == 'origen' ? '' : namespace + ':'}#{name} [options]"
       end
     end
   end

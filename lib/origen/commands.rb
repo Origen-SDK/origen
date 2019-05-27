@@ -2,6 +2,7 @@
 # is done here (i.e. options that apply to all commands) before handing
 # over to the specific command handlers
 require 'optparse'
+require 'fileutils'
 
 ARGV << '--help' if ARGV.empty?
 
@@ -28,6 +29,18 @@ ORIGEN_COMMAND_ALIASES = {
 
 # Moved here so boot.rb file can know the current command
 Origen.send :current_command=, @command
+
+# Do some housekeeping, remove all .git directories in vendor/gems, this allows gems
+# that have been vendored via a Git reference to be checked in as normal
+if File.exist?(Origen.root.join('vendor', 'gems'))
+  Dir.glob("#{Origen.root}/vendor/gems/ruby/*/bundler/gems/*/.git").each do |f|
+    FileUtils.rm_rf(f)
+  end
+  # Also remove any nested vendor/gems folders to save space
+  Dir.glob("#{Origen.root}/vendor/gems/ruby/*/bundler/gems/*/vendor/gems").each do |f|
+    FileUtils.rm_rf(f)
+  end
+end
 
 # Don't log to file during the save command since we need to preserve the last log,
 # this is done as early in the process as possible so any deprecation warnings during
@@ -227,6 +240,10 @@ when 'generate', 'program', 'compile', 'merge', 'interactive', 'target', 'enviro
   require "origen/commands/#{@command}"
   exit 0 unless @command == 'interactive'
 
+when 'new'
+  require 'origen/commands/new_resource'
+  exit 0
+
 when 'exec'
   load ARGV.first
   exit 0
@@ -272,6 +289,7 @@ The core origen commands are:
  lint         Lint and style check (and correct) your application code
  archive      Create an archive of your current application state
  site         Monitor and manage the Origen site configuration
+ new          Generate a new block, flow, pattern, etc. for your application
   EOT
   cmds.split(/\n/).each do |line|
     puts Origen.clean_help_line(line)

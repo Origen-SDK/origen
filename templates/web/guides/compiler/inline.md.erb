@@ -12,7 +12,7 @@ to invoke the compiler in an in-line manner such that it will return a string
 rather than generate a file:
 
 ~~~ruby
-Origen.compile("#{Origen.root}/templates/my_template.txt.erb", some_option: 10)
+Origen.compile("#{Origen.root}/app/templates/my_template.txt.erb", some_option: 10)
 ~~~
 
 Any options given as shown above will be available in the <code>options</code>
@@ -35,14 +35,14 @@ have the template compile such that 'self' inside the template will refer to an
 existing object. i.e. to give the template direct access to all of that objects methods and attributes:
 
 ~~~ruby
-Origen.compile("#{Origen.root}/templates/my_template.txt.erb", scope: $dut)
+Origen.compile("#{Origen.root}/app/templates/my_template.txt.erb", scope: $dut)
 ~~~
 
 For example let's say we had a simple template like this to display some information
 about an ATD block:
 
 ~~~eruby
-# templates/atd.txt.erb
+# app/templates/atd.txt.erb
 
 Type: <%= "<" + "%= type %" + ">" %>
 Bits: <%= "<" + "%= bits %" + ">" %>
@@ -61,7 +61,7 @@ $dut.atd[1].bits    # => 8
 We can compile our template for each ATD as follows:
 
 ~~~ruby
-template = "#{Origen.root}/templates/atd.txt.erb"
+template = "#{Origen.root}/app/templates/atd.txt.erb"
 
 Origen.compile(template, scope: $dut.atd[0])  # => "Type: sar\nBits: 16\n"
 Origen.compile(template, scope: $dut.atd[1])  # => "Type: sigma_delta\nBits: 8\n"
