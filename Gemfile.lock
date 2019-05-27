@@ -35,7 +35,7 @@ GIT
 PATH
   remote: .
   specs:
-    origen (0.50.0)
+    origen (0.51.0)
       activesupport (~> 4.1)
       bundler (~> 1.7)
       coderay (~> 1.1)
