@@ -132,7 +132,7 @@ A good place to provide an introduction to your application for other developers
 
 ### The app/ Directory
 
-The `app/` directory typically contains the following sub-directories:
+The `app/` directory typically contains the following sub-structure:
 
 ~~~text
 .
@@ -147,15 +147,15 @@ The `app/` directory typically contains the following sub-directories:
         └── web/
 ~~~
 
-Here is a description of each of them:
+Here is a description of each item:
 
 ##### app/blocks/
 
-A "block" contains all of the Origen infrastructure to model and control a specific piece of silicon.
+A *block* contains all of the Origen infrastructure to model and control a specific piece of silicon.
 Blocks can instantiate other blocks as sub-blocks, and therefore it is common to have a block that represents
 the top-level device, and then other blocks to represent the individual IPs that it contains.
 
-See the [dedicated guide on Understanding Blocks](<%= path "guides/starting/blocks" %>)
+See the [dedicated guide on Understanding Blocks](<%= path "guides/starting/blocks" %>).
 
 ##### app/flows/
 
@@ -164,16 +164,17 @@ All [test program flow files](<%= path "guides/program/flows" %>) should be stor
 ##### app/lib/
 
 This is where to create any Ruby files that do not otherwise fall into one of the other standard directories.
-This directory is added to Ruby's load path, which means that files within it can be loaded with a relative path,
-e.g. `require "my_app_name/my_class"`, although as it also supports autoloading
+This directory is added to Ruby's global load path, which means that files within it can be loaded from anywhere
+with a relative path, e.g. `require "my_app_name/my_class"`.
+However, this directory also supports autoloading which means that
 you should never have to manually load the files in here as long as you follow the 
 [autoloading naming conventions](<%= path "guides/starting/files/#Autoloading" %>).
 
-The file `app/lib/<my_app_name>.rb` is automatically loaded when your application boots and is therefore a convenient place to
+The file `app/lib/<my_app_name>.rb` is automatically loaded whenever your application boots and it is therefore a convenient place to
 do any loading of any external libraries that your application depends on.
 
-Since this directory is in the Ruby's global load path, it is very important that all code you put in here is wrapped
-in your application's namespace, like this:
+Since this directory is in Ruby's global load path, it is very important that all code you put in here is wrapped
+in your application's namespace to avoid naming collisions, like this:
 
 ~~~ruby
 module MyAppName
@@ -194,52 +195,75 @@ All [compiler template files](<%= path "guides/compiler/creating" %>) should be 
 The templates concerned with creating your application's online documentation should be stored in the
 sub-directory `app/templates/web`.
 
+### The config/ Directory
 
-### The app/blocks/ Directory
-
-A "block" contains all of the Origen infrastructure to model and control a specific piece of silicon.
-Blocks can instantiate other blocks as sub-blocks, and therefore it is common to have a block that represents
-the top-level device, and then other blocks to represent the individual IPs that it contains.
-
-
+The `config/` directory typically contains the following files:
 
 ~~~text
-├── app/    
-    ├── blocks/        
-        ├── dut/          
-            ├── derivatives/        
-            │   ├── falcon/  
-            │   │   ├── derivatives/       
-            │   │   ├── attributes.rb
-            │   │   ├── controller.rb
-            │   │   ├── model.rb
-            │   │   ├── parameters.rb
-            │   │   ├── pins.rb
-            │   │   ├── registers.rb    
-            │   │   ├── sub_blocks.rb    
-            │   │   └── timesets.rb
-            │   └── eagle/
-            │       ├── derivatives/              
-            │       ├── attributes.rb
-            │       ├── controller.rb
-            │       ├── model.rb
-            │       ├── parameters.rb
-            │       ├── pins.rb
-            │       ├── registers.rb    
-            │       ├── sub_blocks.rb    
-            │       └── timesets.rb
-            ├── attributes.rb
-            ├── controller.rb
-            ├── model.rb
-            ├── parameters.rb
-            ├── pins.rb
-            ├── registers.rb    
-            ├── sub_blocks.rb    
-            └── timesets.rb
+.
+├── config/    
+    ├── application.rb
+    ├── boot.rb
+    ├── commands.rb
+    ├── maillist_dev.txt
+    ├── maillist_prod.txt
+    └── version.rb
 ~~~
 
+Here is a description of each of them:
 
+##### config/application.rb
 
-### The config/ Directory
+Specifies global configuration for your application, for example to configure its source code repository,
+its web site url, or to setup the output directory and other attributes of Origen's various generators.
+
+This file is also defining an object that represents your application, this is automatically instantiated by
+Origen and is accessible via `Origen.app`. The application configuration is therefore accessible via
+`Origen.app.config` and also `Origen.config` for short.
+See the [plugin guide](<%= path "guides/plugins/app" %>) for more information on accessing the application
+objects of plugins.
+
+This application object is also commonly used to implement [callback handlers](<%= path "guides/misc/callbacks" %>)
+and other globally accessible methods that are specific to your application.
+
+##### config/boot.rb
+
+This file is used by Origen to boot your application, i.e. it is the first thing that Origen will load whenever
+your application is invoked.
+By default, it simply requires the top-level lib file `app/lib/<my_app_name>.rb` and that is the file that you
+would normally modify to load additional application dependencies rather than the boot file.
+
+In that case, what it the boot file for? 
+
+It fact, it is only relevant if your application is an Origen plugin and in that case there is a
+distinction between the application booting within its own workspace and when being boot as a dependency of
+another application.
+See the guide on [Creating a Plugin](<%= path "guides/plugin/creating" %>) for more information on this.
+
+##### config/commands.rb
+
+This file can be used to register and implement application-specific Origen commands to support your application.
+
+See the [dedicated guide on Adding Commands](<%= path "guides/misc/commands" %>) for more information.
+
+##### config/maillist_dev.txt
+
+This defines a list of email addresses that should be informed whenever there is any release of your application,
+including development releases.
+
+See the [guide on Users, Emails and Maillists](<%= path "guides/misc/users" %>) for more information.
+
+##### config/maillist_prod.txt
+
+Similar to the development mailing list, this list of emails will only be notified whenever there is a production
+release of your application.
+
+Note that there is no need to duplicate the development emails in this file, this is only the additional list
+of users that should be notified if the release is intended for production use.
+
+##### config/version.rb
+
+This file defines your application version, it is automatically updated by Origen whenever your application
+[is released via the `origen rc tag` command](<%= path "guides/starting/commit" %>).
 
 % end
