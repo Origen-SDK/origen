@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/Origen-SDK/origen_app_generators.git
-  revision: c35863aee17b470fb38bccfe8f5a5005347701b1
+  revision: cbfd82a2897d452c8c39c270ee3fca911a05b9ee
   specs:
-    origen_app_generators (1.2.0)
+    origen_app_generators (2.0.0)
       origen (>= 0.40.2)
 
 GIT

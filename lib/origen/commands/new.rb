@@ -62,7 +62,7 @@ else
   end
 end
 
-generators = [['https://rubygems.org', 'origen_app_generators_v2']] + Array(Origen.site_config.app_generators)
+generators = [['https://rubygems.org', 'origen_app_generators']] + Array(Origen.site_config.app_generators)
 
 def use_packaged_generators
   FileUtils.cp_r Origen.top.join('origen_app_generators').to_s, '.'
