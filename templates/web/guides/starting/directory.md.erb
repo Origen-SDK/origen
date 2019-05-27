@@ -166,9 +166,9 @@ All [test program flow files](<%= path "guides/program/flows" %>) should be stor
 This is where to create any Ruby files that do not otherwise fall into one of the other standard directories.
 This directory is added to Ruby's global load path, which means that files within it can be loaded from anywhere
 with a relative path, e.g. `require "my_app_name/my_class"`.
-However, this directory also supports autoloading which means that
+However, this directory also supports auto-loading which means that
 you should never have to manually load the files in here as long as you follow the 
-[autoloading naming conventions](<%= path "guides/starting/files/#Autoloading" %>).
+[auto-loading naming conventions](<%= path "guides/starting/files/#Auto-Loading" %>).
 
 The file `app/lib/<my_app_name>.rb` is automatically loaded whenever your application boots and it is therefore a convenient place to
 do any loading of any external libraries that your application depends on.

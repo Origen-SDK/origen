@@ -1,16 +1,148 @@
 % render "layouts/guides.html" do
 
-Test patterns, test program flow files and templates can simply be added to the `app/patterns`, 
-`app/flows` and `app/templates` directories respectively and 
+This guide describes how to add new files to an application and how to leverage the tools and
+conventions that Origen provides to help with this.
+
+Like all programming languages, Ruby requires that a source file is either executed directly or else
+loaded in some way in order for the language runtime to be aware of it.
+
+Source files, such as test patterns, test program flow files and templates, can simply be added to the `app/patterns`, 
+`app/flows` and `app/templates` directories respectively.
+Whenever you invoke Origen to generate or compile, you will naturally provide a named
+reference to the file in the command arguments and Origen will know in which directory to look based
+on the command being run.
+
+However, things have the potential to be more tricky when dealing with abstract references, for example when
+referencing a class or other object name that is not directly associated with an Origen command.
+For these cases, Origen provides an auto-loading system which means that as long as you follow a few simple
+conventions about where to store your files and how to name your objects and files, then Origen will automatically
+find and load files as required and you should never have to worry about doing it manually.
+
+Note that using the auto-loading system is actually the preferred approach because it means that your application
+files will be lazily loaded - meaning that files will only be loaded just-in-time and on an as-needed basis. This
+helps to keep application boot times fast by not requiring the world at startup when in fact the target
+operation may only require a small subset of an application's overall functionality.
+
+The easiest way to align to the required naming convention is to use the `origen new` command to generate your
+new files rather than adding them manually...
+
+### Code Generators
+
+Code generation refers to executing an Origen command to create new application files automatically. These
+files will come with all the necessary internal structure already in place, the so-called *boilerplate*,
+and any integration updates that have to be made to existing files will be done automatically (if
+required).
+
+All code generators are accessible via the `origen new` command, to see the available generators run:
+
+~~~text
+origen new -h
+~~~
+
+To get more information about what each generator does, add the specific generator name, for example to find
+out what the `block` generator does, run:
+
+~~~text
+origen new block -h
+~~~
+
+#### Creating A New DUT
+
+One of the first things you will want to do after creating a new application, is to create a new top-level
+DUT object to work with.
+
+This can done very easily by running the following command (replacing `my_dut_name` with your choice of name,
+ensuring to follow the convention of keeping it lower-cased and underscored):
+
+~~~text
+origen new dut my_dut_name
+~~~
+
+This will create the complete set of block files for this DUT
+(see the dedicated [guide on Understanding Blocks](<%= path "guides/starting/blocks" %>) for more information
+on this) and a 
+[target file](<%= path "guides/runtime/target" %>) to instantiate it.
+
+If you look inside the target file, you will see something like this:
+
+~~~ruby
+MyApp::DUT::MyDUTName.new
+~~~
+
+There are a few points worth noting here:
+
+* The name of the new dut class begins with `MyApp::` which means that it exists within your application's
+  unique namespace. It is important that all of the Ruby classes and modules defined by your application does this
+  so that naming collisions are avoided with any plugins that you may use. Using the code generators will
+  ensure that this is always done.
+* There is a second level to the name, `::DUT::`. Experience has shown that it is common within applications to
+  want to add functionality to all DUTs, even if they are otherwise unrelated. So the new DUT generator enforces
+  that all DUTs in an application are all children of a master DUT block. This is an example of a generator enforcing
+  good application architecture patterns, another reason to use the generators!
+* Finally, the DUT's name, `::MyDUTName` is the camel-cased version of the original name that you supplied. This is following
+  standard Ruby conventions that class names are always camel-cased. Note that the name contains `DUT` and not `Dut`
+  because this is a common acronym that Origen is aware of.
+
+If your application deals with multiple DUTs that can be logically grouped into collections/families then you
+can add such identifiers when generating DUTs.
+For example, say some of your DUTs belonged to a network controller product family, you could add a new DUT to this
+family by running:
+
+~~~text
+origen new dut network_controllers/my_dut_name
+~~~
+
+This time the target will look like this:
+
+~~~ruby
+MyApp::DUT::NetworkControllers::MyDUTName.new
+~~~
+
+Meaning that the DUT is a descendent of `NetworkControllers` which is itself a descendent of `DUT`.
+
+The files generated within `app/blocks` by this command will set all of this up for you, providing you with a logical
+place to add features to either all DUTs, all network controllers, or only to an individual DUT.
+
+#### Creating New Sub-Blocks
+
+Once you have a DUT, you may then want to start adding sub-blocks to it. For example, if you wanted to start
+creating tests for a flash module, then you should create a dedicated block for that rather than adding everything
+into the top-level block.
 
 
-#### Autoloading
 
 
-#### Creating New Blocks
+
+
 
 
 #### Creating New Classes/Modules in app/lib/ 
+
+
+#### Other Generators
+
+It is expected that the available code generators will grow over time as the community add them and as
+new best practices and conventions about how to structure Origen applications emerges.
+
+### Auto-Loading
+
+As your experience with Origen grows, you may find that you start to bypass the `origen new` command and
+create new files directly.
+In that case, it is worthwhile understanding how Origen's auto-loading system works and exactly what the
+naming convention is.
+
+
+
+Within an Origen application, such files should reside in either `app/blocks` or `app/lib`.
+
+The `app/blocks` directory is a special case in that it does not follow 
+
+
+#### app/lib Naming Conventions
+
+
+
+
 
 
 % end
