@@ -299,6 +299,8 @@ module Origen
         end
         if respond_to?(name)
           callers = caller[0].split(':')
+          # reunite the drive and path if on windows os
+          callers[0] = callers[0] + ':' + callers.delete_at(1) if Origen.os.windows?
           Origen.log.warning "The sub_block defined at #{Pathname.new(callers[0]).relative_path_from(Pathname.pwd)}:#{callers[1]} is overriding an existing method called #{name}"
         end
         define_singleton_method name do
