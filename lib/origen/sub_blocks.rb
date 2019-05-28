@@ -355,6 +355,8 @@ module Origen
       my_group = @current_group.dup
       if respond_to?(id)
         callers = caller[0].split(':')
+        # reunite the drive and path if on windows os
+        callers[0] = callers[0] + ':' + callers.delete_at(1) if Origen.os.windows?
         Origen.log.warning "The sub_block_group defined at #{Pathname.new(callers[0]).relative_path_from(Pathname.pwd)}:#{callers[1]} is overriding an existing method called #{id}"
       end
       define_singleton_method "#{id}" do
