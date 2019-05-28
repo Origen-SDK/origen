@@ -1,3 +1,13 @@
+<a class="anchor release_tag" name="v0_51_1"></a>
+<h1><a href="#v0_51_1">Tag: v0.51.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 28-May-2019 01:15AM
+
+
+Fixed issue with app generator dot files not being included in the gem package
+
 <a class="anchor release_tag" name="v0_51_0"></a>
 <h1><a href="#v0_51_0">Tag: v0.51.0</a></h1>
 
