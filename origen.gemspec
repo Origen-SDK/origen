@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
                            "bin/*", "helpers/**/*.rb", "vendor/**/*", "lib/tasks/**/*.rake",
                            "config/**/*.yml", "config/**/*.policy",
                            "spec/format/origen_formatter.rb", "source_setup", "origen_site_config.yml",
-                           "origen_app_generators/**/*"
+                           "origen_app_generators/**/*", "origen_app_generators/templates/**/.*"
                           ]
   spec.executables   = ["origen"]
   spec.require_paths = ["lib"]
