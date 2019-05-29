@@ -298,9 +298,7 @@ module Origen
           fail "You have already defined a sub-block named #{name} within class #{self.class}"
         end
         if respond_to?(name)
-          callers = caller[0].split(':')
-          # reunite the drive and path if on windows os
-          callers[0] = callers[0] + ':' + callers.delete_at(1) if Origen.os.windows?
+          callers = Origen.split_caller_line caller[0]
           Origen.log.warning "The sub_block defined at #{Pathname.new(callers[0]).relative_path_from(Pathname.pwd)}:#{callers[1]} is overriding an existing method called #{name}"
         end
         define_singleton_method name do
@@ -354,9 +352,7 @@ module Origen
       yield                  # any sub_block calls within this block will have their ID added to @current_group
       my_group = @current_group.dup
       if respond_to?(id)
-        callers = caller[0].split(':')
-        # reunite the drive and path if on windows os
-        callers[0] = callers[0] + ':' + callers.delete_at(1) if Origen.os.windows?
+        callers = Origen.split_caller_line caller[0]
         Origen.log.warning "The sub_block_group defined at #{Pathname.new(callers[0]).relative_path_from(Pathname.pwd)}:#{callers[1]} is overriding an existing method called #{id}"
       end
       define_singleton_method "#{id}" do
