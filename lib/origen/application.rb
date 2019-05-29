@@ -50,6 +50,8 @@ module Origen
               Origen.register_application(app)
             end
             app.add_lib_to_load_path!
+            # Also blow this cache as a new app has just been added
+            @apps_by_namespace = nil
           end
         end
       end
@@ -135,11 +137,6 @@ module Origen
     #
     # Returns a lookup table for all block definitions (app/blocks) that the app contains
     def blocks_files
-      # There seems to be some issue with this cache being corrupted when running the test suite
-      # in Travis, but don't believe that this is really an issue in practice and cannot replicate
-      # it locally. Therefore maintaining the cache of this potentially expensive operation except
-      # from when running in CI.
-      @blocks_files = nil if ENV['CONTINUOUS_INTEGRATION']
       @blocks_files ||= begin
         files = {}
         block_dir = Pathname.new(File.join(root, 'app', 'blocks'))
@@ -167,7 +164,7 @@ module Origen
         type = file.basename('.rb').to_s.to_sym
         unless type == :model || type == :controller
           files[path][type] ||= []
-          files[path][type] << file
+          files[path][type] << file.to_s
         end
       end
       derivatives = current_dir.join('derivatives')

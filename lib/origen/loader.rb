@@ -94,8 +94,12 @@ module Origen
 
     # @api private
     def self.load_block_file(file, model)
-      e = File.exist?(file.to_s)
-      model.instance_eval(file.read, file.to_s) if e
+      file = file.to_s
+      if File.exist?(file)
+        File.open(file, 'r') do |f|
+          model.instance_eval(f.read, file)
+        end
+      end
       true
     end
 
