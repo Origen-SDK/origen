@@ -193,6 +193,9 @@ module Origen
         if (d = pin.direction) != :io
           line << ", direction: :#{d}"
         end
+        if (t = pin.type)
+          line << ", type: :#{t}"
+        end
         pkg_meta = write_pin_packages(pin)
         line << ", #{pkg_meta}" unless pkg_meta == ''
         Array(options[:attributes]).each do |attr|
