@@ -782,6 +782,13 @@ unless defined? RGen::ORIGENTRANSITION
         end
       end
 
+      # OS agnostic split of a caller line into file and line number
+      def split_caller_line(line)
+        arr = line.split(':')
+        arr[0] = arr[0] + ':' + arr.delete_at(1) if Origen.os.windows?
+        arr
+      end
+
       private
 
       def current_command=(val)
