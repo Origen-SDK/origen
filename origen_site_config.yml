@@ -43,8 +43,24 @@ centralized_site_config_verify_ssl: true
 
 # GEM SETUP
 
-# If your company has an internal gem server enter it here
-#gem_server: http://gems.company.net:9292
+# If your company has an internal gem server enter it here:
+#gem_server: https://gems.company.net:9292
+# or here, if you need to use different urls for push and pull (write and read):
+#gem_server_push: https://gems.company.net:9292
+#gem_server_pull: https://gems.company.net:9292
+
+# By default, the Origen 'rake gem:release' task (called by the 'origen rc tag' command), will use
+# the standard Ruby 'gem push' command to push gems to your company gem server.
+# If you need to use a different command, define it here as a string using, +GEM+ where you want
+# the gem name to be referenced, and +URL+ to reference your company gem server.
+#gem_push_cmd: "gem inabox --host +URL+ +GEM+"
+#gem_push_cmd: "gem nexus +GEM+ --url +URL+ --clear-repo --ignore-ssl-errors"
+
+# If your custom gem_push_cmd requires a gem plugin(s), add the gem names here and they will be
+# included in new applications generated via the 'origen new' command.
+#gem_push_plugins:
+#  - geminabox
+#  - nexus
 
 # When true Origen will configure and run Bundler in a consistent way for every
 # user (recommended)
