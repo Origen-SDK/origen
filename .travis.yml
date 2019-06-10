@@ -2,7 +2,10 @@ language: ruby
 rvm:
   - 2.2.2
   - 2.4.0
-  - 2.5.1
+  - 2.5.3
+before_install:
+  - gem uninstall -v '>= 2' -i $(rvm gemdir)@global -ax bundler || true
+  - gem install bundler -v '< 2'
 script:
   - bundle exec origen -v
   - bundle exec origen m debug
