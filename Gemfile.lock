@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/Origen-SDK/origen_app_generators.git
-  revision: cbfd82a2897d452c8c39c270ee3fca911a05b9ee
+  revision: 8ea4e255284634fda9e1c9db1f9a93284124aea3
   specs:
     origen_app_generators (2.0.0)
       origen (>= 0.40.2)
@@ -15,12 +15,12 @@ GIT
 
 GIT
   remote: https://github.com/Origen-SDK/origen_sim.git
-  revision: 7378a0c2068abb92d32e1c79f12c11b8f85140bd
+  revision: ce61be35022ba71e2c4b3901b105e298a40848dc
   specs:
-    origen_sim (0.20.0)
+    origen_sim (0.20.4)
       origen (>= 0.44.0)
       origen_testers (>= 0.21.0)
-      origen_verilog (>= 0.6.0)
+      origen_verilog (>= 0.6.1)
 
 GIT
   remote: https://github.com/Origen-SDK/origen_testers.git
@@ -126,7 +126,7 @@ GEM
       ast (~> 2)
       origen (>= 0.33.3)
       treetop
-    origen_verilog (0.6.0)
+    origen_verilog (0.6.1)
       ast (~> 2)
       origen (>= 0.41.0)
       treetop
@@ -175,7 +175,7 @@ GEM
       tins (~> 1.0)
     thor (0.20.3)
     thread_safe (0.3.6)
-    tins (1.20.2)
+    tins (1.20.3)
     treetop (1.6.10)
       polyglot (~> 0.3)
     tzinfo (1.2.5)
