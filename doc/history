@@ -1,3 +1,13 @@
+<a class="anchor release_tag" name="v0_52_2"></a>
+<h1><a href="#v0_52_2">Tag: v0.52.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Daniel Hadad on 13-Jun-2019 12:31PM
+
+
+Bug fix: extract\_csv\_data to handle files in app or plugin using file\_handler.
+
 <a class="anchor release_tag" name="v0_52_1"></a>
 <h1><a href="#v0_52_1">Tag: v0.52.1</a></h1>
 
