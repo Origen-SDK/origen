@@ -77,7 +77,8 @@ module Origen
         field_values = []
         result = []
         line_no = 1
-        File.readlines("#{Origen.root}/#{@file}").each do |line|
+        file = Origen.file_handler.clean_path_to(@file)
+        File.readlines("#{file}").each do |line|
           # Clean up line
           line.strip!
           if line =~ /^#{options[:comment_char]}/
