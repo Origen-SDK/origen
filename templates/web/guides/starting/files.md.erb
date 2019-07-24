@@ -12,11 +12,11 @@ Whenever you invoke Origen to generate or compile, you will naturally provide a 
 reference to the file in the command arguments and Origen will know in which directory to look based
 on the command being run.
 
-However, things have the potential to be more tricky when dealing with abstract references, for example when
+However, things have the potential to be more tricky when dealing with more abstract file references, for example when
 referencing a class or other object name that is not directly associated with an Origen command.
 For these cases, Origen provides an auto-loading system which means that as long as you follow a few simple
-conventions about where to store your files and how to name your objects and files, then Origen will automatically
-find and load files as required and you should never have to worry about doing it manually.
+conventions about what directories to use and how to name your objects and files, then Origen will automatically
+find and load them as required.
 
 Note that using the auto-loading system is actually the preferred approach because it means that your application
 files will be lazily loaded - meaning that files will only be loaded just-in-time and on an as-needed basis. This
@@ -29,9 +29,9 @@ new files rather than adding them manually...
 ### Code Generators
 
 Code generation refers to executing an Origen command to create new application files automatically. These
-files will come with all the necessary internal structure already in place, the so-called *boilerplate*,
-and any integration updates that have to be made to existing files will be done automatically (if
-required).
+files will come with all of the necessary internal structure already in place (the so-called *boilerplate*)
+and if any modifications have to be made to existing files in order to integrate the new file, then these
+modifications will be applied automatically too.
 
 All code generators are accessible via the `origen new` command, to see the available generators run:
 
@@ -45,6 +45,18 @@ out what the `block` generator does, run:
 ~~~text
 origen new block -h
 ~~~
+
+#### Undoing Code Generation
+
+<div class="alert alert-info" role="alert">
+Before running a code generator for the first time it is worth highlighting that the code generators will make
+modifications to your application, <strong>but they do not provide an undo function</strong>.
+</div>
+
+Your application's revision control system should be used for that. i.e. If you are worried about the consequences
+of running a generator, make sure that you have everything checked in before running it, then you can simply
+checkout your application again to remove the effects of running the generator.
+
 
 #### Creating A New DUT
 
@@ -72,7 +84,7 @@ MyApp::DUT::MyDUTName.new
 There are a few points worth noting here:
 
 * The name of the new dut class begins with `MyApp::` which means that it exists within your application's
-  unique namespace. It is important that all of the Ruby classes and modules defined by your application does this
+  unique namespace. It is important that all of the Ruby classes and modules defined by your application do this
   so that naming collisions are avoided with any plugins that you may use. Using the code generators will
   ensure that this is always done.
 * There is a second level to the name, `::DUT::`. Experience has shown that it is common within applications to
@@ -101,48 +113,176 @@ MyApp::DUT::NetworkControllers::MyDUTName.new
 Meaning that the DUT is a descendent of `NetworkControllers` which is itself a descendent of `DUT`.
 
 The files generated within `app/blocks` by this command will set all of this up for you, providing you with a logical
-place to add features to either all DUTs, all network controllers, or only to an individual DUT.
+place to add features to all DUTs, all network controllers, or to an individual DUT only.
 
 #### Creating New Sub-Blocks
 
 Once you have a DUT, you may then want to start adding sub-blocks to it. For example, if you wanted to start
-creating tests for a flash module, then you should create a dedicated block for that rather than adding everything
+creating tests for a flash module, then you should create a dedicated block for it rather than adding everything
 into the top-level block.
 
+Do this by running the following command:
 
+~~~text
+origen new block flash/my_flash_name
+~~~
 
+This will create a complete set of block files for this IP and it will ask you which of your current
+DUTs you want to instantiate it in. You can also choose to not instantiate it at this time, in that
+case you will be able to manually instantiate it later within the given DUT's `sub_blocks.rb` file.
 
+Note that when running this command, we had to supply the TYPE of the block (in this example `flash`) as well as
+its name (`my_flash_name`).
 
+The presence of the TYPE argument is mandatory and it exists for two reasons:
 
+1. Origen is assuming that as your application matures you will need variations of this IP block, for example a
+   1MB flash IP and a 2.5MB variant. Similar to having the master `DUT` block, this is setting you off down a
+   scalable architecture path by creating a master block for each IP type. In this example, the master block from
+   which all derivatives of this type will inherit will be called `MyApp::Flash` and the specific derivative that we just
+   created will be called `MyApp::Flash::MyFlashName`.
+2. The TYPE is also used as the name given to the instance of the block that is instantiated within the
+   DUTs that you selected when running the command (if you chose no DUTs then it will be up to you what you call
+   the instance when you do it manually).
+   Continuing with this flash example, this means that you can make derivative-agnostic references to `dut.flash`
+   in your pattern and test program source files and they will be compatible with whatever flash derivative is
+   instantiated by the current target.
 
+Otherwise, the created block files are very much like a DUT block. A DUT is a special block which cannot be
+instantiated as a sub-block of other blocks, but these regular blocks can be instantiated within DUTs or
+even within other blocks.
+
+#### Creating Embedded Sub-Blocks
+
+Sometimes, you may want to create blocks to represent/handle sub-components of an IP. It will often be the case
+that such blocks are:
+
+* Tightly coupled to the parent IP, where the concept of them being instantiated within some other block does
+  not make sense
+* Simple in nature; there will be no need for derivative blocks to be created/managed in the future
+
+If both of these are true, then an embedded (sub-) block is a good choice rather than a regular block, though
+if you are in any doubt, a regular block can always be used safely.
+
+The advantage of using an embedded sub-block is that it keeps your `app/blocks` directory clean, meaning that
+it only contains primary blocks which would typically represent the main IPs within a SoC, rather than being
+cluttered with lots of secondary/trivial blocks.
+
+The restrictions of creating an embedded sub-block are that they can't define pins, parameters, or timesets,
+and they don't support derivative children.
+
+Otherwise, they are a normal block with a model, controller, registers and attributes, and they can even
+have their own embedded child blocks.
+
+Here is an example of a command to create an embedded sub-block, supplying the path to the directory
+of the parent block and then the name of the embedded sub-block to create:
+
+~~~text
+origen new block app/blocks/parent my_sub_block_name
+~~~
+
+All generated `sub_blocks.rb` files in the `app/blocks` contain an example of the command to run to add
+an embedded sub-block to the given block.
 
 #### Creating New Classes/Modules in app/lib/ 
 
+The commands `origen new module my_module` and `origen new class my_class` can be used to create plain
+Ruby classes and modules in the `app/lib` directory.
+
+These should be used to build abstract logic and helpers that your application requires.
+
+All class/modules created by these code generator commands will be named correctly for auto-loading and
+will be properly wrapped in the application's namespace.
+
+See `origen new module -h` and `origen new class -h` for more details.
 
 #### Other Generators
 
 It is expected that the available code generators will grow over time as the community add them and as
 new best practices and conventions about how to structure Origen applications emerges.
 
+See `origen new -h` for the latest list of code generators that are available within your application.
+
 ### Auto-Loading
 
 As your experience with Origen grows, you may find that you start to bypass the `origen new` command and
-create new files directly.
+begin to create new files directly.
 In that case, it is worthwhile understanding how Origen's auto-loading system works and exactly what the
 naming convention is.
 
+Within an Origen application, files residing in either `app/blocks` or `app/lib` will be auto-loaded.
+The `app/blocks` directory is a special case which uses a custom directory
+structure, whereas `app/lib` follows a very typical structure that you will see in many Ruby projects.
 
+All Ruby class or module names used within your application should be camel-cased to enable the auto-loader
+to resolve them to a file that defines them.
+This naming convention is widely within the Ruby language and almost all non-Origen projects will also follow
+the same convention.
 
-Within an Origen application, such files should reside in either `app/blocks` or `app/lib`.
+Examples of valid names are:
 
-The `app/blocks` directory is a special case in that it does not follow 
+~~~ruby
+MyApp::MyFamily::MyDevice
+MyApp::Helpers
+~~~
 
+Note that in all cases the top-level name must be your application's unique namespace - this tells Origen
+which application or plugin owns a given object and therefore in which app's directories to look for a definition
+of it.
 
-#### app/lib Naming Conventions
+The remainder of the name is then broken down into the equivalent lower-cased and underscored versions of
+the name, like this:
 
+~~~ruby
+['my_app', 'my_family', 'my_device']
+['my_app', 'helpers']
+~~~
 
+These transformed names are what the files and directories should be called and this is another widely used
+convention within the Ruby language/community - i.e. that files (and directories) are named after the
+lower-cased and underscored version of the class/module names that they define, and therefore that you have
+a dedicated file for each class/module.
 
+#### File Lookup
 
+When your application references something like `MyApp::MyFamily::MyDevice` for the first time, it will trigger
+Ruby's constant missing procedure and this provides a hook (`const_missing`) to allow applications like Origen
+to handle the missing definition before an error is raised.
 
+When this hook is triggered, Origen will first identify what app/plugin to look in from the first part of the name,
+if no matching app/plugin
+is found then the lookup will go no further and most likely the user will receive an uninitialized constant error. 
+
+If an app/plugin is found, it will first see if it has an `app/blocks` directory and if so this will be
+searched for a match.
+
+The above `MyApp::MyFamily::MyDevice` example will be searched for within `app/blocks` in this order:
+
+~~~text
+# A reference to a model, note that `MyApp` is discarded and that `derivatives` directories are injected
+app/blocks/my_family/derivatives/my_device/model.rb
+
+# A reference to a sub-block model (all `derivatives` dirs in the path are systematically changed to `sub_blocks`)
+app/blocks/my_family/sub_blocks/my_device/model.rb
+
+# A reference to a module which has been added to a model
+app/blocks/my_family/model/my_device.rb
+~~~
+
+If the name is resolved to a block model, then Origen will load the complete block at this time - i.e. the model
+and all of its pins, registers, sub_blocks, etc.
+
+If no match is found within `app/blocks` it will then try `app/lib`. In that case the lookup is a very simple
+concatenation of the names and in these examples it will look for:
+
+~~~text
+app/lib/my_app/my_family/my_device.rb
+app/lib/my_app/helpers.rb
+~~~
+
+If a matching file is found, it will be loaded and if it defines the missing constant then the application
+execution will proceed as normal.
+If a matching file is found but it does not actually define the missing class/module name then an error will be
+raised to that effect.
 
 % end
