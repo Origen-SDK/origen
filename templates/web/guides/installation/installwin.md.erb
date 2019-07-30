@@ -34,7 +34,7 @@ of the settings called <code>Save settings to user directory</code>.
 Execute the following command to get a sensible set settings to start off with:
 
 ~~~text
-@powershell New-Item -ItemType directory -Force -Path %appdata%\Console; (new-object System.Net.WebClient).DownloadFile('http://origen-sdk.org/files/console.xml','%appdata%\Console\console.xml')
+@powershell New-Item -ItemType directory -Force -Path %appdata%\Console; (new-object System.Net.WebClient).DownloadFile('https://origen-sdk.org/files/console.xml','%appdata%\Console\console.xml')
 ~~~
 
 <div class="alert alert-info" role="alert"> <strong>Opening the Console</strong>

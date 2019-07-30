@@ -40,7 +40,7 @@ class OrigenCoreApplication < Origen::Application
   
   config.web_directory = "https://github.com/Origen-SDK/Origen-SDK.github.io.git/origen"
   #config.web_directory = "git@github.com:Origen-SDK/Origen-SDK.github.io.git/origen"
-  config.web_domain = "http://origen-sdk.org/origen"
+  config.web_domain = "https://origen-sdk.org/origen"
   
   config.pattern_prefix = "nvm"
 

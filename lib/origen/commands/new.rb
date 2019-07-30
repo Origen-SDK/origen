@@ -21,7 +21,7 @@ generators regardless of the base Origen version that this command is being laun
 
 See the website for more details:
 
-http://origen-sdk.org/origen_app_generators
+https://origen-sdk.org/origen_app_generators
 
 Usage: origen new [APP_NAME] [options]
 END
