@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Stephen McGinty"]
   spec.email         = ["stephen.f.mcginty@gmail.com"]
   spec.summary       = %q{The Semiconductor Developer's Kit}
-  spec.homepage      = "http://origen-sdk.org"
+  spec.homepage      = "https://origen-sdk.org"
   spec.license       = 'MIT'
   spec.required_ruby_version     = '>= 2'
   spec.required_rubygems_version = '>= 1.8.11'

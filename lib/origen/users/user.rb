@@ -165,7 +165,7 @@ module Origen
 
       # Returns a private global Origen session store (stored in the user's home directory and only readable
       # by them).
-      # See - http://origen-sdk.org/origen/guides/misc/session/#Global_Sessions
+      # See - https://origen-sdk.org/origen/guides/misc/session/#Global_Sessions
       def auth_session
         @session ||= begin
           @session = Origen.session.user
