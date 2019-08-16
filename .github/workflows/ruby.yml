@@ -19,7 +19,6 @@ jobs:
     - name: Build and test Origen
       run: |
         gem install bundler -v '< 2'
-        bundle install --gemfile Gemfile --binstubs lbin --path ~/.origen/gems/
+        bundle install --jobs 4 --retry 3
         bundle info origen
-        bundle exec origen -v
 
