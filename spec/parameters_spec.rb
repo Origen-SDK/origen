@@ -60,6 +60,10 @@ module ParametersSpec
           params.boolean = false
         end
 
+        define_params :ruby_2p6_bug do |params|
+          params.ws1.chain.softbins = (11_001..11_999)
+        end
+
         reg :erase, 0x0 do
           bits 7..4, :time, bind: params.live.erase.time
           bits 3..0, :pulses
