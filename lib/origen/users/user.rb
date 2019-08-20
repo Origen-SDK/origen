@@ -5,7 +5,7 @@ module Origen
       require 'digest/sha1'
       # Required for STDIN.noecho to work
       # https://stackoverflow.com/questions/9324697/why-cannot-use-instance-method-noecho-of-class-io
-      require'io/console'
+      require 'io/console'
 
       attr_reader :role
       attr_writer :name, :email
@@ -16,7 +16,7 @@ module Origen
         if Origen.site_config.change_user_id
           Orgen.site_config.new_user_id
         else
-         `whoami`.strip
+          `whoami`.strip
         end
       end
 
