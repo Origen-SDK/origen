@@ -3,12 +3,21 @@ module Origen
     class User
       require 'openssl'
       require 'digest/sha1'
+      # Required for STDIN.noecho to work
+      # https://stackoverflow.com/questions/9324697/why-cannot-use-instance-method-noecho-of-class-io
+      require'io/console'
 
       attr_reader :role
       attr_writer :name, :email
 
       def self.current_user_id
-        `whoami`.strip
+        # Way to force Origen to use the new user ID in case of WSL where the core ID might not match the WSL login name
+        # In the ~/.origen/origen_site_config.yml file, User can define change_user_id: true and new_user_id: "string"
+        if Origen.site_config.change_user_id
+          Orgen.site_config.new_user_id
+        else
+         `whoami`.strip
+        end
       end
 
       def self.current
