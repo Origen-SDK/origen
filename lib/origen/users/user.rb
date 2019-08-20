@@ -14,7 +14,7 @@ module Origen
         # Way to force Origen to use the new user ID in case of WSL where the core ID might not match the WSL login name
         # In the ~/.origen/origen_site_config.yml file, User can define change_user_id: true and new_user_id: "string"
         if Origen.site_config.change_user_id
-          Orgen.site_config.new_user_id
+          Origen.site_config.new_user_id
         else
           `whoami`.strip
         end
