@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_53_0"></a>
+<h1><a href="#v0_53_0">Tag: v0.53.0</a></h1>
+
+##### Branch: 'master'
+
+##### by info-rchitect on 21-Aug-2019 17:12PM
+
+
+* PR#353: Allow User attributes to be set by environment variables 'ORIGEN\_USER\_ID',
+'ORIGEN\_NAME', and 'ORIGEN\_EMAIL'
+
 <a class="anchor release_tag" name="v0_52_4"></a>
 <h1><a href="#v0_52_4">Tag: v0.52.4</a></h1>
 
