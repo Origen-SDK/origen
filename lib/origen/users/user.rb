@@ -3,6 +3,9 @@ module Origen
     class User
       require 'openssl'
       require 'digest/sha1'
+      # Required for STDIN.noecho to work
+      # https://stackoverflow.com/questions/9324697/why-cannot-use-instance-method-noecho-of-class-io
+      require 'io/console'
 
       attr_reader :role
       attr_writer :name, :email
@@ -45,7 +48,9 @@ module Origen
       end
 
       def id(options = {})
-        @id.to_s.downcase
+        # Way to force Origen to use the new user ID in case of WSL where the core ID might not match the WSL login name
+        # User needs to setup the environment variable in their .bashrc or .tcshrc file
+        ENV['ORIGEN_USER_ID'] || @id.to_s.downcase
       end
       alias_method :core_id, :id
       alias_method :username, :id
@@ -67,7 +72,7 @@ module Origen
       end
 
       def name
-        @name ||= ENV['ORIGEN_NAME'] || name_from_rc || @id
+        @name ||= ENV['ORIGEN_NAME'] || ENV['ORIGEN_USER_NAME'] || name_from_rc || @id
       end
 
       def name_from_rc
@@ -76,7 +81,7 @@ module Origen
 
       def email(options = {})
         if current?
-          @email ||= ENV['ORIGEN_EMAIL'] || email_from_rc || begin
+          @email ||= ENV['ORIGEN_EMAIL'] || ENV['ORIGEN_USER_EMAIL'] || email_from_rc || begin
             if Origen.site_config.email_domain
               "#{id}@#{Origen.site_config.email_domain}"
             end
