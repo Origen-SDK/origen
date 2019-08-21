@@ -52,14 +52,4 @@ describe 'Advanced User Options' do
     Origen.current_user.id.should == original_user.id
     Origen.current_user.id.should_not == 'crradm'
   end
-
-  it 'Checks if a different user id is specified in Origen Site Config' do
-    if !Origen.site_config.change_user_id
-      Origen.site_config.change_user_id = false
-      Origen.site_config.user_id = nil
-    else
-      Origen.site_config.change_user_id = Origen.site_config.change_user_id
-      Origen.site_config.user_id = Origen.site_config.user_id
-    end
-  end
 end
