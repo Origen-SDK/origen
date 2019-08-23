@@ -184,14 +184,9 @@ module Origen
       #
       # First, try in the global session, if its not defined, ask for it.
       def password(options = {})
-        unless current?
-          fail "You can only reference the password for the current user (#{self.class.current_user_id})!"
-        end
-
         if options[:refresh]
           auth_session[:password] = nil
         end
-
         if auth_session[:password]
           password = decrypt(auth_session[:password])
         else

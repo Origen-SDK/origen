@@ -1,6 +1,34 @@
 require "spec_helper"
 
+USER_ENV_VARS = %w(ORIGEN_USER_ID ORIGEN_EMAIL ORIGEN_USER_EMAIL ORIGEN_NAME ORIGEN_USER_NAME)
+
+def scrub_env_vars
+  {}.tap do |newh|
+    USER_ENV_VARS.each do |var|
+      if ENV.keys.include? var
+        newh[var] = ENV[var]
+        ENV.delete var
+      end
+    end
+  end
+end
+
+def restore_env_vars
+  @orig_env_vars.each do |k,v|
+    ENV[k] = v
+  end
+end
+
 describe "a User" do
+  before :all do
+    # Remove any of the ENV user variables that the User class cares about or the spec tests will fail
+    @orig_env_vars = scrub_env_vars
+  end
+
+  after :all do
+    # Set the ENV back to its original state
+    restore_env_vars
+  end
 
   #it "can be created with a name and number" do
   #  u = User.new("Blah", "r49409")
@@ -42,6 +70,14 @@ describe "a User" do
 end
 
 describe 'Advanced User Options' do
+  before :all do
+    # Remove any of the ENV user variables that the User class cares about or the spec tests will fail
+    @orig_env_vars = scrub_env_vars
+  end
+  after :all do
+    # Set the ENV back to its original state
+    restore_env_vars
+  end
   it 'Switch User should work' do
     original_user = Origen.current_user
     new_user = User.new('crradm')
@@ -51,5 +87,10 @@ describe 'Advanced User Options' do
     end
     Origen.current_user.id.should == original_user.id
     Origen.current_user.id.should_not == 'crradm'
+  end
+  it 'setting username with ENV works' do
+    ENV['ORIGEN_USER_ID'] = 'ginty'
+    u1 = User.new(:ignored_user_id)
+    u1.id.should == 'ginty'
   end
 end
