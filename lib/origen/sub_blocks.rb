@@ -274,6 +274,13 @@ module Origen
     def sub_block(name = nil, options = {})
       name, options = nil, name if name.is_a?(Hash)
       return sub_blocks unless name
+      
+      if name.is_a?(Class)
+        return sub_blocks.select { |n, s| s.is_a?(name) }
+      elsif name.origen_sub_block?
+        return sub_block(name.class)
+      end
+      
       if i = options.delete(:instances)
         # permit creating multiple instances of a particular sub_block class
         # can pass array for base_address, which will be processed above
