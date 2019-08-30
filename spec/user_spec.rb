@@ -93,4 +93,9 @@ describe 'Advanced User Options' do
     u1 = User.new(:ignored_user_id)
     u1.id.should == 'ginty'
   end
+  it 'can find the correct user password when using ENV variables' do
+    ENV['ORIGEN_USER_ID'] = 'ginty'
+    u1 = User.new
+    expect { u1.password }.not_to raise_error
+  end
 end
