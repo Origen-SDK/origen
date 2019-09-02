@@ -22,6 +22,11 @@ module Origen
 end
 
 class Integer
+  class << self
+    attr_accessor :width
+  end
+  @width = 32
+
   if RUBY_VERSION >= '2.4.0'
     prepend Origen::IntegerExtension
   end
@@ -72,6 +77,19 @@ class Integer
   alias_method :to_xls_col, :to_spreadsheet_column
   alias_method :to_xlsx_col, :to_spreadsheet_column
   alias_method :to_spreadsheet_col, :to_spreadsheet_column
+
+  def twos_complement(width=nil)
+    _width = width || Integer.width
+    if self > 2**(_width-1) - 1
+      raise(RangeError, "Integer #{self} cannot fit into #{_width} bits with 2s complement encoding")
+    elsif self < -1 * (2**(_width-1))
+      raise(RangeError, "Integer #{self} cannot fit into #{_width} bits with 2s complement encoding")
+    end
+    
+    self < 0 ? ((-1*self)^(2**_width - 1)) + 1 : self
+  end
+  alias_method :twos_comp, :twos_complement
+  alias_method :twos_compliment, :twos_complement
 end
 
 if RUBY_VERSION <= '2.4.0'
