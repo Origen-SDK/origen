@@ -903,33 +903,40 @@ describe "Origen Pin API v3" do
     end
     
     it "can retrieve multiple pins" do
-      expect(dut.pins(:pta0, :pta1, :ptb1)).to include(
+      pins = dut.pins(:pta0, :pta1, :ptb1)
+      expect(pins).to include(
         dut.pins(:pta0),
         dut.pins(:pta1),
         dut.pins(:ptb1)
       )
+      expect(pins.size).to eql(3)
     end
     
     it "can search for pins if a Regexp is given" do
-      expect(dut.pins(/pta/)).to include(
+      pins = dut.pins(/pta/)
+      expect(pins).to include(
         dut.pins(:pta0),
         dut.pins(:pta1),
         dut.pins(:pta2)
       )
+      expect(pins.size).to eql(3)
     end
     
     it "combines results from multiple pin names and Regexp into a single return value" do
-      expect(dut.pins(/pta/, /ptc/, :ptd0)).to include(
+      pins = dut.pins(/pta/, /ptc/, :ptd0)
+      expect(pins).to include(
         dut.pins(:pta0),
         dut.pins(:pta1),
         dut.pins(:pta2),
         dut.pins(:ptc0),
         dut.pins(:ptd0)
       )
+      expect(pins.size).to eql(5)
     end
     
     it 'can accept a block as search condition' do
-      expect(dut.pins { |n, p| n.to_s.start_with?('pta') || n.to_s.end_with?('0') }).to include(
+      pins = dut.pins { |n, p| n.to_s.start_with?('pta') || n.to_s.end_with?('0') }
+      expect(pins).to include(
         dut.pins(:pta0),
         dut.pins(:pta1),
         dut.pins(:pta2),
@@ -937,10 +944,12 @@ describe "Origen Pin API v3" do
         dut.pins(:ptc0),
         dut.pins(:ptd0)
       )
+      expect(pins.size).to eql(6)
     end
     
     it 'combines a given block with other inputs' do
-      expect(dut.pins(/ptb/) { |n, p| n.to_s.start_with?('pta') || n.to_s.end_with?('0') }).to include(
+      pins = dut.pins(/ptb/) { |n, p| n.to_s.start_with?('pta') || n.to_s.end_with?('0') }
+      expect(pins).to include(
         dut.pins(:pta0),
         dut.pins(:pta1),
         dut.pins(:pta2),
@@ -949,6 +958,7 @@ describe "Origen Pin API v3" do
         dut.pins(:ptd0),
         dut.pins(:ptb1)
       )
+      expect(pins.size).to eql(7)
     end
     
     it 'raises an error if a pin name is given, even with multiple pins, and does not exists' do
