@@ -38,16 +38,24 @@ module Origen
       def current
         return nil if @temporary == :none
         return nil if @disabled
-        name = @temporary || @current ||= Origen.app.session.origen_core[:default_plugin]
+        name = @temporary || @current ||= begin
+          if Origen.app.session.origen_core[:default_plugin]
+            Origen.app.session.origen_core[:default_plugin]
+          elsif Origen.app.config.default_plugin && !Origen.app.session.origen_core[:default_plugin_cleared_by_user]
+            Origen.app.config.default_plugin
+          end
+        end
         find { |p| p.name.to_sym == name } if name
       end
 
       def current=(name)
         name = name.to_sym if name
-        Origen.app.session.origen_core[:default_plugin] = name
-        if name == :none
+        if name == :none || name.nil?
           @current = nil
+          Origen.app.session.origen_core[:default_plugin] = nil
+          Origen.app.session.origen_core[:default_plugin_cleared_by_user] = true
         else
+          Origen.app.session.origen_core[:default_plugin] = name
           @current = name
         end
       end

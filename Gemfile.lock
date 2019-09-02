@@ -21,16 +21,7 @@ GIT
       origen (>= 0.44.0)
       origen_testers (>= 0.21.0)
       origen_verilog (>= 0.6.2)
-  remote: https://github.com/Origen-SDK/origen_testers.git
-  revision: 11b9e1d9c06a1e2c16749065e79c547f7f03b1e7
-  specs:
-    origen_testers (0.40.0)
-      ast (~> 2)
-      origen (>= 0.44.0)
-      origen_stil (>= 0.2.1)
-      require_all (~> 1)
-      rodf (~> 1)
-      sexpistol (~> 0.0)
+
 PATH
   remote: .
   specs:
@@ -63,12 +54,13 @@ PATH
 PATH
   remote: /proj/k4l1_users1/b50956/origen_blocks/origen_testers
   specs:
-    origen_testers (0.30.0)
+    origen_testers (0.40.0)
       ast (~> 2)
       atp (~> 1.1, >= 1.1.3)
       origen (>= 0.44.0)
       origen_stil (>= 0.2.1)
       require_all (~> 1)
+      rodf (~> 1)
       sexpistol (~> 0.0)
       treetop
 
@@ -83,6 +75,10 @@ GEM
     ast (2.4.0)
     astrolabe (1.3.1)
       parser (~> 2.2)
+    atp (1.1.3)
+      ast (~> 2)
+      origen (>= 0.2.3)
+      sexpistol (~> 0.0)
     builder (3.2.3)
     byebug (8.2.5)
     coderay (1.1.2)

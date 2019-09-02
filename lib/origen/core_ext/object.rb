@@ -10,7 +10,7 @@ class Object
     end
     nil
   end
-  
+
   # Indicates whether the object is or can be used as an Origen subblock, where
   # being an Origen subblock is defined as inheriting from either {Origen::Model} or
   # {Origen::Controller}.
@@ -24,5 +24,4 @@ class Object
     self.class.ancestors.include?(Origen::Model) || self.class.ancestors.include?(Origen::Controller)
   end
   alias_method :origen_sub_block?, :origen_subblock?
-  
 end
