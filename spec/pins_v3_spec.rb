@@ -903,52 +903,52 @@ describe "Origen Pin API v3" do
     end
     
     it "can retrieve multiple pins" do
-      expect(dut.pins(:pta0, :pta1, :ptb1)).to eql([
+      expect(dut.pins(:pta0, :pta1, :ptb1)).to include(
         dut.pins(:pta0),
         dut.pins(:pta1),
-        dut.pins(:ptb1),
-      ])
+        dut.pins(:ptb1)
+      )
     end
     
     it "can search for pins if a Regexp is given" do
-      expect(dut.pins(/pta/)).to eql([
+      expect(dut.pins(/pta/)).to include(
         dut.pins(:pta0),
         dut.pins(:pta1),
-        dut.pins(:pta2),
-      ])
+        dut.pins(:pta2)
+      )
     end
     
     it "combines results from multiple pin names and Regexp into a single return value" do
-      expect(dut.pins(/pta/, /ptc/, :ptd0)).to eql([
+      expect(dut.pins(/pta/, /ptc/, :ptd0)).to include(
         dut.pins(:pta0),
         dut.pins(:pta1),
         dut.pins(:pta2),
         dut.pins(:ptc0),
-        dut.pins(:ptd0),
-      ])
+        dut.pins(:ptd0)
+      )
     end
     
     it 'can accept a block as search condition' do
-      expect(dut.pins { |n, p| n.to_s.start_with?('pta') || n.to_s.end_with?('0') }).to eql([
+      expect(dut.pins { |n, p| n.to_s.start_with?('pta') || n.to_s.end_with?('0') }).to include(
         dut.pins(:pta0),
         dut.pins(:pta1),
         dut.pins(:pta2),
         dut.pins(:ptb0),
         dut.pins(:ptc0),
-        dut.pins(:ptd0),
-      ])
+        dut.pins(:ptd0)
+      )
     end
     
     it 'combines a given block with other inputs' do
-      expect(dut.pins(/ptb/) { |n, p| n.to_s.start_with?('pta') || n.to_s.end_with?('0') }).to eql([
+      expect(dut.pins(/ptb/) { |n, p| n.to_s.start_with?('pta') || n.to_s.end_with?('0') }).to include(
         dut.pins(:pta0),
         dut.pins(:pta1),
         dut.pins(:pta2),
         dut.pins(:ptb0),
         dut.pins(:ptc0),
         dut.pins(:ptd0),
-        dut.pins(:ptb1),
-      ])
+        dut.pins(:ptb1)
+      )
     end
     
     it 'raises an error if a pin name is given, even with multiple pins, and does not exists' do
@@ -963,42 +963,52 @@ describe "Origen Pin API v3" do
     end
     
     it 'also searches through pin aliases' do
-      expect(dut.pins(/zero_index/)).to eql([
+      pins = dut.pins(/zero_index/)
+      expect(pins).to include(
         dut.pins(:pta0),
         dut.pins(:ptb0),
         dut.pins(:ptc0),
-        dut.pins(:ptd0),
-      ])
+        dut.pins(:ptd0)
+      )
+      expect(pins.size).to eql(4)
     end
     
     it 'can also search through power pins' do
-      expect(dut.power_pins(/VDD/)).to eql([
+      pins = dut.power_pins(/VDD/)
+      expect(pins).to include(
         dut.power_pin(:VDD),
-        dut.power_pin(:VDD_CORE),
-      ])
+        dut.power_pin(:VDD_CORE)
+      )
+      expect(pins.size).to eql(2)
     end
 
     it 'can also search through ground pins' do
-      expect(dut.ground_pins(/VSS/)).to eql([
+      pins = dut.ground_pins(/VSS/)
+      expect(pins).to include(
         dut.ground_pin(:VSS),
         dut.ground_pin(:VSS_CORE)
-      ])
+      )
+      expect(pins.size).to eql(2)
     end
 
     it 'can also search through virtual pins' do
-      expect(dut.virtual_pins(/ptv/)).to eql([
+      pins = dut.virtual_pins(/ptv/)
+      expect(pins).to include(
         dut.virtual_pins(:ptv0),
         dut.virtual_pins(:ptv1),
-        dut.virtual_pins(:ptv2),
-      ])
+        dut.virtual_pins(:ptv2)
+      )
+      expect(pins.size).to eql(3)
     end
 
     it 'can also search through other pins' do
-      expect(dut.other_pins(/pto/)).to eql([
+      pins = dut.other_pins(/pto/)
+      expect(pins).to include(
         dut.other_pins(:pto0),
         dut.other_pins(:pto1),
-        dut.other_pins(:pto2),
-      ])
+        dut.other_pins(:pto2)
+      )
+      expect(pins.size).to eql(3)
     end
   end
   
