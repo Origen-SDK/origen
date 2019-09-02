@@ -131,6 +131,7 @@ module Origen
           redefine_children.each { |model, set_name| Origen::Parameters.redefine(model, set_name) }
         end
       end
+      _parameter_sets[name]
     end
     alias_method :define_parameters, :define_params
 
