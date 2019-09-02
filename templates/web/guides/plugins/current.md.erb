@@ -74,4 +74,19 @@ load "#{Origen.root}/target/dut.rb"  # Load and instantiate the DUT
 Origen.app.plugins.temporary = :nvm_test
 ~~~
 
+### Providing A Default Plugin
+
+Applications can denote a _default plugin_, to be used when populated in a new
+workspace, by setting the configuration attribute `default_plugin`. This
+points to the name of the plugin which should be loaded in the absence of any
+user intervention:
+
+~~~ruby
+# Set the default plugin to OrigenTesters
+config.default_plugin = :origen_testers
+~~~
+
+Plugins can be set and reset as normal. Once the current plugin is reset, the
+default plugin will not be assessed again.
+
 % end
