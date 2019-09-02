@@ -82,7 +82,7 @@ describe "The plugins API" do
     cmd("origen core_support:test").should =~ /^This is a test command to test the command sharing capability of plugins/
   end
   
-  fcontext 'with a default plugin set by the application' do
+  context 'with a default plugin set by the application' do
     before(:context) do
       # Force the application's configuration to have a default plugin
       expect(Origen.app.config.default_plugin).to be(nil)
