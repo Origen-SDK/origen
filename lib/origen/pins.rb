@@ -762,7 +762,8 @@ If you meant to define the pin then use the add_pin method instead.
         if ids.size == 1 && !ids.first.is_a?(Regexp)
           pins.first
         else
-          options[:keep_duplicates] ? pins : pins.uniq
+          options[:keep_duplicates] ? pins : pins.uniq!
+          PinCollection.new(self, *pins, options)
         end
       else
         if options[:power_pin]

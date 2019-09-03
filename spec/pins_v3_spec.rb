@@ -904,6 +904,7 @@ describe "Origen Pin API v3" do
     
     it "can retrieve multiple pins" do
       pins = dut.pins(:pta0, :pta1, :ptb1)
+      expect(pins).to be_a(Origen::Pins::PinCollection)
       expect(pins).to include(
         dut.pins(:pta0),
         dut.pins(:pta1),
@@ -914,6 +915,7 @@ describe "Origen Pin API v3" do
     
     it "can search for pins if a Regexp is given" do
       pins = dut.pins(/pta/)
+      expect(pins).to be_a(Origen::Pins::PinCollection)
       expect(pins).to include(
         dut.pins(:pta0),
         dut.pins(:pta1),
@@ -924,6 +926,7 @@ describe "Origen Pin API v3" do
     
     it "combines results from multiple pin names and Regexp into a single return value" do
       pins = dut.pins(/pta/, /ptc/, :ptd0)
+      expect(pins).to be_a(Origen::Pins::PinCollection)
       expect(pins).to include(
         dut.pins(:pta0),
         dut.pins(:pta1),
@@ -936,6 +939,7 @@ describe "Origen Pin API v3" do
     
     it 'can accept a block as search condition' do
       pins = dut.pins { |n, p| n.to_s.start_with?('pta') || n.to_s.end_with?('0') }
+      expect(pins).to be_a(Origen::Pins::PinCollection)
       expect(pins).to include(
         dut.pins(:pta0),
         dut.pins(:pta1),
@@ -949,6 +953,7 @@ describe "Origen Pin API v3" do
     
     it 'combines a given block with other inputs' do
       pins = dut.pins(/ptb/) { |n, p| n.to_s.start_with?('pta') || n.to_s.end_with?('0') }
+      expect(pins).to be_a(Origen::Pins::PinCollection)
       expect(pins).to include(
         dut.pins(:pta0),
         dut.pins(:pta1),
@@ -968,12 +973,18 @@ describe "Origen Pin API v3" do
     end
     
     it 'returns an empty array if the given Regexp(s) yield to results' do
-      expect(dut.pins(/blah/)).to eql([])
-      expect(dut.pins(/blah0/, /blah1/)).to eql([])
+      pins = dut.pins(/blah/)
+      expect(pins).to be_a(Origen::Pins::PinCollection)
+      expect(pins.size).to eql(0)
+
+      pins = dut.pins(/blah0/, /blah1/)
+      expect(pins).to be_a(Origen::Pins::PinCollection)
+      expect(pins.size).to eql(0)
     end
     
     it 'also searches through pin aliases' do
       pins = dut.pins(/zero_index/)
+      expect(pins).to be_a(Origen::Pins::PinCollection)
       expect(pins).to include(
         dut.pins(:pta0),
         dut.pins(:ptb0),
@@ -985,6 +996,7 @@ describe "Origen Pin API v3" do
     
     it 'can also search through power pins' do
       pins = dut.power_pins(/VDD/)
+      expect(pins).to be_a(Origen::Pins::PinCollection)
       expect(pins).to include(
         dut.power_pin(:VDD),
         dut.power_pin(:VDD_CORE)
@@ -994,6 +1006,7 @@ describe "Origen Pin API v3" do
 
     it 'can also search through ground pins' do
       pins = dut.ground_pins(/VSS/)
+      expect(pins).to be_a(Origen::Pins::PinCollection)
       expect(pins).to include(
         dut.ground_pin(:VSS),
         dut.ground_pin(:VSS_CORE)
@@ -1003,6 +1016,7 @@ describe "Origen Pin API v3" do
 
     it 'can also search through virtual pins' do
       pins = dut.virtual_pins(/ptv/)
+      expect(pins).to be_a(Origen::Pins::PinCollection)
       expect(pins).to include(
         dut.virtual_pins(:ptv0),
         dut.virtual_pins(:ptv1),
@@ -1013,6 +1027,7 @@ describe "Origen Pin API v3" do
 
     it 'can also search through other pins' do
       pins = dut.other_pins(/pto/)
+      expect(pins).to be_a(Origen::Pins::PinCollection)
       expect(pins).to include(
         dut.other_pins(:pto0),
         dut.other_pins(:pto1),
