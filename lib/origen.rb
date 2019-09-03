@@ -150,6 +150,7 @@ unless defined? RGen::ORIGENTRANSITION
       def app(plugin = nil, _options = {})
         plugin, options = nil, plugin if plugin.is_a?(Hash)
         if plugin
+          load_application
           app = _applications_lookup[:name][plugin.to_sym]
           if app
             app
