@@ -78,15 +78,15 @@ class Integer
   alias_method :to_xlsx_col, :to_spreadsheet_column
   alias_method :to_spreadsheet_col, :to_spreadsheet_column
 
-  def twos_complement(width=nil)
+  def twos_complement(width = nil)
     _width = width || Integer.width
-    if self > 2**(_width-1) - 1
-      raise(RangeError, "Integer #{self} cannot fit into #{_width} bits with 2s complement encoding")
-    elsif self < -1 * (2**(_width-1))
-      raise(RangeError, "Integer #{self} cannot fit into #{_width} bits with 2s complement encoding")
+    if self > 2**(_width - 1) - 1
+      fail(RangeError, "Integer #{self} cannot fit into #{_width} bits with 2s complement encoding")
+    elsif self < -1 * (2**(_width - 1))
+      fail(RangeError, "Integer #{self} cannot fit into #{_width} bits with 2s complement encoding")
     end
-    
-    self < 0 ? ((-1*self)^(2**_width - 1)) + 1 : self
+
+    self < 0 ? ((-1 * self) ^ (2**_width - 1)) + 1 : self
   end
   alias_method :twos_comp, :twos_complement
   alias_method :twos_compliment, :twos_complement
