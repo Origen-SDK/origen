@@ -81,4 +81,49 @@ describe "The plugins API" do
   it "Shared commands work" do
     cmd("origen core_support:test").should =~ /^This is a test command to test the command sharing capability of plugins/
   end
+  
+  context 'with a default plugin set by the application' do
+    before(:context) do
+      # Force the application's configuration to have a default plugin
+      expect(Origen.app.config.default_plugin).to be(nil)
+      Origen.app.config.default_plugin = :origen_testers
+      expect(Origen.app.config.default_plugin).to eql(:origen_testers)
+      
+      @plugin = Origen.app.plugins.current ? Origen.app.plugins.current.name : nil
+      Origen.app.plugins.current = nil
+
+      @plugin_cleared = Origen.app.session.origen_core[:default_plugin_cleared_by_user]
+      Origen.app.session.origen_core[:default_plugin_cleared_by_user] = false
+
+      expect(Origen.app.plugins.instance_variable_get(:@current)).to be(nil)
+    end
+    
+    it "Uses the default plugin if the user hasn't manually cleared it" do
+      expect(Origen.app.plugins.current).to_not be(nil)
+      expect(Origen.app.plugins.current.name).to eql(:origen_testers)
+      expect(Origen.app.plugins.instance_variable_get(:@current)).to_not be(nil)
+    end
+    
+    it "Allows the user to override the default plugin, as normal" do
+      Origen.app.plugins.current = :origen_core_support
+      expect(Origen.app.plugins.current).to_not be(nil)
+      expect(Origen.app.plugins.current.name).to eql(:origen_core_support)
+    end
+    
+    it "Allows the user to clear the current plugin, as normal, but also disabling the default plugin" do
+      Origen.app.plugins.current = nil
+      Origen.app.session.origen_core[:default_plugin_cleared_by_user] = true
+      expect(Origen.app.plugins.current).to be(nil)
+      expect(Origen.app.plugins.instance_variable_get(:@current)).to be(nil)
+    end
+    
+    after(:context) do
+      # Remove the force
+      Origen.app.config.default_plugin = nil
+      expect(Origen.app.config.default_plugin).to be(nil)
+      
+      Origen.app.session.origen_core[:default_plugin_cleared_by_user] = @plugin_cleared
+      Origen.app.plugins.current = @plugin
+    end
+  end
 end

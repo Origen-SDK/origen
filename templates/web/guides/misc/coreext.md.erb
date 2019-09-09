@@ -72,6 +72,36 @@ things such as memory addresses, bit size, etc. that need to be modeled as numbe
 "8'hA6".is_verilog_number?  # => true
 ~~~
 
+##### Integer Width
+
+Origen adds an attribute to the `Integer` class: `width`. This width can be
+used throughout for various conversion or logical operators which require a
+known width of the input. By default, this is __32-bits__, but can be adjusted
+per Origen thread using `Integer.width=` and can always be retrieved from `Integer.width`.
+
+##### Twos Complement
+
+`Integer` instances can be converted to their twos-complement representations:
+
+~~~ruby
+-1.twos_complement
+  #=> <%= -1.twos_complement.to_s(2) %>
+
+-2.twos_complement
+  #=> <%= -2.twos_complement.to_s(2) %>
+~~~
+
+The default width is the value of `Integer.width`. Changes there will be reflected
+here as well. Alternatively, the width parameter can be provided directly:
+
+~~~ruby
+-1.twos_complement(8)
+  #=> <%= -1.twos_complement(8).to_s(2) %>
+
+-2.twos_complement(16)
+  #=> <%= -2.twos_complement(16).to_s(2) %>
+~~~
+
 #### Part Select
 
 Ruby does not natively support a Verilog style part select to allow the numeric value of a subset

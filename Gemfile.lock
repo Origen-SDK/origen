@@ -24,9 +24,9 @@ GIT
 
 GIT
   remote: https://github.com/Origen-SDK/origen_testers.git
-  revision: 11b9e1d9c06a1e2c16749065e79c547f7f03b1e7
+  revision: 8bbc7885051a5b0e6a200fc4a2c143db08357c41
   specs:
-    origen_testers (0.40.0)
+    origen_testers (0.41.0)
       ast (~> 2)
       origen (>= 0.44.0)
       origen_stil (>= 0.2.1)
