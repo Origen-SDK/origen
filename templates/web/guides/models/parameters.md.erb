@@ -270,11 +270,14 @@ end
 
 define_params :soc, inherit: [:set1, :set2] do |params, parents|
   params.spec_c = 100.mV
+  # The parents is a Hash in this case if you need to reference upstream values:
+  #   parents  =>  { set1: <param set1>, set2: <param set2> }
+  params.spec_b = parents[:set2].spec_b * 2
 end
 
 params = :soc
 params.spec_a     # => 10.uA
-params.spec_b     # => 2.5
+params.spec_b     # => 5.0
 params.spec_c     # => 100.mV
 ~~~
 
