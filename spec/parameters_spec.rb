@@ -381,5 +381,75 @@ module ParametersSpec
       param_set_return_value.class.should == Origen::Parameters::Set
       param_set_return_value.should == dut.params(:return_self)
     end
+
+    it "mutiple inheritance works" do
+      class IP4
+        include Origen::Model
+
+        def initialize
+          define_params :a do |params|
+            params.a = 20
+            params.b = 11
+          end
+
+          define_params :b do |params|
+            params.a = 30
+            params.c = 22
+          end
+
+          define_params :c1, inherit: [:a, :b] do |params|
+          end
+
+          define_params :c2, inherit: [:b, :a] do |params|
+          end
+
+          define_params :c3, inherit: [:a, :b] do |params, parents|
+            params.a = 40
+            params.d = 33
+            params.e = parents[:a].a + parents[:b].a
+          end
+
+          define_params :c4, inherit: [:a, :b, 'dut.default'] do |params, parents|
+            params.a = 40
+            params.d = 33
+            params.e = parents[:a].a + parents['dut.default'].erase.time
+          end
+        end
+      end
+
+      ip = IP4.new
+      ip.params = :a
+      ip.params.a.should == 20
+      ip.params.b.should == 11
+
+      ip.params = :b
+      ip.params.a.should == 30
+      ip.params.c.should == 22
+
+      ip.params = :c1
+      ip.params.a.should == 30
+      ip.params.b.should == 11
+      ip.params.c.should == 22
+
+      ip.params = :c2
+      ip.params.a.should == 20
+      ip.params.b.should == 11
+      ip.params.c.should == 22
+
+      ip.params = :c3
+      ip.params.a.should == 40
+      ip.params.b.should == 11
+      ip.params.c.should == 22
+      ip.params.d.should == 33
+      ip.params.e.should == 50
+
+      ip.params = :c4
+      ip.params.a.should == 40
+      ip.params.b.should == 11
+      ip.params.c.should == 22
+      ip.params.d.should == 33
+      ip.params.e.should == 24
+      ip.params.vdd.min.should == 0.8
+    end
   end
 end
