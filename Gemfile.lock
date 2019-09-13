@@ -80,7 +80,7 @@ GEM
       origen (>= 0.2.3)
       sexpistol (~> 0.0)
     builder (3.2.3)
-    byebug (11.0.1)
+    byebug (10.0.2)
     coderay (1.1.2)
     colored (1.2)
     colorize (0.8.1)
@@ -196,7 +196,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  byebug
+  byebug (~> 10)
   coveralls
   loco
   nokogiri (= 1.8.5)
