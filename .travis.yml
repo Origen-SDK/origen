@@ -1,10 +1,19 @@
 language: ruby
-rvm:
-  - 2.2.2
-  - 2.4.0
-  - 2.5.3
+matrix:
+  include:
+    - rvm: 2.2.2
+      env: BUNDLER_OP=NONE
+    - rvm: 2.4.0
+      env: BUNDLER_OP=DOWNGRADE
+    - rvm: 2.5.3
+      env: BUNDLER_OP=UPGRADE
+before_install:
+  - if [ "$BUNDLER_OP" = "UPGRADE" ]; then gem update --system; fi
+  - if [ "$BUNDLER_OP" = "UPGRADE" ]; then gem install bundler; fi
+  - if [ "$BUNDLER_OP" = "DOWNGRADE" ]; then gem uninstall -v '>= 2' -i $(rvm gemdir)@global -ax bundler || true; fi
+  - if [ "$BUNDLER_OP" = "DOWNGRADE" ]; then gem install bundler -v '< 2'; fi
+  - if [ "$BUNDLER_OP" = "NONE" ]; then gem install bundler; fi
 script:
-  - gem install bundler
   - bundle exec origen -v
   - bundle exec origen m debug
   - bundle exec origen test -c
