@@ -2,17 +2,16 @@ language: ruby
 matrix:
   include:
     - rvm: 2.2.2
-      env: BUNDLER_OP=NONE
+      env: BUNDLER_DOWNGRADE=1
     - rvm: 2.4.0
-      env: BUNDLER_OP=DOWNGRADE
+      env: BUNDLER_DOWNGRADE=1
     - rvm: 2.5.3
-      env: BUNDLER_OP=UPGRADE
+      env: BUNDLER_UPGRADE=1
 before_install:
-  - if [ "$BUNDLER_OP" = "UPGRADE" ]; then gem update --system; fi
-  - if [ "$BUNDLER_OP" = "UPGRADE" ]; then gem install bundler; fi
-  - if [ "$BUNDLER_OP" = "DOWNGRADE" ]; then gem uninstall -v '>= 2' -i $(rvm gemdir)@global -ax bundler || true; fi
-  - if [ "$BUNDLER_OP" = "DOWNGRADE" ]; then gem install bundler -v '< 2'; fi
-  - if [ "$BUNDLER_OP" = "NONE" ]; then gem install bundler; fi
+  - sh -c "if [ '$BUNDLER_UPGRADE' = '1' ]; then gem update --system; fi"
+  - sh -c "if [ '$BUNDLER_UPGRADE' = '1' ]; then gem install bundler; fi"
+  - sh -c "if [ '$BUNDLER_DOWNGRADE' = '1' ]; then gem uninstall -v '>= 2' -i $(rvm gemdir)@global -ax bundler || true; fi"
+  - sh -c "if [ '$BUNDLER_DOWNGRADE' = '1' ]; then gem install bundler -v '< 2'; fi"
 script:
   - bundle exec origen -v
   - bundle exec origen m debug
