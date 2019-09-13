@@ -7,17 +7,22 @@ title: Origen - Guides
 %# Add/edit sections here, the code below will expand this with the correct markup,
 %# pass in the topic you want selected via the :tab option.
 % i = OrigenDocHelpers::GuideIndex.new
-% i.section :starting, heading: "Getting Started with Origen" do |section|
+% i.section :installation, heading: "Installing Origen" do |section|
 %   section.page :introduction, heading: "Introduction"
-%   section.page :core, heading: "Core concepts"
 %   section.page :installing, heading: "How to Install"
 %   section.page :installwin, heading: "How to Install (Windows)"
 %   section.page :company, heading: "Company Customization"
 %   section.page :gems, heading: "Understanding Gems"
-%   section.page :app, heading: "Creating a New App"
 %   section.page :invoking, heading: "Invoking Considerations"
-%   section.page :commit, heading: "The Initial Commit"
 %   section.page :workspace, heading: "Workspace Management"
+% end
+% i.section :starting, heading: "Getting Started with Origen" do |section|
+%   section.page :core, heading: "Core concepts"
+%   section.page :app, heading: "Creating a New App"
+%   section.page :directory, heading: "Directory Structure"
+%   section.page :commit, heading: "The Initial Commit"
+%   section.page :files, heading: "Creating New Files"
+%   section.page :blocks, heading: "Understanding Blocks"
 %   section.page :architecture, heading: "Application Architecture"
 % end
 % i.section :runtime, heading: "Runtime Environment" do |section|
@@ -61,6 +66,12 @@ title: Origen - Guides
 %   section.page :shadow, heading: "Shadow Controllers"
 %   section.page :direct, heading: "Direct Controllers"
 % end
+% # OrigenTesters owns the pattern pages now, but the concurrency API is mostly
+% # implemented in Origen core, so we'll keep the guide page for this in here and
+% # insert it at the end of the pattern section
+% i.section :pattern do |section|
+%   section.page :concurrent, heading: "Concurrent Patterns", after: :running
+% end
 % i.section :documentation, heading: "Documentation Generator" do |section|
 %   section.page :introduction, heading: "Introduction"
 %   section.page :markdown, heading: "Markdown"
@@ -74,12 +85,11 @@ title: Origen - Guides
 %   section.page :introduction, heading: "Introduction"
 %   section.page :importing, heading: "Using a Plugin"
 %   section.page :creating, heading: "Creating a Plugin"
-%   section.page :current, heading: "Current Plugin"
+%   section.page :current, heading: "Current & Default Plugins"
 %   section.page :environment, heading: "Dev Environment"
 %   section.page :development, heading: "Dev Considerations"
 %   section.page :paths, heading: "Paths & Origen.root"
 %   section.page :app, heading: "Config & Origen.app"
-%   section.page :misc, heading: "Miscellaneous Topics"
 % end
 % i.section :misc, heading: "Miscellaneous" do |section|
 %   section.page :revisioncontrol, heading: "Revision Control"
@@ -95,6 +105,7 @@ title: Origen - Guides
 %   section.page :commandsov, heading: "Overriding Commands"
 %   section.page :callbacks, heading: "Callbacks"
 %   section.page :appcallbacks, heading: "Application Callbacks"
+%   section.page :misc, heading: "Miscellaneous Topics"
 % end
 % i.section :advanced, heading: "Advanced Topics" do |section|
 %   section.page :introduction, heading: "Introduction"

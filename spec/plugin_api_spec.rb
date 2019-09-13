@@ -52,21 +52,13 @@ describe "The plugins API" do
     Origen.app.plugins.current.should_not == nil
   end
 
-  it "methods can be overridden by the application" do
-    $nvm.override_method.should == :overridden
-  end
-
-  it "methods can be added by the application" do
-    $nvm.added_method.should == :added
-  end
-
   it "Origen.root references within a plugin mean the top-level app root" do
     Origen.root.should == $dut.origen_dot_root
   end
 
   it "Origen.root! references within a plugin mean the plugin root" do
     Origen.root.should_not == $dut.origen_dot_root!
-    File.exist?("#{$dut.origen_dot_root!}/lib/c99/block.rb").should == true
+    File.exist?("#{$dut.origen_dot_root!}/app/lib/origen_core_support/block.rb").should == true
   end
 
   it "Origen.root! references within a top level app are equivalent to Origen.root" do
@@ -79,7 +71,7 @@ describe "The plugins API" do
 
   it "Origen.app! references within a plugin mean the plugin app" do
     Origen.app.should_not == $dut.origen_dot_root!
-    File.exist?("#{$dut.origen_dot_app!.root}/lib/c99/block.rb").should == true
+    File.exist?("#{$dut.origen_dot_app!.root}/app/lib/origen_core_support/block.rb").should == true
   end
 
   it "Origen.app! references within a top level app are equivalent to Origen.app" do
@@ -88,5 +80,50 @@ describe "The plugins API" do
 
   it "Shared commands work" do
     cmd("origen core_support:test").should =~ /^This is a test command to test the command sharing capability of plugins/
+  end
+  
+  context 'with a default plugin set by the application' do
+    before(:context) do
+      # Force the application's configuration to have a default plugin
+      expect(Origen.app.config.default_plugin).to be(nil)
+      Origen.app.config.default_plugin = :origen_testers
+      expect(Origen.app.config.default_plugin).to eql(:origen_testers)
+      
+      @plugin = Origen.app.plugins.current ? Origen.app.plugins.current.name : nil
+      Origen.app.plugins.current = nil
+
+      @plugin_cleared = Origen.app.session.origen_core[:default_plugin_cleared_by_user]
+      Origen.app.session.origen_core[:default_plugin_cleared_by_user] = false
+
+      expect(Origen.app.plugins.instance_variable_get(:@current)).to be(nil)
+    end
+    
+    it "Uses the default plugin if the user hasn't manually cleared it" do
+      expect(Origen.app.plugins.current).to_not be(nil)
+      expect(Origen.app.plugins.current.name).to eql(:origen_testers)
+      expect(Origen.app.plugins.instance_variable_get(:@current)).to_not be(nil)
+    end
+    
+    it "Allows the user to override the default plugin, as normal" do
+      Origen.app.plugins.current = :origen_core_support
+      expect(Origen.app.plugins.current).to_not be(nil)
+      expect(Origen.app.plugins.current.name).to eql(:origen_core_support)
+    end
+    
+    it "Allows the user to clear the current plugin, as normal, but also disabling the default plugin" do
+      Origen.app.plugins.current = nil
+      Origen.app.session.origen_core[:default_plugin_cleared_by_user] = true
+      expect(Origen.app.plugins.current).to be(nil)
+      expect(Origen.app.plugins.instance_variable_get(:@current)).to be(nil)
+    end
+    
+    after(:context) do
+      # Remove the force
+      Origen.app.config.default_plugin = nil
+      expect(Origen.app.config.default_plugin).to be(nil)
+      
+      Origen.app.session.origen_core[:default_plugin_cleared_by_user] = @plugin_cleared
+      Origen.app.plugins.current = @plugin
+    end
   end
 end

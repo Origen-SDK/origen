@@ -1,0 +1,354 @@
+% render "layouts/guides.html", heading: "Workspace and Dependency Management" do
+
+This guide provides advice on how to create new application workspaces and how to
+safely update your application's dependencies.
+
+This advice is particularly critical when running in a corporate Linux environment where
+the Linux distribution is older and/or you don't have permission to write to the
+system Ruby installation.
+
+#### Creating a New Workspace
+
+Creating a new workspace means setting up an existing application within a new directory
+for the first time.
+
+The most important thing to remember in this case is to **always run <code>origen -v</code>
+as the first step after importing the application files from your revision control system.**
+
+Doing this ensures that Origen provides some basic configuration of [Bundler](<%= path "guides/installation/gems" %>)
+which will ensure that it runs well within a restricted corporate environment.
+
+After doing this for the first time, you can then safely run the <code>bundle</code> command
+directly if you want to.
+
+#### Updating Dependencies
+
+Updating dependencies means changing the version of a given gem/plugin within your Gemfile
+or .gemspec.
+
+In some cases (depending on what gems you already have installed locally), you can simply make
+the edit and then continue running the <code>origen</code> command without any problems.
+
+If you don't already have the gem version installed locally, you may get a [Bundler](<%= path "guides/installation/gems" %>)
+error which may or may not clearly describe the problem.
+
+In most cases, this can be resolve by running the following command, telling Bundler which gem you
+just changed the version of:
+
+~~~text
+> bundle update <gem_name>
+
+// For example, say you just changed the version of the origen_testers gem, then run:
+> bundle update origen_testers
+~~~
+
+If that doesn't work, then the following command will completely re-build your gem bundle and pull in the
+latest versions of all gems which satisfy the rules defined in your Gemfile, solving any dependency conflict
+issues in the process:
+
+~~~text
+> bundle update
+~~~
+
+### Workspace Size Considerations
+
+By default, all downloaded dependencies are placed in the <code>home_dir</code>, which is likely pointing to
+<code>~/.origen/gems</code>. However, gems can be large,
+and bigger projects (or working on several unrelated projects) means that the <code>gems</code> directory can
+quickly swell in size. This can be problematic particularly on corporate Linux systems, which usually do not
+have sufficient home directories to handle the size and quantity of gems we are dealing with. There are a few
+ways to deal with this.
+
+#### Bundle Clean
+
+Bundler comes with its own clean-up command. Running <code>bundle clean</code> when inside
+of an application will remove all of the 'unused' gems currently taking up space, where 'unused' gems are defined
+as gems not currently being used by the <u>current</u> application. This can be a quick solution if you know that you have
+several old, outdated gems that will likely never be used again. The only down side being other applications
+will require you to reinstall gems that running <code>bundle clean</code> deleted.
+
+You can see bundler's own documentation on this feature by running <code>bundler clean -h</code> at your
+console, or be visiting the [bundler docs](https://bundler.io/v1.16/man/bundle-clean.1.html).
+
+##### Relocating Your Gems
+
+Individually, you can control where your gems are installed by using either the [site configs](<%= path "guides/installation/company/" %>),
+or by setting an <code>environment variable</code>. This will build or rebuild all of your gems at that
+location, which is generally a project drive or somewhere else where space is less of an issue.
+
+You can set the site config variable <code>user_gem_dir</code> to point to the new location that you
+wish your gems to be installed at. Alternatively, you can set the <code>environment variable</code>
+<code>ORIGEN_USER_GEM_DIR</code> to accomplish the same in a more 'linux-like' way. Recall from the
+[site config page](<%= path "guides/installation/company/" %>) that environment variables will overrule
+site config variables.
+
+<div class="alert alert-info">
+  <strong>Info!</strong> This will only move the location of the downloaded gems. It will not change the
+  full install directory, meaning that your <a href='<%= path "guides/misc/session/" %>'>Origen session</a>, 
+  logs, and <a href='<%= path "guides/installation/invoking/" %>'>global Gemfile</a> will stay in your <code>home_dir</code>.
+  These items are small, and should not fill up even a minimal, corporate Linux home directory. For details on
+  moving this as well, please see the <a href='<%= path "guides/advanced/invocations/" %>'>advanced topic here</a>.
+</div>
+
+<div class="alert alert-warning">
+  <strong>Warning!</strong> If you are doing this inside of an application, you will need to remove the
+  <code>.bundle</code> and <code>lbin</code> directories to see this take effect. These store links and
+  configuration settings to your original gems directory. Don't worry though, Origen will rebuid them for you,
+  with the updated gem directory this time.
+</div>
+
+<div class="alert alert-warning">
+  <strong>Deprecation Warning!</strong> To support older applications, the site variable <code>gem_install_dir</code>
+  and its <code>environment variable</code> counterpart <code>ORIGEN_GEM_INSTALL_DIR</code> are still valid. However, these fulfill the same
+  purpose as <code>user_gem_dir</code>, with <code>user_gem_dir</code> taking precedence.
+</div>
+
+#### Tool Repo (TR) Directories
+
+Origen supports setting up <code>Tool Repository</code> gem builds. This is considered an advance topic, and can
+be difficult to implement unless you are familiar with Origen's boot process and site configs, but it mentioned
+here as being an effective means for advanced users or project managers to oversee a group of user's gem
+install directories. For additional details, please see the 
+[advanced topic on invoking Origen](<%= path "guides/advanced/invocations/#Site_Config_For_Toolset_Installations" %>).
+
+### Configuring the Home Directory Location
+
+The previous section is an example of using the site config to manage your <code>gems</code> workspace. However,
+there's more to the workspace than just the <code>gems</code> directory.
+
+The workspace is divided into three sections:
+
+1. The Origen Home Directory: Essentially Origen's scratch space.
+2. The User's Installation Directory: Location where user installation customizations can be found.
+3. The User Gem Directory: Location to install the gems.
+
+The above list is a top-down listing of the sections, but we'll actually discuss in detail from the bottom-up view.
+Each of the sections can be customized using the [site config](<%= path "guides/installation/company/" %>).
+
+#### Evaluating Paths
+
+Before we get started, the variables <code>user_gem_dir</code>, <code>user_install_dir</code>, and <code>home_dir</code>
+will be evaluated as <code>paths</code>, meaning that there's some magic that happens between what you type into the
+site config, and what actually gets used. This involves:
+
+* The <code>~</code> means <code>username</code>. For example, if I'm logged in as <code>coreyeng</code>, the path
+<code>/proj/~/my_origen</code> becomes <code>/proj/coreyeng/my_origen</code>.
+* The path is evaluated per Ruby's <a href='https://ruby-doc.org/core-2.3.1/File.html#method-c-expand_path'>File.expand_path</a>.
+Meaning that a leading <code>~/</code> becomes
+<code>/home/coreyeng</code> or <code>C:/users/coreyeng</code> (or whatever your OS evaluates <code>~/</code> to).
+* Not starting the path with either <code>~/</code> or <code>/</code> is a relative path, where the current path is
+prepended. For example, running from <code>/proj/my_project</code> and using <code>origen/~</code> becomes
+<code>/proj/my_project/origen/coreyeng</code>.
+* You can escape the <code>~</code> using the <code>\</code> symbol.
+* If the path provided already ends with the <code>append_dot_origen</code> or <code>append_gems</code>, then those
+will not be reapplied (<code>append_dot_origen</code> and <code>append_gems</code> will be covered in the next section).
+
+#### User Gem Directory
+
+The <code>user gem directory</code> indicates where the gems should be installed. Moving this directory around will
+change where <code>Bundler</code> places all of your gems.
+
+There are three site config variables to consider. Below are those variables as well as some examples of how to use them.
+
+<strong>Default:</strong> If no <code>user_gem_dir</code> is specified, the gem directory falls back to <code>home_dir</code>.
+
+~~~yaml
+# By default, user_gem_dir defaults to wherever the home directory is.
+# origen_site_config.yml
+append_dot_origen: true # Appends .origen to the path
+append_gems: true       # Appends gems to the path
+~~~
+
+~~~ruby
+# In interactive session
+Origen.site_config.user_gem_dir #=> '/home/<username>/.origen/gems'
+~~~
+
+##### Move the user_gem_dir
+
+~~~yaml
+# origen_site_config.yml
+user_gem_dir: /proj/my_gems/
+append_dot_origen: true
+append_gems: true
+~~~
+
+~~~ruby
+# In interactive session
+Origen.site_config.user_gem_dir #=> '/proj/my_gems/.origen/gems'
+~~~
+
+##### Set append_dot_origen and append_gems to false to have them removed
+
+~~~yaml
+# origen_site_config.yml
+user_gem_dir: /proj/my_gems/~
+append_dot_origen: false
+append_gems: false
+~~~
+
+~~~ruby
+# In interactive session
+Origen.site_config.user_gem_dir #=> '/proj/my_gems/<username>'
+~~~
+
+##### Set append_dot_origen and append_gems to custom values to have the moved
+
+~~~yaml
+# origen_site_config.yml
+user_gem_dir: /proj/my_gems/
+append_dot_origen: my_workspace
+append_gems: .my_gems
+~~~
+
+~~~ruby
+# In interactive session
+Origen.site_config.user_gem_dir #=> '/proj/my_gems/my_workspace/.my_gems'
+~~~
+
+To review quickly, you can move the install directory for the gems by moving </code>user_gem_dir</code>. By default,
+this will automatically append <code>.origen/gems</code> to the directory path, unless <code>append_dot_origen</code>
+and <code>append_gems</code> specify otherwise.
+
+<div class="alert alert-warning">
+  <strong>Deprecation Warning!</strong> This warning from the previous section is repeated here:
+  To support older applications, the site variable <code>gem_install_dir</code>
+  and its <code>environment variable</code> counterpart <code>ORIGEN_GEM_INSTALL_DIR</code> are still valid. However, these fulfill the same
+  purpose as <code>user_gem_dir</code>, with <code>user_gem_dir</code> taking precedence.
+</div>
+
+#### User Installation Directory
+
+The <code>user_install_dir</code> indicates where the user's customization settings are located. Right now, this
+only includes where the global <code>Gemfile</code> can be located, but <code>site configs</code> can also be
+located there. Future user customization settings will also use this directory location.
+
+<strong>Default:</strong> If no <code>user_install_dir</code> is specified, the <code>home_dir</code> is used instead.
+
+~~~yaml
+# Default
+# origen_site_config.yml
+append_dot_origen: true # Appends .origen to the path.
+~~~
+
+~~~ruby
+# In interactive session
+Origen.site_config.user_install_dir #=> '/home/<username>/.origen'
+~~~
+
+##### Move the user_install_dir
+
+~~~yaml
+append_dot_origen: true
+user_install_dir: /proj/~/install
+~~~
+
+~~~ruby
+# In interactive session
+Origen.site_config.user_install_dir #=> '/proj/<username>/install/.origen'
+~~~
+
+##### Disable appending .origen
+
+~~~yaml
+# Note this also affects the user_gem_dir
+append_dot_origen: false
+user_install_dir: /proj/~/install
+~~~
+
+~~~ruby
+# In interactive session
+Origen.site_config.user_install_dir #=> '/proj/<username>/install'
+Origen.site_config.user_gem_dir #=> '/proj/<username>/install/gems'
+~~~
+
+##### Customize the appended directory
+
+~~~yaml
+# Note this also affects the user_gem_dir
+append_dot_origen: my_origen
+user_install_dir: /proj/~/install
+~~~
+
+~~~ruby
+# In interactive session
+Origen.site_config.user_install_dir #=> '/proj/<username>/install/my_origen'
+Origen.site_config.user_gem_dir #=> '/proj/<username>/install/my_origen/gems'
+~~~
+
+#### Home Directory
+
+The <code>home_dir</code> takes care of everything else. In general, this acts as Origen's scratch space. For example,
+the <code>LSF logs</code> and the <code>global session</code> are stored in this location.
+
+<strong>Default</strong>: if no <code>home_dir</code> is specified, it defaults to <code>~/<code>, which will be expand
+to your home directory (for example, <code>/home/coreyeng</code> on Linux, or <code>C:\users\coreyeng</code> on
+Windows).
+
+<code>home_dir</code> is also the topmost path. So, if <code>user_install_dir</code> and/or <code>user_gem_dir</code>
+are not defined, they default back to <code>home_dir</code>.
+
+##### If no home_dir is specified, ~/ is used
+
+~~~ruby
+# Default
+
+# In interactive session
+Origen.site_config.home_dir #=> '/home/<username>/.origen'
+Origen.site_config.user_install_dir #=> '/home/<username>/.origen'
+Origen.site_config.user_gem_dir #=> '/home/<username>/.origen/gems'
+~~~
+
+##### Move the home_dir
+
+~~~yaml
+# origen_site_config.yml
+home_dir: /proj/origens/~
+~~~
+
+~~~ruby
+# In interactive session
+Origen.site_config.home_dir #=> '/proj/origens/<username>/.origen'
+Origen.site_config.user_install_dir #=> '/proj/origens/<username>/.origen'
+Origen.site_config.user_gem_dir #=> '/proj/origens/<username>/.origen/gems'
+~~~
+
+##### Move the home_dir and disable append_dot_origen
+
+~~~yaml
+# origen_site_config.yml
+home_dir: /proj/origens/~
+append_dot_origen: false
+~~~
+
+~~~ruby
+# In interactive session
+Origen.site_config.home_dir #=> '/proj/origens/<username>'
+Origen.site_config.user_install_dir #=> '/proj/origens/<username>'
+Origen.site_config.user_gem_dir #=> '/proj/origens/<username>/gems'
+~~~
+
+##### Move the home_dir and change append_dot_origen
+
+~~~yaml
+# origen_site_config.yml
+home_dir: /proj/origens/~
+append_dot_origen: .my_origen
+~~~
+
+~~~ruby
+# In interactive session
+Origen.site_config.home_dir #=> '/proj/origens/<username>/.my_origen'
+Origen.site_config.user_install_dir #=> '/proj/origens/<username>/.my_origen'
+Origen.site_config.user_gem_dir #=> '/proj/origens/<username>/.my_origen/gems'
+~~~
+
+#### Closing Thoughts
+
+The purpose of having all these site configs variables is to allow full customization when desired, but be able to simplify
+common usages. For example, if you want to move your entire <code>.origen</code> from your home directory to some
+project directory, you only need to move <code>home_dir</code>. Everything else will go with it. But, if you want to
+leave your custom user setup and be able to get all the logs and global session in your home directory but just move
+where all your gems are stored, you can do that too.
+
+% end

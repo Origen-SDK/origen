@@ -21,7 +21,7 @@ generators regardless of the base Origen version that this command is being laun
 
 See the website for more details:
 
-http://origen-sdk.org/origen_app_generators
+https://origen-sdk.org/origen_app_generators
 
 Usage: origen new [APP_NAME] [options]
 END
@@ -65,12 +65,12 @@ end
 generators = [['https://rubygems.org', 'origen_app_generators']] + Array(Origen.site_config.app_generators)
 
 def use_packaged_generators
+  puts "Using origen_app_generators that was packaged with Origen #{Origen.version}"
   FileUtils.cp_r Origen.top.join('origen_app_generators').to_s, '.'
   FileUtils.mv 'origen_app_generators', '0'
 end
 
 if update_required
-  puts 'Fetching the latest app generators...'
   FileUtils.rm_rf(generators_dir) if File.exist?(generators_dir)
   FileUtils.mkdir_p(generators_dir)
 
@@ -79,13 +79,18 @@ if update_required
       # If a reference to a gem from a gem server
       if gen.is_a?(Array)
         begin
+          print "Determining the latest version of #{gen[1]}..."
           response = HTTParty.get("#{gen[0]}/api/v1/dependencies.json?gems=#{gen[1]}", timeout: 2)
 
           if response.success?
             latest_version = JSON.parse(response.body).map { |v| v['number'] }.max
+            puts latest_version.to_s
 
-            response = HTTParty.get("#{gen[0]}/gems/#{gen[1]}-#{latest_version}.gem", timeout: 5)
+            url = "#{gen[0]}/gems/#{gen[1]}-#{latest_version}.gem"
+            print "Fetching #{url}..."
+            response = HTTParty.get(url, timeout: 5)
             if response.success?
+              puts 'SUCCESS'
               File.open("#{gen[1]}-#{latest_version}.gem", 'wb') do |f|
                 f.write response.parsed_response
               end
@@ -94,36 +99,45 @@ if update_required
               FileUtils.rm_rf("#{gen[1]}-#{latest_version}.gem")
               FileUtils.mv("#{gen[1]}-#{latest_version}", i.to_s)
             else
+              puts 'FAILED'
               use_packaged_generators if i == 0
             end
           else
+            puts 'FAILED'
             use_packaged_generators if i == 0
           end
         rescue
+          puts 'FAILED'
           use_packaged_generators if i == 0
         end
 
       # If a reference to a git repo
       elsif gen.to_s =~ /\.git$/
         begin
+          print "Fetching #{gen}..."
           Origen::RevisionControl.new(remote: gen, local: i.to_s).checkout(version: 'master', force: true)
+          puts 'SUCCESS'
         rescue
-          # Better for the user not to crash here, not much we can do otherwise
+          puts 'FAILED'
         end
 
       # Assume a reference to a folder
       else
         begin
           FileUtils.cp_r(gen, i.to_s) if File.exist?(gen)
+          puts 'SUCCESS'
         rescue
-          # Better for the user not to crash here, not much we can do otherwise
+          puts 'FAILED'
         end
       end
     end
 
     Origen.session.app_generators[generators_dir] = Time.now
   end
+else
+  puts 'Using cached app generators, run again with -f if you want to force a refresh'
 end
+puts
 
 generators.each_with_index do |gen, i|
   lib = "#{generators_dir}/#{i}/lib"

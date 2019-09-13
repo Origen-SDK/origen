@@ -40,7 +40,7 @@ class OrigenCoreApplication < Origen::Application
   
   config.web_directory = "https://github.com/Origen-SDK/Origen-SDK.github.io.git/origen"
   #config.web_directory = "git@github.com:Origen-SDK/Origen-SDK.github.io.git/origen"
-  config.web_domain = "http://origen-sdk.org/origen"
+  config.web_domain = "https://origen-sdk.org/origen"
   
   config.pattern_prefix = "nvm"
 
@@ -79,13 +79,13 @@ class OrigenCoreApplication < Origen::Application
     iterator.key = :by_block
 
     iterator.loop do |&pattern|
-      $nvm.blocks.each do |block|
+      dut.nvm.blocks.each do |block|
         pattern.call(block)
       end
     end
 
     iterator.setup do |block|
-      blk = $nvm.find_block_by_id(block.id)
+      blk = dut.nvm.find_block_by_id(block.id)
       blk.select
       blk
     end

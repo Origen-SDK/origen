@@ -13,6 +13,7 @@ unless defined? RGen::ORIGENTRANSITION
   $_origen_invocation_pwd ||= Pathname.pwd
   require 'fileutils'
   # Force these to re-load since they could have been loaded from an earlier version of Origen during boot
+  load 'origen/loader.rb'
   load 'origen/site_config.rb'
   load 'origen/operating_systems.rb'
   require 'origen/core_ext'
@@ -25,10 +26,12 @@ unless defined? RGen::ORIGENTRANSITION
   require 'origen/remote_manager'
   require 'origen/utility'
   require 'origen/logger_methods'
-  require 'option_parser/optparse'
+  require 'origen/core_ext/option_parser/optparse'
   require 'bundler'
   require 'origen/undefined'
   require 'origen/componentable'
+
+  autoload :PatSeq,              'origen/generator/pattern_sequencer'
 
   module Origen
     autoload :Features,          'origen/features'
@@ -75,17 +78,14 @@ unless defined? RGen::ORIGENTRANSITION
 
     APP_CONFIG = File.join('config', 'application.rb')
 
-    class OrigenError < StandardError
-      def self.status_code(code)
-        define_method(:status_code) { code }
-      end
-    end
-
-    class PerforceError < OrigenError;  status_code(11); end
-    class GitError < OrigenError; status_code(11); end
-    class DesignSyncError < OrigenError; status_code(12); end
-    class RevisionControlUninitializedError < OrigenError; status_code(13); end
-    class SyntaxError < OrigenError; status_code(14); end
+    class OrigenError < StandardError; end
+    class PerforceError < OrigenError; end
+    class GitError < OrigenError; end
+    class DesignSyncError < OrigenError; end
+    class RevisionControlUninitializedError < OrigenError; end
+    class SyntaxError < OrigenError; end
+    class BinStrValError < OrigenError; end
+    class HexStrValError < OrigenError; end
 
     class << self
       include Origen::Utility::TimeAndDate
@@ -291,6 +291,7 @@ unless defined? RGen::ORIGENTRANSITION
 
       # Returns true if Origen is running in an application workspace
       def in_app_workspace?
+        return @in_app_workspace if defined? @in_app_workspace
         @in_app_workspace ||= begin
           path = Pathname.new(Dir.pwd)
           until path.root? || File.exist?(File.join(path, APP_CONFIG))
@@ -779,6 +780,13 @@ unless defined? RGen::ORIGENTRANSITION
         ActiveSupport::Inflector.inflections(:en) do |inflect|
           inflect.acronym(name)
         end
+      end
+
+      # OS agnostic split of a caller line into file and line number
+      def split_caller_line(line)
+        arr = line.split(':')
+        arr[0] = arr[0] + ':' + arr.delete_at(1) if Origen.os.windows?
+        arr
       end
 
       private

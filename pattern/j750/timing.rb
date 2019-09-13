@@ -1,9 +1,9 @@
 # This pattern exercises the methods in the Origen::Tester::Timing module
 def gen_vectors
   2.times do
-    $nvm.pin(:invoke).drive(0)
+    dut.nvm.pin(:invoke).drive(0)
     $tester.cycle
-    $nvm.pin(:invoke).drive(1)
+    dut.nvm.pin(:invoke).drive(1)
     $tester.cycle
   end
 end
@@ -60,10 +60,10 @@ Pattern.create do
   ss "Test the period counter"
   cc "This should generate a sequence with a clock pulse on the clk"
   cc "pin with period of 1 ms, and overall duration 10 ms"
-  $nvm.pin(:clk).drive(0)
+  dut.nvm.pin(:clk).drive(0)
   $tester.count(:period_in_ms => 1, :duration_in_ms => 10) do
-    $nvm.pin(:clk).drive!(1)
-    $nvm.pin(:clk).drive(0)
+    dut.nvm.pin(:clk).drive!(1)
+    dut.nvm.pin(:clk).drive(0)
   end
 
   ss "Test that Fixnum.cycles works"

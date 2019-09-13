@@ -476,6 +476,9 @@ module Origen
       # @api private
       def parse_descriptions
         desc = []
+        unless File.exist?(define_file)
+          return desc
+        end
         File.readlines(define_file).each do |line|
           if line =~ /^\s*#(.*)/
             desc << Regexp.last_match[1].strip

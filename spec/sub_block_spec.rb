@@ -470,6 +470,24 @@ module SubBlocksSpec
         end
       end
 
+      describe "block loading" do
+        it "can be done from within the sub-block class's initialize method" do
+          Origen.app.unload_target!
+          OrigenCoreSupport::MySOC.new
+          dut.my_sub_block_1.params.param1.should == 100
+          dut.my_sub_block_1.params.param2.should == 20
+          dut.my_sub_block_1.params.param3.should == 300
+        end
+
+        it "can be done via a load_block argument passed to sub_block" do
+          Origen.app.unload_target!
+          OrigenCoreSupport::MySOC.new
+          dut.my_sub_block_2.params.param1.should == 10
+          dut.my_sub_block_2.params.param2.should == 200
+          dut.my_sub_block_2.params.param3.should == 300
+        end
+      end
+
       describe "sub block groups" do
         before :all do
         end
@@ -554,6 +572,30 @@ module SubBlocksSpec
           end
           m.blah.should_not == 1
         end
+
+        it 'returns all instances of a subblock class if a Class object is given' do
+          c = Top.new
+          c.sub_block(:testa, class_name: 'SubBlocksSpec::Sub1')
+          c.sub_block(:testb, class_name: 'SubBlocksSpec::Sub1')
+          expect(c.sub_blocks(SubBlocksSpec::Sub1)).to eql({
+            'sub1' => c.sub1,
+            'testa' => c.testa,
+            'testb' => c.testb
+          })
+          
+          expect(c.sub_blocks(Integer)).to eql({})
+        end
+
+        it 'returns all instances matching the class, if an instance of a subblock is given' do
+          c = Top.new
+          c.sub_block(:testa, class_name: 'SubBlocksSpec::Sub1')
+          c.sub_block(:testb, class_name: 'SubBlocksSpec::Sub1')
+          expect(c.sub_blocks(c.sub1)).to eql({
+            'sub1' => c.sub1,
+            'testa' => c.testa,
+            'testb' => c.testb
+          })
+        end
       end
 
       it "adding a sub_block should override an existing method of that name" do
@@ -573,6 +615,7 @@ module SubBlocksSpec
         m.sub_block[:blah].is_a?(Origen::SubBlock).should == true
         m.sub_blocks[:blah].is_a?(Origen::SubBlock).should == true
       end
+
     end
   end
 end

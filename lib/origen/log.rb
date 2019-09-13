@@ -107,6 +107,7 @@ module Origen
 
     def debug(string = '', options = {})
       string, options = sanitize_args(string, options)
+      PatSeq.add_thread(string) unless options[:no_thread_id]
       intercept(string, :debug, options) do |msg, type, options|
         msg = format_msg('DEBUG', msg)
         log_files(:debug, msg) unless console_only?(options)
@@ -117,6 +118,7 @@ module Origen
 
     def info(string = '', options = {})
       string, options = sanitize_args(string, options)
+      PatSeq.add_thread(string) unless options[:no_thread_id]
       intercept(string, :info, options) do |msg, type, options|
         msg = format_msg('INFO', msg)
         log_files(:info, msg) unless console_only?(options)
@@ -130,6 +132,7 @@ module Origen
 
     def success(string = '', options = {})
       string, options = sanitize_args(string, options)
+      PatSeq.add_thread(string) unless options[:no_thread_id]
       intercept(string, :success, options) do |msg, type, options|
         msg = format_msg('SUCCESS', msg)
         log_files(:info, msg) unless console_only?(options)
@@ -140,6 +143,7 @@ module Origen
 
     def deprecate(string = '', options = {})
       string, options = sanitize_args(string, options)
+      PatSeq.add_thread(string) unless options[:no_thread_id]
       intercept(string, :deprecate, options) do |msg, type, options|
         msg = format_msg('DEPRECATED', msg)
         log_files(:warn, msg) unless console_only?(options)
@@ -151,6 +155,7 @@ module Origen
 
     def warn(string = '', options = {})
       string, options = sanitize_args(string, options)
+      PatSeq.add_thread(string) unless options[:no_thread_id]
       intercept(string, :warn, options) do |msg, type, options|
         msg = format_msg('WARNING', msg)
         log_files(:warn, msg) unless console_only?(options)
@@ -162,6 +167,7 @@ module Origen
 
     def error(string = '', options = {})
       string, options = sanitize_args(string, options)
+      PatSeq.add_thread(string) unless options[:no_thread_id]
       intercept(string, :error, options) do |msg, type, options|
         msg = format_msg('ERROR', msg)
         log_files(:error, msg) unless console_only?(options)

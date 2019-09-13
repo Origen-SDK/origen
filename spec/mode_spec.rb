@@ -2,6 +2,12 @@ require "spec_helper"
 
 describe "Origen.mode" do
 
+  after :all do
+    # Back to debug for future tests
+    cmd("origen mode debug")
+    Origen.app.session(true) # Reload the session
+  end
+
   it "returns an instance of Origen::Mode" do
     Origen.mode.class.should == Origen::Mode
   end
@@ -72,8 +78,5 @@ describe "Origen.mode" do
     Origen.app.session(true) # Reload the session
     load_target "debug"
     (Origen.mode == :debug).should == true
-    # Back to debug for future tests
-    cmd("origen mode debug")
-    Origen.app.session(true) # Reload the session
   end
 end

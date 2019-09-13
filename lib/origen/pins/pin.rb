@@ -1072,6 +1072,85 @@ module Origen
         end
       end
 
+      def index?(context: nil)
+        !!index(context: context).nil?
+      end
+
+      def index(context: nil)
+        if context.is_a?(Symbol)
+          # Context pin group provided
+          group = groups[context].instance_variable_get(:@store)
+          if group
+            group.index(self)
+          end
+        elsif context.is_a?(Array)
+          # Anonymous pin group given
+          context.map { |p| p.is_a?(Symbol) ? owner.pin(p) : p }.index(self)
+        else
+          # Try an index based off of the pin name.
+          # Only works if the pin ends in a decimal. Otherwise, returns nil.
+          i = name.to_s.index(/\d+$/)
+          if i
+            name.to_s[i..-1].to_i
+          end
+        end
+      end
+
+      def mask(context: nil)
+        index = context.is_a?(Integer) ? context : self.index(context: context)
+
+        if index.nil? && context.nil?
+          # If the index is nil and no context was given, no implicit index could be resolved
+          fail("Could not discern pin :#{name}'s implicit index!")
+        elsif index.nil?
+          # If the index is nil and some context was given, then the pin is not in the given context
+          fail("Pin :#{name} is not a member of the given context!")
+        end
+
+        2**index
+      end
+      alias_method :set_mask, :mask
+      alias_method :smask, :mask
+
+      def clear_mask(context: nil, size: nil)
+        index = context.is_a?(Integer) ? context : self.index(context: context)
+
+        if index.nil? && context.nil?
+          # If the index is nil and no context was given, no implicit index could be resolved
+          fail("Could not discern pin :#{name}'s implicit index!")
+        elsif index.nil?
+          # If the index is nil and some context was given, then the pin is not in the given context
+          fail("Pin :#{name} is not a member of the given context!")
+        end
+
+        if size && context && !context.is_a?(Integer)
+          # A context was given, that was not just an Integer, and size was given
+          # Raise an exception as these two conflict.
+          fail('Both a sized context (e.g. pin group) and a :size option cannot be used simultaneously!')
+        elsif size
+          # A size option was given. Use that.
+          ((2**size) - 1) ^ (1 << index)
+        elsif context.is_a?(Symbol)
+          ((2**groups[context].instance_variable_get(:@store).size) - 1) ^ (1 << index)
+        elsif context.respond_to?(:size) && !context.is_a?(Integer)
+          # PinCollection or Array
+          ((2**context.size) - 1) ^ (1 << index)
+        else
+          # No size option was given. Use the implicit index instead.
+          (2**index) - 1
+        end
+      end
+      alias_method :clr_mask, :clear_mask
+      alias_method :cmask, :clear_mask
+
+      def named?(n)
+        if n.is_a?(Regexp)
+          [name.to_s, *aliases.keys].any? { |na| na =~ n }
+        else
+          [name.to_s, *aliases.keys.map(&:to_s)].include?(n.to_s)
+        end
+      end
+
       def method_missing(m, *args, &block)
         if meta.include? m
           meta[m]

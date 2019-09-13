@@ -2,48 +2,48 @@ This template is used to test that the custom inspect methods of the various RGe
 
 Should display a list of registers:
 
-<%= $nvm.regs.inspect %>
+<%= dut.nvm.regs.inspect %>
 
 Should display an actual register:
 
-<%= $nvm.regs(:mclkdiv).inspect %>
-<%= $nvm.regs(:mclkdiv).inspect(fancy_output: false) %>
+<%= dut.nvm.regs(:mclkdiv).inspect %>
+<%= dut.nvm.regs(:mclkdiv).inspect(fancy_output: false) %>
 
 This one had problems in real life:
 
-% $nvm.add_proth_reg
-<%= $nvm.regs(:proth).inspect %>
+% dut.nvm.add_proth_reg
+<%= dut.nvm.regs(:proth).inspect %>
 
 Check the multi bitgroups scattered through the register
 
-% $nvm.add_multi_split_reg
-<%= $nvm.regs(:multi_group).inspect %>
+% dut.nvm.add_multi_split_reg
+<%= dut.nvm.regs(:multi_group).inspect %>
 
 Test of an MSB0 bit-order register
 
-% $nvm.add_msb0_regs
-<%= $nvm.regs(:SIUL2_MIDR1).inspect %>
+% dut.nvm.add_msb0_regs
+<%= dut.nvm.regs(:SIUL2_MIDR1).inspect %>
 
 Test of an MSB0 bit-order register displayed with msb0 numbering
 
-<%= $nvm.regs(:SIUL2_MIDR1).with_msb0.inspect %>
+<%= dut.nvm.regs(:SIUL2_MIDR1).with_msb0.inspect %>
 
 Test of regs with non byte aligned number of bits
 
-% $nvm.add_non_byte_aligned_regs
-<%= $nvm.regs(:non_aligned_small).inspect %>
+% dut.nvm.add_non_byte_aligned_regs
+<%= dut.nvm.regs(:non_aligned_small).inspect %>
 
-<%= $nvm.regs(:non_aligned_big).inspect %>
-<%= $nvm.regs(:non_aligned_big).inspect(fancy_output: false) %>
+<%= dut.nvm.regs(:non_aligned_big).inspect %>
+<%= dut.nvm.regs(:non_aligned_big).inspect(fancy_output: false) %>
 
-<%= $nvm.regs(:non_aligned_small_msb0).inspect %>
+<%= dut.nvm.regs(:non_aligned_small_msb0).inspect %>
 
-<%= $nvm.regs(:non_aligned_big_msb0).inspect %>
-<%= $nvm.regs(:non_aligned_big_msb0).inspect(fancy_output: false) %>
+<%= dut.nvm.regs(:non_aligned_big_msb0).inspect %>
+<%= dut.nvm.regs(:non_aligned_big_msb0).inspect(fancy_output: false) %>
 
 Test of non byte aligned msb0 regs displayed with msb0 numbering
 
-<%= $nvm.regs(:non_aligned_small_msb0).with_msb0.inspect %>
+<%= dut.nvm.regs(:non_aligned_small_msb0).with_msb0.inspect %>
 
-<%= $nvm.regs(:non_aligned_big_msb0).with_msb0.inspect %>
-<%= $nvm.regs(:non_aligned_big_msb0).with_msb0.inspect(fancy_output: false) %>
+<%= dut.nvm.regs(:non_aligned_big_msb0).with_msb0.inspect %>
+<%= dut.nvm.regs(:non_aligned_big_msb0).with_msb0.inspect(fancy_output: false) %>

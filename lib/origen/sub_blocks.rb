@@ -274,6 +274,13 @@ module Origen
     def sub_block(name = nil, options = {})
       name, options = nil, name if name.is_a?(Hash)
       return sub_blocks unless name
+
+      if name.is_a?(Class)
+        return sub_blocks.select { |n, s| s.is_a?(name) }
+      elsif name.origen_sub_block?
+        return sub_block(name.class)
+      end
+
       if i = options.delete(:instances)
         # permit creating multiple instances of a particular sub_block class
         # can pass array for base_address, which will be processed above
@@ -298,7 +305,7 @@ module Origen
           fail "You have already defined a sub-block named #{name} within class #{self.class}"
         end
         if respond_to?(name)
-          callers = caller[0].split(':')
+          callers = Origen.split_caller_line caller[0]
           Origen.log.warning "The sub_block defined at #{Pathname.new(callers[0]).relative_path_from(Pathname.pwd)}:#{callers[1]} is overriding an existing method called #{name}"
         end
         define_singleton_method name do
@@ -352,7 +359,7 @@ module Origen
       yield                  # any sub_block calls within this block will have their ID added to @current_group
       my_group = @current_group.dup
       if respond_to?(id)
-        callers = caller[0].split(':')
+        callers = Origen.split_caller_line caller[0]
         Origen.log.warning "The sub_block_group defined at #{Pathname.new(callers[0]).relative_path_from(Pathname.pwd)}:#{callers[1]} is overriding an existing method called #{id}"
       end
       define_singleton_method "#{id}" do
@@ -407,6 +414,11 @@ module Origen
 
       # Make this appear like a sub-block to any application code
       def is_a?(klass)
+        # Because sub_blocks are stored in a hash.with_indifferent_access, the value is tested
+        # against being a Hash or Array when it is added to the hash. This prevents the class being
+        # looking up and loaded by the autoload system straight away, especially if the sub-block
+        # has been specified to lazy load
+        return false if klass == Hash || klass == Array
         klass == self.klass || klass == Placeholder
       end
 
@@ -424,13 +436,16 @@ module Origen
       end
 
       def materialize
+        block = nil
         file = attributes.delete(:file)
+        load_block = attributes.delete(:load_block)
         dir = attributes.delete(:dir) || owner.send(:export_dir)
         block = owner.send(:instantiate_sub_block, name, klass, attributes)
         if file
           require File.join(dir, file)
           block.extend owner.send(:export_module_names_from_path, file).join('::').constantize
         end
+        block.load_block(load_block) if load_block
         block.owner = owner
         block
       end
@@ -464,17 +479,17 @@ module Origen
         @klass ||= begin
           class_name = attributes.delete(:class_name)
           if class_name
-            if eval("defined? ::#{owner.namespace}::#{class_name}")
+            begin
               klass = eval("::#{owner.namespace}::#{class_name}")
-            else
-              if eval("defined? #{class_name}")
+            rescue NameError
+              begin
                 klass = eval(class_name)
-              else
-                if eval("defined? #{owner.class}::#{class_name}")
+              rescue NameError
+                begin
                   klass = eval("#{owner.class}::#{class_name}")
-                else
+                rescue NameError
                   puts "Could not find class: #{class_name}"
-                  fail 'Unknown sub block class!'
+                  raise 'Unknown sub block class!'
                 end
               end
             end
@@ -501,6 +516,12 @@ module Origen
   # This class includes support for registers, pins, etc.
   class SubBlock
     include Origen::Model
+
+    # Since no application defined this sub-block class, consider its parent's app to be
+    # the owning application
+    def app
+      parent.app
+    end
 
     # Used to create attribute accessors on the fly.
     #

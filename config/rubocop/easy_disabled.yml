@@ -269,3 +269,7 @@ Rails/ScopeArgs:
 Rails/Validation:
   Description: 'Use validates :attribute, hash of validations.'
   Enabled: false
+
+Style/ClassAndModuleChildren:
+  Description: 'Checks style of children classes and modules.'
+  Enabled: false

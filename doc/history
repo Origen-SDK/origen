@@ -1,3 +1,147 @@
+<a class="anchor release_tag" name="v0_54_0"></a>
+<h1><a href="#v0_54_0">Tag: v0.54.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 12-Sep-2019 21:53PM
+
+
+Added multiple inheritance to parameter sets
+
+<a class="anchor release_tag" name="v0_53_1"></a>
+<h1><a href="#v0_53_1">Tag: v0.53.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Corey Engelken on 10-Sep-2019 20:42PM
+
+
+Merge [PR #356](https://github.com/Origen-SDK/origen/pull/356)
+
+<a class="anchor release_tag" name="v0_53_0"></a>
+<h1><a href="#v0_53_0">Tag: v0.53.0</a></h1>
+
+##### Branch: 'master'
+
+##### by info-rchitect on 21-Aug-2019 17:12PM
+
+
+* PR#353: Allow User attributes to be set by environment variables 'ORIGEN\_USER\_ID',
+'ORIGEN\_NAME', and 'ORIGEN\_EMAIL'
+
+<a class="anchor release_tag" name="v0_52_4"></a>
+<h1><a href="#v0_52_4">Tag: v0.52.4</a></h1>
+
+##### Branch: 'master'
+
+##### by info-rchitect on 16-Aug-2019 10:51AM
+
+
+* PR#350: Restore the `define\_params` method to returning the instantiated parameter set
+
+<a class="anchor release_tag" name="v0_52_3"></a>
+<h1><a href="#v0_52_3">Tag: v0.52.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Daniel Hadad on 02-Aug-2019 09:57AM
+
+
+Patch to web templates to support HTTPS protocol for origen-sdk.org links..
+
+<a class="anchor release_tag" name="v0_52_2"></a>
+<h1><a href="#v0_52_2">Tag: v0.52.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Daniel Hadad on 13-Jun-2019 12:31PM
+
+
+Bug fix: extract\_csv\_data to handle files in app or plugin using file\_handler.
+
+<a class="anchor release_tag" name="v0_52_1"></a>
+<h1><a href="#v0_52_1">Tag: v0.52.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 10-Jun-2019 09:12AM
+
+
+Included new app generator 2.1.1 in the gem package
+
+<a class="anchor release_tag" name="v0_52_0"></a>
+<h1><a href="#v0_52_0">Tag: v0.52.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 10-Jun-2019 08:20AM
+
+
+Added more company internal gem server options to the site config
+
+<a class="anchor release_tag" name="v0_51_3"></a>
+<h1><a href="#v0_51_3">Tag: v0.51.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 31-May-2019 01:18AM
+
+
+Included pin type in exported models
+
+<a class="anchor release_tag" name="v0_51_2"></a>
+<h1><a href="#v0_51_2">Tag: v0.51.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Paul DeRouen on 29-May-2019 06:05AM
+
+
+bug fix: windows file path string is now reconstructed after split on ':'
+bug fix: work around for ruby Pathname GC bug
+
+<a class="anchor release_tag" name="v0_51_1"></a>
+<h1><a href="#v0_51_1">Tag: v0.51.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 28-May-2019 01:15AM
+
+
+Fixed issue with app generator dot files not being included in the gem package
+
+<a class="anchor release_tag" name="v0_51_0"></a>
+<h1><a href="#v0_51_0">Tag: v0.51.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 27-May-2019 09:36AM
+
+
+Supports origen\_app\_generators v2 (new Origen apps come with an app/ dir)
+
+<a class="anchor release_tag" name="v0_50_0"></a>
+<h1><a href="#v0_50_0">Tag: v0.50.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 27-May-2019 08:49AM
+
+
+Initial release of app/ dir and code generators (origen new command)
+
+<a class="anchor release_tag" name="v0_44_0"></a>
+<h1><a href="#v0_44_0">Tag: v0.44.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 16-May-2019 16:35PM
+
+
+* Added concurrent pattern generation capability, see dedicated guide page on this in the 
+  Pattern Generator section
+* Internal API updates to support OrigenSim 
+
 <a class="anchor release_tag" name="v0_43_0"></a>
 <h1><a href="#v0_43_0">Tag: v0.43.0</a></h1>
 

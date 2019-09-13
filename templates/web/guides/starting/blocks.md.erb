@@ -1,0 +1,48 @@
+% render "layouts/guides.html" do
+
+### The app/blocks/ Directory
+
+A "block" contains all of the Origen infrastructure to model and control a specific piece of silicon.
+Blocks can instantiate other blocks as sub-blocks, and therefore it is common to have a block that represents
+the top-level device, and then other blocks to represent the individual IPs that it contains.
+
+
+
+~~~text
+├── app/    
+    ├── blocks/        
+        ├── dut/          
+            ├── derivatives/        
+            │   ├── falcon/  
+            │   │   ├── derivatives/       
+            │   │   ├── attributes.rb
+            │   │   ├── controller.rb
+            │   │   ├── model.rb
+            │   │   ├── parameters.rb
+            │   │   ├── pins.rb
+            │   │   ├── registers.rb    
+            │   │   ├── sub_blocks.rb    
+            │   │   └── timesets.rb
+            │   └── eagle/
+            │       ├── derivatives/              
+            │       ├── attributes.rb
+            │       ├── controller.rb
+            │       ├── model.rb
+            │       ├── parameters.rb
+            │       ├── pins.rb
+            │       ├── registers.rb    
+            │       ├── sub_blocks.rb    
+            │       └── timesets.rb
+            ├── attributes.rb
+            ├── controller.rb
+            ├── model.rb
+            ├── parameters.rb
+            ├── pins.rb
+            ├── registers.rb    
+            ├── sub_blocks.rb    
+            └── timesets.rb
+~~~
+
+
+
+% end

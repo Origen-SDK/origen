@@ -24,6 +24,17 @@ module Origen
       include Origen::Model
     end
 
+    # Unloads all modules class defined by the application and reloads the target, use
+    # this in the console to pick up changes made to files since you opened it.
+    # It will only work if your application uses Origen auto-loading from the app/dir,
+    # any files that you have manually required will not be re-loaded and may generally
+    # cause problems with the use of this method.
+    def reload!
+      Loader.unload
+      Origen.app.reload_target!
+      true
+    end
+
     # Top-level timing manager/API, returns an instance of Origen::Pins::Timing
     def timing
       @timing ||= Pins::Timing.new

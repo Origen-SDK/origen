@@ -4,6 +4,7 @@ require "origen"
 require "rspec/legacy_formatters"
 require "#{Origen.top}/spec/shared/common_helpers"
 require "#{Origen.top}/spec/format/origen_formatter"
+require "origen_core_support"
 
 if RUBY_VERSION >= '2.0.0'
   require "byebug"

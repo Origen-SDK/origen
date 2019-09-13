@@ -254,6 +254,58 @@ params.test.dc.vdd.min          # => 1.5
 params(:ate).test.dc.vdd.min    # => 1.35
 ~~~
 
+##### Multiple Inheritance
+
+Multiple inheritance is also supported by supplying an array of parent IDs (or remote paths)
+for the `:inherit` option:
+
+~~~ruby
+define_params :set1 do |params|
+  params.spec_a = 10.uA
+end
+
+define_params :set2 do |params|
+  params.spec_b = 2.5
+end
+
+define_params :soc, inherit: [:set1, :set2] do |params, parents|
+  params.spec_c = 100.mV
+  # The parents is a Hash in this case if you need to reference upstream values:
+  #   parents  =>  { set1: <param set1>, set2: <param set2> }
+  params.spec_b = parents[:set2].spec_b * 2
+end
+
+params = :soc
+params.spec_a     # => 10.uA
+params.spec_b     # => 5.0
+params.spec_c     # => 100.mV
+~~~
+
+The order of the parents specifies the order of precedence if multiple parents define the same parameter -
+those occuring later will override the value inherited from an earlier parent:
+
+
+~~~ruby
+define_params :set1 do |params|
+  params.spec_a = 10.uA
+end
+
+define_params :set2 do |params|
+  params.spec_a = 20.uA
+end
+
+define_params :soc1, inherit: [:set1, :set2] do |params, parents|
+end
+
+define_params :soc2, inherit: [:set2, :set1] do |params, parents|
+end
+
+params = :soc1
+params.spec_a     # => 20.uA
+params = :soc2
+params.spec_a     # => 10.uA
+~~~
+
 #### Live Updating Parameters
 
 When a parameter is referenced a static value is returned which thereafter has no

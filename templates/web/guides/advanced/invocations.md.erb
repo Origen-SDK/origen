@@ -25,7 +25,7 @@ installations as these installations are generally not writable by the user base
 For example, in order to add global commands to Origen, you must add additional dependencies to Origen's <code>Gemfile</code>.
 However, if Origen is living in some tool directory, changing the <code>Gemfile</code> will affect everyone's installation
 (for better or worse) and individual users lose control over their global installation. The 
-[Site Config](<%= path "guides/starting/company/" %>) can help us with this.
+[Site Config](<%= path "guides/installation/company/" %>) can help us with this.
 
 #### Dependencies Using The System Gems
 
@@ -58,7 +58,7 @@ within an application, these plugins will be bypassed, and must be added to the 
 #### Site Config For User Installations
 
 You can switch up Origen to instead invoke from your own home directory. Recall that the 
-[Site Config](<%= path "guides/starting/company/" %>) from earlier in the guides
+[Site Config](<%= path "guides/installation/company/" %>) from earlier in the guides
 can set global parameters for Origen and that the site configs will stack upon themselves, overwriting  parameters
 until the root site config at the Origen invocation directory is reached. The top-most site config is the one that is
 located in your <code>home_dir</code>, which is <code>~/.origen</code> by default. This means that you
@@ -128,7 +128,7 @@ The purpose of these installs is to allow a project toolset manager, or other ex
 global install's dependencies to be used by a project, a team, or etc. Since only a site config and Gemfile is needed,
 maintenance is very low. The install manager need only update the Gemfile with whatever dependencies and versions
 required. Users of this install then just need to source this site config either by making sure the site config
-is in their invocation path (again, see the [Site Config](<%= path "guides/starting/company/" %>) for this), or 
+is in their invocation path (again, see the [Site Config](<%= path "guides/installation/company/" %>) for this), or 
 by sourcing a script that sets the environment variable <code>ORIGEN_TOOL_REPO_INSTALL_DIR</code> (recall that site
 configs can be overwritten by settting environment variables with the same name and <code>ORIGEN</code> prepended).
 This provides a quick and easy way of setting up, using, and managing a custom install at the global level from a single

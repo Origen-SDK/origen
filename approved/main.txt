@@ -92,7 +92,7 @@ main: This is a test that indent works
           sub1: No data value passed in!
 main: Verify by default that render will reload the target,
 main: the value here should be blank
-sub5: The value of $nvm.attribute_x is: 
+sub5: The value of dut.nvm.attribute_x is: 
 main: Verify that target reload can optionally be inhibited,
 main: the value here should be X
-sub5: The value of $nvm.attribute_x is: X
+sub5: The value of dut.nvm.attribute_x is: X

@@ -224,7 +224,9 @@ module Origen
       end
 
       def create_web_server_dir
-        if File.exist?("#{Origen.root}/templates/web")
+        templates_web_dir = 'app/templates/web'
+        templates_web_dir = 'templates/web' unless File.exist?("#{Origen.root}/#{templates_web_dir}")
+        if File.exist?("#{Origen.root}/#{templates_web_dir}")
           dir = web_server_dir
           FileUtils.rm_rf dir if File.exist?(dir)
           FileUtils.mkdir_p dir

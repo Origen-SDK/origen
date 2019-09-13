@@ -2,8 +2,8 @@ main: This is a basic template example to test the RGen template compiler.
 main: 
 main: Verify that the target objects can be accessed:
 main: 
-% $nvm.reg(:data).write(0x5555)
-main: Data: 0x<%= $nvm.reg(:data).val.to_s(16).upcase %>
+% dut.nvm.reg(:data).write(0x5555)
+main: Data: 0x<%= dut.nvm.reg(:data).val.to_s(16).upcase %>
 main: 
 main: Verify that sub templates can be rendered and executed within their own context:
 main: 
@@ -15,7 +15,7 @@ main:
 main: Rendering the template should not disrupt the current context, verify that the
 main: data is still 0x5555:
 main: 
-main: Data: 0x<%= $nvm.reg(:data).val.to_s(16).upcase %>
+main: Data: 0x<%= dut.nvm.reg(:data).val.to_s(16).upcase %>
 main: 
 main: Verify that option data can be passed to rendered templates, the data
 main: printed here should be 0x1234:
@@ -23,14 +23,14 @@ main:
 <%= render "sub1", data: 0x1234 %>
 main: 
 main: Again verify that the current context is still intact:
-main: Data: 0x<%= $nvm.reg(:data).val.to_s(16).upcase %>
+main: Data: 0x<%= dut.nvm.reg(:data).val.to_s(16).upcase %>
 main: 
 main: Verify that templates from sub directories can be rendered:
 main: 
 <%= render "sub_dir/sub2" %>
 main: 
 main: Again verify that the current context is still intact:
-main: Data: 0x<%= $nvm.reg(:data).val.to_s(16).upcase %>
+main: Data: 0x<%= dut.nvm.reg(:data).val.to_s(16).upcase %>
 main: 
 main: Verify that no extra linebreaks are added:
 <%= render "sub4.txt.erb" %>
@@ -45,9 +45,9 @@ main: This is a test that indent works
 <%= render "sub1", indent: 10 %>
 main: Verify by default that render will reload the target,
 main: the value here should be blank
-% $nvm.attribute_x = "X"
+% dut.nvm.attribute_x = "X"
 <%= render "sub5" %>
 main: Verify that target reload can optionally be inhibited,
 main: the value here should be X
-% $nvm.attribute_x = "X"
+% dut.nvm.attribute_x = "X"
 <%= render "sub5", preserve_target: true %>
