@@ -40,7 +40,7 @@ PATH
   specs:
     origen (0.54.0)
       activesupport (~> 4.1)
-      bundler (> 1.7, < 3)
+      bundler (> 1.7)
       coderay (~> 1.1)
       colored (~> 1.2)
       colorize (~> 0.8.1)
