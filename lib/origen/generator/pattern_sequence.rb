@@ -18,7 +18,7 @@ module Origen
 
       # Execute the given pattern
       def run(pattern_name)
-        name = Pathname.new(pattern_name).basename
+        name = Pathname.new(pattern_name.to_s).basename
         ss "START OF PATTERN: #{name}"
         # Give the app a chance to handle pattern dispatch
         skip = false
