@@ -18,9 +18,19 @@ module Origen
 
       # Execute the given pattern
       def run(pattern_name)
-        pattern = Origen.generator.pattern_finder.find(pattern_name.to_s, {})
-        pattern = pattern[:pattern] if pattern.is_a?(Hash)
-        load pattern
+        name = Pathname.new(pattern_name).basename
+        ss "START OF PATTERN: #{name}"
+        # Give the app a chance to handle pattern dispatch
+        skip = false
+        Origen.app.listeners_for(:before_pattern_lookup).each do |listener|
+          skip ||= !listener.before_pattern_lookup(pattern_name.to_s)
+        end
+        unless skip
+          pattern = Origen.generator.pattern_finder.find(pattern_name.to_s, {})
+          pattern = pattern[:pattern] if pattern.is_a?(Hash)
+          load pattern
+        end
+        ss "END OF PATTERN: #{name}"
       end
       alias_method :call, :run
 
