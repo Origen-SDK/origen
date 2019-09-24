@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_54_3"></a>
+<h1><a href="#v0_54_3">Tag: v0.54.3</a></h1>
+
+##### Branch: 'master'
+
+##### by bcaqueli on 24-Sep-2019 11:02AM
+
+
+
+* PR-360: Fix parameter set bug that overwrote existing sub-sets
+
 <a class="anchor release_tag" name="v0_54_2"></a>
 <h1><a href="#v0_54_2">Tag: v0.54.2</a></h1>
 
