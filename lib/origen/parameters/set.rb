@@ -38,7 +38,7 @@ module Origen
       def copy_defaults_from(set)
         set.each do |name, val|
           if val.is_a?(Set)
-            self[name] = new_subset(name) unless ids.include?(name)
+            self[name] ||= new_subset(name)
             self[name].copy_defaults_from(val)
           else
             self[name] = val
