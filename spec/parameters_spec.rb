@@ -390,11 +390,14 @@ module ParametersSpec
           define_params :a do |params|
             params.a = 20
             params.b = 11
+            params.tm.a = 1
+            params.tm.b = 1
           end
 
           define_params :b do |params|
             params.a = 30
             params.c = 22
+            params.tm.b = 2
           end
 
           define_params :c1, inherit: [:a, :b] do |params|
@@ -442,6 +445,7 @@ module ParametersSpec
       ip.params.c.should == 22
       ip.params.d.should == 33
       ip.params.e.should == 50
+      ip.params.tm.should == {:a=>1, :b=>2}
 
       ip.params = :c4
       ip.params.a.should == 40
