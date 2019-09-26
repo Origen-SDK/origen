@@ -16,9 +16,24 @@ jobs:
       uses: actions/setup-ruby@v1
       with:
         ruby-version: 2.3.x
-    - name: Build and test Origen
+      env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+        CONTINUOUS_INTEGRATION: 1
+    - name: Verify app can boot successfully
       run: |
         gem install bundler -v '< 2'
         bundle install --jobs 4 --retry 3
-        bundle info origen
+        ./lbin/origen -v
+    - name: Lint Check
+      run: |
+        bundle exec origen lint --no-correct
+    - name: Run tests
+      run: |
+        bundle exec origen m debug
+        bundle exec origen test -c
+    - name: Verify Building website
+      run: |
+        bundle exec origen web compile --no-serve
+
+      
 
