@@ -26,7 +26,7 @@ jobs:
         bundle exec origen -v
     - name: Lint Check
       run: |
-        bundle exec origen lint --no-correct
+        ./lbin/origen lint --no-correct
     - name: Run tests
       run: |
         bundle exec origen m debug
