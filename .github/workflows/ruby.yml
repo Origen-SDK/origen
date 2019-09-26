@@ -30,10 +30,12 @@ jobs:
         bundle exec origen lint --no-correct
     - name: Run tests
       run: |
+        bundle install
         bundle exec origen m debug
         bundle exec origen test -c
     - name: Verify Building website
       run: |
+        bundle install
         bundle exec origen web compile --no-serve
 
       
