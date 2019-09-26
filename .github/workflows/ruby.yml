@@ -23,7 +23,7 @@ jobs:
       run: |
         gem install bundler -v '< 2'
         bundle install --jobs 4 --retry 3
-        ./lbin/origen -v
+        bundle exec origen -v
     - name: Lint Check
       run: |
         bundle exec origen lint --no-correct
