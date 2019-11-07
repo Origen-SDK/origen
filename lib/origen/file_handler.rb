@@ -278,10 +278,13 @@ module Origen
       path
     end
 
-    def clean_path_to_sub_program(file)
-      file = add_underscore_to(file)
+    def clean_path_to_sub_program(file, options = {})
+      options = {
+        with_underscore: true    # whether actual file in file system has underscore prepended
+      }.merge(options)
+      file = add_underscore_to(file) if options[:with_underscore]
       file = add_rb_to(file)
-      clean_path_to(file)
+      clean_path_to(file, allow_missing: true)  # caller has to check if file exists
     end
 
     # Insert _ in file name if not present
