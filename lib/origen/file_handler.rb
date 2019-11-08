@@ -278,13 +278,12 @@ module Origen
       path
     end
 
-    def clean_path_to_sub_program(file, options = {})
-      options = {
-        with_underscore: true    # whether actual file in file system has underscore prepended
-      }.merge(options)
-      file = add_underscore_to(file) if options[:with_underscore]
+    # @deprecated
+    def clean_path_to_sub_program(file)
+      Origen.deprecated 'Origen.file_handler.clean_path_to_sub_program is deprecated, update to use version ... of origen_testers instead.'
+      file = add_underscore_to(file)
       file = add_rb_to(file)
-      clean_path_to(file, allow_missing: true)  # caller has to check if file exists
+      clean_path_to(file)
     end
 
     # Insert _ in file name if not present
