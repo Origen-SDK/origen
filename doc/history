@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_54_4"></a>
+<h1><a href="#v0_54_4">Tag: v0.54.4</a></h1>
+
+##### Branch: 'master'
+
+##### by Daniel Hadad on 11-Nov-2019 10:41AM
+
+
+Added deprecate warning to clean\_path\_to\_sub\_program in file\_handler as upcoming release
+of origen\_testers will handle without this method.
+
 <a class="anchor release_tag" name="v0_54_3"></a>
 <h1><a href="#v0_54_3">Tag: v0.54.3</a></h1>
 
