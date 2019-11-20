@@ -88,7 +88,7 @@ module Origen
 
       OVERRIDE_METHODS.each do |method|
         define_method method do
-          method_missing(method, *args, &block)
+          method_missing(method)
         end
       end
 

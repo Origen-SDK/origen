@@ -461,20 +461,16 @@ module ParametersSpec
         include Origen::Model
 
         def initialize
+          debugger
           define_params :chain do |params|
-            params.a = 1
-            params.b = 2
-            params.tm.a = 3
-            params.tm.b = 4
+            params.chain = 1
           end
         end
       end
       ip = IP5.new
+      debugger
       ip.params = :chain
-      ip.params.a == 1
-      ip.params.b == 2
-      ip.params.tm.a == 3
-      ip.params.tm.b == 4
+      ip.params(:chain).chain == 1
     end
   end
 end
