@@ -468,7 +468,6 @@ module ParametersSpec
         end
       end
       ip = IP5.new
-      debugger
       ip.params = :chain
       ip.params(:chain).chain == 1
     end
