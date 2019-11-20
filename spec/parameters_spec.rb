@@ -455,5 +455,26 @@ module ParametersSpec
       ip.params.e.should == 24
       ip.params.vdd.min.should == 0.8
     end
+
+    it 'defining a parameter :chain that clashes with the Enumerator::Chain.chain method in Ruby >= 2.6.0 works' do
+      class IP5
+        include Origen::Model
+
+        def initialize
+          define_params :chain do |params|
+            params.a = 1
+            params.b = 2
+            params.tm.a = 3
+            params.tm.b = 4
+          end
+        end
+      end
+      ip = IP5.new
+      ip.params = :chain
+      ip.params.a == 1
+      ip.params.b == 2
+      ip.params.tm.a == 3
+      ip.params.tm.b == 4
+    end
   end
 end

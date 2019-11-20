@@ -8,6 +8,9 @@ module Origen
       # Allow these parameter names to be valid. When used, they will override the
       # methods of the same name provided by the Hash class.
       OVERRIDE_HASH_METHODS = [:min, :max]
+
+      # Allow these parameter names to be valid. When used, they will override the
+      # methods of the same name provided by another class.
       OVERRIDE_METHODS = [:chain]
 
       def initialize(options = {})
