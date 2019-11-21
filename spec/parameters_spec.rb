@@ -464,13 +464,17 @@ module ParametersSpec
           define_params :chain do |params|
             params.chain = 1
           end
+
+          define_params :not_chain do |params|
+            params.x = 2
+          end
         end
       end
       ip = IP5.new
       ip.params = :chain
-      ip.params(:chain).chain.should == 1
       ip.params.chain.should == 1
-      ip.param?('chain_does_not_exist').should == nil
+      ip.params(:chain).chain.should == 1
+      ip.params(:not_chain).chain.should == nil
     end
   end
 end
