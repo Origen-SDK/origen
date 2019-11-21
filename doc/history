@@ -1,3 +1,13 @@
+<a class="anchor release_tag" name="v0_54_5"></a>
+<h1><a href="#v0_54_5">Tag: v0.54.5</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 21-Nov-2019 17:35PM
+
+
+Fix Issue #352 for Ruby >= 2.6.0
+
 <a class="anchor release_tag" name="v0_54_4"></a>
 <h1><a href="#v0_54_4">Tag: v0.54.4</a></h1>
 
