@@ -130,6 +130,7 @@ module Origen
         # Finally those that the plugin's have given us
         ([Origen.app] + Origen.app.plugins).each do |plugin|
           namespace plugin.name do
+          # New application dir structure support
             Dir.glob("#{plugin.root}/app/lib/tasks/shared/*.rake").sort.each do |file|
               load file
             end
