@@ -118,28 +118,24 @@ module Origen
             load file
           end
         else
-          if Dir.exist?("#{Origen.root}/app/")
-            # New application dir structure support
-            Dir.glob("#{Origen.root}/app/lib/tasks/*.rake").sort.each do |file|
-              load file
-            end
-          else
-            Dir.glob("#{Origen.root}/lib/tasks/*.rake").sort.each do |file|
-              load file
-            end
+          # New application dir structure support
+          Dir.glob("#{Origen.root}/app/lib/tasks/*.rake").sort.each do |file|
+            load file
+          end
+
+          Dir.glob("#{Origen.root}/lib/tasks/*.rake").sort.each do |file|
+            load file
           end
         end
         # Finally those that the plugin's have given us
         ([Origen.app] + Origen.app.plugins).each do |plugin|
           namespace plugin.name do
-            if Dir.exist?("#{Origen.root}/app/")
-              Dir.glob("#{plugin.root}/app/lib/tasks/shared/*.rake").sort.each do |file|
-                load file
-              end
-            else
-              Dir.glob("#{plugin.root}/lib/tasks/shared/*.rake").sort.each do |file|
-                load file
-              end
+            Dir.glob("#{plugin.root}/app/lib/tasks/shared/*.rake").sort.each do |file|
+              load file
+            end
+
+            Dir.glob("#{plugin.root}/lib/tasks/shared/*.rake").sort.each do |file|
+              load file
             end
           end
         end
