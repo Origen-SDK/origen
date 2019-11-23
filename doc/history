@@ -1,3 +1,13 @@
+<a class="anchor release_tag" name="v0_54_6"></a>
+<h1><a href="#v0_54_6">Tag: v0.54.6</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 23-Nov-2019 13:18PM
+
+
+Fixed bug where rake tasks would not load under the new application directory structure.
+
 <a class="anchor release_tag" name="v0_54_5"></a>
 <h1><a href="#v0_54_5">Tag: v0.54.5</a></h1>
 
