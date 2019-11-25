@@ -32,7 +32,7 @@ module Origen
         if authorized?
           Origen.app.plugins.validate_production_status(true)
           fail 'No revision control configured for this application, cannot release a new version' if Origen.app.rc.nil?
-          if Origen.app.rc.local_modifications.empty?
+          unless Origen.app.rc.local_modifications.empty?
             puts <<-EOT
 Your workspace has local modifications that are preventing the requested action
   - run 'origen rc mods' to see them.
