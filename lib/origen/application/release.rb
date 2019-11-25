@@ -6,6 +6,7 @@ module Origen
       include Users
       include Utility::TimeAndDate
       include Utility::InputCapture
+      include Utility
 
       def initialize
         @mailer = Utility::Mailer.new
@@ -30,7 +31,8 @@ module Origen
         @options = options
         if authorized?
           Origen.app.plugins.validate_production_status(true)
-          unless Origen.app.rc.local_modifications.empty?
+          fail 'No revision control configured for this application, cannot release a new version' if Origen.app.rc.nil?
+          if Origen.app.rc.local_modifications.empty?
             puts <<-EOT
 Your workspace has local modifications that are preventing the requested action
   - run 'origen rc mods' to see them.
@@ -172,7 +174,7 @@ Your workspace has local modifications that are preventing the requested action
       # Pull the latest versions of the history and version ID files into the workspace
       def get_latest_version_files
         # Get the latest version of the version and history files
-        if Origen.app.rc.dssc?
+        if Origen.app.rc.dssc? && !which('dssc').nil?
           # Legacy code that makes use of the fact that DesignSync can handle different branch selectors
           # for individual files, this capability has not been abstracted by the newer object oriented
           # revision controllers since most others cannot do it
@@ -291,7 +293,7 @@ Your workspace has local modifications that are preventing the requested action
       def tag
         tag = Origen.app.version
         if tag =~ /^\d/
-          "v#{tag}"
+          Origen.app.config.rc_tag_prepend_v ? "v#{tag}" : tag
         else
           tag
         end

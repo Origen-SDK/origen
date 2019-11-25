@@ -75,7 +75,9 @@ module Origen
     # Returns true if the version is a semantic format version number
     def semantic?
       !!(self =~ /^v?\d+\.\d+\.\d+$/ ||
-         self =~ /^v?\d+\.\d+\.\d+\.(dev|pre)\d+$/
+         self =~ /^v?\d+\.\d+\.\d+\.(dev|pre)\d+$/ ||
+         self =~ /^\d+\.\d+\.\d+$/ ||
+         self =~ /^\d+\.\d+\.\d+\.(dev|pre)\d+$/
         )
     end
 
@@ -141,8 +143,11 @@ module Origen
     def major
       @major ||= begin
         if semantic?
-          self =~ /v?(\d+)/
-          Regexp.last_match[1].to_i
+          if self =~ /v?(\d+)/
+            Regexp.last_match[1].to_i
+          elsif self =~ /(\d+)/
+            Regexp.last_match[1].to_i
+          end
         else
           fail "#{self} is not a valid semantic version number!"
         end
@@ -152,8 +157,11 @@ module Origen
     def minor
       @minor ||= begin
         if semantic?
-          self =~ /v?\d+.(\d+)/
-          Regexp.last_match[1].to_i
+          if self =~ /v?\d+.(\d+)/
+            Regexp.last_match[1].to_i
+          elsif self =~ /\d+.(\d+)/
+            Regexp.last_match[1].to_i
+          end
         else
           fail "#{self} is not a valid semantic version number!"
         end
@@ -163,8 +171,11 @@ module Origen
     def bugfix
       @bugfix ||= begin
         if semantic?
-          self =~ /v?\d+.\d+.(\d+)/
-          Regexp.last_match[1].to_i
+          if self =~ /v?\d+.\d+.(\d+)/
+            Regexp.last_match[1].to_i
+          elsif self =~ /\d+.\d+.(\d+)/
+            Regexp.last_match[1].to_i
+          end
         else
           fail "#{self} is not a valid semantic version number!"
         end
@@ -258,16 +269,27 @@ module Origen
       elsif semantic?
         # This assumes each counter will never go > 1000
         if development?
-          self =~ /v?(\d+).(\d+).(\d+).(dev|pre)(\d+)/
-          (Regexp.last_match[1].to_i * 1000 * 1000 * 1000) +
-            (Regexp.last_match[2].to_i * 1000 * 1000) +
-            (Regexp.last_match[3].to_i * 1000) +
-            Regexp.last_match[5].to_i
+          if self =~ /v?(\d+).(\d+).(\d+).(dev|pre)(\d+)/
+            (Regexp.last_match[1].to_i * 1000 * 1000 * 1000) +
+              (Regexp.last_match[2].to_i * 1000 * 1000) +
+              (Regexp.last_match[3].to_i * 1000) +
+              Regexp.last_match[5].to_i
+          elsif self =~ /(\d+).(\d+).(\d+).(dev|pre)(\d+)/
+            (Regexp.last_match[1].to_i * 1000 * 1000 * 1000) +
+              (Regexp.last_match[2].to_i * 1000 * 1000) +
+              (Regexp.last_match[3].to_i * 1000) +
+              Regexp.last_match[5].to_i
+          end
         else
-          self =~ /v?(\d+).(\d+).(\d+)/
-          (Regexp.last_match[1].to_i * 1000 * 1000 * 1000) +
-            (Regexp.last_match[2].to_i * 1000 * 1000) +
-            (Regexp.last_match[3].to_i * 1000)
+          if self =~ /v?(\d+).(\d+).(\d+)/
+            (Regexp.last_match[1].to_i * 1000 * 1000 * 1000) +
+              (Regexp.last_match[2].to_i * 1000 * 1000) +
+              (Regexp.last_match[3].to_i * 1000)
+          elsif self =~ /(\d+).(\d+).(\d+)/
+            (Regexp.last_match[1].to_i * 1000 * 1000 * 1000) +
+              (Regexp.last_match[2].to_i * 1000 * 1000) +
+              (Regexp.last_match[3].to_i * 1000)
+          end
         end
       elsif timestamp?
         to_time.to_i
@@ -369,10 +391,14 @@ module Origen
     # Returns the version prefixed with the given value ('v' by default) if not
     # already present
     def prefixed(str = 'v')
-      if self =~ /^#{str}/
-        to_s
+      if Origen.config.app.config.rc_tag_prepend_v
+        if self =~ /^#{str}/
+          to_s
+        else
+          "#{str}#{self}"
+        end
       else
-        "#{str}#{self}"
+        self
       end
     end
   end
