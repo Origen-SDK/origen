@@ -8,7 +8,6 @@ module Origen
     autoload :BlockArgs, 'origen/utility/block_args'
     autoload :FileDiff,  'origen/utility/file_diff.rb'
     autoload :Collector, 'origen/utility/collector.rb'
-    autoload :ApplicationSupport, 'origen/utility/application_support'
 
     # Creates a hex-like representation of a register read value, where bits within
     # a nibble have different flags set the nibble will be expanded to bits
