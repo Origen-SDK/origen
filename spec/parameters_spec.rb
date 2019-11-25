@@ -468,6 +468,10 @@ module ParametersSpec
           define_params :not_chain do |params|
             params.x = 2
           end
+
+          define_params :chain_has_children do |params|
+            params.chain.softbins = (11_001..11_999)
+          end
         end
       end
       ip = IP5.new
