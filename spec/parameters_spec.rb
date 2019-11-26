@@ -480,6 +480,8 @@ module ParametersSpec
             params.max.min = 4
             params.a.min = { a: 1, b: 2 }
             params.a.max = { a: 3, b: 4 }
+            params.c.min = [1, 2]
+            params.d.max = [3, 4]
           end
         end
       end
@@ -497,6 +499,10 @@ module ParametersSpec
       ip.params(:min_max_check).a.min.max.should == [:b, 2]
       ip.params(:min_max_check).a.max.min.should == [:a, 3]
       ip.params(:min_max_check).a.max.max.should == [:b, 4]
+      ip.params(:min_max_check).c.min.min.should == 1
+      ip.params(:min_max_check).c.min.max.should == 2
+      ip.params(:min_max_check).d.max.min.should == 3
+      ip.params(:min_max_check).d.max.max.should == 4
     end
   end
 end
