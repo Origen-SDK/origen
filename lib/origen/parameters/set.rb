@@ -61,7 +61,6 @@ module Origen
             self[m] = args.first
           end
         else
-          # binding.pry if $stop == 1
           if args.length != 0
             super
           else
@@ -87,19 +86,9 @@ module Origen
         end
       end
 
-      OVERRIDE_METHODS.each do |method|
+      (OVERRIDE_METHODS + OVERRIDE_HASH_METHODS).each do |method|
         define_method method do
           method_missing(method)
-        end
-      end
-
-      OVERRIDE_HASH_METHODS.each do |method|
-        define_method method do
-          if self[method]
-            method_missing(method)
-          else
-            super
-          end
         end
       end
 
