@@ -14,17 +14,15 @@ module Origen
       # Will raise an error if any plugins are currently imported from a path reference
       # in the Gemfile
       def validate_production_status(force = false)
-        unless Origen.app.session.origen_core[:mode] == 'debug'
-          if Origen.mode.production? || force
-            if File.exist?("#{Origen.root}/Gemfile")
-              File.readlines("#{Origen.root}/Gemfile").each do |line|
-                # http://rubular.com/r/yNGDGB6M2r
-                if line =~ /^\s*gem\s+(("|')\w+("|')),.*(:path\s*=>|path:)/
-                  fail "The following gem is defined as a path in your Gemfile, but that is not allowed in production: #{Regexp.last_match[1]}"
-                end
-                if line =~ /ORIGEN PLUGIN AUTO-GENERATED/
-                  fail 'Fetched gems are currently being used in your Gemfile, but that is not allowed in production!'
-                end
+        if Origen.mode.production? || force
+          if File.exist?("#{Origen.root}/Gemfile")
+            File.readlines("#{Origen.root}/Gemfile").each do |line|
+              # http://rubular.com/r/yNGDGB6M2r
+              if line =~ /^\s*gem\s+(("|')\w+("|')),.*(:path\s*=>|path:)/
+                fail "The following gem is defined as a path in your Gemfile, but that is not allowed in production: #{Regexp.last_match[1]}"
+              end
+              if line =~ /ORIGEN PLUGIN AUTO-GENERATED/
+                fail 'Fetched gems are currently being used in your Gemfile, but that is not allowed in production!'
               end
             end
           end
