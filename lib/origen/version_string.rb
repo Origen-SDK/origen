@@ -258,27 +258,16 @@ module Origen
       elsif semantic?
         # This assumes each counter will never go > 1000
         if development?
-          if self =~ /v?(\d+).(\d+).(\d+).(dev|pre)(\d+)/
-            (Regexp.last_match[1].to_i * 1000 * 1000 * 1000) +
-              (Regexp.last_match[2].to_i * 1000 * 1000) +
-              (Regexp.last_match[3].to_i * 1000) +
-              Regexp.last_match[5].to_i
-          elsif self =~ /(\d+).(\d+).(\d+).(dev|pre)(\d+)/
-            (Regexp.last_match[1].to_i * 1000 * 1000 * 1000) +
-              (Regexp.last_match[2].to_i * 1000 * 1000) +
-              (Regexp.last_match[3].to_i * 1000) +
-              Regexp.last_match[5].to_i
-          end
+          self =~ /v?(\d+).(\d+).(\d+).(dev|pre)(\d+)/
+          (Regexp.last_match[1].to_i * 1000 * 1000 * 1000) +
+            (Regexp.last_match[2].to_i * 1000 * 1000) +
+            (Regexp.last_match[3].to_i * 1000) +
+            Regexp.last_match[5].to_i
         else
-          if self =~ /v?(\d+).(\d+).(\d+)/
-            (Regexp.last_match[1].to_i * 1000 * 1000 * 1000) +
-              (Regexp.last_match[2].to_i * 1000 * 1000) +
-              (Regexp.last_match[3].to_i * 1000)
-          elsif self =~ /(\d+).(\d+).(\d+)/
-            (Regexp.last_match[1].to_i * 1000 * 1000 * 1000) +
-              (Regexp.last_match[2].to_i * 1000 * 1000) +
-              (Regexp.last_match[3].to_i * 1000)
-          end
+          self =~ /v?(\d+).(\d+).(\d+)/
+          (Regexp.last_match[1].to_i * 1000 * 1000 * 1000) +
+            (Regexp.last_match[2].to_i * 1000 * 1000) +
+            (Regexp.last_match[3].to_i * 1000)
         end
       elsif timestamp?
         to_time.to_i
