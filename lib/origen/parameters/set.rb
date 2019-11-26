@@ -88,9 +88,7 @@ module Origen
 
       OVERRIDE_METHODS.each do |method|
         define_method method do
-          if self[method]
-            method_missing(method)
-          end
+          method_missing(method)
         end
       end
 

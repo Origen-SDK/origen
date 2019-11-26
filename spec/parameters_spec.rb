@@ -464,7 +464,7 @@ module ParametersSpec
           define_params :chain do |params|
             params.chain = 1
           end
-
+          
           define_params :not_chain do |params|
             params.x = 2
           end
@@ -478,7 +478,7 @@ module ParametersSpec
       ip.params = :chain
       ip.params.chain.should == 1
       ip.params(:chain).chain.should == 1
-      ip.params(:not_chain).chain.should == nil
+      expect { ip.params(:not_chain).chain }.to raise_error(NoMethodError)
     end
   end
 end
