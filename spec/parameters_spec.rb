@@ -479,6 +479,7 @@ module ParametersSpec
       ip.params.chain.should == 1
       ip.params(:chain).chain.should == 1
       expect { ip.params(:not_chain).chain }.to raise_error(NoMethodError)
+      ip.params(:chain_has_children).chain.softbins.should == (11_001..11_999)
     end
   end
 end
