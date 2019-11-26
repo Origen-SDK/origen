@@ -174,7 +174,7 @@ Your workspace has local modifications that are preventing the requested action
       # Pull the latest versions of the history and version ID files into the workspace
       def get_latest_version_files
         # Get the latest version of the version and history files
-        if Origen.app.rc.dssc? && !which('dssc').nil?
+        if Origen.app.rc.dssc?
           # Legacy code that makes use of the fact that DesignSync can handle different branch selectors
           # for individual files, this capability has not been abstracted by the newer object oriented
           # revision controllers since most others cannot do it
