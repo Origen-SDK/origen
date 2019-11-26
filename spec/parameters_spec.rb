@@ -482,6 +482,11 @@ module ParametersSpec
             params.a.max = { a: 3, b: 4 }
             params.c.min = [1, 2]
             params.d.max = [3, 4]
+            params.e = (0..10)
+          end
+
+          define_params :path_check do |params|
+            params.path = 'mypath'
           end
         end
       end
@@ -503,6 +508,9 @@ module ParametersSpec
       ip.params(:min_max_check).c.min.max.should == 2
       ip.params(:min_max_check).d.max.min.should == 3
       ip.params(:min_max_check).d.max.max.should == 4
+      ip.params(:min_max_check).e.min.should == 0
+      ip.params(:min_max_check).e.max.should == 10
+      ip.params(:path_check).path.should == 'mypath'
     end
   end
 end
