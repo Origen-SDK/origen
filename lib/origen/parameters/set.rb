@@ -61,11 +61,12 @@ module Origen
             self[m] = args.first
           end
         else
+          # binding.pry if $stop == 1
           if args.length != 0
             super
           else
             if !key?(method)
-              super
+              nil
             else
               val = self[method]
               if val.is_a?(Set)
