@@ -75,9 +75,7 @@ module Origen
     # Returns true if the version is a semantic format version number
     def semantic?
       !!(self =~ /^v?\d+\.\d+\.\d+$/ ||
-         self =~ /^v?\d+\.\d+\.\d+\.(dev|pre)\d+$/ ||
-         self =~ /^\d+\.\d+\.\d+$/ ||
-         self =~ /^\d+\.\d+\.\d+\.(dev|pre)\d+$/
+         self =~ /^v?\d+\.\d+\.\d+\.(dev|pre)\d+$/
         )
     end
 
@@ -143,11 +141,8 @@ module Origen
     def major
       @major ||= begin
         if semantic?
-          if self =~ /v?(\d+)/
-            Regexp.last_match[1].to_i
-          elsif self =~ /(\d+)/
-            Regexp.last_match[1].to_i
-          end
+          self =~ /v?(\d+)/
+          Regexp.last_match[1].to_i
         else
           fail "#{self} is not a valid semantic version number!"
         end
@@ -157,11 +152,8 @@ module Origen
     def minor
       @minor ||= begin
         if semantic?
-          if self =~ /v?\d+.(\d+)/
-            Regexp.last_match[1].to_i
-          elsif self =~ /\d+.(\d+)/
-            Regexp.last_match[1].to_i
-          end
+          self =~ /v?\d+.(\d+)/
+          Regexp.last_match[1].to_i
         else
           fail "#{self} is not a valid semantic version number!"
         end
@@ -171,11 +163,8 @@ module Origen
     def bugfix
       @bugfix ||= begin
         if semantic?
-          if self =~ /v?\d+.\d+.(\d+)/
-            Regexp.last_match[1].to_i
-          elsif self =~ /\d+.\d+.(\d+)/
-            Regexp.last_match[1].to_i
-          end
+          self =~ /v?\d+.\d+.(\d+)/
+          Regexp.last_match[1].to_i
         else
           fail "#{self} is not a valid semantic version number!"
         end
