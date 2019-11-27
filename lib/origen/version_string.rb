@@ -369,10 +369,14 @@ module Origen
     # Returns the version prefixed with the given value ('v' by default) if not
     # already present
     def prefixed(str = 'v')
-      if self =~ /^#{str}/
-        to_s
+      if Origen.config.app.config.rc_tag_prepend_v
+        if self =~ /^#{str}/
+          to_s
+        else
+          "#{str}#{self}"
+        end
       else
-        "#{str}#{self}"
+        self
       end
     end
   end
