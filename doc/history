@@ -1,3 +1,15 @@
+<a class="anchor release_tag" name="v0_55_0"></a>
+<h1><a href="#v0_55_0">Tag: v0.55.0</a></h1>
+
+##### Branch: 'master'
+
+##### by info-rchitect on 27-Nov-2019 06:50AM
+
+
+* PR#368: Enable applications to disable appending 'v' for release tags
+* PR#369: Fix for a couple issues regarding parameter set keys that conflict with Ruby
+method names
+
 <a class="anchor release_tag" name="v0_54_6"></a>
 <h1><a href="#v0_54_6">Tag: v0.54.6</a></h1>
 
