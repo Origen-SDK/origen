@@ -65,7 +65,7 @@ module Origen
             super
           else
             if !key?(method)
-              super
+              nil
             else
               val = self[method]
               if val.is_a?(Set)
@@ -86,21 +86,9 @@ module Origen
         end
       end
 
-      OVERRIDE_METHODS.each do |method|
+      (OVERRIDE_METHODS + OVERRIDE_HASH_METHODS).each do |method|
         define_method method do
-          if self[method]
-            method_missing(method)
-          end
-        end
-      end
-
-      OVERRIDE_HASH_METHODS.each do |method|
-        define_method method do
-          if self[method]
-            method_missing(method)
-          else
-            super
-          end
+          method_missing(method)
         end
       end
 

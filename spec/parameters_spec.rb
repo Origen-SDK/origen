@@ -456,7 +456,7 @@ module ParametersSpec
       ip.params.vdd.min.should == 0.8
     end
 
-    it 'defining a parameter :chain that clashes with the Enumerator::Chain.chain method in Ruby >= 2.6.0 works' do
+    it 'defining parameter keys that clash with Ruby methods works' do
       class IP5
         include Origen::Model
 
@@ -464,9 +464,29 @@ module ParametersSpec
           define_params :chain do |params|
             params.chain = 1
           end
-
+          
           define_params :not_chain do |params|
             params.x = 2
+          end
+
+          define_params :chain_has_children do |params|
+            params.chain.softbins = (11_001..11_999)
+          end
+
+          define_params :min_max_check do |params|
+            params.min.child = 1
+            params.max.child = 2
+            params.min.max = 3
+            params.max.min = 4
+            params.a.min = { a: 1, b: 2 }
+            params.a.max = { a: 3, b: 4 }
+            params.c.min = [1, 2]
+            params.d.max = [3, 4]
+            params.e = (0..10)
+          end
+
+          define_params :path_check do |params|
+            params.path = 'mypath'
           end
         end
       end
@@ -475,6 +495,22 @@ module ParametersSpec
       ip.params.chain.should == 1
       ip.params(:chain).chain.should == 1
       ip.params(:not_chain).chain.should == nil
+      ip.params(:chain_has_children).chain.softbins.should == (11_001..11_999)
+      ip.params(:min_max_check).min.child.should == 1
+      ip.params(:min_max_check).max.child.should == 2
+      ip.params(:min_max_check).min.max.should == 3
+      ip.params(:min_max_check).max.min.should == 4
+      ip.params(:min_max_check).a.min.min.should == [:a, 1]
+      ip.params(:min_max_check).a.min.max.should == [:b, 2]
+      ip.params(:min_max_check).a.max.min.should == [:a, 3]
+      ip.params(:min_max_check).a.max.max.should == [:b, 4]
+      ip.params(:min_max_check).c.min.min.should == 1
+      ip.params(:min_max_check).c.min.max.should == 2
+      ip.params(:min_max_check).d.max.min.should == 3
+      ip.params(:min_max_check).d.max.max.should == 4
+      ip.params(:min_max_check).e.min.should == 0
+      ip.params(:min_max_check).e.max.should == 10
+      ip.params(:path_check).path.should == 'mypath'
     end
   end
 end
