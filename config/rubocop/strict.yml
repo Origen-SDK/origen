@@ -28,17 +28,19 @@ AllCops:
     - 'vendor/**/*'
   # By default, the rails cops are not run. Override in project or home
   # directory .rubocop.yml files, or by giving the -R/--rails option.
-  RunRailsCops: false
-
+#  RunRailsCops: false
+  Rails:
+  Enabled:  true
+  
 # Indent private/protected/public as deep as method definitions
-Style/AccessModifierIndentation:
+Layout/AccessModifierIndentation:
   EnforcedStyle: indent
   SupportedStyles:
     - outdent
     - indent
 
 # Align the elements of a hash literal if they span more than one line.
-Style/AlignHash:
+Layout/AlignHash:
   # Alignment of entries using hash rocket as separator. Valid values are:
   #
   # key - left alignment of keys
@@ -101,7 +103,7 @@ Style/AlignHash:
     - ignore_implicit
     - ignore_explicit
 
-Style/AlignParameters:
+Layout/AlignParameters:
   # Alignment of parameters in multi-line method calls.
   #
   # The `with_first_parameter` style aligns the following lines along the same
@@ -151,8 +153,8 @@ Style/BracesAroundHashParameters:
     - context_dependent
 
 # Indentation of `when`.
-Style/CaseIndentation:
-  IndentWhenRelativeTo: case
+Layout/CaseIndentation:
+  EnforcedStyle: case
   SupportedStyles:
     - case
     - end
@@ -210,14 +212,14 @@ Style/CommentAnnotation:
     - REVIEW
 
 # Multi-line method chaining should be done with leading dots.
-Style/DotPosition:
+Layout/DotPosition:
   EnforcedStyle: leading
   SupportedStyles:
     - leading
     - trailing
 
 # Use empty lines between defs.
-Style/EmptyLineBetweenDefs:
+Layout/EmptyLineBetweenDefs:
   # If true, this parameter means that single line method definitions don't
   # need an empty line between them.
   AllowAdjacentOneLineDefs: false
@@ -228,13 +230,13 @@ Style/EmptyLineBetweenDefs:
 #    - empty_lines
 #    - no_empty_lines
 
-Style/EmptyLinesAroundClassBody:
+Layout/EmptyLinesAroundClassBody:
   EnforcedStyle: no_empty_lines
   SupportedStyles:
     - empty_lines
     - no_empty_lines
 
-Style/EmptyLinesAroundModuleBody:
+Layout/EmptyLinesAroundModuleBody:
   EnforcedStyle: no_empty_lines
   SupportedStyles:
     - empty_lines
@@ -242,12 +244,12 @@ Style/EmptyLinesAroundModuleBody:
 
 # Checks whether the source file has a utf-8 encoding comment or not
 Style/Encoding:
-  EnforcedStyle: always
-  SupportedStyles:
-    - when_needed
-    - always
+#  EnforcedStyle: always
+#  SupportedStyles:
+#    - when_needed
+#    - always
 
-Style/FileName:
+Naming/FileName:
   # File names listed in AllCops:Include are excluded by default. Add extra
   # excludes here.
   Exclude: []
@@ -283,14 +285,15 @@ Style/HashSyntax:
     - hash_rockets
 
 Style/IfUnlessModifier:
-  MaxLineLength: 80
+  Metrics/LineLength: Max
+ # MaxLineLength: 80
 
-Style/IndentationWidth:
+Layout/IndentationWidth:
   # Number of spaces for each indentation level.
   Width: 2
 
 # Checks the indentation of the first key in a hash literal.
-Style/IndentHash:
+Layout/IndentHash:
   # The value `special_inside_parentheses` means that hash literals with braces
   # that have their opening brace on the same line as a surrounding opening
   # round parenthesis, shall have their first key indented relative to the
@@ -336,13 +339,13 @@ Style/MethodDefParentheses:
     - require_parentheses
     - require_no_parentheses
 
-Style/MethodName:
+Naming/MethodName:
   EnforcedStyle: snake_case
   SupportedStyles:
     - snake_case
     - camelCase
 
-Style/MultilineOperationIndentation:
+Layout/MultilineOperationIndentation:
   EnforcedStyle: aligned
   SupportedStyles:
     - aligned
@@ -373,7 +376,7 @@ Style/PercentQLiterals:
     - lower_case_q # Use %q when possible, %Q when necessary
     - upper_case_q # Always use %Q
 
-Style/PredicateName:
+Naming/PredicateName:
   # Predicate name prefices.
   NamePrefix:
     - is_
@@ -443,19 +446,19 @@ Style/StringLiteralsInInterpolation:
     - single_quotes
     - double_quotes
 
-Style/SpaceAroundEqualsInParameterDefault:
+Layout/SpaceAroundEqualsInParameterDefault:
   EnforcedStyle: space
   SupportedStyles:
     - space
     - no_space
 
-Style/SpaceBeforeBlockBraces:
+Layout/SpaceBeforeBlockBraces:
   EnforcedStyle: space
   SupportedStyles:
     - space
     - no_space
 
-Style/SpaceInsideBlockBraces:
+Layout/SpaceInsideBlockBraces:
   EnforcedStyle: space
   SupportedStyles:
     - space
@@ -465,7 +468,7 @@ Style/SpaceInsideBlockBraces:
   # Space between { and |. Overrides EnforcedStyle if there is a conflict.
   SpaceBeforeBlockParameters: true
 
-Style/SpaceInsideHashLiteralBraces:
+Layout/SpaceInsideHashLiteralBraces:
   EnforcedStyle: space
   EnforcedStyleForEmptyBraces: no_space
   SupportedStyles:
@@ -478,13 +481,13 @@ Style/SymbolProc:
   IgnoredMethods:
     - respond_to
 
-Style/TrailingBlankLines:
+Layout/TrailingBlankLines:
   EnforcedStyle: final_newline
   SupportedStyles:
     - final_newline
     - final_blank_line
 
-Style/TrailingComma:
+Style/TrailingCommaInArguments:
   # If EnforcedStyleForMultiline is comma, the cop allows a comma after the
   # last item of a list, but only for lists where each item is on its own line.
   EnforcedStyleForMultiline: no_comma
@@ -525,14 +528,15 @@ Style/TrivialAccessors:
     - to_s
     - to_sym
 
-Style/VariableName:
+Naming/VariableName:
   EnforcedStyle: snake_case
   SupportedStyles:
     - snake_case
     - camelCase
 
 Style/WhileUntilModifier:
-  MaxLineLength: 80
+  Metrics/LineLength: Max
+#  MaxLineLength: 80
 
 Style/WordArray:
   MinSize: 0
@@ -570,22 +574,22 @@ Metrics/PerceivedComplexity:
 Lint/AssignmentInCondition:
   AllowSafeAssignment: true
 # Align ends correctly.
-Lint/EndAlignment:
+Layout/EndAlignment:
   # The value `keyword` means that `end` should be aligned with the matching
   # keyword (if, while, etc.).
   # The value `variable` means that in assignments, `end` should be aligned
   # with the start of the variable on the left hand side of `=`. In all other
   # situations, `end` should still be aligned with the keyword.
-  AlignWith: keyword
+  EnforcedStyleAlignWith: keyword
   SupportedStyles:
     - keyword
     - variable
-Lint/DefEndAlignment:
+Layout/DefEndAlignment:
   # The value `def` means that `end` should be aligned with the def keyword.
   # The value `start_of_line` means that `end` should be aligned with method
   # calls like `private`, `public`, etc, if present in front of the `def`
   # keyword on the same line.
-  AlignWith: start_of_line
+  EnforcedStyleAlignWith: start_of_line
   SupportedStyles:
     - start_of_line
     - def
@@ -597,9 +601,9 @@ Rails/ActionFilter:
     - filter
   Include:
     - app/controllers/**/*.rb
-Rails/DefaultScope:
-  Include:
-    - app/models/**/*.rb
+#Rails/DefaultScope:
+#  Include:
+#    - app/models/**/*.rb
 Rails/HasAndBelongsToMany:
   Include:
     - app/models/**/*.rb

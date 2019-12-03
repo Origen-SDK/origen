@@ -38,7 +38,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "thor", "~>0.19"
   spec.add_runtime_dependency "nanoc", "~>3.7.0"
   spec.add_runtime_dependency "kramdown", "~>1.5"
-  spec.add_runtime_dependency "rubocop", "0.30"
+  spec.add_runtime_dependency "rubocop", "0.54"
   spec.add_runtime_dependency "coderay", "~>1.1"
   spec.add_runtime_dependency "rake", "~>10"
   spec.add_runtime_dependency "pry", "~>0.10"
