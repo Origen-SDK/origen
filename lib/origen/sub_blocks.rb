@@ -478,16 +478,23 @@ module Origen
       def klass
         @klass ||= begin
           class_name = attributes.delete(:class_name)
+          tmp_class = nil
           if class_name
             begin
-              klass = eval("::#{owner.namespace}::#{class_name}")
-            rescue NameError
+              tmp_class = "::#{owner.namespace}::#{class_name}"
+              klass = eval(tmp_class)
+            rescue NameError => e
+              raise if e.message !~ /^uninitialized constant (.*)$/ || tmp_class !~ /#{Regexp.last_match(1)}/
               begin
+                tmp_class = class_name.to_s
                 klass = eval(class_name)
-              rescue NameError
+              rescue NameError => e
+                raise if e.message !~ /^uninitialized constant (.*)$/ || tmp_class !~ /#{Regexp.last_match(1)}/
                 begin
-                  klass = eval("#{owner.class}::#{class_name}")
-                rescue NameError
+                  tmp_class = "#{owner.class}::#{class_name}"
+                  klass = eval(tmp_class)
+                rescue NameError => e
+                  raise if e.message !~ /^uninitialized constant (.*)$/ || tmp_class !~ /#{Regexp.last_match(1)}/
                   puts "Could not find class: #{class_name}"
                   raise 'Unknown sub block class!'
                 end
