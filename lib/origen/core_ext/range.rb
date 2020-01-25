@@ -13,4 +13,8 @@ class Range
       a
     end
   end
+
+  def <=>(other)
+    [min, max] <=> [other.min, other.max]
+  end
 end
