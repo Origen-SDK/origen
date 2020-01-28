@@ -321,7 +321,7 @@ Your workspace has local modifications that are preventing the requested action
             file.puts ''
           end
           file.puts ''
-          file.puts note.escape_underscores(smartly)
+          file.puts note.escape_underscores(smartly = true)
           file.puts ''
           file.puts text
         end
