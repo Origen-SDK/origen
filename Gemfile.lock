@@ -61,7 +61,6 @@ PATH
       rubocop (= 0.30)
       scrub_rb (~> 1.0)
       simplecov (~> 0.9)
-      simplecov-html (~> 0.10)
       thor (~> 0.19)
       yard (~> 0.8)
 
@@ -112,14 +111,14 @@ GEM
     mime-types (3.3.1)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2019.1009)
-    mini_portile2 (2.4.0)
+    mini_portile2 (2.3.0)
     minitest (5.14.0)
     multi_xml (0.6.0)
     nanoc (3.7.5)
       cri (~> 2.3)
     net-ldap (0.16.2)
-    nokogiri (1.10.7)
-      mini_portile2 (~> 2.4.0)
+    nokogiri (1.8.5)
+      mini_portile2 (~> 2.3.0)
     origen_debuggers (0.6.1)
       origen (>= 0.2.6)
       origen_testers (>= 0.5.0)
@@ -202,6 +201,7 @@ DEPENDENCIES
   byebug (~> 10)
   coveralls
   loco
+  nokogiri (= 1.8.5)
   origen!
   origen_app_generators!
   origen_core_support!
@@ -213,4 +213,4 @@ DEPENDENCIES
   ripper-tags
 
 BUNDLED WITH
-   1.16.1
+   1.16.6
