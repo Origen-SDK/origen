@@ -44,6 +44,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "pry", "~>0.10"
   spec.add_runtime_dependency "yard", "~>0.8"
   spec.add_runtime_dependency "simplecov", "~>0.9"
+  spec.add_runtime_dependency "simplecov-html", "~>0.10.0"
   spec.add_runtime_dependency "scrub_rb", "~>1.0"
   spec.add_runtime_dependency "gems", "~>0.8"
   spec.add_runtime_dependency "highline", "~>1.7"
