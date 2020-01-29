@@ -1,3 +1,13 @@
+<a class="anchor release_tag" name="v0_55_2"></a>
+<h1><a href="#v0_55_2">Tag: v0.55.2</a></h1>
+
+##### Branch: 'master'
+
+##### by info-rchitect on 29-Jan-2020 12:58PM
+
+
+* Fixed application release note bug regarding escaping underscores
+
 <a class="anchor release_tag" name="v0_55_1"></a>
 <h1><a href="#v0_55_1">Tag: v0.55.1</a></h1>
 
