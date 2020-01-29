@@ -62,7 +62,15 @@ class String
           end
         end
       end
-      italic_ranges = filtered_italic_matches.map(&:first).sort
+      italic_ranges = [].tap do |new_ary|
+        filtered_italic_ranges = filtered_italic_matches.map(&:first)
+        italic_range_mins = filtered_italic_matches.map(&:first).map(&:min).sort
+        italic_range_mins.each_with_index do |range_min, i|
+          filtered_italic_ranges.each do |r|
+            new_ary << r if r.min == range_min
+          end
+        end
+      end
       str = dup
       inc = 0
       italic_ranges.each do |r|
