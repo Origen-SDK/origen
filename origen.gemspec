@@ -43,7 +43,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "rake", "~>10"
   spec.add_runtime_dependency "pry", "~>0.10"
   spec.add_runtime_dependency "yard", "~>0.8"
-  spec.add_runtime_dependency "simplecov", "~>0.9"
+  spec.add_runtime_dependency "simplecov", "~>0.17" # simplecov version 0.17 is the last release that supports older Ruby versions (< 2.4)
   spec.add_runtime_dependency "simplecov-html", "~>0.10" # Constraint to avoid Ruby 2.3 issues at Travis CI (2.3.8) check.
   spec.add_runtime_dependency "scrub_rb", "~>1.0"
   spec.add_runtime_dependency "gems", "~>0.8"
