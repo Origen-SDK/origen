@@ -25,5 +25,7 @@ gem 'origen_jtag'
 # packaged into Origen releases
 gem "origen_app_generators", git: "https://github.com/Origen-SDK/origen_app_generators.git"
 
+# adding comment to check travis CI
+
 # Specify all runtime dependencies in origen.gemspec
 gemspec
