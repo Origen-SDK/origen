@@ -15,6 +15,7 @@ module Origen
         unless File.exist?(log_file_directory)
           FileUtils.mkdir_p(log_file_directory)
         end
+        @use_command_prefix = Origen.site_config.use_command_prefix
       end
 
       # Picks and returns either the application's LSF instance or the global LSF instance
@@ -421,11 +422,17 @@ module Origen
 
       def command_prefix(id, dependents)
         origen = `which origen`
-        # http://rubular.com/r/wgKi73KjUo
-        if origen =~ /(^\/run\/pkg\/fs-origen-\/[^\/]+)/
-          prefix = "source #{Regexp.last_match[1]}/origen_setup; "
+        # This is boolean that is setup in the site config file
+        if @use_command_prefix
+          # http://rubular.com/r/wgKi73KjUo
+          if origen =~ /(^\/run\/pkg\/fs-origen-\/[^\/]+)/
+            prefix = "source #{Regexp.last_match[1]}/origen_setup; "
+          else
+            prefix = "cd #{Origen.top}; source source_setup; "
+          end
         else
-          prefix = "cd #{Origen.top}; source source_setup; "
+          # define prefix as a blank string if Origen.site_config.use_command_prefix is false
+          prefix = ''
         end
         prefix += "cd #{Origen.root}; origen l --execute --id #{id} "
         unless dependents.empty?
