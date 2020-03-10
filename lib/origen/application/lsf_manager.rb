@@ -422,7 +422,7 @@ module Origen
       def command_prefix(id, dependents)
         # define prefix as a blank string if Origen.site_config.lsf_command_prefix is not defined
         if Origen.site_config.lsf_command_prefix
-         prefix = Origen.site_config.lsf_command_prefix
+          prefix = Origen.site_config.lsf_command_prefix
         else
           prefix = ''
         end
