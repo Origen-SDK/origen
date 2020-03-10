@@ -420,12 +420,11 @@ module Origen
       end
 
       def command_prefix(id, dependents)
-        origen = `which origen`
-        # http://rubular.com/r/wgKi73KjUo
-        if origen =~ /(^\/run\/pkg\/fs-origen-\/[^\/]+)/
-          prefix = "source #{Regexp.last_match[1]}/origen_setup; "
+        # define prefix as a blank string if Origen.site_config.lsf_command_prefix is not defined
+        if Origen.site_config.lsf_command_prefix
+          prefix = Origen.site_config.lsf_command_prefix
         else
-          prefix = "cd #{Origen.top}; source source_setup; "
+          prefix = ''
         end
         prefix += "cd #{Origen.root}; origen l --execute --id #{id} "
         unless dependents.empty?

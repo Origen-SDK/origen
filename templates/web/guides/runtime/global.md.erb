@@ -36,4 +36,15 @@ $dut = MyApp::Falcon.new(version: 1)
 Origen.config.lsf.project =  "falcon.te"
 ~~~
 
+#### Origen LSF command prefix
+The Origen runtime environment can be configured to run a prefix command before running any job on the LSF.
+There is a site config variable now available to define what that prefix command is. By default,
+if the site_config variable is not defined the prefix is an empty string.
+
+In your origen_site_config.yml file, you can specify the site_config variable as shown below
+
+~~~ruby
+Origen.site_config.lsf_command_prefix = '/location/where_tool_is_installed/origen_setup'
+~~~
+
 % end
