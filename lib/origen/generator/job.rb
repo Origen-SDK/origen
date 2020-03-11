@@ -3,7 +3,7 @@ module Origen
     # A job is responsible for executing a single pattern source
     class Job # :nodoc: all
       attr_accessor :output_file_body, :pattern
-      attr_reader :split_counter
+      attr_reader :split_counter, :split_names
       attr_reader :options
 
       def initialize(pattern, options)
@@ -23,9 +23,11 @@ module Origen
         @no_comments
       end
 
-      def inc_split_counter
+      def inc_split_counter(name = '')
         @split_counter ||= 0
+        @split_names ||= ['']
         @split_counter += 1
+        @split_names << name
       end
 
       def requested_pattern
@@ -115,7 +117,11 @@ module Origen
 
       def split_number
         if split_counter
-          "_part#{split_counter}"
+          if split_names[split_counter] != ''
+            "_#{split_names[split_counter]}"
+          else
+            "_part#{split_counter}"
+          end
         else
           ''
         end
