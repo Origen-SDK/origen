@@ -89,6 +89,11 @@ module Origen
         end
         # Just continue if this thread is not in the list
         return unless ids.include?(current_thread.id)
+        # If we have entered the same sync up point after having previously completed it,
+        # then clear it and start again
+        if @sync_ups[location] && @sync_ups[location][:completed]
+          @sync_ups[location] = nil
+        end
         # Don't need to worry about race conditions here as Origen only allows 1 thread
         # to be active at a time
         if @sync_ups[location]
