@@ -431,7 +431,8 @@ th1:  __________________________████████████████
 th2:  __________________________████████████████████████████████████████████████████______________
 ~~~
 
-It is also possible to sync up threads to a common point in the code, consider the following example:
+It is also possible to sync up threads to a common point in the code by calling `PatSeq.sync_up`,
+consider the following example:
 
 ~~~ruby
 def sync_up
