@@ -385,14 +385,14 @@ This can be done by making the following method call to block the thread from wh
 until all other threads complete:
 
 ~~~ruby
-seq.wait_for_threads
+PatSeq.wait_for_threads_to_complete
 ~~~
 
 or to wait for a specific thread(s):
 
 ~~~ruby
-seq.wait_for_thread :th1
-seq.wait_for_threads :th1, :th2
+PatSeq.wait_for_thread_to_complete :th1
+Patseq.wait_for_threads_to_complete :th1, :th2
 ~~~
 
 If we add that to our previous example, how long will it take to run now?
@@ -410,7 +410,7 @@ Pattern.sequence do |seq|
     20.ms!
   end
 
-  seq.wait_for_threads
+  PatSeq.wait_for_threads_to_complete
 
   5.ms!
 end
@@ -431,7 +431,77 @@ th1:  __________________________████████████████
 th2:  __________________________████████████████████████████████████████████████████______________
 ~~~
 
+It is also possible to sync up threads to a common point in the code, consider the following example:
 
+~~~ruby
+def sync_up
+  PatSeq.sync_up
+end
+
+Pattern.sequence do |seq|
+  5.ms!
+
+  seq.thread :th1 do
+    5.ms!
+    sync_up
+    5.ms!
+  end
+
+  seq.thread :th2 do
+    sync_up
+    20.ms!
+  end
+
+  PatSeq.wait_for_threads_to_complete
+
+  5.ms!
+end
+~~~
+
+What would that execution profile look like?
+
+In this case the 20ms in thread 2 will be blocked until thread 1 reaches the sync up point after executing for 5ms:
+
+
+~~~text
+      |-------------------------|-------------------------|-------------------------|-------------
+      0                         10.0ms                    20.0ms                    30.0ms
+
+main: █████████████_________________________________________________________________██████████████
+
+th1:  _____________███████████████████████████____________________________________________________
+
+th2:  __________________________████████████████████████████████████████████████████______________
+~~~
+
+
+
+<div class="alert alert-info">
+  <strong>Note!</strong> 
+  A sync up point is associated with the threads reaching <strong>the exact same point in the code</code>.
+  This is why <code>PatSeq.sync_up</code> is called from a method in the above example. Calling `PatSeq.sync_up`
+  directly from within each thread would have hung forever since each thread would never reach the sync up
+  point within the other thread's code block.
+</div>
+
+By default, calling `PatSeq.sync_up` with no arguments means "wait for all threads except for main to reach this point". 
+Normally, that is what most applications would naturally mean since the main thread does not contain much active code
+and is usually just used as a launching point for concurrent threads.
+If you wish to wait for all threads including main, then use:
+
+~~~ruby
+PatSeq.sync_up include_main: true
+~~~
+
+You can also wait for specific threads, e.g.
+
+~~~ruby
+PatSeq.sync_up :th1, :th2
+~~~
+
+In that example if either `:th1` or `:th2` reached that code it would wait there until the other thread arrived.
+
+If a third thread, `:th3` arrived at that point, it would not wait and would continue unimpeded.
 
 ### Reserving Serial Resources
 
