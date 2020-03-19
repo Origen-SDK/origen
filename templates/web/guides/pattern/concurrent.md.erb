@@ -478,7 +478,7 @@ th2:  __________________________████████████████
 
 <div class="alert alert-info">
   <strong>Note!</strong> 
-  A sync up point is associated with the threads reaching <strong>the exact same point in the code</code>.
+  A sync up point is associated with the threads reaching <strong>the exact same point in the code</strong>.
   This is why <code>PatSeq.sync_up</code> is called from a method in the above example. Calling `PatSeq.sync_up`
   directly from within each thread would have hung forever since each thread would never reach the sync up
   point within the other thread's code block.
