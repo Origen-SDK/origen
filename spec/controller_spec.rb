@@ -47,6 +47,45 @@ module Origen
     end
   end
 
+  class MyModel6
+    include Origen::Model
+    def initialize
+      reg :reg1, 0 do
+        bits 31..0, :data
+      end
+    end
+
+    def hello_model
+      "yo"
+    end
+  end
+
+  class MyModel
+    include Origen::Model
+    def initialize
+      reg :reg1, 0 do
+        bits 31..0, :data
+      end
+    end
+
+    def hello_model
+      "yo"
+    end
+  end
+
+  class MyModel
+    include Origen::Model
+    def initialize
+      reg :reg1, 0 do
+        bits 31..0, :data
+      end
+    end
+
+    def hello_model
+      "yo"
+    end
+  end
+
   class MyController
     include Origen::Controller
     model class_name: "MyModel"
@@ -160,6 +199,59 @@ module Origen
       m.hello_controller.should == "hi4"
       # Verify this works within a namespace
       Tmp::Model.new.hi.should == "yo"
+    end
+
+    it "can be inspected" do
+      m4 = MyModel4.new
+      m6 = MyModel6.new
+      m4.inspect.gsub!(/:\d+/, ":XXXX").should == "<Model/Controller: Origen::MyModel4:XXXX/Origen::MyModel4Controller:XXXX>"
+      m4.controller.inspect.gsub!(/:\d+/, ":XXXX").should == "<Model/Controller: Origen::MyModel4:XXXX/Origen::MyModel4Controller:XXXX>"
+      m6.inspect.gsub!(/:\d+/, ":XXXX").should == "<Model: Origen::MyModel6:XXXX>"
+    end
+
+    it "can be converted to json" do
+      m = MyModel4.new
+      m.controller.to_json.should == (<<-END
+{
+  "name": null,
+  "address": 0,
+  "path": "",
+  "blocks": [
+
+  ],
+  "registers": [
+    {
+      "name": "reg1",
+      "full_name": null,
+      "address": 0,
+      "offset": 0,
+      "size": 32,
+      "path": "reg1",
+      "reset_value": 0,
+      "description": [
+
+      ],
+      "bits": [
+        {
+          "name": "data",
+          "full_name": null,
+          "position": 0,
+          "size": 32,
+          "reset_value": 0,
+          "access": "rw",
+          "description": [
+
+          ],
+          "bit_values": [
+
+          ]
+        }
+      ]
+    }
+  ]
+}
+END
+).strip
     end
 
     it "controllers can implement write_register" do
