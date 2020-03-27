@@ -221,8 +221,9 @@ module Origen
       # Each additional pattern section created by calling this method
       # will have '_partN' appended to the original pattern name.
       def split(options = {})
+        split_name = options.delete(:name) || ''
         pattern_close(options.merge(call_shutdown_callbacks: false))
-        job.inc_split_counter
+        job.inc_split_counter(split_name)
         pattern_open(options.merge(call_startup_callbacks: false))
       end
 
