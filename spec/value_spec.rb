@@ -99,4 +99,27 @@ describe Origen::Value do
       Origen::Value.new(:b1x0)[2].should == 1
     end
   end
+
+  describe "Other Values" do
+    it "can be X or Z subclass" do
+      x = Origen::Value::X.new
+      z = Origen::Value::Z.new
+      x.z?.should == false
+      x.x?.should == true
+      x.x_or_z?.should == true
+      z.z?.should == true
+      z.x?.should == false
+      z.x_or_z?.should == true
+    end
+
+    it "can be decimal value" do
+      i = Origen::Value.new(5)
+      d = Origen::Value.new(:d22)
+      s = Origen::Value.new("210")
+      i.to_i.should == 5
+      d.to_i.should == 22
+      s.to_i.should == 210
+    end
+  end
+
 end
