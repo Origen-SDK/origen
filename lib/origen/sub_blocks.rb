@@ -296,7 +296,7 @@ module Origen
         Origen.deprecate 'instances: option to sub_block is deprecated, use sub_block_groups instead'
         group_name = name =~ /s$/ ? name : "#{name}s"  # take care if name already with 's' is passed
         unless respond_to?(group_name)
-          sub_block_groups group_name do
+          sub_block_group group_name do
             i.times do |j|
               o = options.dup
               o[:_instance] = j
