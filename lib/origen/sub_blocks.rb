@@ -232,6 +232,15 @@ module Origen
     end
     alias_method :children, :sub_blocks
 
+    # Returns a hash containing all sub block gruops of given sub-block
+    def sub_block_groups(*args)
+      if args.empty?
+        @sub_block_groups ||= {}.with_indifferent_access
+      else
+        sub_block_groups(*args)
+      end
+    end
+
     # Delete all sub_blocks by emptying the Hash
     def delete_sub_blocks
       @sub_blocks = {}
@@ -362,21 +371,24 @@ module Origen
         callers = Origen.split_caller_line caller[0]
         Origen.log.warning "The sub_block_group defined at #{Pathname.new(callers[0]).relative_path_from(Pathname.pwd)}:#{callers[1]} is overriding an existing method called #{id}"
       end
+      # Define a singleton method which will be called every time the sub_block_group is referenced
+      # This is not called here but later when referenced
       define_singleton_method "#{id}" do
-        if options[:class_name]
-          b = Object.const_get(options[:class_name]).new
-        else
-          b = []
-        end
-        my_group.each do |group_id|
-          b << send(group_id)
-        end
-        b                         # return array inside new singleton method
+        get_sub_block_group(id)
       end
+      # Instantiate group
+      if options[:class_name]
+        b = Object.const_get(options[:class_name]).new
+      else
+        b = []             # Will use Array if no class defined
+      end
+      # Add sub_blocks to group
+      my_group.each do |group_id|
+        b << send(group_id)
+      end
+      sub_block_groups[id] = b
       @current_group = nil   # close group
     end
-    alias_method :sub_block_groups, :sub_block_group
-    alias_method :sub_blocks_groups, :sub_block_group
     alias_method :sub_blocks_group, :sub_block_group
 
     def namespace
@@ -387,6 +399,10 @@ module Origen
 
     def get_sub_block(name)
       sub_blocks[name]
+    end
+
+    def get_sub_block_group(name)
+      sub_block_groups[name]
     end
 
     def instantiate_sub_block(name, klass, options)
