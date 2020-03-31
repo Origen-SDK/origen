@@ -232,12 +232,19 @@ module Origen
     end
     alias_method :children, :sub_blocks
 
-    # Returns a hash containing all sub block gruops of given sub-block
-    def sub_block_groups(*args)
-      if args.empty?
-        @sub_block_groups ||= {}.with_indifferent_access
+    # Returns a hash containing all sub block groups thus far added
+    # if no arguments given.
+    # If given a code block, will serve as alias to sub_block_group method.
+    # Does not handle arguments, no need at this time.
+    def sub_block_groups(*args, &block)
+      if block_given?
+        sub_block_group(*args, &block)
       else
-        sub_block_groups(*args)
+        if args.empty?
+          @sub_block_groups ||= {}.with_indifferent_access
+        else
+          fail 'sub_block_groups not meant to take arguments!'
+        end
       end
     end
 
@@ -296,7 +303,7 @@ module Origen
         Origen.deprecate 'instances: option to sub_block is deprecated, use sub_block_groups instead'
         group_name = name =~ /s$/ ? name : "#{name}s"  # take care if name already with 's' is passed
         unless respond_to?(group_name)
-          sub_block_group group_name do
+          sub_block_groups group_name do
             i.times do |j|
               o = options.dup
               o[:_instance] = j

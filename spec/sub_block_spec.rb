@@ -501,6 +501,24 @@ module SubBlocksSpec
           c.subgroups[2].is_a?(SubItem2).should == true
         end
 
+        it "sub_block_groups hash acts as expected" do
+          c = Top.new
+
+          # check that cannot handle arguments, only
+          # block or no arguments
+          expect {
+            c.sub_block_groups(:check_args)
+          }.to raise_exception(RuntimeError)
+
+          c.sub_block_groups.count.should == 1
+          c.sub_block_groups.keys[0].should == "subgroups"
+          c.sub_block_groups["subgroups"].is_a?(SubBlocksSpec::Subs) == true
+          c.sub_block_groups["subgroups"].count.should == 3
+          c.sub_block_groups["subgroups"][0].is_a?(SubItem0).should == true
+          c.sub_block_groups["subgroups"][1].is_a?(SubItem1).should == true
+          c.sub_block_groups["subgroups"][2].is_a?(SubItem2).should == true
+        end
+
         it "subitems exist standalone from container" do 
           c = Top.new
           c.subitem0.is_a?(SubItem0).should == true
