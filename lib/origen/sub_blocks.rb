@@ -325,7 +325,7 @@ module Origen
           Origen.log.warning "The sub_block defined at #{Pathname.new(callers[0]).relative_path_from(Pathname.pwd)}:#{callers[1]} is overriding an existing method called #{name}"
         end
         define_singleton_method name do
-          get_sub_block(name)
+          sub_blocks[name]
         end
         if sub_blocks[name] && sub_blocks[name].is_a?(Placeholder)
           sub_blocks[name].add_attributes(options)
@@ -381,7 +381,7 @@ module Origen
       # Define a singleton method which will be called every time the sub_block_group is referenced
       # This is not called here but later when referenced
       define_singleton_method "#{id}" do
-        get_sub_block_group(id)
+        sub_block_groups[id]
       end
       # Instantiate group
       if options[:class_name]
@@ -403,14 +403,6 @@ module Origen
     end
 
     private
-
-    def get_sub_block(name)
-      sub_blocks[name]
-    end
-
-    def get_sub_block_group(name)
-      sub_block_groups[name]
-    end
 
     def instantiate_sub_block(name, klass, options)
       return sub_blocks[name] unless sub_blocks[name].is_a?(Placeholder)
