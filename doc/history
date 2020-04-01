@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_55_4"></a>
+<h1><a href="#v0_55_4">Tag: v0.55.4</a></h1>
+
+##### Branch: 'master'
+
+##### by Daniel Hadad on 01-Apr-2020 08:14AM
+
+
+Update how sub_block_group(s) works to fix an issue where a new instance of a sub block
+group was created each time it was referenced.
+
 <a class="anchor release_tag" name="v0_55_3"></a>
 <h1><a href="#v0_55_3">Tag: v0.55.3</a></h1>
 
