@@ -126,7 +126,11 @@ module Origen
       def log_execution_profile
         if threads.size > 1
           thread_id_size = threads.map { |t| t.id.to_s.size }.max
-          line_size = IO.console.winsize[1] - 35 - thread_id_size
+          begin
+            line_size = IO.console.winsize[1] - 35 - thread_id_size
+          rescue
+            line_size = 150
+          end
           line_size -= 16 if tester.try(:sim?)
           cycles_per_tick = (@cycle_count_stop / (line_size * 1.0)).ceil
           if tester.try(:sim?)
