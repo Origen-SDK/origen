@@ -5,13 +5,13 @@ module Origen
     # Manages a single pattern sequence, i.e. an instance of PatternSequence is
     # created for every Pattern.sequence do ... end block
     class PatternSequence
-      def initialize(name, block)
+      def initialize(name, block, pre_block = nil)
         @number_of_threads = 1
         @name = name
         @running_thread_ids = { main: true }
         # The contents of the main Pattern.sequence block will be executed as a thread and treated
         # like any other parallel block
-        thread = PatternThread.new(:main, self, block, true)
+        thread = PatternThread.new(:main, self, block, true, pre_block)
         threads << thread
         active_threads << thread
         PatSeq.send(:current_sequence=, self)
