@@ -62,25 +62,34 @@ if ARGV.delete('--coverage') ||
   Origen.log.info 'Started code coverage'
   SimpleCov.configure do
     filters.clear # This will remove the :root_filter that comes via simplecov's defaults
+
     add_filter do |src|
-      !(src.filename =~ /^#{Origen.root}\/lib/)
-    end
+       if File.directory?("#{Origen.root}/app/lib")
+        !(src.filename =~ /^#{Origen.root}\/app\/lib/)
+       else
+        !(src.filename =~ /^#{Origen.root}\/lib/)
+       end 
+      end
 
     # Results from commands run in succession will be merged by default
     use_merging(!ARGV.delete('--no_merge'))
-
     # Try and make a guess about which directory contains the bulk of the application's code
     # and create groups to match the main folders
     d1 = "#{Origen.root}/lib/#{Origen.app.name.to_s.underscore}"
     d2 = "#{Origen.root}/lib/#{Origen.app.namespace.to_s.underscore}"
     d3 = "#{Origen.root}/lib"
+    d4 = "#{Origen.root}/app/"
     if File.exist?(d1) && File.directory?(d1)
       dir = d1
     elsif File.exist?(d2) && File.directory?(d2)
       dir = d2
-    else
+    elsif File.exist?(d3) && File.directory?(d3)
       dir = d3
+    else
+      dir = d4
     end
+
+#    dir = "#{Origen.root}/lib/#{Origen.app.name.to_s.underscore}"
 
     Dir.glob("#{dir}/*").each do |d|
       d = Pathname.new(d)
