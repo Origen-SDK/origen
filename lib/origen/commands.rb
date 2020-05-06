@@ -64,12 +64,12 @@ if ARGV.delete('--coverage') ||
     filters.clear # This will remove the :root_filter that comes via simplecov's defaults
 
     add_filter do |src|
-       if File.directory?("#{Origen.root}/app/lib")
+      if File.directory?("#{Origen.root}/app/lib")
         !(src.filename =~ /^#{Origen.root}\/app\/lib/)
-       else
+      else
         !(src.filename =~ /^#{Origen.root}\/lib/)
-       end 
       end
+    end
 
     # Results from commands run in succession will be merged by default
     use_merging(!ARGV.delete('--no_merge'))
@@ -89,7 +89,7 @@ if ARGV.delete('--coverage') ||
       dir = d4
     end
 
-#    dir = "#{Origen.root}/lib/#{Origen.app.name.to_s.underscore}"
+    #    dir = "#{Origen.root}/lib/#{Origen.app.name.to_s.underscore}"
 
     Dir.glob("#{dir}/*").each do |d|
       d = Pathname.new(d)
