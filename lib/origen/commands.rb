@@ -89,8 +89,6 @@ if ARGV.delete('--coverage') ||
       dir = d4
     end
 
-    #    dir = "#{Origen.root}/lib/#{Origen.app.name.to_s.underscore}"
-
     Dir.glob("#{dir}/*").each do |d|
       d = Pathname.new(d)
       if d.directory?
