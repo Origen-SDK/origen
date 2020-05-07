@@ -75,10 +75,13 @@ if ARGV.delete('--coverage') ||
     use_merging(!ARGV.delete('--no_merge'))
     # Try and make a guess about which directory contains the bulk of the application's code
     # and create groups to match the main folders
-    d1 = "#{Origen.root}/lib/#{Origen.app.name.to_s.underscore}"
-    d2 = "#{Origen.root}/lib/#{Origen.app.namespace.to_s.underscore}"
-    d3 = "#{Origen.root}/lib"
-    d4 = "#{Origen.root}/app/"
+    # Highest priority is given to the new application structure
+    # Applications on the old directory structure need to make sure that there isn't another "lib" directory in Origen.root
+    # Applications on the new directory structure need to make sure that there isn't another "app" directory in Origen.root
+    d1 = "#{Origen.root}/app/"
+    d2 = "#{Origen.root}/lib/#{Origen.app.name.to_s.underscore}"
+    d3 = "#{Origen.root}/lib/#{Origen.app.namespace.to_s.underscore}"
+    d4 = "#{Origen.root}/lib"
     if File.exist?(d1) && File.directory?(d1)
       dir = d1
     elsif File.exist?(d2) && File.directory?(d2)
