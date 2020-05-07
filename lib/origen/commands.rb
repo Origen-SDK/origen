@@ -76,8 +76,8 @@ if ARGV.delete('--coverage') ||
     # Try and make a guess about which directory contains the bulk of the application's code
     # and create groups to match the main folders
     # Highest priority is given to the new application structure
-    # Applications on the old directory structure need to make sure that there isn't another "lib" directory in Origen.root
-    # Applications on the new directory structure need to make sure that there isn't another "app" directory in Origen.root
+    # Applications on the old directory structure need to make sure that there isn't another "app" directory in Origen.root
+    # Applications on the new directory structure need to make sure that there isn't another "lib" directory in Origen.root
     d1 = "#{Origen.root}/app/"
     d2 = "#{Origen.root}/lib/#{Origen.app.name.to_s.underscore}"
     d3 = "#{Origen.root}/lib/#{Origen.app.namespace.to_s.underscore}"
