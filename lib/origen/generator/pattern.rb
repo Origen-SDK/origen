@@ -91,9 +91,23 @@ module Origen
         # end
 
         @pattern_sequence = true
-        pattern_wrapper([], [], options) do
+
+        # The startup callbacks need to be skipped for now until the main thread is open for business
+        pattern_wrapper([], [], options.merge(call_startup_callbacks: false)) do
+          # The startup callbacks, if required, need to be wrapped up in a closure for calling
+          # later by the main thread
+          if (options.key?(:call_startup_callbacks) && !options[:call_startup_callbacks]) || options[:skip_startup]
+            pre_block = nil
+          else
+            pre_block = proc do
+              # Call startup callbacks
+              Origen.app.listeners_for(:startup).each do |listener|
+                listener.startup(options)
+              end
+            end
+          end
           PatternSequencer.send(:active=, true)
-          @pattern_sequence = PatternSequence.new(job.output_pattern_filename, block)
+          @pattern_sequence = PatternSequence.new(job.output_pattern_filename, block, pre_block)
           @pattern_sequence.send(:execute)
           PatternSequencer.send(:active=, false)
         end
