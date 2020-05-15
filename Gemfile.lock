@@ -38,7 +38,7 @@ GIT
 PATH
   remote: .
   specs:
-    origen (0.55.5)
+    origen (0.56.0)
       activesupport (~> 4.1)
       bundler (> 1.7)
       coderay (~> 1.1)
@@ -142,7 +142,7 @@ GEM
       ast (~> 2)
       origen (>= 0.41.0)
       treetop
-    parser (2.7.0.5)
+    parser (2.7.1.0)
       ast (~> 2.4.0)
     polyglot (0.3.5)
     powerpack (0.1.2)
@@ -201,7 +201,7 @@ GEM
       sync
     treetop (1.6.10)
       polyglot (~> 0.3)
-    tzinfo (1.2.6)
+    tzinfo (1.2.7)
       thread_safe (~> 0.1)
     unf (0.1.4)
       unf_ext
