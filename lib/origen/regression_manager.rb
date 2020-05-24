@@ -40,7 +40,7 @@ module Origen
         send_email:           false,
         email_all_developers: false,
         report_results:       false,
-        uses_lsf:             true,
+        uses_lsf:             true
       }.merge(options)
       options = load_options if running_in_reference_workspace?
       targets = prepare_targets(options)
@@ -61,7 +61,7 @@ module Origen
               Dir.chdir reference_origen_root do
                 Bundler.with_clean_env do
                   # Origen 0.40.0 started using origen-owned binstubs
-                  system 'rm -rf lbin' if (Gem::Version.new(Origen.version) < Gem::Version.new('0.40.0'))
+                  system 'rm -rf lbin' if Gem::Version.new(Origen.version) < Gem::Version.new('0.40.0')
                   # If regression is run using a service account, we need to setup the path/bundler manually
                   # The regression manager needs to be passed a --service_account option when initiated.
                   if options[:service_account]
