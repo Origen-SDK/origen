@@ -1,3 +1,22 @@
+<a class="anchor release_tag" name="v0_57_0"></a>
+<h1><a href="#v0_57_0">Tag: v0.57.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 26-May-2020 10:46AM
+
+
+- added on on_interface_reset check at the end of reset_interface, since I needed to
+adjust Origen.interface.flow.subdirectory immediately after the interface was created
+- relog can now relog to a custom log, via options[:log_file]
+- custom log methods can now output to console if passed verbose: true
+- workspace manager can now pass a build_method option, if :clone, then it won't try to
+init the workspace or make the empty folder
+- regression_manager can utilize a custom log
+- regression_manager won't delete lbin if Origen is using version 0.40.0 or higher
+- fixed typo in submit_origen_job
+- updates by Cody Horton
+
 <a class="anchor release_tag" name="v0_56_0"></a>
 <h1><a href="#v0_56_0">Tag: v0.56.0</a></h1>
 
