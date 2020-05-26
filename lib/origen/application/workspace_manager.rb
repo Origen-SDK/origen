@@ -114,7 +114,7 @@ module Origen
           fail "Sorry but #{path} already exists!"
         end
         FileUtils.rm_rf(path.to_s) if File.exist?(path.to_s)
-        rc = RevisionControl.new remote: options[:rc_url], local: path.to_s
+        rc = RevisionControl.new options.merge(remote: options[:rc_url], local: path.to_s)
         rc.build
       end
 
