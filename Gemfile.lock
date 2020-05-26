@@ -116,7 +116,7 @@ GEM
     mime-types (3.3.1)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2019.1009)
-    mini_portile2 (2.3.0)
+    mini_portile2 (2.4.0)
     minitest (5.14.1)
     multi_json (1.14.1)
     multi_xml (0.6.0)
@@ -124,8 +124,8 @@ GEM
       cri (~> 2.3)
     net-ldap (0.16.2)
     netrc (0.11.0)
-    nokogiri (1.8.5)
-      mini_portile2 (~> 2.3.0)
+    nokogiri (1.10.9)
+      mini_portile2 (~> 2.4.0)
     origen_debuggers (0.6.1)
       origen (>= 0.2.6)
       origen_testers (>= 0.5.0)
@@ -215,7 +215,7 @@ DEPENDENCIES
   byebug (~> 10)
   coveralls
   loco
-  nokogiri (= 1.8.5)
+  nokogiri (= 1.10.9)
   origen!
   origen_app_generators!
   origen_core_support!
