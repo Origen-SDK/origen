@@ -54,27 +54,27 @@ class Numeric
   end
 
   def as_units(units)
-    if self.abs >= 1_000_000_000_000_000
+    if abs >= 1_000_000_000_000_000
       "#{self / 1_000_000_000_000_000.0}P#{units}"
-    elsif self.abs >= 1_000_000_000_000
+    elsif abs >= 1_000_000_000_000
       "#{self / 1_000_000_000_000.0}T#{units}"
-    elsif self.abs >= 1_000_000_000
+    elsif abs >= 1_000_000_000
       "#{self / 1_000_000_000.0}G#{units}"
-    elsif self.abs >= 1_000_000
+    elsif abs >= 1_000_000
       "#{self / 1_000_000.0}M#{units}"
-    elsif self.abs >= 1_000
+    elsif abs >= 1_000
       "#{self / 1_000.0}k#{units}"
-    elsif self.abs >= 1
+    elsif abs >= 1
       "#{self}#{units}"
-    elsif self.abs >= 1e-3
+    elsif abs >= 1e-3
       "#{self * 1_000}m#{units}"
-    elsif self.abs >= 1e-6
+    elsif abs >= 1e-6
       "#{self * 1_000_000}u#{units}"
-    elsif self.abs >= 1e-9
+    elsif abs >= 1e-9
       "#{self * 1_000_000_000}n#{units}"
-    elsif self.abs >= 1e-12
+    elsif abs >= 1e-12
       "#{self * 1_000_000_000_000}p#{units}"
-    elsif self.abs >= 1e-15
+    elsif abs >= 1e-15
       "#{self * 1_000_000_000_000_000}a#{units}"
     else
       "%.3e#{units}" % self
