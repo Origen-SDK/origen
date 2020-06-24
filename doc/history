@@ -1,3 +1,13 @@
+<a class="anchor release_tag" name="v0_57_1"></a>
+<h1><a href="#v0_57_1">Tag: v0.57.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 24-Jun-2020 15:17PM
+
+
+Add absolute value checks to as_units for negative inputs - James Creamer
+
 <a class="anchor release_tag" name="v0_57_0"></a>
 <h1><a href="#v0_57_0">Tag: v0.57.0</a></h1>
 
