@@ -66,5 +66,6 @@ describe Numeric do
     5.1e-14.as_units("parsec").should == '51.0aparsec'  # About 15.7cm
     6.12e-100.as_units("googol").should == '6.120e-100googol'  # 6.12
     1e20.as_units("hp").should == '100000.0Php'
+    -10.as_units('[mV]') == '-10[mV]'
   end
 end
