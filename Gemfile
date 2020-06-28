@@ -12,6 +12,7 @@ gem "loco"
 #gem "origen_testers", "~> 0.7"
 gem 'origen_debuggers', '~> 0'
 gem 'ripper-tags'
+gem 'dentaku'
 gem 'nokogiri', '1.8.5'  # Lock to this version to enable testing in Ruby 2.2
 
 # Plugins that provide guide pages
