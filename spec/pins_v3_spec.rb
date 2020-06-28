@@ -323,6 +323,23 @@ describe "Origen Pin API v3" do
       $dut.has_pin?(:aliasm1).should == true
     end
 
+    it "a single pin knows if it can be addressed with the given name" do
+      dut.add_pin(:pin)
+      dut.add_pin_alias(:alias, :pin)
+      
+      expect(dut.pin(:pin).named?(:pin)).to be(true)
+      expect(dut.pin(:pin).named?(:alias)).to be(true)
+      expect(dut.pin(:pin).named?(:blah)).to be(false)
+    end
+
+    it "a single pin knows if its name or one of its aliases matches a given regexp" do
+      dut.add_pin(:pin)
+      dut.add_pin_alias(:gpio_0, :pin)
+      
+      expect(dut.pin(:pin).named?(/gpio/)).to be(true)
+      expect(dut.pin(:pin).named?(/pt/)).to be(false)
+    end
+
   end
 
   describe "Adding and scoping pin groups" do
@@ -375,6 +392,20 @@ describe "Origen Pin API v3" do
       # Works with a simple inline definition
       $dut.add_pins :pd, size: 16
       $dut.pins(:pd).size.should == 16
+    end
+    
+    it "pin groups can be declared directly with an offset" do
+      $dut.add_pins :offset_pins, size: 4, offset: 1
+      $dut.pins(:offset_pins).size.should == 4
+      [:offset_pins1, :offset_pins2, :offset_pins3, :offset_pins4].each do |pin_name|
+        $dut.has_pin?(pin_name).should == true
+        
+        # Origen will attempt to kill rspec if an undefined pin error is hit. The above test will fail still, so can
+        # skip these to avoid an early termination.
+        $dut.pins(pin_name).name.should == pin_name if $dut.has_pin?(pin_name)
+        $dut.pins(pin_name).rtl_name.should == pin_name.to_s if $dut.has_pin?(pin_name)
+      end
+      $dut.has_pin?(:offset_pins0).should == false
     end
 
     it "endianness of pin group tests" do
@@ -841,7 +872,338 @@ describe "Origen Pin API v3" do
   
   end
 
+  describe 'searching pins' do
+    before(:each) do
+      dut.add_pin(:pta0)
+      dut.add_pin(:pta1)
+      dut.add_pin(:pta2)
+      dut.add_pin(:ptb0)
+      dut.add_pin(:ptb1)
+      dut.add_pin(:ptc0)
+      dut.add_pin(:ptd0)
+      dut.add_power_pin(:VDD)
+      dut.add_power_pin(:VDD_CORE)
+      dut.add_power_pin(:VBAT)
+      dut.add_ground_pin(:VSS)
+      dut.add_ground_pin(:VSS_CORE)
+      dut.add_ground_pin(:GND)
+      dut.add_virtual_pin(:ptv0)
+      dut.add_virtual_pin(:ptv1)
+      dut.add_virtual_pin(:ptv2)
+      dut.add_virtual_pin(:virtual)
+      dut.add_other_pin(:pto0)
+      dut.add_other_pin(:pto1)
+      dut.add_other_pin(:pto2)
+      dut.add_other_pin(:other)
+      
+      dut.add_pin_alias(:zero_index_a, :pta0)
+      dut.add_pin_alias(:zero_index_b, :ptb0)
+      dut.add_pin_alias(:zero_index_c, :ptc0)
+      dut.add_pin_alias(:zero_index_d, :ptd0)
+    end
+    
+    it "can retrieve multiple pins" do
+      pins = dut.pins(:pta0, :pta1, :ptb1)
+      expect(pins).to be_a(Origen::Pins::PinCollection)
+      expect(pins).to include(
+        dut.pins(:pta0),
+        dut.pins(:pta1),
+        dut.pins(:ptb1)
+      )
+      expect(pins.size).to eql(3)
+    end
+    
+    it "can search for pins if a Regexp is given" do
+      pins = dut.pins(/pta/)
+      expect(pins).to be_a(Origen::Pins::PinCollection)
+      expect(pins).to include(
+        dut.pins(:pta0),
+        dut.pins(:pta1),
+        dut.pins(:pta2)
+      )
+      expect(pins.size).to eql(3)
+    end
+    
+    it "combines results from multiple pin names and Regexp into a single return value" do
+      pins = dut.pins(/pta/, /ptc/, :ptd0)
+      expect(pins).to be_a(Origen::Pins::PinCollection)
+      expect(pins).to include(
+        dut.pins(:pta0),
+        dut.pins(:pta1),
+        dut.pins(:pta2),
+        dut.pins(:ptc0),
+        dut.pins(:ptd0)
+      )
+      expect(pins.size).to eql(5)
+    end
+    
+    it 'can accept a block as search condition' do
+      pins = dut.pins { |n, p| n.to_s.start_with?('pta') || n.to_s.end_with?('0') }
+      expect(pins).to be_a(Origen::Pins::PinCollection)
+      expect(pins).to include(
+        dut.pins(:pta0),
+        dut.pins(:pta1),
+        dut.pins(:pta2),
+        dut.pins(:ptb0),
+        dut.pins(:ptc0),
+        dut.pins(:ptd0)
+      )
+      expect(pins.size).to eql(6)
+    end
+    
+    it 'combines a given block with other inputs' do
+      pins = dut.pins(/ptb/) { |n, p| n.to_s.start_with?('pta') || n.to_s.end_with?('0') }
+      expect(pins).to be_a(Origen::Pins::PinCollection)
+      expect(pins).to include(
+        dut.pins(:pta0),
+        dut.pins(:pta1),
+        dut.pins(:pta2),
+        dut.pins(:ptb0),
+        dut.pins(:ptc0),
+        dut.pins(:ptd0),
+        dut.pins(:ptb1)
+      )
+      expect(pins.size).to eql(7)
+    end
+    
+    it 'raises an error if a pin name is given, even with multiple pins, and does not exists' do
+      expect {
+        dut.pins(/pta/, :blah)
+      }.to raise_error(RuntimeError, /Pin not found/)
+    end
+    
+    it 'returns an empty array if the given Regexp(s) yield to results' do
+      pins = dut.pins(/blah/)
+      expect(pins).to be_a(Origen::Pins::PinCollection)
+      expect(pins.size).to eql(0)
+
+      pins = dut.pins(/blah0/, /blah1/)
+      expect(pins).to be_a(Origen::Pins::PinCollection)
+      expect(pins.size).to eql(0)
+    end
+    
+    it 'also searches through pin aliases' do
+      pins = dut.pins(/zero_index/)
+      expect(pins).to be_a(Origen::Pins::PinCollection)
+      expect(pins).to include(
+        dut.pins(:pta0),
+        dut.pins(:ptb0),
+        dut.pins(:ptc0),
+        dut.pins(:ptd0)
+      )
+      expect(pins.size).to eql(4)
+    end
+    
+    it 'can also search through power pins' do
+      pins = dut.power_pins(/VDD/)
+      expect(pins).to be_a(Origen::Pins::PinCollection)
+      expect(pins).to include(
+        dut.power_pin(:VDD),
+        dut.power_pin(:VDD_CORE)
+      )
+      expect(pins.size).to eql(2)
+    end
+
+    it 'can also search through ground pins' do
+      pins = dut.ground_pins(/VSS/)
+      expect(pins).to be_a(Origen::Pins::PinCollection)
+      expect(pins).to include(
+        dut.ground_pin(:VSS),
+        dut.ground_pin(:VSS_CORE)
+      )
+      expect(pins.size).to eql(2)
+    end
+
+    it 'can also search through virtual pins' do
+      pins = dut.virtual_pins(/ptv/)
+      expect(pins).to be_a(Origen::Pins::PinCollection)
+      expect(pins).to include(
+        dut.virtual_pins(:ptv0),
+        dut.virtual_pins(:ptv1),
+        dut.virtual_pins(:ptv2)
+      )
+      expect(pins.size).to eql(3)
+    end
+
+    it 'can also search through other pins' do
+      pins = dut.other_pins(/pto/)
+      expect(pins).to be_a(Origen::Pins::PinCollection)
+      expect(pins).to include(
+        dut.other_pins(:pto0),
+        dut.other_pins(:pto1),
+        dut.other_pins(:pto2)
+      )
+      expect(pins.size).to eql(3)
+    end
+  end
   
+  describe 'pin indices and masks' do
+    before(:each) do
+      dut.add_pin(:pta4)
+      dut.add_pin(:pta5)
+      dut.add_pin(:pta6)
+      dut.add_pin(:pta7)
+      dut.add_pin_group(:pta, :pta7, :pta6, :pta5, :pta4)
+      
+      dut.add_pin(:pin)
+    end
+
+    it 'a pin knows its index within the given context' do
+      expect(dut.pin(:pta4).index(context: :pta)).to eql(0)
+      expect(dut.pin(:pta5).index(context: :pta)).to eql(1)
+      expect(dut.pin(:pta6).index(context: :pta)).to eql(2)
+      expect(dut.pin(:pta7).index(context: :pta)).to eql(3)
+    end
+    
+    it 'a pin returns nil if it is not part of the given context' do
+      expect(dut.pin(:pta4).index(context: :ptb)).to be(nil)
+    end
+    
+    it 'a pin can discern its index from an anonymous pin group, given as symbols' do
+      group = [:pta4, :pta5, :pta6, :pta7]
+      expect(dut.pin(:pta4).index(context: group)).to eql(0)
+      expect(dut.pin(:pta5).index(context: group)).to eql(1)
+      expect(dut.pin(:pta6).index(context: group)).to eql(2)
+      expect(dut.pin(:pta7).index(context: group)).to eql(3)
+    end
+    
+    it 'a pin can discern its index from an anonymous pin group, given as symbols and pins' do
+      group = [:pta4, dut.pins(:pta5), :pta6, dut.pins(:pta7)]
+      expect(dut.pin(:pta4).index(context: group)).to eql(0)
+      expect(dut.pin(:pta5).index(context: group)).to eql(1)
+      expect(dut.pin(:pta6).index(context: group)).to eql(2)
+      expect(dut.pin(:pta7).index(context: group)).to eql(3)
+    end
+
+    it 'a pin returns nil if its not part of the anonymous pin group (given as an array)' do
+      expect(dut.pin(:pta4).index(context: [:pta5, :pta6, :pta7])).to be(nil)
+    end
+
+    it 'a pin will attempt to resolve its index if a group is not given but it ends in a number' do
+      expect(dut.pin(:pta4).index).to eql(4)
+      expect(dut.pin(:pta5).index).to eql(5)
+      expect(dut.pin(:pta6).index).to eql(6)
+      expect(dut.pin(:pta7).index).to eql(7)
+    end
+    
+    it 'a pin returns nil if cannot resolve its index' do
+      expect(dut.pin(:pin).index).to be(nil)
+    end
+    
+    describe 'pin masks (setting)' do
+      it 'has alias methods' do
+        [:set_mask, :smask].each do |m|
+          expect(dut.pin(:pta4).method(m)).to eql(dut.pin(:pta4).method(:mask))
+        end
+      end
+      
+      it 'can generate a mask, setting just this bit, based on its implicit index' do
+        expect(dut.pin(:pta4).mask).to eql(0b1_0000)
+        expect(dut.pin(:pta5).mask).to eql(0b10_0000)
+        expect(dut.pin(:pta6).mask).to eql(0b100_0000)
+        expect(dut.pin(:pta7).mask).to eql(0b1000_0000)
+      end
+
+      it 'can generate a mask, setting just this bit, given a context pin group' do
+        expect(dut.pin(:pta4).mask(context: :pta)).to eql(0b1)
+        expect(dut.pin(:pta5).mask(context: :pta)).to eql(0b10)
+        expect(dut.pin(:pta6).mask(context: :pta)).to eql(0b100)
+        expect(dut.pin(:pta7).mask(context: :pta)).to eql(0b1000)
+      end
+
+      it 'can generate a mask, setting just this bit, given an array of pins as context' do
+        pta = [:pta4, dut.pins(:pta5), :pta6, dut.pins(:pta7)]
+        expect(dut.pin(:pta4).mask(context: pta)).to eql(0b1)
+        expect(dut.pin(:pta5).mask(context: pta)).to eql(0b10)
+        expect(dut.pin(:pta6).mask(context: pta)).to eql(0b100)
+        expect(dut.pin(:pta7).mask(context: pta)).to eql(0b1000)
+      end
+
+      it 'can generate a mask, setting just this bit, given an index context' do
+        expect(dut.pin(:pin).mask(context: 4)).to eql(0b1_0000)
+        expect(dut.pin(:pta7).mask(context: 4)).to eql(0b1_0000)
+      end
+
+      it 'raises an exception if the implicit index cannot be discerned' do
+        expect {
+          dut.pin(:pin).mask
+        }.to raise_exception(RuntimeError, /Could not discern pin :pin's implicit index!/)
+      end
+
+      it 'raises an exception if the pin is not present in the given context' do
+        expect {
+          dut.pin(:pta4).mask(context: :ptb)
+        }.to raise_exception(RuntimeError, /Pin :pta4 is not a member of the given context!/)
+      end
+    end
+    
+    describe 'pin masks (clearing)' do
+      it 'has alias methods' do
+        [:clr_mask, :cmask].each do |m|
+          expect(dut.pin(:pta4).method(m)).to eql(dut.pin(:pta4).method(:clear_mask))
+        end
+      end
+      
+      it 'can generate a mask, clearing just this bit, based on its implicit index' do
+        expect(dut.pin(:pta4).clear_mask).to eql(0b0_1111)
+        expect(dut.pin(:pta5).clear_mask).to eql(0b01_1111)
+        expect(dut.pin(:pta6).clear_mask).to eql(0b011_1111)
+        expect(dut.pin(:pta7).clear_mask).to eql(0b0111_1111)
+      end
+
+      it 'can generate a mask, clearing just this bit, given a context pin group' do
+        expect(dut.pin(:pta4).clear_mask(context: :pta)).to eql(0b1110)
+        expect(dut.pin(:pta5).clear_mask(context: :pta)).to eql(0b1101)
+        expect(dut.pin(:pta6).clear_mask(context: :pta)).to eql(0b1011)
+        expect(dut.pin(:pta7).clear_mask(context: :pta)).to eql(0b0111)
+      end
+
+      it 'can generate a mask, clearing just this bit, given an array of pins as context' do
+        pta = [:pta4, dut.pins(:pta5), :pta6, dut.pins(:pta7)]
+        expect(dut.pin(:pta4).clear_mask(context: pta)).to eql(0b1110)
+        expect(dut.pin(:pta5).clear_mask(context: pta)).to eql(0b1101)
+        expect(dut.pin(:pta6).clear_mask(context: pta)).to eql(0b1011)
+        expect(dut.pin(:pta7).clear_mask(context: pta)).to eql(0b0111)
+      end
+
+      it 'can generate a mask, clearing just this bit, given a :size option' do
+        expect(dut.pin(:pta4).clear_mask(size: 16)).to eql(0b1111_1111_1110_1111)
+        expect(dut.pin(:pta5).clear_mask(size: 16)).to eql(0b1111_1111_1101_1111)
+        expect(dut.pin(:pta6).clear_mask(size: 16)).to eql(0b1111_1111_1011_1111)
+        expect(dut.pin(:pta7).clear_mask(size: 16)).to eql(0b1111_1111_0111_1111)
+      end
+
+      it 'can generate a mask, clearing just this bit, given an index context' do
+        expect(dut.pin(:pin).clear_mask(context: 4)).to eql(0b0_1111)
+        expect(dut.pin(:pta7).clear_mask(context: 4)).to eql(0b0_1111)
+      end
+
+      it 'can generate a mask, clearing just this bit, given an index context and a size option' do
+        expect(dut.pin(:pin).clear_mask(context: 4, size: 8)).to eql(0b1110_1111)
+        expect(dut.pin(:pta7).clear_mask(context: 4, size: 8)).to eql(0b1110_1111)
+      end
+      
+      it 'raises an exception if the implicit index cannot be discerned' do
+        expect {
+          dut.pin(:pin).clear_mask
+        }.to raise_exception(RuntimeError, /Could not discern pin :pin's implicit index!/)
+      end
+
+      it 'raises an exception if the pin is not present in the given context' do
+        expect {
+          dut.pin(:pta4).clear_mask(context: :ptb)
+        }.to raise_exception(RuntimeError, /Pin :pta4 is not a member of the given context!/)
+      end
+      
+      it 'raises an exception if context is given as an array or pin group, and a size option is given' do
+        expect {
+          dut.pin(:pta4).clear_mask(context: :pta, size: 8)
+        }.to raise_exception(RuntimeError, /Both a sized context \(e.g. pin group\) and a :size option cannot be used simultaneously!/)
+      end
+    end
+  end
+  
+ 
   it "driving or asserting nil is the same as 0" do
     pin = $dut.add_pin :pinx
     pin.drive(1)

@@ -46,7 +46,10 @@ module Origen
         else
           x.send(:initialize, *args, &block)
         end
-        x.send(:_initialized) if x.respond_to?(:is_an_origen_model?)
+        if x.respond_to?(:is_an_origen_model?)
+          x.send(:_initialized)
+          Origen::Loader.load_block(x)
+        end
         if x.respond_to?(:register_callback_listener)
           Origen.after_app_loaded do |app|
             x.register_callback_listener
@@ -55,6 +58,7 @@ module Origen
         # Do this before wrapping, otherwise the respond to method in the controller will
         # be looking for the model to be instantiated when it is not fully done yet
         is_top_level = x.respond_to?(:includes_origen_top_level?)
+
         if x.respond_to?(:wrap_in_controller)
           x = x.wrap_in_controller
         end

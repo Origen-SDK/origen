@@ -46,7 +46,9 @@ module Origen
             Origen.log.info 'Monitor status of remote jobs via:'
             Origen.log.info '  origen l'
           else
-            Origen.log.info '*' * 70 unless options[:quiet]
+            unless tester && tester.try(:sim?)
+              Origen.log.info '*' * 70 unless options[:quiet]
+            end
             Origen.app.listeners_for(:before_generate).each do |listener|
               if listener.class.instance_method(:before_generate).arity == 0
                 listener.before_generate
@@ -82,29 +84,35 @@ module Origen
                   Origen.app.listeners_for(:program_generated).each(&:program_generated)
                 else
                   temporary_plugin_from_options = options[:current_plugin]
-                  expand_lists_and_directories(options[:files], options).each do |file|
-                    if temporary_plugin_from_options
-                      Origen.app.plugins.temporary = temporary_plugin_from_options
-                    end
-                    case options[:action]
-                    when :compile
-                      Origen.generator.compile_file_or_directory(file, options)
-                    when :merge
-                      Origen.generator.merge_file_or_directory(file, options)
-                    when :import_test_time
-                      Origen.time.import_test_time(file, options)
-                    when :import_test_flow
-                      Origen.time.import_test_flow(file, options)
-                    else
-                      Origen.generator.generate_pattern(file, options)
-                    end
+                  if options[:action] == :pattern && options[:sequence]
+                    patterns = expand_lists_and_directories(options[:files], options.merge(preserve_duplicates: true))
+                    Origen.generator.generate_pattern(patterns, options)
                     Origen.app.plugins.temporary = nil if temporary_plugin_from_options
+                  else
+                    expand_lists_and_directories(options[:files], options).each do |file|
+                      if temporary_plugin_from_options
+                        Origen.app.plugins.temporary = temporary_plugin_from_options
+                      end
+                      case options[:action]
+                      when :compile
+                        Origen.generator.compile_file_or_directory(file, options)
+                      when :merge
+                        Origen.generator.merge_file_or_directory(file, options)
+                      when :import_test_time
+                        Origen.time.import_test_time(file, options)
+                      when :import_test_flow
+                        Origen.time.import_test_flow(file, options)
+                      else
+                        Origen.generator.generate_pattern(file, options)
+                      end
+                      Origen.app.plugins.temporary = nil if temporary_plugin_from_options
+                    end
                   end
                 end
               end
             end
 
-            unless options[:quiet]
+            unless options[:quiet] || (tester && tester.try(:sim?))
               Origen.log.info '*' * 70
               stats.print_summary unless options[:action] == :merge
             end
@@ -255,8 +263,15 @@ module Origen
           if Origen.mode.production? && Origen.app.rc
             unless Origen.app.rc.local_modifications.empty?
               puts <<-EOT
-    Your workspace has local modifications that are preventing the requested action
-      - run 'origen rc mods' to see them.
+    Your workspace is running in production mode and it has local modifications which are preventing
+    the requested action, run the following command to see what files have been modified:
+
+      origen rc mods
+
+    If you are currently developing this application and are not ready to check everything in yet,
+    then run the following command to switch your workspace to debug/development mode:
+
+      origen m debug
               EOT
               exit 1
             end

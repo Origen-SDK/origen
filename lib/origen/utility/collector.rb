@@ -16,7 +16,7 @@ module Origen
       attr_reader :_methods_
 
       # Creates a new Collector object and creates a Hash out of the methods names and values in the given block.
-      # @see http://origen-sdk.org/origen/guides/misc/utilities/#Collector
+      # @see https://origen-sdk.org/origen/guides/misc/utilities/#Collector
       # @example Create a collector to transform a block into a Hash
       #  Origen::Utility::Collector.new { |c| c.my_param 'My Parameter'}.to_h #=> {my_param: 'My Parameter'}
       # @yield [self] Passes the collector to the given block.
@@ -57,7 +57,7 @@ module Origen
       alias_method :to_h, :to_hash
 
       # Using the method name, creates a key in the Collector with argument given to the method.
-      # @see http://origen-sdk.org/origen/guides/misc/utilities/#Collector
+      # @see https://origen-sdk.org/origen/guides/misc/utilities/#Collector
       # @note If no args are given, the method key is set to <code>nil</code>.
       # @raise [ArgumentError] Raised when a method attempts to use both arguments and a block in the same line.
       #   E.g.: <code>collector.my_param 'my_param' { 'MyParam' }</code>

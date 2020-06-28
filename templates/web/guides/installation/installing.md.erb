@@ -1,0 +1,103 @@
+% render "layouts/guides.html" do
+
+Origen can be installed on Linux or Windows, this guide refers to the Linux installation.
+
+If running on windows is of interest then please see this guide instead:
+[How to Install Origen on Windows](<%= path "guides/installation/installwin" %>)
+
+#### Background
+
+Origen is distributed as a Ruby gem, which is the Ruby language's package manager.
+
+Installation of Origen consists of the following steps:
+
+* [Install Pre-Requisites](#Install_Pre-Requisites)
+* [Install Ruby](#Install_Ruby)
+* [Install Origen](#Install_Origen)
+* [Customize your installation](<%= path "guides/installation/company" %>) (optional)
+
+### 1. Install Pre-Requisites
+
+To install Ruby, your system will need a C compiler and the Make utility. Installation of this
+will vary depending on your particular Linux distribution, but for example on Ubuntu
+the required build environment can be installed by running:
+
+~~~text
+sudo apt-get install build-essential
+~~~
+
+It is also recommend to install a recent version (2.x) of Git, if you don't know how to
+do that, google for *"how to install Git on \<your distribution\>"*. 
+
+### 2. Install Ruby
+
+Origen requires a **minimum Ruby version of 2.1.0**, you can install this or the latest version.
+
+If you are working from a personal Linux box (or VM), or if you want to install Ruby for
+yourself only, we recommend that you install it via [rbenv](https://github.com/sstephenson/rbenv) and follow these
+[installation instructions](https://github.com/sstephenson/rbenv#installation).
+
+This will install Ruby to your home directory and will not require you to have root access.
+
+If you are working from a corporate environment where a central Ruby installation will
+be used by many users, we recommend that you follow the instructions on the
+[official Ruby installation guide](https://www.ruby-lang.org/en/documentation/installation/).
+
+Most likely building from source will be the most appropriate choice in this case, especially
+if dealing with an older Linux distribution, since the version available from your system's
+package manager will probably be quite old.
+
+If you have any particular problems installing Ruby, please [use this discussion thread](https://disqus.com/home/channel/origensdk/discussion/channel-origensdk/ruby_installation_issues/)
+so that we can build up a record of common problems and solutions.
+
+### 3. Modify Your $PATH
+
+All Origen applications will create an `lbin` directory that contains the `origen` executable (and others), you should add these directories to your `$PATH`.
+
+Executing this command will do that for bash:
+
+~~~text
+echo 'export PATH="./lbin:$PATH"' >> ~/.bashrc
+~~~
+
+### 4. Install Origen
+
+Once you have Ruby successfully installed, Origen can be installed very easily via:
+
+~~~text
+gem install origen --no-rdoc --no-ri
+~~~
+
+You can then verify Origen availability by running <code>origen -v</code>
+at which point you should see something like this:
+
+~~~text
+    Origen: <%= Origen.version %>
+~~~
+
+Congratulations, Origen is now installed!
+
+Note that the version of Origen that is installed to your Ruby installation does not need to
+be kept up to date with the latest version of Origen. You can now consider your Ruby environment
+to be frozen for the foreseeable future.
+
+See the section on [Understanding Gems](<%= path "guides/installation/gems" %>) for details on
+why that is.
+
+
+#### A Note on Nokogiri
+
+A common problem with the final step of installing Origen is to run into problems installing
+a gem called Nokogiri (which is one of Origen's dependencies).
+
+Generally the more recent your Linux distribution is, the less likely you are to have problems
+with this.
+
+It is beyond the scope of this document to deal with likely causes and solutions, however if
+you do run into problems google should yield plenty of hits of similar cases and hopefully
+with guidelines on how to fix it.
+
+You can also report problems via this Origen forum thread on [Nokogiri Installation Issues](https://disqus.com/home/channel/origensdk/discussion/channel-origensdk/nokogiri_installation_issues/)
+and we will do our best to provide help, or you can actually just comment below...
+
+% end

@@ -113,45 +113,89 @@ $dut.nvm.analog.ctrl.adch[1..0]
 
 #### Bit Order and Serial Processing
   
-By default, a register is defined with its LSB in bit position 0, this can be changed to the MSB at position 0 by setting the
+By default, a register is defined with LSB0 bit numbering, this can be changed to the MSB0 numbering by setting the
 <code>bit_order</code> attribute as shown below:
   
 ~~~ruby
+# identical register description as above, except described with MSB0 numbering
 reg :ctrl, 0x0024, size: 16, bit_order: :msb0 do |reg|
-  # Bit definitions would be exactly the same as the above example
+  reg.bit 8,      :coco, access: :ro
+  reg.bit 9,      :aien
+  reg.bit 10,     :diff
+  reg.bit 11..15, :adch, reset: 0x1F
 end
 ~~~
 
-A register with the MSB in bit position 0 will appear reversed in the console view, compare the following to the earlier example:
+Origen, however will store and access the register with LSB0 bit numbering. This allows the ecosystem of plugins to behave
+consistently regardless of how the register was described without needing to constantly check and recalculate indexes.
+
+A register defined with MSB0 bit numbering will appear in the console view with LSB0 numbering. These bit numbers can
+be used to access bits by number. If you have worked with MSB0 numbering before you can appreciate how confusing it can
+be, especially when switching back and forth. So, Origen provides an API to "say what you mean" and handles the converting.
+
+~~~ruby
+  # use .with_lsb0 to explicitly refer to bits using LSB0 numbering
+  $dut.nvm.analog.ctrl.with_lsb0[7].write 1       # set :coco by referring to the bit number
+  
+  # the equivalent code without explicitly using .with_lsb0
+  $dut.nvm.analog.ctrl[7].write 1       # set :coco by referring to the bit number
+
+  # use .with_msb0 to explicitly refer to bits using MSB0 numbering
+  $dut.nvm.analog.ctrl.with_msb0[8].write 1       # set :coco by referring to the bit number
+~~~
+
+Below is the console output when displaying the register (first with LSB0 numbering (default) then MSB0):
   
 ~~~text
 > origen i
 
 >> $dut.nvm.analog.ctrl
-=>
+
+[WARNING]    0.038[0.038]    || Register displayed with lsb0 numbering, but defined with msb0 numbering
+[WARNING]    0.039[0.000]    || Access (and display) this register with explicit numbering like this:
+[WARNING]    0.039[0.000]    ||
+[WARNING]    0.039[0.000]    ||    reg(:ctrl).with_msb0        # bit numbering scheme is msb0
+[WARNING]    0.039[0.000]    ||    reg(:ctrl).with_lsb0        # bit numbering scheme is lsb0 (default)
+[WARNING]    0.040[0.000]    ||    reg(:ctrl)                  # bit numbering scheme is lsb0 (default)
+
+0x24 - :ctrl
+  ================================================================================================================
+  |     15      |     14      |     13      |     12      |     11      |     10      |      9      |      8      |
+  |             |             |             |             |             |             |             |             |
+  |             |             |             |             |             |             |             |             |
+  ----------------------------------------------------------------------------------------------------------------
+  |      7      |      6      |      5      |      4      |      3      |      2      |      1      |      0      |
+  |    :coco    |    :aien    |    :diff    |                             :adch[4:0]                              |
+  |    0(RO)    |      0      |      0      |                                0x1F                                 |
+  ----------------------------------------------------------------------------------------------------------------
+
+  
+  
+>> $dut.nvm.analog.ctrl.with_msb0
+
 0x24 - :ctrl
   ================================================================================================================
   |      0      |      1      |      2      |      3      |      4      |      5      |      6      |      7      |
-  |                             :adch[4:0]                              |    :diff    |    :aien    |    :coco    |
-  |                                0x1F                                 |      0      |      0      |    0(RO)    |
+  |             |             |             |             |             |             |             |             |
+  |             |             |             |             |             |             |             |             |
   ----------------------------------------------------------------------------------------------------------------
   |      8      |      9      |     10      |     11      |     12      |     13      |     14      |     15      |
-  |             |             |             |             |             |             |             |             |
-  |             |             |             |             |             |             |             |             |
+  |    :coco    |    :aien    |    :diff    |                             :adch[0:4]                              |
+  |    0(RO)    |      0      |      0      |                                0x1F                                 |
   ----------------------------------------------------------------------------------------------------------------
 ~~~
 
-When serially processing a register (in a pattern driver for example), some of the APIs will change order depending on the
-<code>bit_order</code> value.
+When serially processing a register (in a pattern driver for example), there are APIs that will always return bits in the desired order regardless of the
+<code>.with_lsb0</code> or <code>.with_msb0</code> setting.
 Here is a summary of the APIs that are available for serially processing a register and how they behave in respect to this
 attribute:
   
-* shift_out / shift_out_with_index - A logical rather than a physical shift, this will process the bits with the LSB going first
-  and it will behave the same regardless of the register's bit order.
+* shift_out / shift_out_with_index - This will process the bits with the LSB coming out first
+* shift_out_right / shift_out_right_with_index - Equivalent to shift_out, it will process the bottom-right bit of the
+  register (as displayed in the console) first.
 * reverse_shift_out / reverse_shift_out_with_index - As above, but MSB first.  
-* shift_out_left / shift_out_left_with_index - Think of this as a physical shift, it will process the top-left bit of the
-  register first and which bit that is will depend on the bit order.
-* shift_out_right / shift_out_right_with_index - As above, but with the bottom-right bit going first.
+* shift_out_left / shift_out_left_with_index - Equivalent to reverse_shift_out, it will process the top-left bit of the
+  register (as displayed in the console) first.
   
 All of these APIs behave like this:
   
@@ -160,7 +204,7 @@ myreg.shift_out_left_with_index do |bit, i|
   # This block will execute for each bit in the register
   # *bit* is a bit object (instance of Origen::Reg::Bit)
   # *i* is the iteration index, 0, 1, 2, etc. Note that this is only available for the _with_index versions.
-  bist_shift(bit)
+  bit_shift(bit)
 end
 ~~~
   
@@ -314,9 +358,9 @@ bit.bit_value_descriptions[1]   # => "FMU clock is the internal oscillator from 
 ~~~
 
 Most commonly these descriptions will be used for documentation, for example the 
-[Documentation Helpers](http://origen-sdk.org/doc_helpers/) plugin provides
+[Documentation Helpers](https://origen-sdk.org/doc_helpers/) plugin provides
 helpers to easily present registers in Origen documentation as shown here -
-[Register Helpers](http://origen-sdk.org/doc_helpers/latest/examples/register/).
+[Register Helpers](https://origen-sdk.org/doc_helpers/latest/examples/register/).
 
 The descriptions can also be supplied as in-line arguments, **but doing so overrides any comment-based
 documentation.**  Thus, it is intended to be used
@@ -406,7 +450,7 @@ register definitions in Origen.
 This will generate the exact same models of the registers as if they had been declared directly
 into Origen.
 
-This import (and export) functionality is provided via the [Cross Origen](http://origen-sdk.org/cross_origen/)
+This import (and export) functionality is provided via the [Cross Origen](https://origen-sdk.org/cross_origen/)
 plugin and this should be consulted directly for the latest information on the API and the supported formats.
 
 However here is a brief example of how it can be used to import from a local XML file:
@@ -430,7 +474,7 @@ end
 By using the above API Origen has now built an accurate register model that will look and behave like the
 real register on silicon.
 This is extremely convenient and useful for pattern generation as we will see later, but it can also
-be very useful for other applications such as [generating documentation](http://origen-sdk.org/doc_helpers/examples/register/).
+be very useful for other applications such as [generating documentation](https://origen-sdk.org/doc_helpers/examples/register/).
 
 Each register created by Origen is an instance of the
 [Origen::Registers::Reg](<%= path "api/Origen/Registers/Reg.html" %>)

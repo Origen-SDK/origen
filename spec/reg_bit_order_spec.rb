@@ -123,14 +123,15 @@ describe "Register bit order control" do
       bit.data.should == data[31 - i]
     end
     # Regular MSB0 reg, with all bits the same bit order
+    # The order of the bits in the register does not change when :msb0, only the number that refers to the bit
     data = 0x1122_3344
     dut.msb0.write(data)
     dut.msb0.data.should == data
     dut.msb0.shift_out_right_with_index do |bit, i|
-      bit.data.should == data[31 - i]
+      bit.data.should == data[i]
     end
     dut.msb0.shift_out_left_with_index do |bit, i|
-      bit.data.should == data[i]
+      bit.data.should == data[31 - i]
     end
   end
 
@@ -156,8 +157,9 @@ describe "Register bit order control" do
     msb0_reg.PKG.data.should == 1
     msb0_reg.PKG[0].data.should == 1
     msb0_reg.PKG[4].data.should == 0
-    msb0_reg[17].data.should == 1
-    msb0_reg[21].data.should == 0
+    # with reg def remapped from msb0 format to lsb0 format PKG becomes bits[14..10]
+    msb0_reg[10].data.should == 1
+    msb0_reg[14].data.should == 0
   end
 
   it "inverse and reverse data methods work with msb0 regs" do

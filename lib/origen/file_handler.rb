@@ -15,7 +15,10 @@ module Origen
     # This will also take care of recursively expanding any embedded
     # list references.
     def expand_list(files, options = {})
-      [files].flatten.map do |file|
+      options = {
+        preserve_duplicates: tester && tester.try(:sim?)
+      }.merge(options)
+      list_of_files = [files].flatten.map do |file|
         f = file.strip
         # Takes care of blank or comment lines in a list file
         if f.empty? || f =~ /^\s*#/
@@ -28,7 +31,12 @@ module Origen
         else
           f
         end
-      end.flatten.compact.uniq
+      end.flatten.compact
+      if options[:preserve_duplicates]
+        list_of_files
+      else
+        list_of_files.uniq
+      end
     end
 
     # Returns the contents of the given list file in an array, if it
@@ -92,7 +100,7 @@ module Origen
     def clean_path_to(file, options = {})
       # Allow individual calls to this method to specify additional custom load paths to consider
       if options[:load_paths]
-        [options[:load_paths]].each do |root|
+        Array(options[:load_paths]).each do |root|
           if File.exist?("#{root}/#{file}")
             return Pathname.new("#{root}/#{file}")
           end
@@ -214,7 +222,7 @@ module Origen
       begin
         # Allow relative references to templates/web when compiling a web template
         if Origen.lsf.current_command == 'web' || web_file
-          clean_path_to(file, load_paths: "#{Origen.root}/templates/web")
+          clean_path_to(file, load_paths: ["#{Origen.root}/app/templates/web", "#{Origen.root}/templates/web"])
         else
           clean_path_to(file)
         end
@@ -222,7 +230,7 @@ module Origen
         # Try again without .erb
         file = file.gsub('.erb', '')
         if Origen.lsf.current_command == 'web' || web_file
-          clean_path_to(file, load_paths: "#{Origen.root}/templates/web")
+          clean_path_to(file, load_paths: ["#{Origen.root}/app/templates/web", "#{Origen.root}/templates/web"])
         else
           clean_path_to(file)
         end
@@ -256,7 +264,11 @@ module Origen
             if import_name == :origen || import_name == :origen_core
               path.sub! 'origen', "#{Origen.top}/templates/shared"
             else
-              path.sub! Regexp.last_match[1], "#{root}/templates/shared"
+              if File.exist?("#{root}/app/templates/shared")
+                path.sub! Regexp.last_match[1], "#{root}/app/templates/shared"
+              else
+                path.sub! Regexp.last_match[1], "#{root}/templates/shared"
+              end
             end
           else
             fail 'Unknown import path type!'
@@ -266,7 +278,9 @@ module Origen
       path
     end
 
+    # @deprecated
     def clean_path_to_sub_program(file)
+      Origen.deprecated 'Origen.file_handler.clean_path_to_sub_program is deprecated, update to use version ... of origen_testers instead.'
       file = add_underscore_to(file)
       file = add_rb_to(file)
       clean_path_to(file)

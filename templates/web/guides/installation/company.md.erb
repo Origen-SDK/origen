@@ -1,0 +1,301 @@
+% render "layouts/guides.html" do
+
+A mechanism is provided to customize the Origen installation to a particular
+company.
+
+The main customization options that this currently provides are:
+
+* An internal gem server. This can be used to distribute private Origen plugins
+  within your company. When this is defined any new Origen applications that are created
+  will automatically come configured to read from your server in addition to rubygems.org.
+* Integration with your company's email delivery system, allowing your applications to
+  easily send transactional email to their users. 
+* Integration with your company's LDAP user authentication system. This API may not be
+  generic enough yet, but it is used within NXP and we are keen to work
+  with anyone who wants to pilot it within another company.
+
+#### How The Configuration System Works
+
+Whenever an application is invoked, one of the first things that Origen will do is search
+for a company configuration file called <code>origen_site_config.yml</code>.
+
+Starting from the application directory, the file system will be checked for the presence
+of any valid configuration files within the application's config or root directories, and then in any of its parent
+directories until it hits the file system root directory.
+
+It will then check for a configuration file within the directory where Ruby is installed,
+and then again recursively through any of its parent directories.
+
+If multiple files are found then they will all be applied, with highest priority given
+to the files that are found first - i.e. those located closest to the current application.
+  
+So for example, if everyone in your company uses a common Ruby installation, then you can put a config
+file somewhere in Ruby's directory and it will be globally applied.
+
+Alternatively, if all of your users have their workspaces underneath <code>/proj</code> or
+similar, then <code>/proj/origen_site_config.yml</code> may be a good place to put it.
+This also provides a mechanism for per-project or even per-application overrides by
+adding additional config files higher up the tree.
+
+#### Creating the Configuration File
+
+To create a config file simple copy the [default configuration from Origen core](https://github.com/Origen-SDK/origen/blob/master/origen_site_config.yml)
+and edit it as required.
+
+The values present in this default file are the ones that will be applied by default in
+an installation where no custom configs are present.
+
+#### Dynamic Configuration Files
+
+Origen supports a static <code>origen_site_config.yml</code>, but also supports a template <code>origen_site_config.yml.erb</code>.
+If Origen encounters a site config with the extension <code>.yml.erb</code>, it will invoke the [ERB](https://ruby-doc.org/stdlib-2.5.3/libdoc/erb/rdoc/ERB.html)
+template, adding some dynamic nature to the configuration. With this, the same configuration file can be used throughout
+but can set the site according to the current operating system, the hostname, or anything else. If you are not familiar with
+ERB templating, you can view a [quickstart guide on the Origen docs](https://origen-sdk.org/origen/guides/compiler/creating/).
+
+The site config will automatically include Origen's [Boot API](https://github.com/Origen-SDK/origen/blob/master/lib/origen/boot/api.rb),
+and can be used freely out of the gate.
+
+<div class="alert alert-warning">
+  <strong>Warning!</strong> You should not require any gems (including Origen) within your ERB code. The amount of logic
+  should be kept to a minimum and only be used to customize parameter values to the environment OS or a particular host.
+</div>
+
+<div class="alert alert-warning">
+The ERB template format is hard-coded to match that of the <a href="https://origen-sdk.org/origen/guides/compiler/creating/#Template_Syntax">compiler</a>.
+That is, the <code>%<></code> template setting. See the <code>trim_mode</code> option of ERB's <code>::new</code> method
+<a href="https://ruby-doc.org/stdlib-2.5.3/libdoc/erb/rdoc/ERB.html#method-c-new">on the ERB docs page</a> for additional details.
+</div>
+
+#### Testing the Configuration File
+
+##### Command Line Driven
+
+Origen provides a <code>site</code> command to assist with retrieving and tracing site config variables. This command
+has the following sub-commands:
+
+* <code>env [filters...]</code> Shows the current site config variables. Analogous to 'env'. Various <code>filters</code>
+can be given to filter the output (similar to piping the output to <code>grep</code>).
+* <code>configs</code> Shows the current config files and their indexes along the site config load chain.
+* <code>inspect_config [config_indexes...]</code> Inspects the configuration(s) at the provided indexes. Indexes can be
+found from the above command.
+* <code>inspect_variable [variable_names...]</code> Inspects and traces the variable(s) through the various site configs,
+allowing you to see what the variable was at each config index.
+* <code>refresh</code> Refreshes the [centralized site config](#Centralizing_The_Site_Config).
+
+When first creating and debugging the site config, these commands can be useful for tracing and checking the configuration.
+
+##### Interactive
+
+To test if your configuration values are being applied, open a console within an
+Origen application:
+
+~~~text
+origen i
+~~~
+
+You can then query the current live values via the following API, where the method names
+correspond directly to the attribute names in the config file:
+
+~~~ruby
+Origen.site_config.gem_server          # => nil
+Origen.site_config.gem_manage_bundler  # => true
+~~~
+
+#### Centralizing The Site Config
+
+Origen supports a single config that, instead of being a local file along the load path, can be a URL corresponding to
+a raw site config. Origen will issue a HTTP request and read the contents of that URL directly, parsing it as a
+<code>.yml.erb</code> file and injecting it into the site configs as the <code>centralized_site_config</code>. 
+The name of the file on the server is not important, only the URL is needed.
+
+The centralized_site_config can be set with the variable <code>'centralized_site_config'</code>, or using the
+environment variable <code>'ORIGEN_CENTRALIZED_SITE_CONFIG'</code>. Like any other site config variable, this will
+be overridden by subsequent configs. See [How The Configuration System Works](#How_The_Configuration_System_Works) for details.
+
+For the above to be true, the centralized site config would need to be loaded last, allowing for any
+<code>local site config</code> to override which centralized config is used. However, the <code>centralized site config</code>
+is <u>not</u> the highest priority. Actually, it is one of the lowest. The <code>centralized site config</code> is injected
+just <u>after</u> the default site configs from <code>Origen core</code>.
+
+For example, consider the following Origen environment:
+
+~~~
+Ruby Install: /pkg/ruby (2.3)
+  Site configs: (default from Origen)
+    /pkg/ruby/2.3.0/x86_64-linux/lib/ruby/gems/2.3.0/gems/origen-0.33.3/origen_site_config.yml
+    /pkg/ruby/2.3.0/x86_64-linux/lib/ruby/gems/2.3.0/gems/origen-0.33.3/origen_site_config.yml.erb
+  
+Run Directory: /proj/example
+  Site config at:
+    /proj/example/origen_site_config.yml.erb
+      #=> Sets centralized site config to http://internal_server/origen/config
+
+User Directory: /home/me/
+  Site config at:
+    /home/me/.origen/origen_site_config.yml
+~~~
+
+The site config load order (priority listing) from highest to lowest would be:
+
+~~~
+/home/me/.origen/origen_site_config.yml
+/proj/example/origen_site_config.yml.erb
+http://internal_server/origen/config
+/pkg/ruby/2.3.0/x86_64-linux/lib/ruby/gems/2.3.0/gems/origen-0.33.3/origen_site_config.yml
+/pkg/ruby/2.3.0/x86_64-linux/lib/ruby/gems/2.3.0/gems/origen-0.33.3/origen_site_config.yml.erb
+~~~
+
+Now, consider that you update your <code>user site config</code> to set the <code>centralized site config</code> to
+<code>http://my_server/origen/my_config</code>. The new site config ordering will be:
+
+~~~
+/home/me/.origen/origen_site_config.yml
+/proj/example/origen_site_config.yml.erb
+http://my_server/origen/my_config
+/pkg/ruby/2.3.0/x86_64-linux/lib/ruby/gems/2.3.0/gems/origen-0.33.3/origen_site_config.yml
+/pkg/ruby/2.3.0/x86_64-linux/lib/ruby/gems/2.3.0/gems/origen-0.33.3/origen_site_config.yml.erb
+~~~
+
+To check the config ordering of your environment (among other settings), use the [origen site](#Command_Line_Driven) command.
+
+<div class="alert alert-warning">
+  The <code>centralized_site_config</code> can set almost any of the same variables that a <code>local site config</code>,
+  with one of the exceptions being <code>centralized_site_config</code>. Attempting to switch the <code>centralized_site_config</code>
+  within the centralized site config itself, will print an error message and delete that value from the config (that is, ignores it).
+</div>
+
+##### Caching
+
+Adding a centralized site config ends up launching a HTTP request every time Origen is booted. To avoid bogging down
+both the boot process and the server (if there are many Origen users), the centralized site config will be cached
+for reuse.
+
+The cached configs are stored at <code>~/.origen/cache/site_config</code>. This expands, similarly to the <code>home_dir</code>, 
+to <code>/home/--user--/.origen/cache/site_config</code> or <code>C:\Users\--user--\.origen\cache\site_config</code>.
+However, this directory is independent of any other site config variables, unlike <code>gem_dir</code> for example. This directory can be
+moved if desired by overridding <code>centralized_site_config_cache_dir</code>
+
+<div class="alert alert-warning">
+  Another boot-up inconsistency can arise if the <code>centralized_site_config_cache_dir</code> is set by the
+  centralized site config. This would lead to the centralized config being cached somewhere, then the <code>cache dir</code>
+  moving, but the centralized config would have already been cached and loaded, and this ends up not having the desired
+  effect. Attempts to change this setting from the centralized site config result an error being printed and the
+  setting being ignored.
+</div>
+
+The site config will refresh periodically, ensuring that the cached centralized site config does not get too out of sync
+with the latest on the server. The default refresh time is set from Origen's default site configs and is set to 24 (hours).
+Any site config, including the centralized site config, can set the refresh time using the parameter 
+<code>centralized_site_config_refresh</code>.
+
+The unit for this parameter is <code>hours</code>, but fractional values are allowed. For example, you can use
+<code>0.5</code> to refresh every 30 minutes, or <code>2.5</code> to refresh every 150 minutes.
+
+Additionally, the refresh time can be set to <code>0</code> to always refresh the site config (never use the cached
+values) or set to <code>-1</code> to never refresh the site config (always use the cached valued).
+
+You can refresh your site config at any time, resetting the refresh counter, using the <code>origen site refresh</code>.
+This will force a refresh of the centralized site config from the server and reset the counter for the next refresh.
+
+##### SSL Certification
+
+In general, centralized site configs will live on a company-internal server, which may or may not force HTTPS certification.
+This can be problematic since internal servers rarely have SSL certificates available but the address is still safe and
+should be reachable. To combat this, the parameter <code>centralized_site_config_verify_ssl</code> can be given to a
+<code>local</code> site config to indicate that SSL certification can be safely ignored. This parameter will default
+to <code>true</code> (<code>1</code>), so it requires the site owner to know the reasoning in the event of SSL
+cerification failure and to disable it accordingly.
+
+<div class="alert alert-warning">
+  <code>centralized_site_config_verify_ssl</code> cannot be set by the <code>centralized site config</code>. It must be
+  set by either an environment variable or by a <code>local site config</code>.
+</div>
+
+#### Dynamic Configurations
+
+The Origen site config has some basic methods to dynamically get, set, and remove values.
+
+##### Getting Values
+
+~~~ruby
+Origen.site_config.get(var) 
+  #=> gets the current value of a site config variable 'name'
+  #=> if var doesn't exist, nil is returned
+
+Origen.site_config.get_all(var) 
+  #=> gets all values of a site config variable 'name'
+  #=> returns an array of values, where the higher priority values are earlier in the array
+  #=> i.e., get_all(var).first is the current value and highest priority
+  #=> get_all(var).last is the lowest priority value
+  #=> same as Origen.site_config.add_as_highest(var, value)
+  
+Origen.site_config[var]
+  #=> same as Origen.site_config.get(var)
+~~~
+
+<div class="alert alert-info">
+  <strong>Info!</strong> You can also get a value using the method name corresponding to the site config variable, 
+  as described in the aforementioned section.
+</div>
+
+##### Setting Values
+
+~~~ruby
+Origen.site_config.add_as_highest(var, value)
+  #=> add a new site variable at the highest priority
+
+Origen.site_config.add_as_lowest(var, value)
+  #=> add a new site variable at the lowest priority
+  #=> essentially, this sets a new default value
+
+Origen.site_config[var] = value
+  #=> same as Origen.site_config.add_as_highest(var, value)
+~~~
+
+##### Removing Values
+
+~~~ruby
+remove_highest(var)
+  #=> remove the highest instance of var
+  #=> returns the value of the variable removed
+  #=> if var doesn't exist, nil is returned
+
+remove_all_instances(var)
+  #=> remove all the instances of var
+  #=> returns an array of the values, from highest priority to lowest
+  #=> if var doesn't exist, the an empty array is returned
+
+purge(var)
+  #=> aliase to remove_all_instances
+
+clear
+  #=> clears the site config completely
+~~~
+
+##### Adding New Configuration Files
+
+You can also add a new configuration file that is not in the default paths using the methods below:
+
+~~~ruby
+# Adds a new site config file as the highest priority
+add_site_config_as_highest(site_config_file)
+
+# Adds a new site config file as the lowest priority
+add_site_config_as_lowest(site_config_file)
+~~~
+
+<div class="alert alert-warning">
+  <strong>Warning</strong> Using the site config is this way requires that Origen has already booted. So, using these
+  methods to dynamically change site config variables like <code>user_gem_dir</code>, or 
+  <code>user_install_dir</code> won't have the desired
+  effect.
+</div>
+
+<div class="alert alert-warning">
+  <strong>Warning</strong> For <code>append_dot_origen</code> and <code>append_gems</code>, <code>nil</code> and
+  <code>false</code> are not the same. If either of those are undefined (<code>nil</code>) they will resolve to true. To
+  disable, they must be explicity set to <code>false</code>.
+</div>
+
+% end

@@ -1,6 +1,16 @@
 module Origen
   module Model
     module Exporter
+      # Export the model
+      #
+      # Options defaults:
+      #   include_pins:       true
+      #   include_registers:  true
+      #   include_sub_blocks: true
+      #   include_timestamp:  true
+      #   rm_rb_only:         nil     # delete only .rb files, default is rm -rf * Origen.root/vendor/lib/models/name
+      #
+      # Use the rm_rb_only option if the export dir is under revision control and the dir contains revision control metadata
       def export(name, options = {})
         options = {
           include_pins:       true,
@@ -14,7 +24,13 @@ module Origen
         file = options[:file_path] || export_path(name, options)
         dir = options[:dir_path] || export_dir(options)
         path_to_file = Pathname.new(File.join(dir, file))
-        FileUtils.rm_rf(path_to_file.sub_ext('').to_s) if File.exist?(path_to_file.sub_ext('').to_s)
+        if File.exist?(path_to_file.sub_ext('').to_s)
+          if options[:rm_rb_only]
+            Dir.glob(path_to_file.sub_ext('').to_s + '/**/*.rb').each { |f| FileUtils.rm_f(f) }
+          else
+            FileUtils.rm_rf(path_to_file.sub_ext('').to_s)
+          end
+        end
         FileUtils.rm_rf(path_to_file.to_s) if File.exist?(path_to_file.to_s)
         FileUtils.mkdir_p(path_to_file.dirname)
         File.open(path_to_file, 'w') do |f|
@@ -114,7 +130,7 @@ module Origen
                   attr_end_str = (attr == pin_pkg_meta.keys.last) ? ' }' : ', '
                   case attr_val
                   when String
-                    str << "'#{attr_val}'#{attr_end_str}"
+                    str << "\"#{attr_val.gsub('"', '\"')}\"#{attr_end_str}"
                   else
                     str << "#{attr_val}#{attr_end_str}"
                   end
@@ -177,6 +193,9 @@ module Origen
         if (d = pin.direction) != :io
           line << ", direction: :#{d}"
         end
+        if (t = pin.type)
+          line << ", type: :#{t}"
+        end
         pkg_meta = write_pin_packages(pin)
         line << ", #{pkg_meta}" unless pkg_meta == ''
         Array(options[:attributes]).each do |attr|
@@ -224,7 +243,7 @@ module Origen
         indent = ' ' * (options[:indent] || 0)
         file_path = File.join(Pathname.new(options[:file_path]).sub_ext(''), "#{id}.rb")
         dir_path = options[:dir_path]
-        line = indent + "model.sub_block :#{id}, file: '#{file_path}', dir: '#{dir_path}', lazy: true"
+        line = indent + "model.sub_block :#{id}, file: '#{file_path}', dir: \"#{dir_path.gsub(Origen.root.to_s, '#{Origen.root!}')}\", lazy: true"
         unless block.base_address == 0
           line << ", base_address: #{block.base_address.to_hex}"
         end
@@ -232,9 +251,9 @@ module Origen
           if value.is_a?(Symbol)
             line << ", #{key}: :#{value}"
           elsif value.is_a?(String)
-            line << ", #{key}: '#{value}'"
+            line << ", #{key}: \"#{value.gsub('"', '\"')}\""
           else
-            line << ", #{key}: #{value}"
+            line << ", #{key}: #{value}" unless value.nil?
           end
         end
         block.export(id, options.merge(file_path: file_path, dir_path: dir_path))
@@ -247,28 +266,49 @@ module Origen
         unless reg.description.empty?
           reg.description.each { |l| lines << indent + "# #{l}" }
         end
-        lines << indent + "model.add_reg :#{id}, #{reg.offset.to_hex}, size: #{reg.size} do |reg|"
+        lines << indent + "model.add_reg :#{id}, #{reg.offset.to_hex}, size: #{reg.size} #{reg.bit_order == :msb0 ? ', bit_order: :msb0' : ''}#{build_reg_meta(reg)} do |reg|"
         indent = ' ' * ((options[:indent] || 0) + 2)
         reg.named_bits.each do |name, bits|
           unless bits.description.empty?
             bits.description.each { |l| lines << indent + "# #{l}" }
           end
+          position = reg.bit_order == :msb0 ? (reg.size - bits.position - 1) : bits.position
           if bits.size == 1
-            line = indent + "reg.bit #{bits.position}, :#{name}"
+            line = indent + "reg.bit #{position}, :#{name}"
           else
-            line = indent + "reg.bit #{bits.position + bits.size - 1}..#{bits.position}, :#{name}"
+            if reg.bit_order == :msb0
+              line = indent + "reg.bit #{position - bits.size + 1}..#{position}, :#{name}"
+            else
+              line = indent + "reg.bit #{position + bits.size - 1}..#{position}, :#{name}"
+            end
           end
           unless bits.access == :rw
             line << ", access: :#{bits.access}"
           end
-          unless bits.reset_val == 0
-            line << ", reset: #{bits.reset_val.to_hex}"
+          if bits.reset_val.is_a?(Symbol)
+            line << ", reset: :#{bits.reset_val}"
+          else
+            line << ", reset: #{bits.reset_val.to_hex}" unless bits.reset_val == 0
           end
           lines << line
         end
         indent = ' ' * (options[:indent] || 0)
         lines << indent + 'end'
         lines.join("\n")
+      end
+
+      def build_reg_meta(reg)
+        ret_str = ''
+        reg.meta.each do |key, value|
+          if value.is_a?(Symbol)
+            ret_str += ", #{key}: :#{value}"
+          elsif value.is_a?(String)
+            ret_str += ", #{key}: \"#{value.gsub('"', '\"')}\""
+          else
+            ret_str += ", #{key}: #{value}" unless value.nil?
+          end
+        end
+        ret_str
       end
     end
   end

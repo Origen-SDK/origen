@@ -11,6 +11,25 @@ module Origen
         nil
       end
 
+      # Returns the Git version number from the current runtime environment (as a string)
+      def self.version
+        @version ||= begin
+          version = nil
+          git('--version', verbose: false).each do |line|
+            if line =~ /git version (\d+(\.\d+)+)/
+              version = Regexp.last_match(1)
+              break
+            end
+          end
+          if version
+            version
+          else
+            Origen.log.warning 'Failed to determine the current Git version, proceeding by assuming version 2.0.0'
+            '2.0.0'
+          end
+        end
+      end
+
       def build(options = {})
         if Dir["#{local}/*"].empty? || options[:force]
           FileUtils.rm_rf(local.to_s)
@@ -129,7 +148,8 @@ module Origen
       # Returns true if the current user can checkin to the given repo (means has permission
       # to push in Git terms)
       def can_checkin?
-        git('push --dry-run', verbose: false)
+        # dry run attempting to create a new remote branch named OrigenWritePermissionsTest
+        git('push --dry-run origin origin:refs/heads/OrigenWritePermissionsTest', verbose: false)
         true
       rescue
         false
@@ -262,7 +282,7 @@ module Origen
         end
         File.exist?("#{local}/.git") &&
           git('remote -v', verbose: false).any? { |r| r =~ /#{remote_without_protocol_and_user}/ || r =~ /#{remote_without_protocol_and_user.to_s.gsub(':', "\/")}/ } &&
-          !git('status', verbose: false).any? { |l| l =~ /^#? ?Initial commit$/ }
+          !git('status', verbose: false).any? { |l| l =~ /^#? ?(Initial commit|No commits yet)$/ }
       end
 
       # Delete everything in the given directory, or the whole repo
@@ -325,12 +345,13 @@ module Origen
       end
 
       def initialize_local_dir(options = {})
+        return if options[:build_method] == :clone
         super
         unless initialized?(options)
           Origen.log.debug "Initializing Git workspace at #{local}"
           git 'init'
           git 'remote remove origin', verbose: false, check_errors: false
-          git "remote add origin #{remote}"
+          git "remote add origin #{remote}", check_errors: false
         end
       end
 

@@ -54,27 +54,27 @@ class Numeric
   end
 
   def as_units(units)
-    if self >= 1_000_000_000_000_000
+    if abs >= 1_000_000_000_000_000
       "#{self / 1_000_000_000_000_000.0}P#{units}"
-    elsif self >= 1_000_000_000_000
+    elsif abs >= 1_000_000_000_000
       "#{self / 1_000_000_000_000.0}T#{units}"
-    elsif self >= 1_000_000_000
+    elsif abs >= 1_000_000_000
       "#{self / 1_000_000_000.0}G#{units}"
-    elsif self >= 1_000_000
+    elsif abs >= 1_000_000
       "#{self / 1_000_000.0}M#{units}"
-    elsif self >= 1_000
+    elsif abs >= 1_000
       "#{self / 1_000.0}k#{units}"
-    elsif self >= 1
+    elsif abs >= 1
       "#{self}#{units}"
-    elsif self >= 1e-3
+    elsif abs >= 1e-3
       "#{self * 1_000}m#{units}"
-    elsif self >= 1e-6
+    elsif abs >= 1e-6
       "#{self * 1_000_000}u#{units}"
-    elsif self >= 1e-9
+    elsif abs >= 1e-9
       "#{self * 1_000_000_000}n#{units}"
-    elsif self >= 1e-12
+    elsif abs >= 1e-12
       "#{self * 1_000_000_000_000}p#{units}"
-    elsif self >= 1e-15
+    elsif abs >= 1e-15
       "#{self * 1_000_000_000_000_000}a#{units}"
     else
       "%.3e#{units}" % self
@@ -186,5 +186,25 @@ class Numeric
     define_method m do
       self / 1_000_000_000_000.0
     end
+  end
+
+  # Shorthand for tester.wait(time_in_ns: 100), e.g. 100.ns!
+  def ns!
+    Origen.app.tester.wait time_in_ns: self
+  end
+
+  # Shorthand for tester.wait(time_in_us: 100), e.g. 100.us!
+  def us!
+    Origen.app.tester.wait time_in_us: self
+  end
+
+  # Shorthand for tester.wait(time_in_ms: 100), e.g. 100.ms!
+  def ms!
+    Origen.app.tester.wait time_in_ms: self
+  end
+
+  # Shorthand for tester.wait(time_in_s: 100), e.g. 100.s!
+  def s!
+    Origen.app.tester.wait time_in_s: self
   end
 end

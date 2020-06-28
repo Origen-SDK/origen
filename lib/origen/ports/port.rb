@@ -68,6 +68,11 @@ module Origen
         end
       end
 
+      # Prevent infinite loop if a child bit collection checks bit_order
+      def bit_order
+        parent.bit_order
+      end
+
       def drive(value = nil, options = {})
         value, options = nil, value if value.is_a?(Hash)
         if options[:index]

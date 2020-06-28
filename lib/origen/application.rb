@@ -50,6 +50,8 @@ module Origen
               Origen.register_application(app)
             end
             app.add_lib_to_load_path!
+            # Also blow this cache as a new app has just been added
+            @apps_by_namespace = nil
           end
         end
       end
@@ -60,6 +62,33 @@ module Origen
 
       def respond_to?(*args)
         super || instance.respond_to?(*args)
+      end
+
+      # Returns the application instance (i.e. main app or the plugin) that owns the given class/module
+      # (literal, string or symbol representation is accepted) or object instance.
+      # Returns nil if no matching Origen application can be found.
+      #
+      #     Origen::Application.from_namespace(MyApp)                       # => <my_app instance>
+      #     Origen::Application.from_namespace(MyApp::MyClass)              # => <my_app instance>
+      #     Origen::Application.from_namespace('MyApp::MyClass')            # => <my_app instance>
+      #     Origen::Application.from_namespace(<my_app::my_class instance>) # => <my_app instance>
+      def from_namespace(item)
+        unless item.is_a?(String)
+          if item.is_a?(Module) || item.is_a?(Class) || item.is_a?(Symbol)
+            item = item.to_s
+          else # Assume to be an object instance in this case
+            item = item.class.to_s
+          end
+        end
+        namespace = item.split('::').first
+        @apps_by_namespace ||= {}
+        @apps_by_namespace[namespace] ||= begin
+          return Origen.app if Origen.app.namespace == namespace
+          Origen.app.plugins.each do |plugin|
+            return plugin if plugin.namespace == namespace
+          end
+          nil
+        end
       end
 
       protected
@@ -89,6 +118,11 @@ module Origen
             load file
           end
         else
+          # New application dir structure support
+          Dir.glob("#{Origen.root}/app/lib/tasks/*.rake").sort.each do |file|
+            load file
+          end
+
           Dir.glob("#{Origen.root}/lib/tasks/*.rake").sort.each do |file|
             load file
           end
@@ -96,9 +130,66 @@ module Origen
         # Finally those that the plugin's have given us
         ([Origen.app] + Origen.app.plugins).each do |plugin|
           namespace plugin.name do
+            # New application dir structure support
+            Dir.glob("#{plugin.root}/app/lib/tasks/shared/*.rake").sort.each do |file|
+              load file
+            end
+
             Dir.glob("#{plugin.root}/lib/tasks/shared/*.rake").sort.each do |file|
               load file
             end
+          end
+        end
+      end
+    end
+
+    # @api private
+    #
+    # Returns a lookup table for all block definitions (app/blocks) that the app contains
+    def blocks_files
+      @blocks_files ||= begin
+        files = {}
+        block_dir = Pathname.new(File.join(root, 'app', 'blocks'))
+        if block_dir.exist?
+          block_dir.children.each do |item|
+            if item.directory?
+              _add_block_files(files, block_dir, item)
+            end
+          end
+        end
+        files
+      end
+    end
+
+    # @api private
+    def _add_block_files(files, block_dir, current_dir, sub_block = false)
+      fields = current_dir.relative_path_from(block_dir).to_s.split('/')
+      fields.delete('derivatives')
+      fields.delete('sub_blocks')
+      path = fields.join('/')
+      files[path] ||= {}
+      files[path][:_sub_block] = true if sub_block
+      Dir.glob(current_dir.join('*.rb')).each do |file|
+        file = Pathname.new(file)
+        type = file.basename('.rb').to_s.to_sym
+        unless type == :model || type == :controller
+          files[path][type] ||= []
+          files[path][type] << file.to_s
+        end
+      end
+      derivatives = current_dir.join('derivatives')
+      if derivatives.exist?
+        derivatives.children.each do |item|
+          if item.directory?
+            _add_block_files(files, block_dir, item)
+          end
+        end
+      end
+      sub_blocks = current_dir.join('sub_blocks')
+      if sub_blocks.exist?
+        sub_blocks.children.each do |item|
+          if item.directory?
+            _add_block_files(files, block_dir, item, true)
           end
         end
       end
@@ -766,6 +857,7 @@ END
         force_debug: false
       }.merge(options)
       @on_create_called = false
+      @target_loading = true
       if options[:reload]
         @target_load_count = 0
       else
@@ -814,7 +906,7 @@ END
       end
       listeners_for(:after_load_target).each(&:after_load_target)
       Origen.app.plugins.validate_production_status
-      # @target_instantiated = true
+      @target_loading = false
     end
 
     # Returns true if the on_create callback has already been called during a target load
@@ -900,6 +992,10 @@ END
       @target_instantiated
     end
 
+    def target_loading?
+      @target_loading || false
+    end
+
     # Prepends the application name to the fail message and throws a RuntimeError exception.
     # Very similar to the plain <code>fail</code> method with the addition of prepending the application name.
     # Prepended message: 'Fail in app.name: '
@@ -956,7 +1052,7 @@ END
     #     config.i18n.backend = MyBackend
     #   end
     def add_lib_to_load_path! #:nodoc:
-      [root.join('lib'), root.join('vendor', 'lib')].each do |path|
+      [root.join('lib'), root.join('vendor', 'lib'), root.join('app', 'lib')].each do |path|
         $LOAD_PATH.unshift(path.to_s) if File.exist?(path) && !$LOAD_PATH.include?(path.to_s)
       end
     end

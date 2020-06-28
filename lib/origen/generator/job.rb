@@ -3,7 +3,7 @@ module Origen
     # A job is responsible for executing a single pattern source
     class Job # :nodoc: all
       attr_accessor :output_file_body, :pattern
-      attr_reader :split_counter
+      attr_reader :split_counter, :split_names
       attr_reader :options
 
       def initialize(pattern, options)
@@ -23,9 +23,11 @@ module Origen
         @no_comments
       end
 
-      def inc_split_counter
+      def inc_split_counter(name = '')
         @split_counter ||= 0
+        @split_names ||= ['']
         @split_counter += 1
+        @split_names << name
       end
 
       def requested_pattern
@@ -115,24 +117,44 @@ module Origen
 
       def split_number
         if split_counter
-          "_part#{split_counter}"
+          if split_names[split_counter] != ''
+            "_#{split_names[split_counter]}"
+          else
+            "_part#{split_counter}"
+          end
         else
           ''
         end
+      end
+
+      def strip_dir_and_ext(name)
+        Pathname.new(name).basename('.*').basename('.*').to_s
       end
 
       def run
         Origen.app.current_jobs << self
         begin
           if @options[:compile]
+            Origen.log.start_job(strip_dir_and_ext(@requested_pattern), :compiler)
             Origen.generator.compiler.compile(@requested_pattern, @options)
           elsif @options[:job_type] == :merge
+            Origen.log.start_job(strip_dir_and_ext(@requested_pattern), :merger)
             Origen.generator.compiler.merge(@requested_pattern)
           elsif @options[:action] == :program
+            if Origen.running_simulation?
+              Origen.log.start_job(strip_dir_and_ext(@requested_pattern), :simulator)
+            else
+              Origen.log.start_job(strip_dir_and_ext(@requested_pattern), :program_generator)
+            end
             Origen.flow.reset
             Origen.resources.reset
             OrigenTesters::Generator.execute_source(@pattern)
           else
+            if Origen.running_simulation?
+              Origen.log.start_job(strip_dir_and_ext(@requested_pattern), :simulator)
+            else
+              Origen.log.start_job(strip_dir_and_ext(@requested_pattern), :pattern_generator)
+            end
             Origen.generator.pattern.reset      # Resets the pattern controller ready for a new pattern
             # Give the app a chance to handle pattern dispatch
             skip = false
@@ -140,30 +162,58 @@ module Origen
               skip ||= !listener.before_pattern_lookup(@requested_pattern)
             end
             unless skip
-              @pattern = Origen.generator.pattern_finder.find(@requested_pattern, @options)
-              if @pattern.is_a?(Hash)
-                @output_file_body = @pattern[:output]
-                @pattern = @pattern[:pattern]
+              if @options[:sequence]
+                @pattern = @requested_pattern
+                Origen.pattern.sequence do |seq|
+                  # This splits the pattern name by "_" then removes all values that are common to all patterns
+                  # and then rejoins what is left.
+                  # The goal is to keep the thread ID concise for the log and rather than using the whole pattern
+                  # name only focussing on what is different.
+                  # e.g. if you combined patterns flash_read_ckbd_ip1_max.rb and flash_read_ckbd_ip2_max.rb into
+                  # a concurrent sequence then the two threads would be called 'ip1' and 'ip2'.
+                  ids = @options[:patterns].map do |pat|
+                    Pathname.new(pat).basename('.*').to_s.split('_')
+                  end
+                  ids = ids.map { |id| id.reject { |i| ids.all? { |id| id.include?(i) } }.join('_') }
+
+                  @options[:patterns].each_with_index do |pat, i|
+                    id = ids[i]
+                    id = i.to_s if id.empty?
+                    seq.in_parallel id do
+                      seq.run pat
+                    end
+                  end
+                end
+              else
+                @pattern = Origen.generator.pattern_finder.find(@requested_pattern, @options)
+                if @pattern.is_a?(Hash)
+                  @output_file_body = @pattern[:output]
+                  @pattern = @pattern[:pattern]
+                end
+                load @pattern unless @pattern == :skip  # Run the pattern
               end
-              load @pattern unless @pattern == :skip  # Run the pattern
             end
           end
         rescue Exception => e
-          if @options[:continue] || Origen.running_remotely?
-            Origen.log.error "FAILED - #{@requested_pattern} (for target #{Origen.target.name})"
-            Origen.log.error e.message
-            e.backtrace.each do |l|
-              Origen.log.error l
-            end
-            if @options[:compile]
-              Origen.app.stats.failed_files += 1
+          # Whoever has aborted the job is responsible for cleaning it up
+          unless e.is_a?(Origen::Generator::AbortError)
+            if @options[:continue] || Origen.running_remotely?
+              Origen.log.error "FAILED - #{@requested_pattern} (for target #{Origen.target.name})"
+              Origen.log.error e.message
+              e.backtrace.each do |l|
+                Origen.log.error l
+              end
+              if @options[:compile]
+                Origen.app.stats.failed_files += 1
+              else
+                Origen.app.stats.failed_patterns += 1
+              end
             else
-              Origen.app.stats.failed_patterns += 1
+              raise
             end
-          else
-            raise
           end
         end
+        Origen.log.stop_job
         Origen.app.current_jobs.pop
       end
     end

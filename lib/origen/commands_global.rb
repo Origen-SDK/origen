@@ -70,11 +70,7 @@ if ARGV.delete('-d') || ARGV.delete('--debug')
       caller[0] =~ /.*\/(\w+\.rb):(\d+).*/
       puts 'The debugger gem is not installed, add the following to your Gemfile:'
       puts
-      puts "if RUBY_VERSION >= '2.0.0'"
-      puts "  gem 'byebug', '~>3.5'"
-      puts 'else'
-      puts "  gem 'debugger', '~>1.6'"
-      puts 'end'
+      puts "  gem 'byebug', '~>8'"
       puts
     end
   end
@@ -88,12 +84,16 @@ end
 
 case @command
 
-when 'new'
-  require 'origen/commands/new'
+when 'new', 'extract'
+  require "origen/commands/#{@command}"
   exit 0
 
 when '--version', '-v'
   require 'origen/commands/version'
+  exit 0
+
+when 'site'
+  require 'origen/commands/site'
   exit 0
 
 # when 'fetch', 'f'
@@ -115,6 +115,8 @@ The following commands are available:
               new origen application workspace in "./my_app"
  interactive  Start an interactive Origen console (short-cut alias: "i"), this is just
               IRB with the 'origen' lib loaded automatically
+ extract      Extract an Origen application archive (.origen file created with the archive command)
+ site         Monitor and manage the Origen site configuration
   EOT
   cmds.split(/\n/).each do |line|
     puts Origen.clean_help_line(line)

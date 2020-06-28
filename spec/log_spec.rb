@@ -1,106 +1,124 @@
 require 'spec_helper.rb'
 
-describe 'Check that the msg_hash in Origen.log stores messages correctly' do
-  attr_accessor :msg_type
-  @msg_type = [:info, :warn, :error,  :deprecate, :debug, :success]
-  @msg_type.each do |m|
-    it "Will check that the msg_hash[:#{m}] updates correctly for default message type" do
-      initial_count = {}
-      type = [:info, :warn, :error,  :deprecate, :debug, :success]
-      type.each do |k|
-        initial_count[k] = Origen.log.msg_hash[k][nil].size
-      end
-      Origen.log.send(m, 'Test message')
-      Origen.log.msg_hash[m][nil].last.include?(m.to_s.upcase).should == true
-      type.each do |k|
-        if k == m
-          Origen.log.msg_hash[k][nil].size.should == initial_count[k] + 1
-        else
-          Origen.log.msg_hash[k][nil].size.should == initial_count[k]
-        end
+describe 'The Origen logger' do
+
+  MSG_TYPES = [:info, :warn, :error,  :deprecate, :debug, :success]
+
+  before :each do
+    Origen.log.reset
+  end
+
+  it "Will output everything except debug messages to the console by default" do
+    MSG_TYPES.each do |m|
+      if m == :debug
+        expect { Origen.log.send(m, 'Test message 1') }.to_not output(/.*#{m.to_s.upcase}.*Test message.*/).to_stdout_from_any_process
+      else
+        expect { Origen.log.send(m, 'Test message 1') }.to output(/.*#{m.to_s.upcase}.*Test message.*/).to_stdout_from_any_process
       end
     end
   end
 
-  @msg_type.each do |m|
-    it "Will check that the #{m} can handle nil for both msg and msg_type" do
-      initial_count = {}
-      type = [:info, :warn, :error,  :deprecate, :debug, :success]
-      type.each do |k|
-        initial_count[k] = Origen.log.msg_hash[k][nil].size
-      end
-      Origen.log.send(m)
-      Origen.log.msg_hash[m][nil].last.include?(m.to_s.upcase).should == true
-      Origen.log.msg_hash[m][nil].last[-4..-1].should == ' || '
-      type.each do |k|
-        if k == m
-          Origen.log.msg_hash[k][nil].size.should == initial_count[k] + 1
-        else
-          Origen.log.msg_hash[k][nil].size.should == initial_count[k]
-        end
-      end
-    end
-  end
-  
-  @msg_type.each do |m|
-    it "Will check that the #{m} can handle nil for msg and msg_type set with a symbol.  Padding example" do
-      initial_count = Hash.new do |h, k|
-        h[k]= {}
-      end
-      type = [:info, :warn, :error,  :deprecate, :debug, :success]
-      type.each do |k|
-        [nil, :check2].each do |k1|
-          initial_count[k][k1] = Origen.log.msg_hash[k][k1].size
-        end
-      end
-      Origen.log.send(m, :check2)
-      Origen.log.msg_hash[m][:check2].last.include?(m.to_s.upcase).should == true
-      Origen.log.msg_hash[m][:check2].last[-4..-1].should == ' || '
-      type.each do |k|
-        if k == m
-          Origen.log.msg_hash[k][nil].size.should == initial_count[k][nil]
-          Origen.log.msg_hash[k][:check2].size.should == initial_count[k][:check2] + 1
-        else
-          Origen.log.msg_hash[k][nil].size.should == initial_count[k][nil]
-          Origen.log.msg_hash[k][:check2].size.should == initial_count[k][:check2]
-        end
-      end
-    end
-  end
-  
-  @msg_type.each do |m|
-    it "Will check that the msg_hash[:#{m}] for a non-default size is nil if not set" do
-      initial_count = {}
-      type = [:info, :warn, :error,  :deprecate, :debug, :success]
-      type.each do |k|
-        Origen.log.msg_hash[k][:section3].nil? == true
-      end
+  it "Will output everything to the console when level is set to verbose" do
+    Origen.log.level = :verbose
+
+    MSG_TYPES.each do |m|
+      expect { Origen.log.send(m, 'Test message 2') }.to output(/.*#{m.to_s.upcase}.*Test message.*/).to_stdout_from_any_process
     end
   end
 
-  
-  @msg_type.each do |m|
-    it "Will check that the msg_hash[:#{m}] updates correctly for section message code" do
-      initial_count = {}
-      type = [:info, :warn, :error,  :deprecate, :debug, :success]
-      type.each do |k|
-        initial_count[k] = Origen.log.msg_hash[k][:section1].size
-      end
-      Origen.log.send(m, 'Test message', :section1)
-      Origen.log.msg_hash[m][:section1].last.include?(m.to_s.upcase).should == true
-      type.each do |k|
-        if k == m
-          Origen.log.msg_hash[k][:section1].size.should == initial_count[k] + 1
-        else
-          Origen.log.msg_hash[k][:section1].size.should == initial_count[k]
-        end
-      end
-      type.each do |k|
-        Origen.log.msg_hash[k][:section3].nil? == true
-      end
+  it "Will output nothing to the console when level is set to silent" do
+    Origen.log.level = :silent
+
+    MSG_TYPES.each do |m|
+      expect { Origen.log.send(m, 'Test message 3') }.to_not output(/.*#{m.to_s.upcase}.*Test message.*/).to_stdout_from_any_process
     end
   end
 
-  
-  
+  it "Will output everything to log/last.txt by default" do
+    MSG_TYPES.each do |m|
+      Origen.log.send(m, 'Test message 4')
+      Origen.log.send(:reset)  # Force a flush of the file buffer by closing the log
+      File.read(File.join("log", "last.txt")).should include(m.to_s.upcase, "Test message")
+    end
+  end
+
+  it "Will output everything to log/last.txt when level is set to verbose" do
+    Origen.log.level = :verbose
+
+    MSG_TYPES.each do |m|
+      Origen.log.send(m, 'Test message 5')
+      Origen.log.send(:reset)  # Force a flush of the file buffer by closing the log
+      File.read(File.join("log", "last.txt")).should include(m.to_s.upcase, "Test message")
+    end
+  end
+
+  it "Will output everything to log/last.txt when level is set to silent" do
+    Origen.log.level = :silent
+
+    MSG_TYPES.each do |m|
+      Origen.log.send(m, 'Test message 6')
+      Origen.log.send(:reset)  # Force a flush of the file buffer by closing the log
+      File.read(File.join("log", "last.txt")).should include(m.to_s.upcase, "Test message")
+    end
+  end
+
+  it "Can handle nil for the msg" do
+    Origen.log.level = :verbose
+
+    MSG_TYPES.each do |m|
+      expect { Origen.log.send(m) }.to output(/.*#{m.to_s.upcase}.* \|\| $/).to_stdout_from_any_process
+    end
+  end
+
+  it "Interprets a single symbol arg as a nil message (legacy API compatibility)" do
+    Origen.log.level = :verbose
+
+    MSG_TYPES.each do |m|
+      expect { Origen.log.send(m, :blah) }.to output(/.*#{m.to_s.upcase}.* \|\| $/).to_stdout_from_any_process
+    end
+  end
+
+  it "Accepts a symbol as a 2nd arg (legacy API compatibility)" do
+    Origen.log.level = :verbose
+
+    MSG_TYPES.each do |m|
+      expect { Origen.log.send(m, 'Test message 7', :blah) }.to output(/.*#{m.to_s.upcase}.*Test message.*/).to_stdout_from_any_process
+    end
+  end
+
+  it "Output can be logged to the console only" do
+    Origen.log.send(:reset)  # Force a flush of the file buffer by closing the log
+    Origen.log.level = :verbose
+    expect { Origen.log.debug 'Test message 8' }.to output(/.*DEBUG.*Test message 8.*/).to_stdout_from_any_process
+    Origen.log.send(:reset)  # Force a flush of the file buffer by closing the log
+    File.read(File.join("log", "last.txt")).should include("DEBUG", "Test message 8")
+
+    Origen.log.send(:reset)  # Force a flush of the file buffer by closing the log
+    Origen.log.level = :verbose
+    Origen::Log.console_only do
+      expect { Origen.log.debug 'Test message 9' }.to output(/.*DEBUG.*Test message 9.*/).to_stdout_from_any_process
+    end
+    Origen.log.send(:reset)  # Force a flush of the file buffer by closing the log
+    File.read(File.join("log", "last.txt")).should_not include("DEBUG", "Test message 9")
+
+    Origen.log.send(:reset)  # Force a flush of the file buffer by closing the log
+    Origen.log.level = :verbose
+    expect { Origen.log.debug 'Test message 10', console_only: true }.to output(/.*DEBUG.*Test message 10.*/).to_stdout_from_any_process
+    Origen.log.send(:reset)  # Force a flush of the file buffer by closing the log
+    File.read(File.join("log", "last.txt")).should_not include("DEBUG", "Test message 10")
+  end
+
+  it "Can log to a custom log file" do
+    Origen.log.reset
+    Origen.log.blah 'Test message 11'
+    Origen.log.flush
+    File.read(File.join("log", "blah.txt")).should include("BLAH", "Test message 11")
+    Origen.log.reset
+    Origen.log.blah 'Test message 12', format: false
+    Origen.log.flush
+    File.read(File.join("log", "blah.txt")).should_not include("BLAH")
+    File.read(File.join("log", "blah.txt")).should include("Test message 12")
+    Origen.log.reset
+    expect { Origen.log.bond 'Test message 007', verbose: true }.to output(/.*BOND.*Test message 007.*/).to_stdout_from_any_process
+  end
 end

@@ -23,6 +23,7 @@ describe Origen::Application do
     end
 
     it 'Exits the application when Origen.app.fail! is used without debug enabled. Exit status is 1' do
+      Origen.log.reset
       expect(Origen.debugger_enabled?).to be false
       expect {
         Origen.app.fail!
@@ -32,17 +33,20 @@ describe Origen::Application do
       }
 
       # Check the logger for some default output
-      expect(Origen.log.msg_hash[:error][nil][-1]).to include("Fail in origen_core")
+      Origen.log.flush
+      File.read(File.join("log", "last.txt")).should include("Fail in origen_core")
     end
 
     it 'Logs the output error using the logger when Origen.app.fail! is used without debug enabled' do
+      Origen.log.reset
       expect(Origen.debugger_enabled?).to be false
       expect {
         Origen.app.fail!(message: "Bye from fail!")
       }.to raise_error SystemExit
 
       # Check the logger
-      expect(Origen.log.msg_hash[:error][nil][-1]).to include("Fail in origen_core: Bye from fail!")
+      Origen.log.flush
+      File.read(File.join("log", "last.txt")).should include("Fail in origen_core: Bye from fail!")
     end
 
     it 'Can throw a custom exit status when :exit_status is given to Origen.app.fail! without debug enabled' do
@@ -55,6 +59,7 @@ describe Origen::Application do
     end
 
     it 'Raises an exception, showing the stack trace, when Origen.app.fail! is used with debug enabled' do
+      Origen.log.reset
       Origen.instance_variable_set(:@debug, true)
       expect(Origen.debugger_enabled?).to be true
       expect {
@@ -62,10 +67,7 @@ describe Origen::Application do
       }.to raise_error RuntimeError, "Fail in origen_core: Bye from fail with debugger!"
 
       # Check for logger output. Should be no logger errors here from the last fail! call.
-      unless Origen.log.msg_hash[:error][nil][-1].nil?
-        # if the logged errors are empty, then obvisouly nothing was added. If not, check that the last message wasn't from fail!
-        expect(Origen.log.msg_hash[:error][nil][-1]).to_not include("Bye from fail with debugger!")
-      end
+      File.read(File.join("log", "last.txt")).should_not include("Fail in origen_core: Bye from fail with debugger!")
 
       Origen.instance_variable_set(:@debug, false)
       expect(Origen.debugger_enabled?).to be false
@@ -86,5 +88,11 @@ describe Origen::Application do
       expect(Origen.debugger_enabled?).to be false
     end
 
+    it "The app instance that owns a given class/module/object can be found" do
+      Origen::Application.from_namespace(Origen::Registers::Reg).name.should == :origen_core
+      Origen::Application.from_namespace('OrigenCoreSupport').name.should == :origen_core_support
+      Origen::Application.from_namespace('OrigenCoreSupport::NVM').name.should == :origen_core_support
+      Origen::Application.from_namespace(OrigenCoreSupport::NVM.new).name.should == :origen_core_support
+    end
   end
 end

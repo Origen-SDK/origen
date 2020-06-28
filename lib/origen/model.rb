@@ -43,6 +43,12 @@ module Origen
       end
     end
 
+    # Returns a frozen hash containing any attributes that were
+    # derived from a block definition
+    def attributes
+      @attributes ||= {}.freeze
+    end
+
     def inspect
       if controller
         "<Model/Controller: #{self.class}:#{object_id}/#{controller.class}:#{controller.object_id}>"
@@ -63,7 +69,7 @@ module Origen
 
     # Returns true if the model is the current DUT/top-level model
     def is_top_level?
-      Origen.top_level == self
+      respond_to?(:includes_origen_top_level?)
     end
     alias_method :is_dut?, :is_top_level?
     alias_method :top_level?, :is_top_level?
@@ -73,6 +79,21 @@ module Origen
     # regardless of the one you currently have.
     def model
       self
+    end
+
+    # Returns the application instance that defines the model, often the current app but it could
+    # also be one of the plugins.
+    # Returns nil if the application cannot be resolved, usually because the model's class has
+    # not been correctly namespaced.
+    def app
+      @app ||= Origen::Application.from_namespace(self.class.to_s)
+    end
+
+    # Load the block definitions from the given path to the model.
+    # Returns true if a block is found and loaded, otherwise nil.
+    def load_block(path, options = {})
+      options[:path] = path
+      Origen::Loader.load_block(self, options)
     end
 
     def ==(obj)

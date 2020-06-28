@@ -3,6 +3,9 @@ module Origen
     class User
       require 'openssl'
       require 'digest/sha1'
+      # Required for STDIN.noecho to work
+      # https://stackoverflow.com/questions/9324697/why-cannot-use-instance-method-noecho-of-class-io
+      require 'io/console'
 
       attr_reader :role
       attr_writer :name, :email
@@ -44,10 +47,13 @@ module Origen
         Origen.mailer.send_email(options)
       end
 
-      def id
-        @id.to_s.downcase
+      def id(options = {})
+        # Way to force Origen to use the new user ID in case of WSL where the core ID might not match the WSL login name
+        # User needs to setup the environment variable in their .bashrc or .tcshrc file
+        ENV['ORIGEN_USER_ID'] || @id.to_s.downcase
       end
       alias_method :core_id, :id
+      alias_method :username, :id
 
       # Returns true if the user is an admin for the current application
       def admin?
@@ -66,16 +72,16 @@ module Origen
       end
 
       def name
-        @name ||= ENV['ORIGEN_NAME'] || name_from_rc || @id
+        @name ||= ENV['ORIGEN_NAME'] || ENV['ORIGEN_USER_NAME'] || name_from_rc || @id
       end
 
       def name_from_rc
         RevisionControl::Git.user_name
       end
 
-      def email
+      def email(options = {})
         if current?
-          @email ||= ENV['ORIGEN_EMAIL'] || email_from_rc || begin
+          @email ||= ENV['ORIGEN_EMAIL'] || ENV['ORIGEN_USER_EMAIL'] || email_from_rc || begin
             if Origen.site_config.email_domain
               "#{id}@#{Origen.site_config.email_domain}"
             end
@@ -164,7 +170,7 @@ module Origen
 
       # Returns a private global Origen session store (stored in the user's home directory and only readable
       # by them).
-      # See - http://origen-sdk.org/origen/guides/misc/session/#Global_Sessions
+      # See - https://origen-sdk.org/origen/guides/misc/session/#Global_Sessions
       def auth_session
         @session ||= begin
           @session = Origen.session.user

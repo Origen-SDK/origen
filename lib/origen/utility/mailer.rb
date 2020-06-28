@@ -7,13 +7,18 @@ module Origen
       # Generic method to send an email, alternatively use one of the
       # pre-defined mail types using the other methods.
       def send_email(options = {})
-        options = { server:     Origen.site_config.email_server,
-                    port:       Origen.site_config.email_port,
-                    from:       current_user.email,
-                    from_alias: current_user.name,
-                    subject:    'Hello',
-                    body:       'Hello from Origen!',
-                    to:         'Stephen McGinty <stephen.mcginty@freescale.com>'
+        options = { server:         Origen.site_config.email_server,
+                    port:           Origen.site_config.email_port,
+                    from:           current_user.email,
+                    from_alias:     current_user.name,
+                    subject:        'Hello',
+                    body:           'Hello from Origen!',
+                    to:             current_user.email,
+                    authentication: (Origen.site_config.email_authentication || :none).to_sym,
+                    domain:         (Origen.site_config.email_domain || ''),
+
+                    auth_user:      (Origen.site_config.email_auth_user || current_user.email),
+                    auth_password:  (Origen.site_config.email_auth_password || current_user.password)
                   }.merge(options)
 
         # Force to an array
@@ -32,10 +37,42 @@ Subject: #{options[:subject]}
 END_OF_MESSAGE
 
           begin
+            Origen.log.debug('Origen::Utility::Mailer Setup:')
+            # Must not save a user's password to the Origen log file! So build a shadow copy of the
+            # options hash and display that content in the log file with the auth_password removed.
+            options_reduced = options
+            options_reduced.delete(:auth_password)
+            options_reduced.each { |k, v| Origen.log.debug("  #{k}: #{v}") }
+
+            # Net::SMTP.start(options[:server], options[:port]) do |smtp|
+            #  smtp.send_message msg, options[:from], addr
+            # end
+
             # Exceptions raised here will be caught by rescue clause
-            Net::SMTP.start(options[:server], options[:port]) do |smtp|
-              smtp.send_message msg, options[:from], addr
+            smtp = Net::SMTP.new(options[:server], options[:port])
+            smtp.enable_starttls if options[:authentication] != :none
+
+            opts = begin
+              if options[:authentication] == :none
+                # Trying to add username and password if there's no authentication will actually be rejected by
+                # the server.
+                [options[:domain]]
+              else
+                [options[:domain], options[:auth_user], options[:auth_password], options[:authentication]]
+              end
             end
+
+            smtp.start(*opts) do |m|
+              m.send_message(msg, options[:from], addr)
+            end
+
+            # Exceptions raised here will be caught by rescue clause
+            # smtp = Net::SMTP.new(options[:server], options[:port])
+            # smtp.enable_starttls
+
+            # smtp.start (options[:domain], options[:auth_user], options[:auth_password], options[:authentication]) do |smtp|
+            #  smtp.send_message(msg, options[:from], addr)
+            # end
           rescue
             warn "Email not able to be sent to address '#{addr}'"
           end

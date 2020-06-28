@@ -16,13 +16,13 @@ origen c -h
 The compiler can be run on a single file:
 
 ~~~text
-origen c templates/bench/dut_regs.h.erb
+origen c app/templates/bench/dut_regs.h.erb
 ~~~
 
 or on a whole directory:
 
 ~~~text
-origen c templates/bench
+origen c app/templates/bench
 ~~~
 
 In the case of running on a directory the compiler will recursively compile the
@@ -38,7 +38,7 @@ origen c /proj/c28/eagle/jim/rtl_v
 A commonly used option is to specify the output directory:
 
 ~~~text
-origen c templates/bench -o output/compiled_bench_code
+origen c app/templates/bench -o output/compiled_bench_code
 ~~~
 
 By default the compiled files will be put in <code>output</code> or whatever directory
@@ -48,7 +48,7 @@ Submit to the LSF, by appending <code>-l</code> and optionally interactively
 wait for completion:
 
 ~~~text
-origen c templates/bench -l -w
+origen c app/templates/bench -l -w
 ~~~
 
 #### Regression Testing

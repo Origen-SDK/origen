@@ -15,22 +15,49 @@ module Origen
       DONT_CARE_CHAR = 'X'
       OVERLAY_CHAR = 'V'
       STORE_CHAR = 'S'
+      UNKNOWN_CHAR = '?'
 
       attr_accessor :name
       alias_method :id, :name
 
-      def initialize(reg, name, data = []) # :nodoc:
+      def initialize(reg, name, data = [], options = {}) # :nodoc:
         if reg.respond_to?(:has_bits_enabled_by_feature?) && reg.has_parameter_bound_bits?
           reg.update_bound_bits unless reg.updating_bound_bits?
         end
         @reg = reg
         @name = name
+        @with_bit_order = options[:with_bit_order] || :lsb0
         [data].flatten.each { |item| self << item }
       end
 
       # Returns the bit order of the parent register
       def bit_order
         parent.bit_order
+      end
+
+      # Returns the bit numbering order to use when interpreting indeces
+      def with_bit_order
+        @with_bit_order
+      end
+
+      # Allow bit number interpreting to be explicitly set to msb0
+      def with_msb0
+        @with_bit_order = :msb0
+        self
+      end
+
+      # Allow bit number interpreting to be explicitly set to lsb0
+      def with_lsb0
+        if block_given?
+          # run just the code block with lsb0 numbering (for internal methods)
+          saved_wbo = @with_bit_order
+          @with_bit_order = :lsb0
+          yield
+          @with_bit_order = saved_wbo
+        else
+          @with_bit_order = :lsb0
+          self
+        end
       end
 
       def terminal?
@@ -41,6 +68,24 @@ module Origen
         parent.bind(name, live_parameter)
       end
 
+      # Access bits by index
+      #
+      # **Note** This method behaves differently depending on the setting of @with_bit_order
+      #
+      # If @with_bit_order == :lsb0 (default) index 0 refers to the lsb of the bit collection
+      # If @with_bit_order == :msb0 index 0 refers to the msb of the bit collection
+      #
+      # ==== Example
+      #   dut.reg(:some_reg).bits(:some_field).with_msb0[0..1] # returns 2 most significant bits
+      #   dut.reg(:some_reg).bits(:some_field)[0..1]           # returns 2 least significant bits
+      #
+      # **Note**  Internal methods should call this method using a with_lsb0 block around the code
+      # or alternatively use the shift_out methods
+      # ==== Example
+      #   with_lsb0 do
+      #     saved_bit = [index]
+      #     [index] = some_new_bit_or_operation
+      #   end
       def [](*indexes)
         return self if indexes.empty?
         b = BitCollection.new(parent, name)
@@ -52,7 +97,8 @@ module Origen
         if b.size == 1
           b.first
         else
-          b
+          # maintain downstream bit numbering setting
+          @with_bit_order == :msb0 ? b.with_msb0 : b
         end
       end
       alias_method :bits, :[]
@@ -174,16 +220,18 @@ module Origen
             puts
             fail 'Mismatched size for bit collection copy'
           end
-          size.times do |i|
-            source_bit = reg.bit[i]
-            if source_bit
-              self[i].overlay(source_bit.overlay_str) if source_bit.has_overlay?
-              self[i].write(source_bit.data)
+          # safely handle collections with differing with_bit_order settings
+          with_lsb0 do
+            reg.shift_out_with_index do |source_bit, i|
+              if source_bit
+                self[i].overlay(source_bit.overlay_str) if source_bit.has_overlay?
+                self[i].write(source_bit.data)
 
-              self[i].read if source_bit.is_to_be_read?
-              self[i].store if source_bit.is_to_be_stored?
+                self[i].read if source_bit.is_to_be_read?
+                self[i].store if source_bit.is_to_be_stored?
+              end
             end
-          end
+          end # of with_lsb0
         else
           write(reg)
           clear_flags
@@ -331,14 +379,21 @@ module Origen
         end
         value = value.data if value.respond_to?('data')
 
-        size.times do |i|
-          self[i].write(value[i], options)
+        with_lsb0 do
+          size.times do |i|
+            self[i].write(value[i], options)
+          end
         end
         self
       end
       alias_method :data=, :write
       alias_method :value=, :write
       alias_method :val=, :write
+
+      # Sets the unknown attribute on all contained bits
+      def unknown=(val)
+        each { |bit| bit.unknown = val }
+      end
 
       # Will tag all bits for read and if a data value is supplied it
       # will update the expected data for when the read is performed.
@@ -402,38 +457,26 @@ module Origen
       #       bist_shift(bit)
       #   end
       def shift_out_left
-        if bit_order == :msb0
-          each { |bit| yield bit }
-        else
-          reverse_each { |bit| yield bit }
-        end
+        # This is functionally equivalent to reverse_shift_out
+        reverse_each { |bit| yield bit }
       end
 
       # Same as Reg#shift_out_left but includes the index counter
       def shift_out_left_with_index
-        if bit_order == :msb0
-          each.with_index { |bit, i| yield bit, i }
-        else
-          reverse_each.with_index { |bit, i| yield bit, i }
-        end
+        # This is functionally equivalent to reverse_shift_out_with_index
+        reverse_each.with_index { |bit, i| yield bit, i }
       end
 
-      # Same as Reg#shift_out_left but starts from the MSB
+      # Same as Reg#shift_out_left but starts from the LSB
       def shift_out_right
-        if bit_order == :msb0
-          reverse_each { |bit| yield bit }
-        else
-          each { |bit| yield bit }
-        end
+        # This is functionally equivalent to shift_out, actually sends LSB first
+        each { |bit| yield bit }
       end
 
       # Same as Reg#shift_out_right but includes the index counter
       def shift_out_right_with_index
-        if bit_order == :msb0
-          reverse_each.with_index { |bit, i| yield bit, i }
-        else
-          each_with_index { |bit, i| yield bit, i }
-        end
+        # This is functionally equivalent to shift_out_with_index
+        each_with_index { |bit, i| yield bit, i }
       end
 
       # Yields each bit in the register, LSB first.
@@ -865,7 +908,11 @@ module Origen
               if bit.has_overlay? && options[:mark_overlays]
                 str += OVERLAY_CHAR
               else
-                str += bit.data.to_s
+                if bit.has_known_value?
+                  str += bit.data.to_s
+                else
+                  str += UNKNOWN_CHAR
+                end
               end
             else
               str += DONT_CARE_CHAR
@@ -876,13 +923,17 @@ module Origen
             if bit.has_overlay? && options[:mark_overlays]
               str += OVERLAY_CHAR
             else
-              str += bit.data.to_s
+              if bit.has_known_value?
+                str += bit.data.to_s
+              else
+                str += UNKNOWN_CHAR
+              end
             end
           end
         else
           fail "Unknown operation (#{operation}), must be :read or :write"
         end
-        make_hex_like(str, size / 4)
+        make_hex_like(str, (size / 4.0).ceil)
       end
 
       # Shifts the data in the collection left by one place. The data held
@@ -935,11 +986,11 @@ module Origen
 
       # Converts a binary-like representation of a data value into a hex-like version.
       # e.g. input  => 010S0011SSSS0110   (where S, X or V represent store, don't care or overlay)
-      #      output => (010s)3S6    (i.e. nibbles that are not all of the same type are expanded)
+      #      output => [010s]3S6    (i.e. nibbles that are not all of the same type are expanded)
       def make_hex_like(regval, size_in_nibbles)
         outstr = ''
-        regex = '^'
-        size_in_nibbles.times { regex += '(....)' }
+        regex = '^(.?.?.?.)'
+        (size_in_nibbles - 1).times { regex += '(....)' }
         regex += '$'
         Regexp.new(regex) =~ regval
 
@@ -950,13 +1001,13 @@ module Origen
 
         nibbles.each_with_index do |nibble, i|
           # If contains any special chars...
-          if nibble =~ /[#{DONT_CARE_CHAR}#{STORE_CHAR}#{OVERLAY_CHAR}]/
+          if nibble =~ /[#{UNKNOWN_CHAR}#{DONT_CARE_CHAR}#{STORE_CHAR}#{OVERLAY_CHAR}]/
             # If all the same...
             if nibble[0] == nibble[1] && nibble[1] == nibble[2] && nibble[2] == nibble[3]
               outstr += nibble[0, 1] # .to_s
             # Otherwise present this nibble in 'binary' format
             else
-              outstr += "(#{nibble.downcase})"
+              outstr += "[#{nibble.downcase}]"
             end
           # Otherwise if all 1s and 0s...
           else
@@ -985,7 +1036,13 @@ module Origen
             ixs << index
           end
         end
-        ixs.flatten.sort
+        ixs.flatten!
+        # ixs.sort!
+        # convert msb0 numbering (if provided) to lsb0 numbering to get the correct bits
+        if @with_bit_order == :msb0
+          ixs.each_index { |i| ixs[i] = size - ixs[i] - 1 }
+        end
+        ixs.sort
       end
     end
   end

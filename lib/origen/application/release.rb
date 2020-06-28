@@ -6,6 +6,7 @@ module Origen
       include Users
       include Utility::TimeAndDate
       include Utility::InputCapture
+      include Utility
 
       def initialize
         @mailer = Utility::Mailer.new
@@ -30,6 +31,7 @@ module Origen
         @options = options
         if authorized?
           Origen.app.plugins.validate_production_status(true)
+          fail 'No revision control configured for this application, cannot release a new version' if Origen.app.rc.nil?
           unless Origen.app.rc.local_modifications.empty?
             puts <<-EOT
 Your workspace has local modifications that are preventing the requested action
@@ -291,7 +293,7 @@ Your workspace has local modifications that are preventing the requested action
       def tag
         tag = Origen.app.version
         if tag =~ /^\d/
-          "v#{tag}"
+          Origen.app.config.rc_tag_prepend_v ? "v#{tag}" : tag
         else
           tag
         end
@@ -319,7 +321,7 @@ Your workspace has local modifications that are preventing the requested action
             file.puts ''
           end
           file.puts ''
-          file.puts note.escape_underscores
+          file.puts note.escape_underscores(smartly = true)
           file.puts ''
           file.puts text
         end
@@ -328,9 +330,9 @@ Your workspace has local modifications that are preventing the requested action
       # Sets the version number in the file store
       def write_version(version)
         if version.semantic?
-          Origen::CodeGenerators.invoke 'semver', [], config: { change: version }
+          Origen::CodeGenerators.invoke_internal 'semver', [], config: { change: version }
         else
-          Origen::CodeGenerators.invoke 'timever', [], config: { change: version }
+          Origen::CodeGenerators.invoke_internal 'timever', [], config: { change: version }
         end
         system 'origen -v' # Invoke Origen under the new version, this updates Gemfile.lock
       end

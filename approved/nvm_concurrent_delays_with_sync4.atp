@@ -1,0 +1,71 @@
+// ***************************************************************************
+// GENERATED:
+//   Time:    19-Mar-2020 06:16AM
+//   By:      Stephen McGinty
+//   Mode:    debug
+//   Command: origen g concurrent_delays_with_sync4 -t origen_sim_dut.rb
+// ***************************************************************************
+// ENVIRONMENT:
+//   Application
+//     Source:    git@github.com:Origen-SDK/origen.git
+//     Version:   0.55.3
+//     Branch:    concurrent(1bbe7c5e138) (+local edits)
+//   Origen
+//     Source:    https://github.com/Origen-SDK/origen
+//     Version:   0.55.3
+//   Plugins
+//     origen_app_generators:    2.1.1
+//     origen_core_support:      0.2.3
+//     origen_debuggers:         0.6.1
+//     origen_doc_helpers:       0.8.2
+//     origen_jtag:              0.22.0
+//     origen_sim:               0.20.7
+//     origen_testers:           0.45.1
+// ***************************************************************************
+// Header Comments From Application: origen_core:
+//   This is a dummy pattern created by the Origen test environment
+// ***************************************************************************
+import tset func;                                                                               
+svm_only_file = no;                                                                             
+opcode_mode = extended;                                                                         
+compressed = yes;                                                                               
+                                                                                                
+vector ($tset, tck, tdi, tdo, tms, rstn, trstn, dout, test_bus, din_port, p1, p2, p3, p4, v1, v2, done, not_present, ana)                               
+{                                                                                               
+start_label pattern_st:                                                                         
+//                                                                                              t t t t r t d                                t                d                                p p p    p    v v d n a
+//                                                                                              c d d m s r o                                e                i                                1 2 3    4    1 2 o o n
+//                                                                                              k i o s t s u                                s                n                                                  n t a
+//                                                                                                      n t t                                t                -                                                  e -  
+//                                                                                                        n                                  -                p                                                    p  
+//                                                                                                                                           b                o                                                    r  
+//                                                                                                                                           u                r                                                    e  
+//                                                                                                                                           s                t                                                    s  
+//                                                                                                                                                                                                                 e  
+//                                                                                                                                                                                                                 n  
+//                                                                                                                                                                                                                 t  
+repeat 11                                                        > func                         0 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X ;
+repeat 11                                                        > func                         0 0 X 0 0 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X ;
+repeat 11                                                        > func                         0 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X ;
+repeat 11                                                        > func                         1 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X ;
+repeat 11                                                        > func                         1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X ;
+// [main] Wait for 10.0ms
+repeat 65535                                                     > func                         1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X ;
+repeat 34465                                                     > func                         1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X ;
+// [main] Wait for 5.0ms
+                                                                 > func                         1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X ;
+// Wait for 10.0ms
+// Wait for 20.0ms
+repeat 65535                                                     > func                         1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X ;
+repeat 34465                                                     > func                         1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X ;
+// Wait for 10.0ms
+// Wait for 20.0ms
+repeat 65535                                                     > func                         1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X ;
+repeat 65535                                                     > func                         1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X ;
+repeat 65535                                                     > func                         1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X ;
+repeat 3395                                                      > func                         1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X ;
+// ######################################################################
+// ## Pattern complete
+// ######################################################################
+end_module                                                       > func                         1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X ;
+}                                                                                               

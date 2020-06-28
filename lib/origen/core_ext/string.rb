@@ -1,4 +1,5 @@
 require 'active_support/core_ext/string/inflections'
+require 'uri'
 begin
   require 'scrub_rb'
 rescue LoadError
@@ -19,10 +20,83 @@ class String
     end
   end
 
-  def escape_underscores
-    gsub('_', '\_')
+  def escape_underscores(smartly = false)
+    if smartly
+      # Need to make sub-string ranges where the URLs are located
+      urls = URI.extract(self, %w(http https ssh))
+      url_matches = [].tap do |new_ary|
+        urls.each do |url|
+          scan(/#{Regexp.escape(url)}/) do |c|
+            indices = ($LAST_MATCH_INFO.offset(0).first..($LAST_MATCH_INFO.offset(0).first + c.size - 1))
+            new_ary << [indices, c]
+          end
+        end
+      end
+      # This order is because a better single regex is not yet found
+      italic_regex = [/^(\_\w+\_)\s+/, /(\_\w+\_)$/, /\s*(\_\w+\_)\s+/]
+      italic_matches = [].tap do |new_ary|
+        italic_regex.each_with_index do |regex, i|
+          scan(regex) do |c|
+            offset = c.first.size - 1
+            if i == 0
+              indices = (0..offset)
+            elsif i == 1
+              indices = (size - 1 - offset..size - 1)
+            else
+              indices = ($LAST_MATCH_INFO.offset(0).first..($LAST_MATCH_INFO.offset(0).first + c.first.size - 1))
+            end
+            new_ary << [indices, c]
+          end
+        end
+      end
+      # Make sure there are no italic matches within the URL ranges
+      filtered_italic_matches = [].tap do |new_ary|
+        url_matches.each do |url_ary|
+          url_range = url_ary.first
+          italic_matches.each do |italic_ary|
+            italic_range = italic_ary.first
+            # Ruby 2.6 has the Range#cover method but until then
+            unless ranges_overlap?(url_range, italic_range)
+              new_ary << italic_ary unless new_ary.include?(italic_ary)
+            end
+          end
+        end
+      end
+      italic_ranges = [].tap do |new_ary|
+        filtered_italic_ranges = filtered_italic_matches.map(&:first)
+        italic_range_mins = filtered_italic_matches.map(&:first).map(&:min).sort
+        italic_range_mins.each_with_index do |range_min, i|
+          filtered_italic_ranges.each do |r|
+            new_ary << r if r.min == range_min
+          end
+        end
+      end
+      str = dup
+      inc = 0
+      italic_ranges.each do |r|
+        str[r.first + inc] = '\_'
+        inc += 1
+        str[r.last + inc] = '\_'
+        inc += 1
+      end
+      str
+    else
+      gsub('_', '\_')
+    end
   end
   alias_method :escape_underscore, :escape_underscores
+
+  def match_all(regex)
+    match_str = self
+    matches = []
+    while match_str.length > 0
+      md = match_str.match(regex)
+      break unless md
+      matches << md
+      match_str = md.post_match
+    end
+    matches
+  end
 
   def camel_case
     Origen.deprecate "String#camel_case! is deprecated, use String#camelcase instead, or if you want to get rid of spaces: my_string.gsub(' ', '_').camelcase"
@@ -166,6 +240,10 @@ class String
   alias_method :spreadsheet_col_index, :excel_col_index
 
   private
+
+  def ranges_overlap?(r1, r2)
+    !(r1.first > r2.last || r1.last < r2.first)
+  end
 
   # Convert a verilog number string to an integer
   def verilog_to_dec

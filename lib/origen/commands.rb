@@ -2,6 +2,7 @@
 # is done here (i.e. options that apply to all commands) before handing
 # over to the specific command handlers
 require 'optparse'
+require 'fileutils'
 
 ARGV << '--help' if ARGV.empty?
 
@@ -29,10 +30,22 @@ ORIGEN_COMMAND_ALIASES = {
 # Moved here so boot.rb file can know the current command
 Origen.send :current_command=, @command
 
+# Do some housekeeping, remove all .git directories in vendor/gems, this allows gems
+# that have been vendored via a Git reference to be checked in as normal
+if File.exist?(Origen.root.join('vendor', 'gems'))
+  Dir.glob("#{Origen.root}/vendor/gems/ruby/*/bundler/gems/*/.git").each do |f|
+    FileUtils.rm_rf(f)
+  end
+  # Also remove any nested vendor/gems folders to save space
+  Dir.glob("#{Origen.root}/vendor/gems/ruby/*/bundler/gems/*/vendor/gems").each do |f|
+    FileUtils.rm_rf(f)
+  end
+end
+
 # Don't log to file during the save command since we need to preserve the last log,
 # this is done as early in the process as possible so any deprecation warnings during
 # load don't trigger a new log
-Origen::Log.console_only = (%w(save target environment version).include?(@command) || ARGV.include?('--exec_remote'))
+Origen::Log.console_only = %w(save target environment version).include?(@command)
 
 if ARGV.delete('--coverage') ||
    ((@command == 'specs' || @command == 'examples' || @command == 'test') && (ARGV.delete('-c') || ARGV.delete('--coverage')))
@@ -49,24 +62,34 @@ if ARGV.delete('--coverage') ||
   Origen.log.info 'Started code coverage'
   SimpleCov.configure do
     filters.clear # This will remove the :root_filter that comes via simplecov's defaults
+
     add_filter do |src|
-      !(src.filename =~ /^#{Origen.root}\/lib/)
+      if File.directory?("#{Origen.root}/app/lib")
+        !(src.filename =~ /^#{Origen.root}\/app\/lib/)
+      else
+        !(src.filename =~ /^#{Origen.root}\/lib/)
+      end
     end
 
     # Results from commands run in succession will be merged by default
     use_merging(!ARGV.delete('--no_merge'))
-
     # Try and make a guess about which directory contains the bulk of the application's code
     # and create groups to match the main folders
-    d1 = "#{Origen.root}/lib/#{Origen.app.name.to_s.underscore}"
-    d2 = "#{Origen.root}/lib/#{Origen.app.namespace.to_s.underscore}"
-    d3 = "#{Origen.root}/lib"
+    # Highest priority is given to the new application structure
+    # Applications on the old directory structure need to make sure that there isn't another "app" directory in Origen.root
+    # Applications on the new directory structure need to make sure that there isn't another "lib" directory in Origen.root
+    d1 = "#{Origen.root}/app/"
+    d2 = "#{Origen.root}/lib/#{Origen.app.name.to_s.underscore}"
+    d3 = "#{Origen.root}/lib/#{Origen.app.namespace.to_s.underscore}"
+    d4 = "#{Origen.root}/lib"
     if File.exist?(d1) && File.directory?(d1)
       dir = d1
     elsif File.exist?(d2) && File.directory?(d2)
       dir = d2
-    else
+    elsif File.exist?(d3) && File.directory?(d3)
       dir = d3
+    else
+      dir = d4
     end
 
     Dir.glob("#{dir}/*").each do |d|
@@ -97,22 +120,13 @@ Origen.lsf.current_command = @command
 
 if ARGV.delete('-d') || ARGV.delete('--debug')
   begin
-    if RUBY_VERSION >= '2.0.0'
-      require 'byebug'
-    else
-      require 'rubygems'
-      require 'ruby-debug'
-    end
+    require 'byebug'
   rescue LoadError
     def debugger
       caller[0] =~ /.*\/(\w+\.rb):(\d+).*/
       puts 'The debugger gem is not installed, add the following to your Gemfile:'
       puts
-      puts "if RUBY_VERSION >= '2.0.0'"
-      puts "  gem 'byebug', '~>3.5'"
-      puts 'else'
-      puts "  gem 'debugger', '~>1.6'"
-      puts 'end'
+      puts "  gem 'byebug', '~>8'"
       puts
     end
   end
@@ -230,10 +244,15 @@ end.compact
 
 case @command
 when 'generate', 'program', 'compile', 'merge', 'interactive', 'target', 'environment',
-     'save', 'lsf', 'web', 'time', 'dispatch', 'rc', 'lint', 'plugin', 'fetch', 'mode', 'gem' # , 'add'
+     'save', 'lsf', 'web', 'time', 'dispatch', 'rc', 'lint', 'plugin', 'fetch', 'mode', 'gem',
+     'archive'
 
   require "origen/commands/#{@command}"
   exit 0 unless @command == 'interactive'
+
+when 'new'
+  require 'origen/commands/new_resource'
+  exit 0
 
 when 'exec'
   load ARGV.first
@@ -242,6 +261,10 @@ when 'exec'
 when 'version'
   Origen.app # Load app
   require 'origen/commands/version'
+  exit 0
+
+when 'site'
+  require 'origen/commands/site'
   exit 0
 
 else
@@ -267,12 +290,16 @@ The core origen commands are:
  compile      Compile a template file or directory (short-cut alias: "c")
  exec         Execute any Ruby file with access to your app environment
 
+ setup        Setup an app workspace for the first time, or fix if it can't boot
  rc           Revision control commands, see -h for details
  save         Save the new or changed files from the last run or a given log file
  lsf          Monitor and manage LSF jobs (short-cut alias: "l")
  web          Web page tools, see -h for details
  time         Tools for test time analysis and forecasting
  lint         Lint and style check (and correct) your application code
+ archive      Create an archive of your current application state
+ site         Monitor and manage the Origen site configuration
+ new          Generate a new block, flow, pattern, etc. for your application
   EOT
   cmds.split(/\n/).each do |line|
     puts Origen.clean_help_line(line)

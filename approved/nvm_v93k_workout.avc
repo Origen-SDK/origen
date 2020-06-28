@@ -1,25 +1,29 @@
 # ***************************************************************************
 # GENERATED:
-#   Time:    23-May-2017 09:41AM
+#   Time:    24-Jul-2019 02:53AM
 #   By:      Stephen McGinty
+#   Mode:    debug
 #   Command: origen g v93k_workout -t v93k.rb
 # ***************************************************************************
 # ENVIRONMENT:
 #   Application
 #     Source:    git@github.com:Origen-SDK/origen.git
-#     Version:   0.8.0
-#     Branch:    timing_api(e5fc6454ddd) (+local edits)
+#     Version:   0.52.2
+#     Branch:    master(3a8e05e8bae) (+local edits)
 #   Origen
 #     Source:    https://github.com/Origen-SDK/origen
-#     Version:   0.8.0
+#     Version:   0.52.2
 #   Plugins
-#     atp:                      0.5.4
+#     origen_app_generators:    2.1.1
 #     origen_core_support:      0.2.3
-#     origen_debuggers:         0.5.2
-#     origen_doc_helpers:       0.4.4
-#     origen_testers:           0.9.6
+#     origen_debuggers:         0.6.1
+#     origen_doc_helpers:       0.8.0
+#     origen_jtag:              0.22.0
+#     origen_sim:               0.20.5
+#     origen_testers:           0.40.0
 # ***************************************************************************
-# This is a dummy pattern created by the Origen test environment
+# Header Comments From Application: origen_core:
+#   This is a dummy pattern created by the Origen test environment
 # ***************************************************************************
 FORMAT nvm_reset nvm_clk nvm_clk_mux porta portb nvm_invoke nvm_done nvm_fail nvm_alvtst nvm_ahvtst nvm_dtst TCLK TRST;
 #                                                   n n n p        p        n n n n n n t t
@@ -97,6 +101,16 @@ R1                       nvmbist                    1 1 1 00000000 00000000 1 H 
 # ######################################################################
 # Wait for a maximum of 5.0ms
 # for the NVM_DONE pin to go HIGH
+R1                       nvmbist                    1 1 1 00000000 00000000 1 X X X X X 0 1 # ;
+R1                       nvmbist                    1 1 1 00000000 00000000 1 X X X X X 0 1 # ;
+R1                       nvmbist                    1 1 1 00000000 00000000 1 X X X X X 0 1 # ;
+R1                       nvmbist                    1 1 1 00000000 00000000 1 X X X X X 0 1 # ;
+R1                       nvmbist                    1 1 1 00000000 00000000 1 X X X X X 0 1 # ;
+R1                       nvmbist                    1 1 1 00000000 00000000 1 X X X X X 0 1 # ;
+R1                       nvmbist                    1 1 1 00000000 00000000 1 X X X X X 0 1 # ;
+R1                       nvmbist                    1 1 1 00000000 00000000 1 X X X X X 0 1 # ;
+SQPG MACT 7813;
+R1                       nvmbist                    1 1 1 00000000 00000000 1 H L X X X 0 1 # ;
 R1                       nvmbist                    1 1 1 00000000 00000000 1 X L X X X 0 1 # ;
 R1                       nvmbist                    1 1 1 00000000 00000000 1 X L X X X 0 1 # ;
 R1                       nvmbist                    1 1 1 00000000 00000000 1 X L X X X 0 1 # ;
@@ -104,34 +118,16 @@ R1                       nvmbist                    1 1 1 00000000 00000000 1 X 
 R1                       nvmbist                    1 1 1 00000000 00000000 1 X L X X X 0 1 # ;
 R1                       nvmbist                    1 1 1 00000000 00000000 1 X L X X X 0 1 # ;
 R1                       nvmbist                    1 1 1 00000000 00000000 1 X L X X X 0 1 # ;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 X L X X X 0 1 # ;
-SQPG MACT 1737;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 H L X X X 0 1 # ;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 H L X X X 0 1 # ;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 H L X X X 0 1 # ;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 H L X X X 0 1 # ;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 H L X X X 0 1 # ;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 H L X X X 0 1 # ;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 H L X X X 0 1 # ;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 H L X X X 0 1 # ;
 SQPG MRPT 8;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 X L X X X 0 1 # ;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 X L X X X 0 1 # ;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 X L X X X 0 1 # ;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 X L X X X 0 1 # ;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 X L X X X 0 1 # ;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 X L X X X 0 1 # ;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 X L X X X 0 1 # ;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 X L X X X 0 1 # ;
+R1                       nvmbist                    1 1 1 00000000 00000000 1 X X X X X 0 1 # ;
+R1                       nvmbist                    1 1 1 00000000 00000000 1 X X X X X 0 1 # ;
+R1                       nvmbist                    1 1 1 00000000 00000000 1 X X X X X 0 1 # ;
+R1                       nvmbist                    1 1 1 00000000 00000000 1 X X X X X 0 1 # ;
+R1                       nvmbist                    1 1 1 00000000 00000000 1 X X X X X 0 1 # ;
+R1                       nvmbist                    1 1 1 00000000 00000000 1 X X X X X 0 1 # ;
+R1                       nvmbist                    1 1 1 00000000 00000000 1 X X X X X 0 1 # ;
+R1                       nvmbist                    1 1 1 00000000 00000000 1 X X X X X 0 1 # ;
 SQPG PADDING;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 X L X X X 0 1 # ;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 X L X X X 0 1 # ;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 X L X X X 0 1 # ;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 X L X X X 0 1 # ;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 X L X X X 0 1 # ;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 X L X X X 0 1 # ;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 X L X X X 0 1 # ;
-R1                       nvmbist                    1 1 1 00000000 00000000 1 X L X X X 0 1 # ;
 # ######################################################################
 # ## Test a two pin match loop
 # ######################################################################
@@ -139,13 +135,11 @@ R1                       nvmbist                    1 1 1 00000000 00000000 1 X 
 # for the NVM_DONE pin to go HIGH
 # or the NVM_FAIL pin to go LOW
 SQPG LBGN 11;
-# Check if NVM_DONE is HIGH yet
 R1                       nvmbist                    1 1 1 00000000 00000000 1 H X X X X 0 1 # ;
 # Wait for failure to propagate
 R6015                    nvmbist                    1 1 1 00000000 00000000 1 X X X X X 0 1 # ;
 # Exit match loop if pin has matched (no error), otherwise clear error and remain in loop
 SQPG RETC 0 0;
-# Check if NVM_FAIL is LOW yet
 R1                       nvmbist                    1 1 1 00000000 00000000 1 X L X X X 0 1 # ;
 # Wait for failure to propagate
 R6015                    nvmbist                    1 1 1 00000000 00000000 1 X X X X X 0 1 # ;

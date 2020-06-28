@@ -59,87 +59,158 @@ module Origen
         pattern_close(options)
       end
 
-      def create(options = {})
+      def sequence(options = {}, &block)
         @create_options = options
         unless Origen.tester
           puts 'The current target has not instantiated a tester and pattern generation cannot run.'
-          puts 'Add something like this to your target file:'
-          puts ''
-          puts '  $tester = Origen::Tester::J750.new'
-          puts ''
+          puts 'Add something like this to an environment file:'
+          puts
+          puts '  Origen::Tester::J750.new'
+          puts
+          puts
+          puts 'Then select it by running:  origen e <environment name>'
           exit 1
         end
         Origen.tester.generating = :pattern
 
         job.output_file_body = options.delete(:name).to_s if options[:name]
 
-        # Order the iterators by the order that their enable keys appear in the options, pad
-        # any missing iterators with a dummy function...
-        iterators = options.map do |key, _val|
-          Origen.app.pattern_iterators.find { |iterator| iterator.key == key }
-        end.compact
-        iterators << DummyIterator.new while iterators.size < 10
+        # Refresh the target to start all settings from scratch each time
+        # This is an easy way to reset all registered values
+        Origen.app.reload_target!(skip_first_time: true)
 
-        args = []
+        # Final call back to the project to allow it to make any pattern name specific
+        # configuration changes
+        Origen.app.listeners_for(:before_pattern).each do |listener|
+          listener.before_pattern(job.output_pattern_filename)
+        end
 
-        # Couldn't get this to work fully dynamically, so hard-coded for 10 custom
-        # iterators for now, should be plenty for any application in the meantime.
-        # Should revisit this when time allows and remove this limitation by changing
-        # this to a recursive structure.
-        iterators[0].invoke(options) do |arg0|
-          args[0] = arg0
-          iterators[1].invoke(options) do |arg1|
-            args[1] = arg1
-            iterators[2].invoke(options) do |arg2|
-              args[2] = arg2
-              iterators[3].invoke(options) do |arg3|
-                args[3] = arg3
-                iterators[4].invoke(options) do |arg4|
-                  args[4] = arg4
-                  iterators[5].invoke(options) do |arg5|
-                    args[5] = arg5
-                    iterators[6].invoke(options) do |arg6|
-                      args[6] = arg6
-                      iterators[7].invoke(options) do |arg7|
-                        args[7] = arg7
-                        iterators[8].invoke(options) do |arg8|
-                          args[8] = arg8
-                          iterators[9].invoke(options) do |arg9|
-                            args[9] = arg9
-                            # Refresh the target to start all settings from scratch each time
-                            # This is an easy way to reset all registered values
-                            Origen.app.reload_target!(skip_first_time: true)
+        ## Allow custom pattern postfix
+        # unless options[:pat_postfix].to_s.empty?
+        #  job.output_pattern_filename = job.output_pattern_filename.sub(job.output_postfix + job.output_extension, "_#{options[:pat_postfix]}" + job.output_postfix + job.output_extension)
+        # end
 
-                            # Final call back to the project to allow it to make any pattern name specific
-                            # configuration changes
-                            Origen.app.listeners_for(:before_pattern).each do |listener|
-                              listener.before_pattern(job.output_pattern_filename)
-                            end
+        @pattern_sequence = true
 
-                            # Work out the final pattern name based on the current iteration
-                            job.reset_output_pattern_filename
-                            iterators.each_with_index do |iterator, i|
-                              if iterator.enabled?(options)
-                                job.output_pattern_filename =
-                                  iterator.pattern_name.call(job.output_pattern_filename, args[i])
+        # The startup callbacks need to be skipped for now until the main thread is open for business
+        pattern_wrapper([], [], options.merge(call_startup_callbacks: false)) do
+          # The startup callbacks, if required, need to be wrapped up in a closure for calling
+          # later by the main thread
+          if (options.key?(:call_startup_callbacks) && !options[:call_startup_callbacks]) || options[:skip_startup]
+            pre_block = nil
+          else
+            pre_block = proc do
+              # Call startup callbacks
+              Origen.app.listeners_for(:startup).each do |listener|
+                listener.startup(options)
+              end
+            end
+          end
+          PatternSequencer.send(:active=, true)
+          @pattern_sequence = PatternSequence.new(job.output_pattern_filename, block, pre_block)
+          @pattern_sequence.send(:execute)
+          PatternSequencer.send(:active=, false)
+        end
+        @pattern_sequence = false
+        @create_options = nil
+      end
+
+      def create(options = {})
+        if @pattern_sequence
+          yield
+        else
+          @create_options = options
+          unless Origen.tester
+            puts 'The current target has not instantiated a tester and pattern generation cannot run.'
+            puts 'Add something like this to an environment file:'
+            puts
+            puts '  Origen::Tester::J750.new'
+            puts
+            puts
+            puts 'Then select it by running:  origen e <environment name>'
+            exit 1
+          end
+          Origen.tester.generating = :pattern
+
+          job.output_file_body = options.delete(:name).to_s if options[:name]
+
+          # Order the iterators by the order that their enable keys appear in the options, pad
+          # any missing iterators with a dummy function...
+          iterators = options.map do |key, _val|
+            Origen.app.pattern_iterators.find { |iterator| iterator.key == key }
+          end.compact
+          iterators << DummyIterator.new while iterators.size < 10
+
+          args = []
+
+          # Couldn't get this to work fully dynamically, so hard-coded for 10 custom
+          # iterators for now, should be plenty for any application in the meantime.
+          # Should revisit this when time allows and remove this limitation by changing
+          # this to a recursive structure.
+          iterators[0].invoke(options) do |arg0|
+            args[0] = arg0
+            iterators[1].invoke(options) do |arg1|
+              args[1] = arg1
+              iterators[2].invoke(options) do |arg2|
+                args[2] = arg2
+                iterators[3].invoke(options) do |arg3|
+                  args[3] = arg3
+                  iterators[4].invoke(options) do |arg4|
+                    args[4] = arg4
+                    iterators[5].invoke(options) do |arg5|
+                      args[5] = arg5
+                      iterators[6].invoke(options) do |arg6|
+                        args[6] = arg6
+                        iterators[7].invoke(options) do |arg7|
+                          args[7] = arg7
+                          iterators[8].invoke(options) do |arg8|
+                            args[8] = arg8
+                            iterators[9].invoke(options) do |arg9|
+                              args[9] = arg9
+                              # Refresh the target to start all settings from scratch each time
+                              # This is an easy way to reset all registered values
+                              Origen.app.reload_target!(skip_first_time: true)
+
+                              # Final call back to the project to allow it to make any pattern name specific
+                              # configuration changes
+                              Origen.app.listeners_for(:before_pattern).each do |listener|
+                                listener.before_pattern(job.output_pattern_filename)
                               end
-                            end
 
-                            # Allow custom pattern postfix
-                            unless options[:pat_postfix].to_s.empty?
-                              job.output_pattern_filename = job.output_pattern_filename.sub(job.output_postfix + job.output_extension, "_#{options[:pat_postfix]}" + job.output_postfix + job.output_extension)
-                            end
-
-                            pattern_wrapper(iterators, args, options) do
-                              # Call iterator setups, whatever these return are passed to the pattern
-                              yield_items = []
+                              # Work out the final pattern name based on the current iteration
+                              job.reset_output_pattern_filename
                               iterators.each_with_index do |iterator, i|
                                 if iterator.enabled?(options)
-                                  yield_items << iterator.setup.call(args[i])
+                                  job.output_pattern_filename =
+                                    iterator.pattern_name.call(job.output_pattern_filename, args[i])
                                 end
                               end
 
-                              yield(*yield_items)
+                              # Allow custom pattern prefix
+                              unless options[:pat_prefix].to_s.empty?
+                                if job.output_prefix.empty?
+                                  job.output_pattern_filename = "#{options[:pat_prefix]}_" + job.output_pattern_filename
+                                else
+                                  job.output_pattern_filename = job.output_pattern_filename.sub(job.output_prefix, job.output_prefix + "#{options[:pat_prefix]}_")
+                                end
+                              end
+
+                              # Allow custom pattern postfix
+                              unless options[:pat_postfix].to_s.empty?
+                                job.output_pattern_filename = job.output_pattern_filename.sub(job.output_postfix + job.output_extension, "_#{options[:pat_postfix]}" + job.output_postfix + job.output_extension)
+                              end
+
+                              pattern_wrapper(iterators, args, options) do
+                                # Call iterator setups, whatever these return are passed to the pattern
+                                yield_items = []
+                                iterators.each_with_index do |iterator, i|
+                                  if iterator.enabled?(options)
+                                    yield_items << iterator.setup.call(args[i])
+                                  end
+                                end
+
+                                yield(*yield_items)
+                              end
                             end
                           end
                         end
@@ -164,8 +235,9 @@ module Origen
       # Each additional pattern section created by calling this method
       # will have '_partN' appended to the original pattern name.
       def split(options = {})
+        split_name = options.delete(:name) || ''
         pattern_close(options.merge(call_shutdown_callbacks: false))
-        job.inc_split_counter
+        job.inc_split_counter(split_name)
         pattern_open(options.merge(call_startup_callbacks: false))
       end
 
@@ -363,9 +435,7 @@ module Origen
           unless job.test?
             File.delete(job.output_pattern) if File.exist?(job.output_pattern)
 
-            if options[:inhibit]
-              log.info "Generating...  #{job.output_pattern_directory}/#{job.output_pattern_filename}".ljust(50)
-            else
+            unless tester.try(:sim?)
               log.info "Generating...  #{job.output_pattern_directory}/#{job.output_pattern_filename}".ljust(50)
             end
           end
@@ -459,11 +529,16 @@ module Origen
             end
           end
 
-          log.info ' '
-          log.info "Pattern vectors: #{stats.number_of_vectors_for(job.output_pattern).to_s.ljust(10)}"
-          log.info 'Execution time'.ljust(15) + ': %.6f' % stats.execution_time_for(job.output_pattern)
-          log.info '----------------------------------------------------------------------'
-          check_for_changes(job.output_pattern, job.reference_pattern) unless tester.try(:disable_pattern_diffs)
+          unless tester.try(:sim?)
+            log.info ' '
+            log.info "Pattern vectors: #{stats.number_of_vectors_for(job.output_pattern).to_s.ljust(10)}"
+            log.info 'Execution time'.ljust(15) + ': %.6f' % stats.execution_time_for(job.output_pattern)
+            log.info '----------------------------------------------------------------------'
+            check_for_changes(job.output_pattern, job.reference_pattern) unless tester.try(:disable_pattern_diffs)
+          end
+          if @pattern_sequence
+            @pattern_sequence.send(:log_execution_profile)
+          end
           stats.record_pattern_completion(job.output_pattern)
         end
 

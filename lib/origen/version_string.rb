@@ -32,7 +32,12 @@ module Origen
     alias_method :orig_equal?, :==
 
     def equal?(version)
-      condition_met?("== #{version}")
+      # If not a valid version string, compare using regular string comparison
+      if valid?
+        condition_met?("== #{version}")
+      else
+        orig_equal?(version)
+      end
     end
     alias_method :eq?, :equal?
     alias_method :==, :equal?
@@ -364,10 +369,14 @@ module Origen
     # Returns the version prefixed with the given value ('v' by default) if not
     # already present
     def prefixed(str = 'v')
-      if self =~ /^#{str}/
-        to_s
+      if Origen.config.app.config.rc_tag_prepend_v
+        if self =~ /^#{str}/
+          to_s
+        else
+          "#{str}#{self}"
+        end
       else
-        "#{str}#{self}"
+        self
       end
     end
   end

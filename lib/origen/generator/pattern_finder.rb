@@ -95,10 +95,10 @@ module Origen
           matches = Dir.glob("#{current_plugin_pattern_path}/**/#{name}.rb").sort
           # If the current plugin does  not include the pattern then look into the current app
           if matches.size == 0
-            matches = Dir.glob("#{pattern_directory}/**/#{name}.rb").sort # <= this does not include symlinks
+            matches = Dir.glob(["#{pattern_directory}/**/#{name}.rb", "#{Origen.root}/app/patterns/**/#{name}.rb"]).sort # <= this does not include symlinks
           end
         else
-          matches = Dir.glob("#{pattern_directory}/**/#{name}.rb").sort # <= this does not include symlinks
+          matches = Dir.glob(["#{pattern_directory}/**/#{name}.rb", "#{Origen.root}/app/patterns/**/#{name}.rb"]).sort # <= this does not include symlinks
         end
 
         matches
@@ -114,7 +114,7 @@ module Origen
 
       def all_matches(name)
         name = name.gsub(/\..*$/, '')
-        matches = Dir.glob("#{pattern_directory}/**{,/*/**}/#{name}.rb").sort # Takes symlinks into consideration
+        matches = Dir.glob(["#{pattern_directory}/**{,/*/**}/#{name}.rb", "#{Origen.root}/app/patterns/**{,/*/**}/#{name}.rb"]).sort # Takes symlinks into consideration
         matches.flatten.uniq
       end
 

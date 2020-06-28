@@ -1,3 +1,15 @@
+# BROADCAST MESSAGES
+
+# All broadcast messages will output to the console for all users every time Origen is invoked
+#broadcast_info:
+# - These lines will be output to the console in regular text
+#broadcast_warning:
+# - These lines will be output to the console in amber text
+#broadcast_danger:
+# - These lines will be output to the console in red text
+#broadcast_success:
+# - These lines will be output to the console in green text
+
 # GENERAL SETUP
 
 # Application generator plugins can be used to extend the available new application templates
@@ -12,10 +24,43 @@
 #  # Or a reference to a plugin's Git repository can be used
 #  - "http://bitbucket.mycompany.net/origen/my_app_generators.git"
 
+# Centralized Site Config
+# Origen +0.36 (versions after 36.0) supports a centralized site config. This site config will be implicitly read and 
+# injected into the site config following the default site configs from Origen.
+# To surpress the number of requests and possible load time delays, the site config can be cached and read on each
+# startup for :centralized_site_config_refresh number of hours.
+centralized_site_config_cache_dir: '~/.origen/cache/site_config'
+
+# Indicates how many hours should pass before the cached site config is refreshed (refetched, redownloaded)
+# The default is to refresh once per day (every 24 hours). Decimal values can be used here to get more granularity
+# if needed.
+# 0 indidcates 'always refresh' (cache will still occur though)
+# -1 indicates never refresh.
+centralized_site_config_refresh: 24
+
+# Indicates whether the SSL certificate should be verified when pulling the centralized site config
+centralized_site_config_verify_ssl: true
+
 # GEM SETUP
 
-# If your company has an internal gem server enter it here
-#gem_server: http://gems.company.net:9292
+# If your company has an internal gem server enter it here:
+#gem_server: https://gems.company.net:9292
+# or here, if you need to use different urls for push and pull (write and read):
+#gem_server_push: https://gems.company.net:9292
+#gem_server_pull: https://gems.company.net:9292
+
+# By default, the Origen 'rake gem:release' task (called by the 'origen rc tag' command), will use
+# the standard Ruby 'gem push' command to push gems to your company gem server.
+# If you need to use a different command, define it here as a string using, +GEM+ where you want
+# the gem name to be referenced, and +URL+ to reference your company gem server.
+#gem_push_cmd: "gem inabox --host +URL+ +GEM+"
+#gem_push_cmd: "gem nexus +GEM+ --url +URL+ --clear-repo --ignore-ssl-errors"
+
+# If your custom gem_push_cmd requires a gem plugin(s), add the gem names here and they will be
+# included in new applications generated via the 'origen new' command.
+#gem_push_plugins:
+#  - geminabox
+#  - nexus
 
 # When true Origen will configure and run Bundler in a consistent way for every
 # user (recommended)
@@ -62,9 +107,8 @@ gems_use_tool_repo: true
 # it fresh for each user.
 # Note that this option will only be applied if gem_manage_bundler is set to true.
 gem_use_from_system:
-  - [nokogiri, 1.6.4.1] # Only required for earlier versions of Origen
-  - [nokogiri, 1.6.7.2] # Only required for earlier versions of Origen
   - [nokogiri, 1.7.2]
+  - [nokogiri, 1.8.5]
 
 # Additionally any build switches/options that are required to build specific gems
 # in your user environment can be defined here.
@@ -81,10 +125,16 @@ gem_use_from_system:
 #   User.new("ax1234").email  # => "ax1234@company.com"  
 #
 #   # Without email_domain specified
-#   User.new("ax1234@company.com").email  # => "ax1234@company.com"  
+#   User.new("ax1234@company.com").email  # => "ax1234@company.com"
+# If authentication is needed to use the given server, email_authentication can be set to login.
+# If a service user is used to access this account on behalf of the sending users, email_auth_user and email_auth_password
+# can be set. If authentication is indicated but no auth user is given, the current user's email and password are used instead.
 #email_domain: company.com
 #email_server: smtp.company.net
 #email_port: 25
+#email_authentication: login
+#email_auth_user: service_email
+#email_auth_password: service_password
 
 # Required parameters to connect to your company's LDAP system
 #ldap_username: cn=manager,dc=example,dc=com
@@ -95,4 +145,10 @@ gem_use_from_system:
 # Optional to override the name given to the user ID attribute on the LDAP system ('id' by default)
 #ldap_user_id_attribute: uid
 
-# LSF  
+# LSF Configuration
+lsf_queue: 'batchq'
+lsf_group: 'nil'
+lsf_project: 'msg.te'
+lsf_resource: 'rhel6'
+lsf_cores: '1'
+lsf_debug: 'false'

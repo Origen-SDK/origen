@@ -237,11 +237,13 @@ RSpec.shared_examples :componentable_parent_spec do
           end
           
           it 'complains if a method Componentable is trying to add alredy exist' do
-            parent = ComponentableSpec::ComponentableAccessorTestParents::Parent.new
-            parent.add_test_true(:item1)
-            parent.add_test_component(:item1)
-            
-            expect(Origen.log.msg_hash[:warn][nil][-1]).to include("Componentable: test_component is trying to add an accessor for item :item1 to parent ComponentableSpec::ComponentableAccessorTestParents::Parent but that method already exist! No accessor will be added.")
+            expect do
+              parent = ComponentableSpec::ComponentableAccessorTestParents::Parent.new
+              parent.add_test_true(:item1)
+              parent.add_test_component(:item1)
+            end.to output(
+              /Componentable: test_component is trying to add an accessor for item :item1 to parent ComponentableSpec::ComponentableAccessorTestParents::Parent but that method already exist! No accessor will be added./
+            ).to_stdout_from_any_process
           end
           
         end

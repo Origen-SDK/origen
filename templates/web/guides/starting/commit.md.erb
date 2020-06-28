@@ -75,8 +75,15 @@ If you don't have Git available then alternatively you can set the following env
 variables:
 
 ~~~text
-ORIGEN_NAME  = "John Doe"
-ORIGEN_EMAIL = "johndoe@example.com"
+ORIGEN_USER_NAME  = "John Doe"
+ORIGEN_USER_EMAIL = "johndoe@example.com"
+~~~
+
+If you are using the [Windows Linux Subsystem](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux) and have your WSL login different from your corporate login
+you could also set the ORIGEN_USER_ID environment variable in your .bashrc / .tcshrc file
+
+~~~text
+ORIGEN_USER_ID = "jdoe"
 ~~~
 
 You can test whether your changes have been picked up by opening an Origen console (<code>origen i</code>)
@@ -85,10 +92,11 @@ and running the following:
 ~~~ruby
 User.current.name    # => "John Doe"
 User.current.email   # => "johndoe@example.com"
+User.current.id      # => "jdoe"
 ~~~
 
 An alternative path to determining your details could be via your company's employee directory
-system. Origen's [company configuration settings](<%= path "guides/starting/company" %>) allows
+system. Origen's [company configuration settings](<%= path "guides/installation/company" %>) allows
 the credentials for an LDAP system to be entered, and this approach is used within NXP
 to identify the current user. We are not sure if the current support for this within Origen is
 generic enough to apply to other companies or not, please [get in touch](<%= path "community" %>) if

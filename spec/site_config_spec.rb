@@ -49,7 +49,7 @@ describe "Origen.site_config" do
   end
 
   def add_config_variable(var, value)
-    Origen.site_config.instance_variable_get('@configs').prepend({var => value})
+    Origen.site_config.add_as_highest(var, value)
   end
   
   def remove_config_variable(var)
@@ -66,6 +66,11 @@ describe "Origen.site_config" do
       clear_site_config
       Origen.site_config.gem_manage_bundler.should == true
     end
+  end
+
+  it "allows variables to be marked as non-boolean to prevent casting" do
+    add_config_variable('lsf_cores', '1')
+    Origen.site_config.lsf_cores.should == '1'
   end
   
   it "allows user overrides" do
@@ -493,5 +498,5 @@ describe "Origen.site_config" do
         expect(Origen.site_config.instance_variable_get('@configs')).to be_empty
       end
     end
-  end  
+  end
 end

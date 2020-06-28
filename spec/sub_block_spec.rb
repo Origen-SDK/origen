@@ -16,6 +16,12 @@ module SubBlocksSpec
       sub_block :sub5, class_name: "Sub3", abs_path: "ftf3.blah"
       sub_block :sub6, class_name: "Sub3"
       sub_block :sub7, class_name: "Sub2", path: :hidden, base_address: 0x7000_0000
+
+      sub_block_group :subgroups, class_name: "SubBlocksSpec::Subs" do
+        sub_block :subitem0, class_name: "SubItem0", base_address: 0x000, some_attr: "There are two kinds of people"
+        sub_block :subitem1, class_name: "SubItem1", base_address: 0x200, some_attr: "in the world.  Those who can "
+        sub_block :subitem2, class_name: "SubItem2", base_address: 0x400, some_attr: "extrapolate from incomplete data"
+      end
     end
 
     def sub2
@@ -56,6 +62,48 @@ module SubBlocksSpec
         bit  2,      :d2, abs_path: "blah.d2_reg"
         bit  1,      :d1, path: "d1_reg"
         bit  0,      :d0, path: ".d0"
+      end
+    end
+  end
+
+  class Subs < ::Array
+    def <<(sub_block)
+      push sub_block
+    end
+  end
+
+  class SubItem0
+    include Origen::Model
+    attr_reader :some_attr
+
+    def initialize(options={})
+      @some_attr = options[:some_attr]
+      reg :reg1, 0x100 do
+        bits 31..0, :data
+      end
+    end
+
+  end
+  class SubItem1
+    include Origen::Model
+    attr_reader :some_attr
+
+    def initialize(options={})
+      @some_attr = options[:some_attr]
+      reg :reg1, 0x100 do
+        bits 31..0, :data
+      end
+    end
+
+  end
+  class SubItem2
+    include Origen::Model
+    attr_reader :some_attr
+
+    def initialize(options={})
+      @some_attr = options[:some_attr]
+      reg :reg1, 0x100 do
+        bits 31..0, :data
       end
     end
   end
@@ -421,6 +469,171 @@ module SubBlocksSpec
           dut.sub1.controller_on_create_called.should == 1
         end
       end
+
+      describe "block loading" do
+        it "can be done from within the sub-block class's initialize method" do
+          Origen.app.unload_target!
+          OrigenCoreSupport::MySOC.new
+          dut.my_sub_block_1.params.param1.should == 100
+          dut.my_sub_block_1.params.param2.should == 20
+          dut.my_sub_block_1.params.param3.should == 300
+        end
+
+        it "can be done via a load_block argument passed to sub_block" do
+          Origen.app.unload_target!
+          OrigenCoreSupport::MySOC.new
+          dut.my_sub_block_2.params.param1.should == 10
+          dut.my_sub_block_2.params.param2.should == 200
+          dut.my_sub_block_2.params.param3.should == 300
+        end
+      end
+
+      describe "sub block groups" do
+        before :all do
+        end
+
+        it "subgroups container and sub-items exist as expected" do
+          c = Top.new
+          c.subgroups.is_a?(SubBlocksSpec::Subs).should == true
+          c.subgroups.count.should == 3
+          c.subgroups[0].is_a?(SubItem0).should == true
+          c.subgroups[1].is_a?(SubItem1).should == true
+          c.subgroups[2].is_a?(SubItem2).should == true
+        end
+
+        it "sub_block_groups hash acts as expected" do
+          c = Top.new
+
+          # check that cannot handle arguments, only
+          # block or no arguments
+          expect {
+            c.sub_block_groups(:check_args)
+          }.to raise_exception(RuntimeError)
+
+          c.sub_block_groups.count.should == 1
+          c.sub_block_groups.keys[0].should == "subgroups"
+          c.sub_block_groups["subgroups"].is_a?(SubBlocksSpec::Subs) == true
+          c.sub_block_groups["subgroups"].count.should == 3
+          c.sub_block_groups["subgroups"][0].is_a?(SubItem0).should == true
+          c.sub_block_groups["subgroups"][1].is_a?(SubItem1).should == true
+          c.sub_block_groups["subgroups"][2].is_a?(SubItem2).should == true
+        end
+
+        it "subitems exist standalone from container" do 
+          c = Top.new
+          c.subitem0.is_a?(SubItem0).should == true
+          c.subitem1.is_a?(SubItem1).should == true
+          c.subitem2.is_a?(SubItem2).should == true
+        end
+
+        it "subitems have correct attributes and regs" do
+          c = Top.new
+          c.subgroups[0].base_address.should == 0x000
+          c.subgroups[1].base_address.should == 0x200
+          c.subgroups[2].base_address.should == 0x400
+          c.subgroups[0].some_attr.should == "There are two kinds of people"
+          c.subgroups[1].some_attr.should == "in the world.  Those who can "
+          c.subgroups[2].some_attr.should == "extrapolate from incomplete data"
+        end
+
+        it "subitem registers are writeable and no naming conflicts" do
+          c = Top.new
+          c.subgroups[0].reg1
+          c.subgroups[1].reg1
+          c.subgroups[2].reg1
+          c.subgroups[0].reg1.write(0x55)
+          c.subgroups[0].reg1.data.should == 0x55
+          c.subgroups[1].reg1.data.should == 0x00
+          c.subgroups[2].reg1.data.should == 0x00
+          c.subgroups[1].reg1.write(0xAA)
+          c.subgroups[0].reg1.data.should == 0x55
+          c.subgroups[1].reg1.data.should == 0xAA
+          c.subgroups[2].reg1.data.should == 0x00
+          c.subgroups[2].reg1.write(0xBB)
+          c.subgroups[0].reg1.data.should == 0x55
+          c.subgroups[1].reg1.data.should == 0xAA
+          c.subgroups[2].reg1.data.should == 0xBB
+        end
+
+        it "default to Array if no container class provided" do
+          class Top2
+            include Origen::Model
+            def initialize
+              sub_block_group :subgroups do
+                sub_block :subitem0, class_name: "SubItem0", base_address: 0x000, some_attr: "never"
+                sub_block :subitem1, class_name: "SubItem1", base_address: 0x200, some_attr: "forget"
+                sub_block :subitem2, class_name: "SubItem2", base_address: 0x400, some_attr: "the"
+              end
+            end
+          end
+          d = Top2.new
+          d.subgroups.is_a?(Array).should == true
+          d.subgroups.count.should == 3
+          d.subgroups[0].is_a?(SubItem0).should == true
+          d.subgroups[1].is_a?(SubItem1).should == true
+          d.subgroups[2].is_a?(SubItem2).should == true
+        end
+
+        it "adding a sub_block_group should override an existing method of that name" do
+          class SB1
+            include Origen::Model
+
+            def blah
+              1
+            end
+          end
+
+          m = SB1.new
+          m.blah.should == 1
+          m.sub_block_group :blah do
+            m.sub_block :my_blah
+          end
+          m.blah.should_not == 1
+        end
+
+        it 'returns all instances of a subblock class if a Class object is given' do
+          c = Top.new
+          c.sub_block(:testa, class_name: 'SubBlocksSpec::Sub1')
+          c.sub_block(:testb, class_name: 'SubBlocksSpec::Sub1')
+          expect(c.sub_blocks(SubBlocksSpec::Sub1)).to eql({
+            'sub1' => c.sub1,
+            'testa' => c.testa,
+            'testb' => c.testb
+          })
+          
+          expect(c.sub_blocks(Integer)).to eql({})
+        end
+
+        it 'returns all instances matching the class, if an instance of a subblock is given' do
+          c = Top.new
+          c.sub_block(:testa, class_name: 'SubBlocksSpec::Sub1')
+          c.sub_block(:testb, class_name: 'SubBlocksSpec::Sub1')
+          expect(c.sub_blocks(c.sub1)).to eql({
+            'sub1' => c.sub1,
+            'testa' => c.testa,
+            'testb' => c.testb
+          })
+        end
+      end
+
+      it "adding a sub_block should override an existing method of that name" do
+        class SB2
+          include Origen::Model
+
+          def blah
+            1
+          end
+        end
+
+        m = SB2.new
+        m.blah.should == 1
+        m.sub_block :blah
+        m.blah.should_not == 1
+        m.blah.is_a?(Origen::SubBlock).should == true
+        m.sub_block[:blah].is_a?(Origen::SubBlock).should == true
+        m.sub_blocks[:blah].is_a?(Origen::SubBlock).should == true
+      end
+
     end
   end
 end

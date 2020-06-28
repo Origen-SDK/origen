@@ -17,7 +17,7 @@ module Origen
         # address API, but will accept any of these
         @reg_base_address = options.delete(:reg_base_address) ||
                             options.delete(:base_address) || options.delete(:base) || 0
-        if options[:_instance]
+        if options[:_instance]                # to be deprecated as part of multi-instance removal below
           if @reg_base_address.is_a?(Array)
             @reg_base_address = @reg_base_address[options[:_instance]]
           elsif options[:base_address_step]
@@ -232,6 +232,22 @@ module Origen
     end
     alias_method :children, :sub_blocks
 
+    # Returns a hash containing all sub block groups thus far added
+    # if no arguments given.
+    # If given a code block, will serve as alias to sub_block_group method.
+    # Does not handle arguments, no need at this time.
+    def sub_block_groups(*args, &block)
+      if block_given?
+        sub_block_group(*args, &block)
+      else
+        if args.empty?
+          @sub_block_groups ||= {}.with_indifferent_access
+        else
+          fail 'sub_block_groups not meant to take arguments!'
+        end
+      end
+    end
+
     # Delete all sub_blocks by emptying the Hash
     def delete_sub_blocks
       @sub_blocks = {}
@@ -271,36 +287,53 @@ module Origen
       tests.empty? ? false : true
     end
 
-    def sub_block(name, options = {})
+    def sub_block(name = nil, options = {})
+      name, options = nil, name if name.is_a?(Hash)
+      return sub_blocks unless name
+
+      if name.is_a?(Class)
+        return sub_blocks.select { |n, s| s.is_a?(name) }
+      elsif name.origen_sub_block?
+        return sub_block(name.class)
+      end
+
       if i = options.delete(:instances)
-        a = []
-        options[:_instance] = i
-        i.times do |j|
-          o = options.dup
-          o[:_instance] = j
-          a << sub_block("#{name}#{j}", o)
+        # permit creating multiple instances of a particular sub_block class
+        # can pass array for base_address, which will be processed above
+        Origen.deprecate 'instances: option to sub_block is deprecated, use sub_block_groups instead'
+        group_name = name =~ /s$/ ? name : "#{name}s"  # take care if name already with 's' is passed
+        unless respond_to?(group_name)
+          sub_block_groups group_name do
+            i.times do |j|
+              o = options.dup
+              o[:_instance] = j
+              sub_block("#{name}#{j}", o)
+            end
+          end
         end
-        define_singleton_method "#{name}s" do
-          a
-        end
-        a
       else
         block = Placeholder.new(self, name, options)
-        if sub_blocks[name]
-          # Allow additional attributes to be added to an existing sub-block if it hasn't
-          # been instantiated yet. This is not supported yet for instantiated sub-blocks since
-          # there are probably a lot more corner-cases to consider, and hopefully no one will
-          # really need this anyway.
-          if sub_blocks[name].is_a?(Placeholder)
-            sub_blocks[name].add_attributes(options)
-          else
-            fail "You have already defined a sub-block named #{name} within class #{self.class}"
-          end
+        # Allow additional attributes to be added to an existing sub-block if it hasn't
+        # been instantiated yet. This is not supported yet for instantiated sub-blocks since
+        # there are probably a lot more corner-cases to consider, and hopefully no one will
+        # really need this anyway.
+        if sub_blocks[name] && !sub_blocks[name].is_a?(Placeholder)
+          fail "You have already defined a sub-block named #{name} within class #{self.class}"
+        end
+        if respond_to?(name)
+          callers = Origen.split_caller_line caller[0]
+          Origen.log.warning "The sub_block defined at #{Pathname.new(callers[0]).relative_path_from(Pathname.pwd)}:#{callers[1]} is overriding an existing method called #{name}"
+        end
+        define_singleton_method name do
+          sub_blocks[name]
+        end
+        if sub_blocks[name] && sub_blocks[name].is_a?(Placeholder)
+          sub_blocks[name].add_attributes(options)
         else
           sub_blocks[name] = block
         end
-        define_singleton_method name do
-          get_sub_block(name)
+        unless @current_group.nil?  # a group is currently open, store sub_block id only
+          @current_group << name
         end
         if options.key?(:lazy)
           lazy = options[:lazy]
@@ -311,15 +344,65 @@ module Origen
       end
     end
 
+    # Create a group of associated sub_blocks under a group name
+    # permits each sub_block to be of a different class
+    # e.g.
+    # sub_block_group :my_ip_group do
+    #   sub_block :ip0, class_name: 'IP0', base_address: 0x000000
+    #   sub_block :ip1, class_name: 'IP1', base_address: 0x000200
+    #   sub_block :ip2, class_name: 'IP2', base_address: 0x000400
+    #   sub_block :ip3, class_name: 'IP3', base_address: 0x000600
+    # end
+    #
+    # creates an array referenced by method called 'my_ip_group'
+    # which contains the sub_blocks 'ip0', 'ip1', 'ip2', 'ip3'.
+    #
+    # Can also indicate a custom class container to hold these.
+    # This custom class container MUST support a '<<' method in
+    # order to add new sub_blocks to the container instance.
+    #
+    # e.g.
+    # sub_block_group :my_ip_group, class_name: 'MYGRP' do
+    #   sub_block :ip0, class_name: 'IP0', base_address: 0x000000
+    #   sub_block :ip1, class_name: 'IP1', base_address: 0x000200
+    #   sub_block :ip2, class_name: 'IP2', base_address: 0x000400
+    #   sub_block :ip3, class_name: 'IP3', base_address: 0x000600
+    # end
+    #
+    #
+    def sub_block_group(id, options = {})
+      @current_group = []    # open group
+      yield                  # any sub_block calls within this block will have their ID added to @current_group
+      my_group = @current_group.dup
+      if respond_to?(id)
+        callers = Origen.split_caller_line caller[0]
+        Origen.log.warning "The sub_block_group defined at #{Pathname.new(callers[0]).relative_path_from(Pathname.pwd)}:#{callers[1]} is overriding an existing method called #{id}"
+      end
+      # Define a singleton method which will be called every time the sub_block_group is referenced
+      # This is not called here but later when referenced
+      define_singleton_method "#{id}" do
+        sub_block_groups[id]
+      end
+      # Instantiate group
+      if options[:class_name]
+        b = Object.const_get(options[:class_name]).new
+      else
+        b = []             # Will use Array if no class defined
+      end
+      # Add sub_blocks to group
+      my_group.each do |group_id|
+        b << send(group_id)
+      end
+      sub_block_groups[id] = b
+      @current_group = nil   # close group
+    end
+    alias_method :sub_blocks_group, :sub_block_group
+
     def namespace
       self.class.to_s.sub(/::[^:]*$/, '')
     end
 
     private
-
-    def get_sub_block(name)
-      sub_blocks[name]
-    end
 
     def instantiate_sub_block(name, klass, options)
       return sub_blocks[name] unless sub_blocks[name].is_a?(Placeholder)
@@ -346,6 +429,11 @@ module Origen
 
       # Make this appear like a sub-block to any application code
       def is_a?(klass)
+        # Because sub_blocks are stored in a hash.with_indifferent_access, the value is tested
+        # against being a Hash or Array when it is added to the hash. This prevents the class being
+        # looking up and loaded by the autoload system straight away, especially if the sub-block
+        # has been specified to lazy load
+        return false if klass == Hash || klass == Array
         klass == self.klass || klass == Placeholder
       end
 
@@ -363,13 +451,16 @@ module Origen
       end
 
       def materialize
+        block = nil
         file = attributes.delete(:file)
+        load_block = attributes.delete(:load_block)
         dir = attributes.delete(:dir) || owner.send(:export_dir)
         block = owner.send(:instantiate_sub_block, name, klass, attributes)
         if file
           require File.join(dir, file)
           block.extend owner.send(:export_module_names_from_path, file).join('::').constantize
         end
+        block.load_block(load_block) if load_block
         block.owner = owner
         block
       end
@@ -402,18 +493,25 @@ module Origen
       def klass
         @klass ||= begin
           class_name = attributes.delete(:class_name)
+          tmp_class = nil
           if class_name
-            if eval("defined? ::#{owner.namespace}::#{class_name}")
-              klass = eval("::#{owner.namespace}::#{class_name}")
-            else
-              if eval("defined? #{class_name}")
+            begin
+              tmp_class = "::#{owner.namespace}::#{class_name}"
+              klass = eval(tmp_class)
+            rescue NameError => e
+              raise if e.message !~ /^uninitialized constant (.*)$/ || tmp_class !~ /#{Regexp.last_match(1)}/
+              begin
+                tmp_class = class_name.to_s
                 klass = eval(class_name)
-              else
-                if eval("defined? #{owner.class}::#{class_name}")
-                  klass = eval("#{owner.class}::#{class_name}")
-                else
+              rescue NameError => e
+                raise if e.message !~ /^uninitialized constant (.*)$/ || tmp_class !~ /#{Regexp.last_match(1)}/
+                begin
+                  tmp_class = "#{owner.class}::#{class_name}"
+                  klass = eval(tmp_class)
+                rescue NameError => e
+                  raise if e.message !~ /^uninitialized constant (.*)$/ || tmp_class !~ /#{Regexp.last_match(1)}/
                   puts "Could not find class: #{class_name}"
-                  fail 'Unknown sub block class!'
+                  raise 'Unknown sub block class!'
                 end
               end
             end
@@ -440,6 +538,12 @@ module Origen
   # This class includes support for registers, pins, etc.
   class SubBlock
     include Origen::Model
+
+    # Since no application defined this sub-block class, consider its parent's app to be
+    # the owning application
+    def app
+      parent.app
+    end
 
     # Used to create attribute accessors on the fly.
     #

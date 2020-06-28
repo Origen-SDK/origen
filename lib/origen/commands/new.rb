@@ -21,7 +21,7 @@ generators regardless of the base Origen version that this command is being laun
 
 See the website for more details:
 
-http://origen-sdk.org/origen_app_generators
+https://origen-sdk.org/origen_app_generators
 
 Usage: origen new [APP_NAME] [options]
 END
@@ -62,10 +62,15 @@ else
   end
 end
 
-generators = [['http://rubygems.org', 'origen_app_generators']] + Array(Origen.site_config.app_generators)
+generators = [['https://rubygems.org', 'origen_app_generators']] + Array(Origen.site_config.app_generators)
+
+def use_packaged_generators
+  puts "Using origen_app_generators that was packaged with Origen #{Origen.version}"
+  FileUtils.cp_r Origen.top.join('origen_app_generators').to_s, '.'
+  FileUtils.mv 'origen_app_generators', '0'
+end
 
 if update_required
-  puts 'Fetching the latest app generators...'
   FileUtils.rm_rf(generators_dir) if File.exist?(generators_dir)
   FileUtils.mkdir_p(generators_dir)
 
@@ -73,47 +78,66 @@ if update_required
     generators.each_with_index do |gen, i|
       # If a reference to a gem from a gem server
       if gen.is_a?(Array)
-        response = HTTParty.get("#{gen[0]}/api/v1/dependencies.json?gems=#{gen[1]}")
+        begin
+          print "Determining the latest version of #{gen[1]}..."
+          response = HTTParty.get("#{gen[0]}/api/v1/dependencies.json?gems=#{gen[1]}", timeout: 2)
 
-        if response.success?
-          latest_version = JSON.parse(response.body).map { |v| v['number'] }.max
-
-          response = HTTParty.get("#{gen[0]}/gems/#{gen[1]}-#{latest_version}.gem")
           if response.success?
-            File.open("#{gen[1]}-#{latest_version}.gem", 'wb') do |f|
-              f.write response.parsed_response
+            latest_version = JSON.parse(response.body).map { |v| v['number'] }.max
+            puts latest_version.to_s
+
+            url = "#{gen[0]}/gems/#{gen[1]}-#{latest_version}.gem"
+            print "Fetching #{url}..."
+            response = HTTParty.get(url, timeout: 5)
+            if response.success?
+              puts 'SUCCESS'
+              File.open("#{gen[1]}-#{latest_version}.gem", 'wb') do |f|
+                f.write response.parsed_response
+              end
+
+              `gem unpack #{gen[1]}-#{latest_version}.gem`
+              FileUtils.rm_rf("#{gen[1]}-#{latest_version}.gem")
+              FileUtils.mv("#{gen[1]}-#{latest_version}", i.to_s)
+            else
+              puts 'FAILED'
+              use_packaged_generators if i == 0
             end
           else
-            puts "Sorry, could not find generator #{gen[1]} version #{latest_version}"
+            puts 'FAILED'
+            use_packaged_generators if i == 0
           end
-
-          `gem unpack #{gen[1]}-#{latest_version}.gem`
-          FileUtils.rm_rf("#{gen[1]}-#{latest_version}.gem")
-          FileUtils.mv("#{gen[1]}-#{latest_version}", i.to_s)
-
-        else
-          puts "Failed to get generator #{gen[1]}, the response from the server was:"
-          puts response.body
+        rescue
+          puts 'FAILED'
+          use_packaged_generators if i == 0
         end
 
       # If a reference to a git repo
       elsif gen.to_s =~ /\.git$/
-        Origen::RevisionControl.new(remote: gen, local: i.to_s).checkout(version: 'master', force: true)
+        begin
+          print "Fetching #{gen}..."
+          Origen::RevisionControl.new(remote: gen, local: i.to_s).checkout(version: 'master', force: true)
+          puts 'SUCCESS'
+        rescue
+          puts 'FAILED'
+        end
 
       # Assume a reference to a folder
       else
-        if File.exist?(gen)
-          FileUtils.cp_r(gen, i.to_s)
-        else
-          puts "Failed to find generator at #{gen}"
+        begin
+          FileUtils.cp_r(gen, i.to_s) if File.exist?(gen)
+          puts 'SUCCESS'
+        rescue
+          puts 'FAILED'
         end
-
       end
     end
 
     Origen.session.app_generators[generators_dir] = Time.now
   end
+else
+  puts 'Using cached app generators, run again with -f if you want to force a refresh'
 end
+puts
 
 generators.each_with_index do |gen, i|
   lib = "#{generators_dir}/#{i}/lib"

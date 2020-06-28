@@ -1,3 +1,558 @@
+<a class="anchor release_tag" name="v0_57_1"></a>
+<h1><a href="#v0_57_1">Tag: v0.57.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 24-Jun-2020 15:17PM
+
+
+Add absolute value checks to as_units for negative inputs - James Creamer
+
+<a class="anchor release_tag" name="v0_57_0"></a>
+<h1><a href="#v0_57_0">Tag: v0.57.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 26-May-2020 10:46AM
+
+
+- added on on_interface_reset check at the end of reset_interface, since I needed to
+adjust Origen.interface.flow.subdirectory immediately after the interface was created
+- relog can now relog to a custom log, via options[:log_file]
+- custom log methods can now output to console if passed verbose: true
+- workspace manager can now pass a build_method option, if :clone, then it won't try to
+init the workspace or make the empty folder
+- regression_manager can utilize a custom log
+- regression_manager won't delete lbin if Origen is using version 0.40.0 or higher
+- fixed typo in submit_origen_job
+- updates by Cody Horton
+
+<a class="anchor release_tag" name="v0_56_0"></a>
+<h1><a href="#v0_56_0">Tag: v0.56.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 15-May-2020 02:14AM
+
+
+Added API to sync up concurrent pattern threads
+
+<a class="anchor release_tag" name="v0_55_5"></a>
+<h1><a href="#v0_55_5">Tag: v0.55.5</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 08-May-2020 09:13AM
+
+
+coverage fix for new application directory structure
+
+<a class="anchor release_tag" name="v0_55_4"></a>
+<h1><a href="#v0_55_4">Tag: v0.55.4</a></h1>
+
+##### Branch: 'master'
+
+##### by Daniel Hadad on 01-Apr-2020 08:14AM
+
+
+Update how sub_block_group(s) works to fix an issue where a new instance of a sub block
+group was created each time it was referenced.
+
+<a class="anchor release_tag" name="v0_55_3"></a>
+<h1><a href="#v0_55_3">Tag: v0.55.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 10-Mar-2020 12:26PM
+
+
+Added site config variable for lsf command prefix
+
+<a class="anchor release_tag" name="v0_55_2"></a>
+<h1><a href="#v0_55_2">Tag: v0.55.2</a></h1>
+
+##### Branch: 'master'
+
+##### by info-rchitect on 29-Jan-2020 12:58PM
+
+
+* Fixed application release note bug regarding escaping underscores
+
+<a class="anchor release_tag" name="v0_55_1"></a>
+<h1><a href="#v0_55_1">Tag: v0.55.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 28-Jan-2020 02:44AM
+
+
+Bug fixes to archive command and sub-block loading
+
+<a class="anchor release_tag" name="v0_55_0"></a>
+<h1><a href="#v0_55_0">Tag: v0.55.0</a></h1>
+
+##### Branch: 'master'
+
+##### by info-rchitect on 27-Nov-2019 06:50AM
+
+
+* PR#368: Enable applications to disable appending 'v' for release tags
+* PR#369: Fix for a couple issues regarding parameter set keys that conflict with Ruby
+method names
+
+<a class="anchor release_tag" name="v0_54_6"></a>
+<h1><a href="#v0_54_6">Tag: v0.54.6</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 23-Nov-2019 13:18PM
+
+
+Fixed bug where rake tasks would not load under the new application directory structure.
+
+<a class="anchor release_tag" name="v0_54_5"></a>
+<h1><a href="#v0_54_5">Tag: v0.54.5</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 21-Nov-2019 17:35PM
+
+
+Fix Issue #352 for Ruby >= 2.6.0
+
+<a class="anchor release_tag" name="v0_54_4"></a>
+<h1><a href="#v0_54_4">Tag: v0.54.4</a></h1>
+
+##### Branch: 'master'
+
+##### by Daniel Hadad on 11-Nov-2019 10:41AM
+
+
+Added deprecate warning to clean\_path\_to\_sub\_program in file\_handler as upcoming release
+of origen\_testers will handle without this method.
+
+<a class="anchor release_tag" name="v0_54_3"></a>
+<h1><a href="#v0_54_3">Tag: v0.54.3</a></h1>
+
+##### Branch: 'master'
+
+##### by bcaqueli on 24-Sep-2019 11:02AM
+
+
+
+* PR-360: Fix parameter set bug that overwrote existing sub-sets
+
+<a class="anchor release_tag" name="v0_54_2"></a>
+<h1><a href="#v0_54_2">Tag: v0.54.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 19-Sep-2019 20:23PM
+
+
+Bug fix to last update
+
+<a class="anchor release_tag" name="v0_54_1"></a>
+<h1><a href="#v0_54_1">Tag: v0.54.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 19-Sep-2019 02:55AM
+
+
+Fixed usage of sourceless patterns in Sequences
+
+<a class="anchor release_tag" name="v0_54_0"></a>
+<h1><a href="#v0_54_0">Tag: v0.54.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 12-Sep-2019 21:53PM
+
+
+Added multiple inheritance to parameter sets
+
+<a class="anchor release_tag" name="v0_53_1"></a>
+<h1><a href="#v0_53_1">Tag: v0.53.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Corey Engelken on 10-Sep-2019 20:42PM
+
+
+Merge [PR #356](https://github.com/Origen-SDK/origen/pull/356)
+
+<a class="anchor release_tag" name="v0_53_0"></a>
+<h1><a href="#v0_53_0">Tag: v0.53.0</a></h1>
+
+##### Branch: 'master'
+
+##### by info-rchitect on 21-Aug-2019 17:12PM
+
+
+* PR#353: Allow User attributes to be set by environment variables 'ORIGEN\_USER\_ID',
+'ORIGEN\_NAME', and 'ORIGEN\_EMAIL'
+
+<a class="anchor release_tag" name="v0_52_4"></a>
+<h1><a href="#v0_52_4">Tag: v0.52.4</a></h1>
+
+##### Branch: 'master'
+
+##### by info-rchitect on 16-Aug-2019 10:51AM
+
+
+* PR#350: Restore the `define\_params` method to returning the instantiated parameter set
+
+<a class="anchor release_tag" name="v0_52_3"></a>
+<h1><a href="#v0_52_3">Tag: v0.52.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Daniel Hadad on 02-Aug-2019 09:57AM
+
+
+Patch to web templates to support HTTPS protocol for origen-sdk.org links..
+
+<a class="anchor release_tag" name="v0_52_2"></a>
+<h1><a href="#v0_52_2">Tag: v0.52.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Daniel Hadad on 13-Jun-2019 12:31PM
+
+
+Bug fix: extract\_csv\_data to handle files in app or plugin using file\_handler.
+
+<a class="anchor release_tag" name="v0_52_1"></a>
+<h1><a href="#v0_52_1">Tag: v0.52.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 10-Jun-2019 09:12AM
+
+
+Included new app generator 2.1.1 in the gem package
+
+<a class="anchor release_tag" name="v0_52_0"></a>
+<h1><a href="#v0_52_0">Tag: v0.52.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 10-Jun-2019 08:20AM
+
+
+Added more company internal gem server options to the site config
+
+<a class="anchor release_tag" name="v0_51_3"></a>
+<h1><a href="#v0_51_3">Tag: v0.51.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 31-May-2019 01:18AM
+
+
+Included pin type in exported models
+
+<a class="anchor release_tag" name="v0_51_2"></a>
+<h1><a href="#v0_51_2">Tag: v0.51.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Paul DeRouen on 29-May-2019 06:05AM
+
+
+bug fix: windows file path string is now reconstructed after split on ':'
+bug fix: work around for ruby Pathname GC bug
+
+<a class="anchor release_tag" name="v0_51_1"></a>
+<h1><a href="#v0_51_1">Tag: v0.51.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 28-May-2019 01:15AM
+
+
+Fixed issue with app generator dot files not being included in the gem package
+
+<a class="anchor release_tag" name="v0_51_0"></a>
+<h1><a href="#v0_51_0">Tag: v0.51.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 27-May-2019 09:36AM
+
+
+Supports origen\_app\_generators v2 (new Origen apps come with an app/ dir)
+
+<a class="anchor release_tag" name="v0_50_0"></a>
+<h1><a href="#v0_50_0">Tag: v0.50.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 27-May-2019 08:49AM
+
+
+Initial release of app/ dir and code generators (origen new command)
+
+<a class="anchor release_tag" name="v0_44_0"></a>
+<h1><a href="#v0_44_0">Tag: v0.44.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 16-May-2019 16:35PM
+
+
+* Added concurrent pattern generation capability, see dedicated guide page on this in the 
+  Pattern Generator section
+* Internal API updates to support OrigenSim 
+
+<a class="anchor release_tag" name="v0_43_0"></a>
+<h1><a href="#v0_43_0">Tag: v0.43.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 08-Mar-2019 02:07AM
+
+
+Added internal hooks to improve OrigenSim integration
+
+<a class="anchor release_tag" name="v0_42_2"></a>
+<h1><a href="#v0_42_2">Tag: v0.42.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Ronnie Lajaunie on 01-Mar-2019 11:39AM
+
+
+* Add pat\_prefix option to pattern generator.
+
+<a class="anchor release_tag" name="v0_42_1"></a>
+<h1><a href="#v0_42_1">Tag: v0.42.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 01-Feb-2019 09:09AM
+
+
+Various bug fixes (Brian Caquelin and Stephen McGinty)
+
+<a class="anchor release_tag" name="v0_42_0"></a>
+<h1><a href="#v0_42_0">Tag: v0.42.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 22-Jan-2019 15:29PM
+
+
+* Robustness improvement to Git driver (Paul Derouen)
+* Improved help for no tester instantiated (Chao Yang)
+* Added `sub\_block\_group` API (Daniel Hadad)
+* Model exporter bug fixes (Paul Derouen)
+
+
+<a class="anchor release_tag" name="v0_41_2"></a>
+<h1><a href="#v0_41_2">Tag: v0.41.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Paul DeRouen on 18-Dec-2018 09:41AM
+
+
+robustness improvements for git and model export
+
+<a class="anchor release_tag" name="v0_41_1"></a>
+<h1><a href="#v0_41_1">Tag: v0.41.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Paul DeRouen on 17-Dec-2018 09:59AM
+
+
+fixes for model export meta data
+
+<a class="anchor release_tag" name="v0_41_0"></a>
+<h1><a href="#v0_41_0">Tag: v0.41.0</a></h1>
+
+##### Branch: 'master'
+
+##### by nxa18793 on 13-Dec-2018 13:12PM
+
+
+msb0 register description bug fixes
+
+<a class="anchor release_tag" name="v0_40_2"></a>
+<h1><a href="#v0_40_2">Tag: v0.40.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 13-Dec-2018 04:36AM
+
+
+Removed some leftover debug code
+
+<a class="anchor release_tag" name="v0_40_1"></a>
+<h1><a href="#v0_40_1">Tag: v0.40.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 12-Dec-2018 21:50PM
+
+
+Patch to new boot system
+
+<a class="anchor release_tag" name="v0_40_0"></a>
+<h1><a href="#v0_40_0">Tag: v0.40.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 11-Dec-2018 11:28AM
+
+
+Added site\_config broadcast system, new boot system which support application archive
+and extraction, and application sandbox gem configuration.
+
+<a class="anchor release_tag" name="v0_38_0"></a>
+<h1><a href="#v0_38_0">Tag: v0.38.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 30-Nov-2018 20:31PM
+
+
+Added meta data to support better register access code importing (Chris Hume)
+
+<a class="anchor release_tag" name="v0_37_0"></a>
+<h1><a href="#v0_37_0">Tag: v0.37.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 15-Nov-2018 17:21PM
+
+
+* Updated Origen.site\_config to make it self-contained so that it is compatible with
+  upcoming changes to the Origen boot system.
+* The network-based site config file system is broken by the update, it will be
+  re-instated in a future release by Corey.
+
+<a class="anchor release_tag" name="v0_36_1"></a>
+<h1><a href="#v0_36_1">Tag: v0.36.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Ronnie Lajaunie on 01-Nov-2018 08:42AM
+
+
+* Patch Bootsnap for LSF remote job execution
+
+<a class="anchor release_tag" name="v0_36_0"></a>
+<h1><a href="#v0_36_0">Tag: v0.36.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 08-Oct-2018 11:11AM
+
+
+* Added bootsnap gem to speed up application boot time, this can be disabled via the
+  site config variable `use\_bootsnap` if required
+* Bug fix in model exporter which crashed when it encountered a register whose reset
+  value was set to a symbol like :undefined or :memory (Paul Derouen)
+
+<a class="anchor release_tag" name="v0_35_1"></a>
+<h1><a href="#v0_35_1">Tag: v0.35.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 21-Sep-2018 15:31PM
+
+
+Fixes bug introduced in 0.34.3 whereby jobs would not submit to the LSF when a value of
+'1' was assigned to the lsf\_cores site config parameter.
+
+<a class="anchor release_tag" name="v0_35_0"></a>
+<h1><a href="#v0_35_0">Tag: v0.35.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 24-Aug-2018 10:52AM
+
+
+* Fix bugs related to initial remote population from older versions of Git
+* Added numeric wait helpers, e.g. `10.ms!`
+* Patch to reg creation (Ronnie Lajaunie)
+* Improved logger with per job log creation
+
+<a class="anchor release_tag" name="v0_34_3"></a>
+<h1><a href="#v0_34_3">Tag: v0.34.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 17-Aug-2018 12:13PM
+
+
+Origen will now use site config variables for a LSF configuration setup.
+The application can always override the default values by specifiying them within the app
+config.
+
+<a class="anchor release_tag" name="v0_34_2"></a>
+<h1><a href="#v0_34_2">Tag: v0.34.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 16-Aug-2018 12:15PM
+
+
+Minor bug fixes to support org\_file usage in OrigenSim and to enable Origen guides that
+are supplied from plugins to be compiled/viewed within a plugin workspace
+
+<a class="anchor release_tag" name="v0_34_1"></a>
+<h1><a href="#v0_34_1">Tag: v0.34.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 14-Aug-2018 12:16PM
+
+
+Really fix compatibility with Ruby 2.2
+
+<a class="anchor release_tag" name="v0_34_0"></a>
+<h1><a href="#v0_34_0">Tag: v0.34.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 14-Aug-2018 11:34AM
+
+
+* Added `read` and `write` methods for pins as aliases for `drive` and `expect`
+  (Paul Derouen)
+* Allow register bit names that are similar to reg level attributes, e.g. `feature`,
+  `reset`, `access` (Ronnie Lajaunie)
+* Fix `origen web compile` on Windows (Corey Engelken)
+* Various spec testing and dev environment improvements (Corey Engelken)
+* Add API to allow application and plugins to add content to test pattern headers, see
+  http://origen-sdk.org/origen/guides/pattern/documenting/#Pattern\_Headers (Corey Engelken)
+* Fix compatibility with Ruby 2.2
+* Added API to allow plugins to add pages to the Origen guides (and moved pattern and
+  program generator guides to OrigenTesters):
+
+  ~~~ruby
+  # In the plugin's config/application.rb
+  config.shared = {
+    # Specify the local directory where the guides live, should be the same in most cases
+    origen\_guides: "templates/origen\_guides",
+    origen\_guides\_index: -> (index) do
+      # Example of adding a section
+      index.section :pattern, heading: "Pattern Generator", after: :controllers do |section|
+        section.page :introduction, heading: "Introduction"
+        section.page :creating, heading: "Creating Patterns"
+      end
+      # Example of adding a page to an existing section
+      index.section :program do |section|
+        section.page :smt8, heading: "V93K SMT8", after: :v93k
+      end
+    end
+  }
+  ~~~
+
 <a class="anchor release_tag" name="v0_33_3"></a>
 <h1><a href="#v0_33_3">Tag: v0.33.3</a></h1>
 

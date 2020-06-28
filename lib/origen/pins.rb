@@ -229,21 +229,23 @@ module Origen
 
         rtl_name = options[:rtl_name]
         force = options[:force]
+        offset = options.delete(:offset) || 0
         options.delete(:size).times do |i|
-          options[:name] = "#{id}#{i}".to_sym
-          options[:rtl_name] = "#{rtl_name}#{i}".to_sym if rtl_name
-          options[:force] = force[i] if force
+          pin_index = offset + i
+          options[:name] = "#{id}#{pin_index}".to_sym
+          options[:rtl_name] = "#{rtl_name}#{pin_index}".to_sym if rtl_name
+          options[:force] = force[pin_index] if force
 
           if power_pin
-            group[i] = PowerPin.new(i, self, options)
+            group[i] = PowerPin.new(pin_index, self, options)
           elsif ground_pin
-            group[i] = GroundPin.new(i, self, options)
+            group[i] = GroundPin.new(pin_index, self, options)
           elsif virtual_pin
-            group[i] = VirtualPin.new(i, self, options)
+            group[i] = VirtualPin.new(pin_index, self, options)
           elsif other_pin
-            group[i] = OtherPin.new(i, self, options)
+            group[i] = OtherPin.new(pin_index, self, options)
           else
-            group[i] = Pin.new(i, self, options)
+            group[i] = Pin.new(pin_index, self, options)
           end
           group[i].invalidate_group_cache
         end
@@ -691,27 +693,78 @@ If you meant to define the virtual_pin_group then use the add_virtual_pin_group 
     end
     alias_method :virtual_pin_group, :virtual_pin_groups
 
+    def all_pin_ids(type: nil, **options)
+      case type
+      when :power_pin, :power_pins
+        dut.pins(power_pin: true).map { |n, p| [n, *p.aliases.keys] }.flatten.map { |n| [n, dut.power_pin(n)] }.to_h
+      when :ground_pin, :ground_pins
+        dut.pins(ground_pin: true).map { |n, p| [n, *p.aliases.keys] }.flatten.map { |n| [n, dut.ground_pin(n)] }.to_h
+      when :virtual_pin, :virtual_pins
+        dut.pins(virtual_pin: true).map { |n, p| [n, *p.aliases.keys] }.flatten.map { |n| [n, dut.virtual_pin(n)] }.to_h
+      when :other_pin, :other_pins
+        dut.pins(other_pin: true).map { |n, p| [n, *p.aliases.keys] }.flatten.map { |n| [n, dut.other_pin(n)] }.to_h
+      else
+        # Maintain the legacy lookup of power_pin: true, ground_pin: true, etc.
+        if options[:power_pin]
+          all_pin_ids(type: :power_pin)
+        elsif options[:ground_pin]
+          all_pin_ids(type: :ground_pin)
+        elsif options[:virtual_pin]
+          all_pin_ids(type: :virtual_pin)
+        elsif options[:other_pin]
+          all_pin_ids(type: :other_pin)
+        else
+          dut.pins.map { |n, p| [n, *p.aliases.keys] }.flatten.map { |n| [n, dut.pin(n)] }.to_h
+        end
+      end
+    end
+
     # Permits access via object.pin(x), returns a hash of all pins if no id
     # is specified.
     # ==== Examples
     #   $top.pin(:done)
     #   $soc.pin(:port_a1)
     #   pin(:fail)          # Access directly from within the module
-    def pins(id = nil, options = {}, &_block)
-      id, options = nil, id if id.is_a?(Hash)
-      if id
-        pin = Origen.pin_bank.find(id, options)
-        unless pin
-          puts <<-END
+    def pins(*ids, &_block)
+      options = (ids.pop if ids.last.is_a?(Hash)) || {}
+
+      # Methods may give an ID of nil, which would previously gloss over
+      # the pin lookup. To maintain backwards compability, reject any nils in the input,
+      # then proceed as normal.
+      ids.reject!(&:nil?)
+      if !ids.empty? || block_given?
+        pins = []
+
+        if block_given?
+          pins += all_pin_ids(options).select { |n, p| yield(n, p) }.values.uniq
+        end
+
+        ids.each do |id|
+          if id.is_a?(Regexp)
+            pins += all_pin_ids(options).select { |n, p| n.to_s =~ id }.values.uniq
+          else
+            pin = Origen.pin_bank.find(id, options)
+            unless pin
+              puts <<-END
 You have tried to reference pin :#{id} within #{self.class} but it does not exist, this could be
 because the pin has not been defined yet or it is an alias that is not available in the current context.
 
 If you meant to define the pin then use the add_pin method instead.
 
-          END
-          fail 'Pin not found'
+              END
+              fail 'Pin not found'
+            end
+            pins << pin
+          end
         end
-        pin
+
+        # Maintain return value of a single pin object if only given a single identifier
+        if ids.size == 1 && !ids.first.is_a?(Regexp)
+          pins.first
+        else
+          options[:keep_duplicates] ? pins : pins.uniq!
+          PinCollection.new(self, *pins, options)
+        end
       else
         if options[:power_pin]
           Origen.pin_bank.power_pins
@@ -739,12 +792,13 @@ If you meant to define the pin then use the add_pin method instead.
     alias_method :power_pin, :power_pins
 
     # Equivalent to the pins method but considers ground pins rather than regular pins
-    def ground_pins(id = nil, options = {}, &block)
-      id, options = nil, id if id.is_a?(Hash)
+    def ground_pins(*ids, &block)
+      options = (ids.pop if ids.last.is_a?(Hash)) || {}
+
       options = {
         ground_pin: true
       }.merge(options)
-      pins(id, options, &block)
+      pins(*ids, options, &block)
     end
     alias_method :ground_pin, :ground_pins
 

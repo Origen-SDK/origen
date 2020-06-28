@@ -68,7 +68,7 @@ module Origen
         end
 
         # Returns any path attached to the domain, for example will return "/jtag"
-        # for "http://origen-sdk.org/jtag"
+        # for "https://origen-sdk.org/jtag"
         def root_path # :nodoc:
           if domain =~ /\/\/[^\/]*(\/.*)/  # http://rubular.com/r/UY06Z6DXUS
             $1

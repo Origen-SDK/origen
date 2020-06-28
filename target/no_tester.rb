@@ -1,7 +1,3 @@
-$top = C99::SOC.new
-$nvm = C99::NVM.new
-
-$dut = $top
-$soc = $top
+OrigenCoreSupport::SOC.new
 
 Origen.mode = :debug

@@ -303,11 +303,85 @@ Origen::utility.collector(&block)
 ### Mailer
 
 Usage of the mailer in applications or plugins is described at
-[sending_emails](<%= path "guides/misc/users/#Sending_Emails" %>) and [maillist](<%= path "guides/misc/users/#Maillist" %>).
+[sending emails](<%= path "guides/misc/users/#Sending_Emails" %>) and [maillists](<%= path "guides/misc/users/#Maillists" %>).
 
-However, with respect to the developer's usage:
+As a quick recap of the above, you can send an email using Origen's mailer:
 
-<%= render "partials/placeholder.md" %>
+~~~ruby
+Origen.mailer.send_email(subject: "Hello", to: ['user@domain.com', 'other_user@domain.com'], body: message)
+~~~
+
+The <code>subject</code>, <code>to</code>, and <code>from</code> options are the most used but you can get a test email
+sent to the current user (yourself) by omitting all the options:
+
+~~~ruby
+Origen.mailer.send_email
+  #=> to: current user's email
+  #=> from: current user's email
+  #=> subject: 'Hello'
+  #=> body: 'Hello from Origen!'
+~~~
+
+However, that assumes a working mailer setup. In order to use the mailer, either the user, in the options, or the site
+administator will need to setup the mailer correctly. It is recommended that the mailer be setup in the 
+[Site Config](<%= path "guides/installation/company/" %>), allowing all users to use the same configuration.
+However, each option can be overridden when using the mailer directly.
+
+For the mailer's options in the site config, 
+[please see the default site config](https://github.com/Origen-SDK/origen/blob/master/origen_site_config.yml).
+
+Origen's mailer is just a wrapper around Ruby's [net/smtp](https://docs.ruby-lang.org/en/2.4.0/Net/SMTP.html) library. 
+When using a SMTP server, you'll need to supply
+the <code>server</code>, <code>port</code>, and <code>domain</code> values. These can come from the site config
+as keys:
+
+~~~yml
+email_domain: company.com
+email_server: smtp.company.net
+email_port: 25
+~~~
+
+Or can be passed in as options:
+
+~~~ruby
+Origen.mailer.send_email(
+  domain: 'company.com',
+  server: 'smtp.company.net',
+  port: 25,
+)
+~~~
+
+For non-authenticating SMTP servers, that is usually sufficient. For servers which require that the requester supply some
+credentials, you can also supply an authentication customization either in the site config:
+
+~~~yml
+email_authentication: login
+~~~
+
+Or as an option:
+
+~~~ruby
+Origen.mailer.send_email(authentication: :login)
+~~~
+
+The username and password will default to the current user's credentials, <code>Origen.current_user.email</code> and
+<code>Origen.current_user.password</code> respectively, and, in general, this should be adequate.
+However, these can be overwritten if, for example, a service account is used instead of the active user's account:
+
+~~~yml
+email_auth_user: service_user_email
+email_auth_password: service_user_password
+~~~
+
+~~~ruby
+Origen.mailer.send_email(
+  authentication: :login,
+  auth_user: 'service_user_email',
+  auth_password: 'service_user_password',
+)
+~~~
+
+You can reference Origen's wrapper around SMTP [on Github](https://github.com/Origen-SDK/origen/blob/master/lib/origen/utility/mailer.rb).
 
 ### Time And Date
 

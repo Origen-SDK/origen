@@ -28,7 +28,7 @@ thao = User.new("thao@example.com", "Thao Huynh")
 #### LDAP Integration
 
 Origen can be integrated with an LDAP employee directory, to enable this configure the LDAP
-attributes in [your company's Origen configuration](<%= path "guides/starting/company" %>).
+attributes in [your company's Origen configuration](<%= path "guides/installation/company" %>).
 To look up a user within the LDAP system an ID is required, by default Origen will take the
 login name of the current Linux user as there ID.
 
@@ -54,7 +54,7 @@ User.new("b53254").country    # => ["Vietnam"]
 #### Sending Emails
 
 If details of your company's email server have been added to
-[your company's Origen configuration](<%= path "guides/starting/company" %>), then you can
+[your company's Origen configuration](<%= path "guides/installation/company" %>), then you can
 easily send emails from your application.
 
 An email can be sent to a given user by calling the <code>send</code> method on the user object,
@@ -136,5 +136,9 @@ You can pass the returned array directly to the send_email method:
 Origen.mailer.send_email(subject: "Hello", to: Origen.app.maillist_dev, body: "Hello to all developers!")
 ~~~
 
+<div class="alert alert-info">
+  For a more in-depth look at the mailer and how it is setup, see the 
+  <a href="<%= path 'guides/misc/utilities/#Mailer' %>" >mailer section utilities page</a>
+</div>
 
 % end

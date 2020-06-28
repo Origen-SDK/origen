@@ -1,7 +1,12 @@
+# Project specific ignores
+/spec/patterns
+
 # Misc
 .irb_history
 .byebug_history
 /vendor/lib/models/origen
+/spec/patterns
+/origen_app_generators
 
 # Editor cruft
 *.swp
@@ -14,7 +19,6 @@
 /environment/.default
 /release_note.txt
 /pkg
-/lbin
 /.bin
 /list/referenced.list
 /tags
