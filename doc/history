@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_57_2"></a>
+<h1><a href="#v0_57_2">Tag: v0.57.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 26-Aug-2020 09:19AM
+
+
+ * disable lambda style to prevent lint block
+ * disabled ruby 2.4 check from TravisCI
+
 <a class="anchor release_tag" name="v0_57_1"></a>
 <h1><a href="#v0_57_1">Tag: v0.57.1</a></h1>
 
