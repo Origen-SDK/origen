@@ -3,9 +3,10 @@ require "spec_helper"
 describe "Pin timing API" do
 
   before :each do
-    Origen.target.temporary = -> do
-      PinTimingTop.new
-    end
+    # Origen.target.temporary = -> do
+      # PinTimingTop.new
+    # end
+    Origen.target.temporary = 'pintimingtop'
     Origen.target.load!
   end
 
