@@ -548,6 +548,19 @@ $dut.add_pin :tdi, packages: { bga: { location: 'BF2' } }
 $dut.pins(:tdi).add_dib_meta :bga, { channel: 100106, connection: "PE117.08", slot: "PE117", spring_pin: "08" }
 ~~~
 
+#### Updating packages for pins already defined.
+
+There might be a need to update the packages for a pin that has already been defined. This can now be done as follows:
+
+~~~ruby
+$dut.add_pin :p1
+$dut.add_package: package1
+$dut.add_package: package1
+$dut.pin(:p1).packages => {}
+$dut.pin(:p1).update_packages :packages => [:package1, :package2]
+$dut.pin(:p1).packages => {:package1=>{}, :package2=>{}}
+~~~
+
 #### Pin Functions
 
 Pin aliases are an example of modelling different pin functions that can be mux'd onto the same pin, in this case
