@@ -448,7 +448,7 @@ module Origen
       # @example Updating a package after the pin has been added
       # dut.add_pin :p1
       # dut.add_package: package1
-      # dut.add_package: package1
+      # dut.add_package: package2
       # dut.pin(:p1).packages => {}
       # dut.pin(:p1).update_packages :packages => [:package1, :package2]
       # dut.pin(:p1).packages => {:package1=>{}, :package2=>{}}
