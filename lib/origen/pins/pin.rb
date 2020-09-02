@@ -443,6 +443,24 @@ module Origen
       end
       alias_method :add_locn, :add_location
 
+      # Add a way to update packages for the pins after the pins have been added.
+      #
+      # @example Updating a package after the pin has been added
+      # dut.add_pin :p1
+      # dut.add_package: package1
+      # dut.add_package: package1
+      # dut.pin(:p1).packages => {}
+      # dut.pin(:p1).update_packages :packages => [:package1, :package2]
+      # dut.pin(:p1).packages => {:package1=>{}, :package2=>{}}
+      def update_packages(options = {})
+        packages = resolve_packages(options)
+        packages.each do |package_id|
+          package_id = package_id.respond_to?(:id) ? package_id.id : package_id
+          myself.packages[package_id] ||= {}
+        end
+      end
+      alias_method :update_package, :update_packages
+
       # Add a Device Interface Board (e.g. probecard at wafer probe or loadboard at final package test)
       # assignment to the pin.  Some refer to this as a channel but API name is meant to be generic.
       def add_dib_assignment(str, options = {})
