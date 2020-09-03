@@ -449,9 +449,9 @@ module Origen
       # dut.add_pin :p1
       # dut.add_package: package1
       # dut.add_package: package2
-      # dut.pin(:p1).packages => {}
-      # dut.pin(:p1).update_packages :packages => [:package1, :package2]
-      # dut.pin(:p1).packages => {:package1=>{}, :package2=>{}}
+      # dut.pin(:p1).packages # => {}
+      # dut.pin(:p1).update_packages :packages # => [:package1, :package2]
+      # dut.pin(:p1).packages # => {:package1=>{}, :package2=>{}}
       def update_packages(options = {})
         packages = resolve_packages(options)
         packages.each do |package_id|
