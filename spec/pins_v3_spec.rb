@@ -1388,6 +1388,15 @@ describe "Origen Pin API v3" do
     $dut.pins(:tdo).dib_meta.should == { :x=>2000, :y=>-15600, :net_name=>"R92/DUT_TDO_TC", :connection=>"PE118.16", :slot=>"PE118", :spring_pin=>"16" }
   end
   
+  it 'can update pin packages after a pin has been defined' do
+    $dut.add_pin :my_new_pin
+    $dut.add_package :my_new_package
+    $dut.add_package :my_second_new_package
+    $dut.pin(:my_new_pin).update_package :package => [:my_new_package, :my_second_new_package]
+    $dut.pin(:my_new_pin).packages.ids[0].should == :my_new_package
+    $dut.pin(:my_new_pin).packages.ids[1].should == :my_second_new_package
+  end
+
   it 'does not allow user to set the current DUT package unless it is to a known package' do
     Origen.app.unload_target!
     @dut = IncorrectPackageDut.new
@@ -1399,4 +1408,5 @@ describe "Origen Pin API v3" do
     @dut.package.id.should == :pcs
     @dut.has_pin?(:pinx).should == false
   end
+
 end
