@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_59_0"></a>
+<h1><a href="#v0_59_0">Tag: v0.59.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 06-Sep-2020 13:20PM
+
+
+ * Added capability to update packages for a pin, after the pin has been defined.
+ * Previous tag was on an incorrect branch
+
 <a class="anchor release_tag" name="v0_57_2"></a>
 <h1><a href="#v0_57_2">Tag: v0.57.2</a></h1>
 

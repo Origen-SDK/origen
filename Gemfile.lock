@@ -38,7 +38,7 @@ GIT
 PATH
   remote: .
   specs:
-    origen (0.57.2)
+    origen (0.59.0)
       activesupport (~> 4.1)
       bundler (> 1.7)
       coderay (~> 1.1)
@@ -117,7 +117,7 @@ GEM
       mime-types-data (~> 3.2015)
     mime-types-data (3.2019.1009)
     mini_portile2 (2.3.0)
-    minitest (5.14.1)
+    minitest (5.14.2)
     multi_json (1.14.1)
     multi_xml (0.6.0)
     nanoc (3.7.5)
