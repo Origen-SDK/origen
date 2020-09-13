@@ -15,7 +15,12 @@ class <%= @namespaces.map { |n| camelcase(n[1]) }.join('::') %>::<%= camelcase(@
   include Origen::Model
 <% end -%>
 
-<% end -%>
   def initialize(options = {})
   end
+<% else -%>
+
+  def initialize(options = {})
+    super
+  end
+<% end -%>
 end
