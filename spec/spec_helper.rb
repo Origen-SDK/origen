@@ -1,7 +1,7 @@
 $VERBOSE=nil  # Don't care about world writable dir warnings and the like
 
 require "origen"
-require "rspec/legacy_formatters"
+require "rspec/legacy_formatters" if Gem::Version.new(RSpec::Version::STRING) < Gem::Version.new('3.0.0')
 require "#{Origen.top}/spec/shared/common_helpers"
 require "#{Origen.top}/spec/format/origen_formatter"
 require "origen_core_support"
