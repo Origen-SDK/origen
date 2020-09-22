@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_59_1"></a>
+<h1><a href="#v0_59_1">Tag: v0.59.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 22-Sep-2020 08:47AM
+
+
+ * updated LDAP Encryption to be a site config
+ * Added RSpec 3 support
+
 <a class="anchor release_tag" name="v0_59_0"></a>
 <h1><a href="#v0_59_0">Tag: v0.59.0</a></h1>
 
