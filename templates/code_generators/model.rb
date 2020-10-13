@@ -18,7 +18,8 @@ class <%= @namespaces.map { |n| camelcase(n[1]) }.join('::') %>::<%= camelcase(@
   def initialize(options = {})
   end
 <% else -%>
-
+# super means that the initialize request will get passed onto the parent class's initialize method. 
+# i.e. the one defined in <%= @parent_class %>
   def initialize(options = {})
     super
   end
