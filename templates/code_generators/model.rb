@@ -20,6 +20,8 @@ class <%= @namespaces.map { |n| camelcase(n[1]) }.join('::') %>::<%= camelcase(@
 <% else -%>
 # super means that the initialize request will get passed onto the parent class's initialize method. 
 # i.e. the one defined in <%= @parent_class %>
+# If you want to override that and add a specific implementation for this DUT type,
+# then simply delete the super below and add the code you wish to handle the request.
   def initialize(options = {})
     super
   end
