@@ -1,7 +1,8 @@
 require 'rspec/core/formatters/base_formatter'
 
 class OrigenFormatter < RSpec::Core::Formatters::BaseFormatter
-  if Gem::Version.new(RSpec::Version::STRING) < Gem::Version.new('3.0.0')
+  rspec_version = RSpec.constants.include?(:Version) ? RSpec::Core::Version::STRING : RSpec::Version::STRING
+  if Gem::Version.new(rspec_version) < Gem::Version.new('3.0.0')
     # legacy formatter
     def dump_summary(duration, example_count, failure_count, pending_count)
       if failure_count > 0
