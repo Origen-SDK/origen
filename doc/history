@@ -1,3 +1,13 @@
+<a class="anchor release_tag" name="v0_59_3"></a>
+<h1><a href="#v0_59_3">Tag: v0.59.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 27-Oct-2020 07:55AM
+
+
+* fix for when rspec is on latest version 3.9 and you run bundle exec rspec - info-rchitect
+
 <a class="anchor release_tag" name="v0_59_2"></a>
 <h1><a href="#v0_59_2">Tag: v0.59.2</a></h1>
 
