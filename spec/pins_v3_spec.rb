@@ -783,7 +783,6 @@ describe "Origen Pin API v3" do
       $dut.pins.size.should == 2
       $dut.ground_pins.size.should == 1
       $dut.ground_pins(:gnd0).should == gnd0
-      $flag = 1
       $dut.ground_pins(:gnd0).type.should == :ground
     end
 
