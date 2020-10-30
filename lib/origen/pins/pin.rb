@@ -1185,7 +1185,13 @@ module Origen
 
       def determine_type
         class_type = self.class.to_s.split('::').last.downcase
-        class_type == 'pin' ? :signal : class_type.match(/^(\S+)pin$/)[1].to_sym
+        if class_type == 'pin'
+          return :signal
+        else
+          pin_type_match = class_type.match(/^(\S+)pin$/)
+          return if pin_type_match.nil?
+          pin_type_match[1].to_sym
+        end
       end
 
       def primary_group=(group)
