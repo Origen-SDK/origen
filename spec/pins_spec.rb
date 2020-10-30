@@ -14,6 +14,9 @@ class PinsDut1
     add_pin_alias :nvm_invoke, :tdi
     add_pin_alias :nvm_done, :tdo
     @sub_module = PinsSubModule1.new
+    add_ground_pin :vss
+    add_power_pin :vdd
+    add_virtual_pin :vdd_sense
   end
 end
 

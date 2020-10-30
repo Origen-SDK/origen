@@ -70,6 +70,7 @@ describe "Origen Pin API v3" do
       $dut.pin[:pinz].direction.should == :io
       $dut.pin[:pinz].rtl_name.should == "pinz"
       $dut.pin[:piny].rtl_name.should == "piny[0]"
+      $dut.pin[:piny].type.should == :signal
     end
 
     it "pins know what packages they are in" do
@@ -745,6 +746,7 @@ describe "Origen Pin API v3" do
       $dut.power_pins(:vdd0).voltage = [1.2,2.5]
       $dut.power_pins(:vdd0).voltage.should == [1.2,2.5]
       $dut.power_pins(:vdd0).voltages.should == [1.2,2.5]
+      $dut.power_pins(:vdd0).type.should == :power
     end
 
     it "power pin data can be set at instantiation time" do
@@ -781,6 +783,8 @@ describe "Origen Pin API v3" do
       $dut.pins.size.should == 2
       $dut.ground_pins.size.should == 1
       $dut.ground_pins(:gnd0).should == gnd0
+      $flag = 1
+      $dut.ground_pins(:gnd0).type.should == :ground
     end
 
     it "ground pin groups can be added" do
@@ -811,11 +815,13 @@ describe "Origen Pin API v3" do
       virtual0 = $dut.add_virtual_pin(:virtual0, type: :virtual_bit)
       $dut.add_virtual_pin(:virtual1, type: :virtual_bit)
       $dut.add_virtual_pin(:virtual2, type: :ate_ch)
+      $dut.add_virtual_pin(:virtual3)
       $dut.pins.size.should == 2
-      $dut.virtual_pins.size.should == 3
+      $dut.virtual_pins.size.should == 4
       $dut.virtual_pins(:virtual0).should == virtual0
       $dut.virtual_pins(:virtual0).type = :virtual_bit
       $dut.virtual_pins(:virtual2).type = :ate_ch
+      $dut.virtual_pins(:virtual3).type.should == :virtual
     end
 
     it "virtual pin groups can be added" do

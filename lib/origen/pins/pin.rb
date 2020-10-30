@@ -22,8 +22,8 @@ module Origen
       # before falling back to a default
       PACKAGE_SCOPED_ATTRIBUTES = [:location, :dib_assignment, :dib_meta]
 
-      # Pin Types
-      TYPES = [:analog, :digital]
+      # Pin Types, 'digital' and 'analog' are legacy types kept for backwards compatibility
+      TYPES = [:digital, :analog, :signal, :ground, :power, :virtual]
 
       attr_accessor :order
       # Inverts pin states for drive and compare, can be useful if a timing set change requires clocks to drive low for example when all pattern logic has been set up to drive them high.
@@ -90,7 +90,7 @@ module Origen
         @open_drain = options[:open_drain]
         @ext_pullup = options[:ext_pullup]
         @ext_pulldown = options[:ext_pulldown]
-        @type = options[:type]
+        @type = options[:type].nil? ? determine_type : options[:type]
         @dib_assignment = [] # Array to handle multi-site testing
         @size = 1
         @value = 0
@@ -1182,6 +1182,11 @@ module Origen
       end
 
       private
+
+      def determine_type
+        class_type = self.class.to_s.split('::').last.downcase
+        class_type == 'pin' ? :signal : class_type.match(/^(\S+)pin$/)[1].to_sym
+      end
 
       def primary_group=(group)
         @primary_group = group
