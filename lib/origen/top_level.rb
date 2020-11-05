@@ -115,9 +115,7 @@ module Origen
     end
 
     def add_package(id, _options = {})
-      p = ChipPackage.new
-      p.id = id
-      p.owner = self
+      p = ChipPackage.new id, owner: self
       yield p if block_given?
       _add_package(p)
       p
