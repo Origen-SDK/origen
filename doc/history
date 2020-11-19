@@ -1,3 +1,56 @@
+<a class="anchor release_tag" name="v0_59_3"></a>
+<h1><a href="#v0_59_3">Tag: v0.59.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 27-Oct-2020 07:55AM
+
+
+* fix for when rspec is on latest version 3.9 and you run bundle exec rspec - info-rchitect
+
+<a class="anchor release_tag" name="v0_59_2"></a>
+<h1><a href="#v0_59_2">Tag: v0.59.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 15-Oct-2020 14:06PM
+
+
+ * Fixes issue #401
+
+<a class="anchor release_tag" name="v0_59_1"></a>
+<h1><a href="#v0_59_1">Tag: v0.59.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 22-Sep-2020 08:47AM
+
+
+ * updated LDAP Encryption to be a site config
+ * Added RSpec 3 support
+
+<a class="anchor release_tag" name="v0_59_0"></a>
+<h1><a href="#v0_59_0">Tag: v0.59.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 06-Sep-2020 13:20PM
+
+
+ * Added capability to update packages for a pin, after the pin has been defined.
+ * Previous tag was on an incorrect branch
+
+<a class="anchor release_tag" name="v0_57_2"></a>
+<h1><a href="#v0_57_2">Tag: v0.57.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 26-Aug-2020 09:19AM
+
+
+ * disable lambda style to prevent lint block
+ * disabled ruby 2.4 check from TravisCI
+
 <a class="anchor release_tag" name="v0_57_1"></a>
 <h1><a href="#v0_57_1">Tag: v0.57.1</a></h1>
 
