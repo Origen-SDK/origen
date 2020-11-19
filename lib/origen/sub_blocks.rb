@@ -232,6 +232,22 @@ module Origen
     end
     alias_method :children, :sub_blocks
 
+    # Returns a hash containing all sub block groups thus far added
+    # if no arguments given.
+    # If given a code block, will serve as alias to sub_block_group method.
+    # Does not handle arguments, no need at this time.
+    def sub_block_groups(*args, &block)
+      if block_given?
+        sub_block_group(*args, &block)
+      else
+        if args.empty?
+          @sub_block_groups ||= {}.with_indifferent_access
+        else
+          fail 'sub_block_groups not meant to take arguments!'
+        end
+      end
+    end
+
     # Delete all sub_blocks by emptying the Hash
     def delete_sub_blocks
       @sub_blocks = {}
@@ -274,6 +290,13 @@ module Origen
     def sub_block(name = nil, options = {})
       name, options = nil, name if name.is_a?(Hash)
       return sub_blocks unless name
+
+      if name.is_a?(Class)
+        return sub_blocks.select { |n, s| s.is_a?(name) }
+      elsif name.origen_sub_block?
+        return sub_block(name.class)
+      end
+
       if i = options.delete(:instances)
         # permit creating multiple instances of a particular sub_block class
         # can pass array for base_address, which will be processed above
@@ -302,7 +325,7 @@ module Origen
           Origen.log.warning "The sub_block defined at #{Pathname.new(callers[0]).relative_path_from(Pathname.pwd)}:#{callers[1]} is overriding an existing method called #{name}"
         end
         define_singleton_method name do
-          get_sub_block(name)
+          sub_blocks[name]
         end
         if sub_blocks[name] && sub_blocks[name].is_a?(Placeholder)
           sub_blocks[name].add_attributes(options)
@@ -355,21 +378,24 @@ module Origen
         callers = Origen.split_caller_line caller[0]
         Origen.log.warning "The sub_block_group defined at #{Pathname.new(callers[0]).relative_path_from(Pathname.pwd)}:#{callers[1]} is overriding an existing method called #{id}"
       end
+      # Define a singleton method which will be called every time the sub_block_group is referenced
+      # This is not called here but later when referenced
       define_singleton_method "#{id}" do
-        if options[:class_name]
-          b = Object.const_get(options[:class_name]).new
-        else
-          b = []
-        end
-        my_group.each do |group_id|
-          b << send(group_id)
-        end
-        b                         # return array inside new singleton method
+        sub_block_groups[id]
       end
+      # Instantiate group
+      if options[:class_name]
+        b = Object.const_get(options[:class_name]).new
+      else
+        b = []             # Will use Array if no class defined
+      end
+      # Add sub_blocks to group
+      my_group.each do |group_id|
+        b << send(group_id)
+      end
+      sub_block_groups[id] = b
       @current_group = nil   # close group
     end
-    alias_method :sub_block_groups, :sub_block_group
-    alias_method :sub_blocks_groups, :sub_block_group
     alias_method :sub_blocks_group, :sub_block_group
 
     def namespace
@@ -377,10 +403,6 @@ module Origen
     end
 
     private
-
-    def get_sub_block(name)
-      sub_blocks[name]
-    end
 
     def instantiate_sub_block(name, klass, options)
       return sub_blocks[name] unless sub_blocks[name].is_a?(Placeholder)
@@ -471,16 +493,23 @@ module Origen
       def klass
         @klass ||= begin
           class_name = attributes.delete(:class_name)
+          tmp_class = nil
           if class_name
             begin
-              klass = eval("::#{owner.namespace}::#{class_name}")
-            rescue NameError
+              tmp_class = "::#{owner.namespace}::#{class_name}"
+              klass = eval(tmp_class)
+            rescue NameError => e
+              raise if e.message !~ /^uninitialized constant (.*)$/ || tmp_class !~ /#{Regexp.last_match(1)}/
               begin
+                tmp_class = class_name.to_s
                 klass = eval(class_name)
-              rescue NameError
+              rescue NameError => e
+                raise if e.message !~ /^uninitialized constant (.*)$/ || tmp_class !~ /#{Regexp.last_match(1)}/
                 begin
-                  klass = eval("#{owner.class}::#{class_name}")
-                rescue NameError
+                  tmp_class = "#{owner.class}::#{class_name}"
+                  klass = eval(tmp_class)
+                rescue NameError => e
+                  raise if e.message !~ /^uninitialized constant (.*)$/ || tmp_class !~ /#{Regexp.last_match(1)}/
                   puts "Could not find class: #{class_name}"
                   raise 'Unknown sub block class!'
                 end

@@ -14,7 +14,7 @@ module Origen
       # A record of when the thread is active to construct the execution profile
       attr_reader :events
 
-      def initialize(id, sequence, block, primary = false)
+      def initialize(id, sequence, block, primary = false, pre_block = nil)
         if primary
           @cycle_count_start = 0
         else
@@ -24,6 +24,7 @@ module Origen
         @id = id.to_sym
         @sequence = sequence
         @block = block
+        @pre_block = pre_block
         @primary = primary
         @running = Concurrent::Event.new
         @waiting = Concurrent::Event.new
@@ -46,6 +47,7 @@ module Origen
         @thread = Thread.new do
           PatSeq.send(:thread=, self)
           wait
+          @pre_block.call if @pre_block
           @block.call(sequence)
           sequence.send(:thread_completed, self)
           record_cycle_count_stop

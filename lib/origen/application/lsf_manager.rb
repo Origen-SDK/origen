@@ -252,8 +252,9 @@ module Origen
       end
 
       # Build the log file from the completed jobs
-      def build_log(_options = {})
-        Origen.log.info '*' * 70
+      def build_log(options = {})
+        log_method = options[:log_file] ? options[:log_file] : :info
+        Origen.log.send(log_method, '*' * 70)
         completed_jobs.each do |job|
           File.open(log_file(job[:id])) do |f|
             last_line_blank = false
@@ -291,12 +292,12 @@ module Origen
                   stats.failed_files += Regexp.last_match[1].to_i
                 elsif line =~ /ERROR!/
                   stats.errors += 1
-                  Origen.log.send :relog, line
+                  Origen.log.send :relog, line, options
                 else
                   # Compress multiple blank lines
                   if line =~ /^\s*$/ || line =~ /.*\|\|\s*$/
                     unless last_line_blank
-                      Origen.log.info
+                      Origen.log.send(log_method, nil)
                       last_line_blank = true
                     end
                   else
@@ -305,8 +306,7 @@ module Origen
                            line =~ /Insecure world writable dir/ ||
                            line =~ /To save all of/
                       line.strip!
-                      # line.sub!(/.*\|\| /, '')
-                      Origen.log.send :relog, line
+                      Origen.log.send :relog, line, options
                       last_line_blank = false
                     end
                   end
@@ -319,7 +319,7 @@ module Origen
             end
           end
         end
-        Origen.log.info '*' * 70
+        Origen.log.send(log_method, '*' * 70)
         stats.print_summary
       end
 
@@ -409,7 +409,7 @@ module Origen
         end
 
         str = "#{action} #{cmd}".strip
-        str.sub('origen ', '') if str =~ /^origen /
+        str.sub!('origen ', '') if str =~ /^origen /
 
         # Append the --exec_remote switch to all Origen commands, this allows command
         # processing to be altered based on whether it is running locally or
@@ -420,12 +420,11 @@ module Origen
       end
 
       def command_prefix(id, dependents)
-        origen = `which origen`
-        # http://rubular.com/r/wgKi73KjUo
-        if origen =~ /(^\/run\/pkg\/fs-origen-\/[^\/]+)/
-          prefix = "source #{Regexp.last_match[1]}/origen_setup; "
+        # define prefix as a blank string if Origen.site_config.lsf_command_prefix is not defined
+        if Origen.site_config.lsf_command_prefix
+          prefix = Origen.site_config.lsf_command_prefix
         else
-          prefix = "cd #{Origen.top}; source source_setup; "
+          prefix = ''
         end
         prefix += "cd #{Origen.root}; origen l --execute --id #{id} "
         unless dependents.empty?

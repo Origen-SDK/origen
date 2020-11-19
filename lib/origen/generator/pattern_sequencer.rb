@@ -81,7 +81,26 @@ module Origen
           str
         end
 
+        # Wait for the given threads to complete. If no IDs given it will wait for all currently running
+        # threads (except for the one who called this) to complete.
+        def wait_for_threads_to_complete(*ids)
+          @current_sequence.wait_for_threads_to_complete(*ids)
+        end
+        alias_method :wait_for_thread, :wait_for_threads_to_complete
+        alias_method :wait_for_threads, :wait_for_threads_to_complete
+        alias_method :wait_for_thread_to_complete, :wait_for_threads_to_complete
+
+        def sync_up(*ids)
+          if @current_sequence
+            @current_sequence.send(:sync_up, caller[0], *ids)
+          end
+        end
+
         private
+
+        def current_sequence=(seq)
+          @current_sequence = seq
+        end
 
         def active=(val)
           @active = val

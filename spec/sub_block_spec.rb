@@ -501,6 +501,24 @@ module SubBlocksSpec
           c.subgroups[2].is_a?(SubItem2).should == true
         end
 
+        it "sub_block_groups hash acts as expected" do
+          c = Top.new
+
+          # check that cannot handle arguments, only
+          # block or no arguments
+          expect {
+            c.sub_block_groups(:check_args)
+          }.to raise_exception(RuntimeError)
+
+          c.sub_block_groups.count.should == 1
+          c.sub_block_groups.keys[0].should == "subgroups"
+          c.sub_block_groups["subgroups"].is_a?(SubBlocksSpec::Subs) == true
+          c.sub_block_groups["subgroups"].count.should == 3
+          c.sub_block_groups["subgroups"][0].is_a?(SubItem0).should == true
+          c.sub_block_groups["subgroups"][1].is_a?(SubItem1).should == true
+          c.sub_block_groups["subgroups"][2].is_a?(SubItem2).should == true
+        end
+
         it "subitems exist standalone from container" do 
           c = Top.new
           c.subitem0.is_a?(SubItem0).should == true
@@ -572,6 +590,30 @@ module SubBlocksSpec
           end
           m.blah.should_not == 1
         end
+
+        it 'returns all instances of a subblock class if a Class object is given' do
+          c = Top.new
+          c.sub_block(:testa, class_name: 'SubBlocksSpec::Sub1')
+          c.sub_block(:testb, class_name: 'SubBlocksSpec::Sub1')
+          expect(c.sub_blocks(SubBlocksSpec::Sub1)).to eql({
+            'sub1' => c.sub1,
+            'testa' => c.testa,
+            'testb' => c.testb
+          })
+          
+          expect(c.sub_blocks(Integer)).to eql({})
+        end
+
+        it 'returns all instances matching the class, if an instance of a subblock is given' do
+          c = Top.new
+          c.sub_block(:testa, class_name: 'SubBlocksSpec::Sub1')
+          c.sub_block(:testb, class_name: 'SubBlocksSpec::Sub1')
+          expect(c.sub_blocks(c.sub1)).to eql({
+            'sub1' => c.sub1,
+            'testa' => c.testa,
+            'testb' => c.testb
+          })
+        end
       end
 
       it "adding a sub_block should override an existing method of that name" do
@@ -591,6 +633,7 @@ module SubBlocksSpec
         m.sub_block[:blah].is_a?(Origen::SubBlock).should == true
         m.sub_blocks[:blah].is_a?(Origen::SubBlock).should == true
       end
+
     end
   end
 end

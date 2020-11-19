@@ -345,6 +345,7 @@ module Origen
       end
 
       def initialize_local_dir(options = {})
+        return if options[:build_method] == :clone
         super
         unless initialized?(options)
           Origen.log.debug "Initializing Git workspace at #{local}"

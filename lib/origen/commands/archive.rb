@@ -62,9 +62,9 @@ unless options[:local]
     Origen.log.info 'Creating a copy of the application'
     if Origen.os.linux?
       Dir.chdir Origen.root do
-        cmd = "rsync -av --progress . tmp/#{name} --exclude tmp"
+        cmd = "rsync -av --progress . tmp/#{name} --exclude /tmp"
         exclude_dirs.each do |dir|
-          cmd += " --exclude #{dir}"
+          cmd += " --exclude /#{dir}"
         end
         passed = system cmd
         unless passed

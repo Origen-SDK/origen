@@ -9,7 +9,7 @@ Pattern.sequence do |seq|
     20.ms!
   end
 
-  seq.wait_for_threads
+  PatSeq.wait_for_threads_to_complete
 
   5.ms!
 end

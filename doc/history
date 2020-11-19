@@ -1,3 +1,251 @@
+<a class="anchor release_tag" name="v0_59_3"></a>
+<h1><a href="#v0_59_3">Tag: v0.59.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 27-Oct-2020 07:55AM
+
+
+* fix for when rspec is on latest version 3.9 and you run bundle exec rspec - info-rchitect
+
+<a class="anchor release_tag" name="v0_59_2"></a>
+<h1><a href="#v0_59_2">Tag: v0.59.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 15-Oct-2020 14:06PM
+
+
+ * Fixes issue #401
+
+<a class="anchor release_tag" name="v0_59_1"></a>
+<h1><a href="#v0_59_1">Tag: v0.59.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 22-Sep-2020 08:47AM
+
+
+ * updated LDAP Encryption to be a site config
+ * Added RSpec 3 support
+
+<a class="anchor release_tag" name="v0_59_0"></a>
+<h1><a href="#v0_59_0">Tag: v0.59.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 06-Sep-2020 13:20PM
+
+
+ * Added capability to update packages for a pin, after the pin has been defined.
+ * Previous tag was on an incorrect branch
+
+<a class="anchor release_tag" name="v0_57_2"></a>
+<h1><a href="#v0_57_2">Tag: v0.57.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 26-Aug-2020 09:19AM
+
+
+ * disable lambda style to prevent lint block
+ * disabled ruby 2.4 check from TravisCI
+
+<a class="anchor release_tag" name="v0_57_1"></a>
+<h1><a href="#v0_57_1">Tag: v0.57.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 24-Jun-2020 15:17PM
+
+
+Add absolute value checks to as_units for negative inputs - James Creamer
+
+<a class="anchor release_tag" name="v0_57_0"></a>
+<h1><a href="#v0_57_0">Tag: v0.57.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 26-May-2020 10:46AM
+
+
+- added on on_interface_reset check at the end of reset_interface, since I needed to
+adjust Origen.interface.flow.subdirectory immediately after the interface was created
+- relog can now relog to a custom log, via options[:log_file]
+- custom log methods can now output to console if passed verbose: true
+- workspace manager can now pass a build_method option, if :clone, then it won't try to
+init the workspace or make the empty folder
+- regression_manager can utilize a custom log
+- regression_manager won't delete lbin if Origen is using version 0.40.0 or higher
+- fixed typo in submit_origen_job
+- updates by Cody Horton
+
+<a class="anchor release_tag" name="v0_56_0"></a>
+<h1><a href="#v0_56_0">Tag: v0.56.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 15-May-2020 02:14AM
+
+
+Added API to sync up concurrent pattern threads
+
+<a class="anchor release_tag" name="v0_55_5"></a>
+<h1><a href="#v0_55_5">Tag: v0.55.5</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 08-May-2020 09:13AM
+
+
+coverage fix for new application directory structure
+
+<a class="anchor release_tag" name="v0_55_4"></a>
+<h1><a href="#v0_55_4">Tag: v0.55.4</a></h1>
+
+##### Branch: 'master'
+
+##### by Daniel Hadad on 01-Apr-2020 08:14AM
+
+
+Update how sub_block_group(s) works to fix an issue where a new instance of a sub block
+group was created each time it was referenced.
+
+<a class="anchor release_tag" name="v0_55_3"></a>
+<h1><a href="#v0_55_3">Tag: v0.55.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 10-Mar-2020 12:26PM
+
+
+Added site config variable for lsf command prefix
+
+<a class="anchor release_tag" name="v0_55_2"></a>
+<h1><a href="#v0_55_2">Tag: v0.55.2</a></h1>
+
+##### Branch: 'master'
+
+##### by info-rchitect on 29-Jan-2020 12:58PM
+
+
+* Fixed application release note bug regarding escaping underscores
+
+<a class="anchor release_tag" name="v0_55_1"></a>
+<h1><a href="#v0_55_1">Tag: v0.55.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 28-Jan-2020 02:44AM
+
+
+Bug fixes to archive command and sub-block loading
+
+<a class="anchor release_tag" name="v0_55_0"></a>
+<h1><a href="#v0_55_0">Tag: v0.55.0</a></h1>
+
+##### Branch: 'master'
+
+##### by info-rchitect on 27-Nov-2019 06:50AM
+
+
+* PR#368: Enable applications to disable appending 'v' for release tags
+* PR#369: Fix for a couple issues regarding parameter set keys that conflict with Ruby
+method names
+
+<a class="anchor release_tag" name="v0_54_6"></a>
+<h1><a href="#v0_54_6">Tag: v0.54.6</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 23-Nov-2019 13:18PM
+
+
+Fixed bug where rake tasks would not load under the new application directory structure.
+
+<a class="anchor release_tag" name="v0_54_5"></a>
+<h1><a href="#v0_54_5">Tag: v0.54.5</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 21-Nov-2019 17:35PM
+
+
+Fix Issue #352 for Ruby >= 2.6.0
+
+<a class="anchor release_tag" name="v0_54_4"></a>
+<h1><a href="#v0_54_4">Tag: v0.54.4</a></h1>
+
+##### Branch: 'master'
+
+##### by Daniel Hadad on 11-Nov-2019 10:41AM
+
+
+Added deprecate warning to clean\_path\_to\_sub\_program in file\_handler as upcoming release
+of origen\_testers will handle without this method.
+
+<a class="anchor release_tag" name="v0_54_3"></a>
+<h1><a href="#v0_54_3">Tag: v0.54.3</a></h1>
+
+##### Branch: 'master'
+
+##### by bcaqueli on 24-Sep-2019 11:02AM
+
+
+
+* PR-360: Fix parameter set bug that overwrote existing sub-sets
+
+<a class="anchor release_tag" name="v0_54_2"></a>
+<h1><a href="#v0_54_2">Tag: v0.54.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 19-Sep-2019 20:23PM
+
+
+Bug fix to last update
+
+<a class="anchor release_tag" name="v0_54_1"></a>
+<h1><a href="#v0_54_1">Tag: v0.54.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 19-Sep-2019 02:55AM
+
+
+Fixed usage of sourceless patterns in Sequences
+
+<a class="anchor release_tag" name="v0_54_0"></a>
+<h1><a href="#v0_54_0">Tag: v0.54.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Stephen McGinty on 12-Sep-2019 21:53PM
+
+
+Added multiple inheritance to parameter sets
+
+<a class="anchor release_tag" name="v0_53_1"></a>
+<h1><a href="#v0_53_1">Tag: v0.53.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Corey Engelken on 10-Sep-2019 20:42PM
+
+
+Merge [PR #356](https://github.com/Origen-SDK/origen/pull/356)
+
+<a class="anchor release_tag" name="v0_53_0"></a>
+<h1><a href="#v0_53_0">Tag: v0.53.0</a></h1>
+
+##### Branch: 'master'
+
+##### by info-rchitect on 21-Aug-2019 17:12PM
+
+
+* PR#353: Allow User attributes to be set by environment variables 'ORIGEN\_USER\_ID',
+'ORIGEN\_NAME', and 'ORIGEN\_EMAIL'
+
 <a class="anchor release_tag" name="v0_52_4"></a>
 <h1><a href="#v0_52_4">Tag: v0.52.4</a></h1>
 

@@ -118,5 +118,7 @@ describe 'The Origen logger' do
     Origen.log.flush
     File.read(File.join("log", "blah.txt")).should_not include("BLAH")
     File.read(File.join("log", "blah.txt")).should include("Test message 12")
+    Origen.log.reset
+    expect { Origen.log.bond 'Test message 007', verbose: true }.to output(/.*BOND.*Test message 007.*/).to_stdout_from_any_process
   end
 end

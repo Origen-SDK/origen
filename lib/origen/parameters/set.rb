@@ -9,6 +9,10 @@ module Origen
       # methods of the same name provided by the Hash class.
       OVERRIDE_HASH_METHODS = [:min, :max]
 
+      # Allow these parameter names to be valid. When used, they will override the
+      # methods of the same name provided by another class.
+      OVERRIDE_METHODS = [:chain]
+
       def initialize(options = {})
         if options[:top_level]
           @top_level = self
@@ -38,7 +42,7 @@ module Origen
       def copy_defaults_from(set)
         set.each do |name, val|
           if val.is_a?(Set)
-            self[name] = new_subset(name)
+            self[name] ||= new_subset(name)
             self[name].copy_defaults_from(val)
           else
             self[name] = val
@@ -61,7 +65,7 @@ module Origen
             super
           else
             if !key?(method)
-              super
+              nil
             else
               val = self[method]
               if val.is_a?(Set)
@@ -82,13 +86,9 @@ module Origen
         end
       end
 
-      OVERRIDE_HASH_METHODS.each do |method|
+      (OVERRIDE_METHODS + OVERRIDE_HASH_METHODS).each do |method|
         define_method method do
-          if self[method]
-            method_missing(method)
-          else
-            super
-          end
+          method_missing(method)
         end
       end
 

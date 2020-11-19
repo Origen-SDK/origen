@@ -117,13 +117,18 @@ module Origen
           _parameter_sets[name] = Origen::Parameters::Set.new(top_level: true, owner: self)
         end
         if options[:inherit]
-          kontext = _validate_parameter_set_name(options[:inherit])
-          parent = kontext[:obj]._parameter_sets[kontext[:context]]
-          if Origen::Parameters.transaction_open && !Origen::Parameters.transaction_redefine
-            define_params_transaction[kontext[:obj]][kontext[:context]][:children] << [self, name]
+          parents = {}
+          Array(options[:inherit]).each do |inherit|
+            kontext = _validate_parameter_set_name(inherit)
+            parent = kontext[:obj]._parameter_sets[kontext[:context]]
+            parents[inherit] = parent
+            if Origen::Parameters.transaction_open && !Origen::Parameters.transaction_redefine
+              define_params_transaction[kontext[:obj]][kontext[:context]][:children] << [self, name]
+            end
+            _parameter_sets[name].copy_defaults_from(parent) unless defaults_already_set
           end
-          _parameter_sets[name].copy_defaults_from(parent) unless defaults_already_set
-          _parameter_sets[name].define(parent, &block)
+          parents = parents.values.first if parents.size == 1
+          _parameter_sets[name].define(parents, &block)
         else
           _parameter_sets[name].define(&block)
         end

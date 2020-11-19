@@ -6,11 +6,11 @@ Pattern.sequence do |seq|
   end
 
   seq.thread :th2 do
-    seq.wait_for_thread :th1
+    PatSeq.wait_for_thread_to_complete :th1
     20.ms!
   end
 
-  seq.wait_for_threads :all
+  PatSeq.wait_for_threads_to_complete :all
 
   5.ms!
 end

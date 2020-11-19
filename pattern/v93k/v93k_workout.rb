@@ -140,4 +140,14 @@ Pattern.create do
   10.cycles
   dut.pin(:clk).drive(1)
   10.cycles
+
+  Pattern.split
+  (0..31).each do |i|
+    dut.nvm.pins(:porta).drive!(31-i)
+  end
+
+  Pattern.split(name: 'shutdown')
+  (0..31).each do |i|
+    dut.nvm.pins(:porta).drive!(i)
+  end
 end

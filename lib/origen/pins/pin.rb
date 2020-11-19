@@ -443,6 +443,24 @@ module Origen
       end
       alias_method :add_locn, :add_location
 
+      # Add a way to update packages for the pins after the pins have been added.
+      #
+      # @example Updating a package after the pin has been added
+      # dut.add_pin :p1
+      # dut.add_package: package1
+      # dut.add_package: package2
+      # dut.pin(:p1).packages # => {}
+      # dut.pin(:p1).update_packages :packages # => [:package1, :package2]
+      # dut.pin(:p1).packages # => {:package1=>{}, :package2=>{}}
+      def update_packages(options = {})
+        packages = resolve_packages(options)
+        packages.each do |package_id|
+          package_id = package_id.respond_to?(:id) ? package_id.id : package_id
+          myself.packages[package_id] ||= {}
+        end
+      end
+      alias_method :update_package, :update_packages
+
       # Add a Device Interface Board (e.g. probecard at wafer probe or loadboard at final package test)
       # assignment to the pin.  Some refer to this as a channel but API name is meant to be generic.
       def add_dib_assignment(str, options = {})
@@ -1069,6 +1087,85 @@ module Origen
           @ext_pulldown = value
         else
           fail "Pin ext_pulldown  attribute '#{value}' must be either true or false"
+        end
+      end
+
+      def index?(context: nil)
+        !!index(context: context).nil?
+      end
+
+      def index(context: nil)
+        if context.is_a?(Symbol)
+          # Context pin group provided
+          group = groups[context].instance_variable_get(:@store)
+          if group
+            group.index(self)
+          end
+        elsif context.is_a?(Array)
+          # Anonymous pin group given
+          context.map { |p| p.is_a?(Symbol) ? owner.pin(p) : p }.index(self)
+        else
+          # Try an index based off of the pin name.
+          # Only works if the pin ends in a decimal. Otherwise, returns nil.
+          i = name.to_s.index(/\d+$/)
+          if i
+            name.to_s[i..-1].to_i
+          end
+        end
+      end
+
+      def mask(context: nil)
+        index = context.is_a?(Integer) ? context : self.index(context: context)
+
+        if index.nil? && context.nil?
+          # If the index is nil and no context was given, no implicit index could be resolved
+          fail("Could not discern pin :#{name}'s implicit index!")
+        elsif index.nil?
+          # If the index is nil and some context was given, then the pin is not in the given context
+          fail("Pin :#{name} is not a member of the given context!")
+        end
+
+        2**index
+      end
+      alias_method :set_mask, :mask
+      alias_method :smask, :mask
+
+      def clear_mask(context: nil, size: nil)
+        index = context.is_a?(Integer) ? context : self.index(context: context)
+
+        if index.nil? && context.nil?
+          # If the index is nil and no context was given, no implicit index could be resolved
+          fail("Could not discern pin :#{name}'s implicit index!")
+        elsif index.nil?
+          # If the index is nil and some context was given, then the pin is not in the given context
+          fail("Pin :#{name} is not a member of the given context!")
+        end
+
+        if size && context && !context.is_a?(Integer)
+          # A context was given, that was not just an Integer, and size was given
+          # Raise an exception as these two conflict.
+          fail('Both a sized context (e.g. pin group) and a :size option cannot be used simultaneously!')
+        elsif size
+          # A size option was given. Use that.
+          ((2**size) - 1) ^ (1 << index)
+        elsif context.is_a?(Symbol)
+          ((2**groups[context].instance_variable_get(:@store).size) - 1) ^ (1 << index)
+        elsif context.respond_to?(:size) && !context.is_a?(Integer)
+          # PinCollection or Array
+          ((2**context.size) - 1) ^ (1 << index)
+        else
+          # No size option was given. Use the implicit index instead.
+          (2**index) - 1
+        end
+      end
+      alias_method :clr_mask, :clear_mask
+      alias_method :cmask, :clear_mask
+
+      def named?(n)
+        if n.is_a?(Regexp)
+          [name.to_s, *aliases.keys].any? { |na| na =~ n }
+        else
+          [name.to_s, *aliases.keys.map(&:to_s)].include?(n.to_s)
         end
       end
 

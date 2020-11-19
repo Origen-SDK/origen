@@ -610,6 +610,9 @@ unless defined? RGen::ORIGENTRANSITION
         else
           @interface.reset_globals if @interface.respond_to?(:reset_globals)
         end
+        if @interface.respond_to?(:on_interface_reset)
+          @interface.on_interface_reset
+        end
         @interface
       end
 
