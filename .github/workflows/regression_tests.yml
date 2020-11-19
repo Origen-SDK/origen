@@ -1,21 +1,20 @@
-name: Ruby
-
-on:
-  pull_request:
-    branches:
-    - master
-    
+name: Regression Tests
+on: [push]
 jobs:
   build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        ruby-version: [2.5, 2.6]
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     steps:
+    - name: Set up Ruby
     - uses: actions/checkout@v1
-    - name: Set up Ruby 2.3
       uses: actions/setup-ruby@v1
       with:
-        ruby-version: 2.3.x
+        ruby-version: ${{ matrix.ruby-version }}
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         CONTINUOUS_INTEGRATION: 1
