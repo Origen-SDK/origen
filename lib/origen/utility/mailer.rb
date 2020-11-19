@@ -38,7 +38,11 @@ END_OF_MESSAGE
 
           begin
             Origen.log.debug('Origen::Utility::Mailer Setup:')
-            options.each { |k, v| Origen.log.debug("  #{k}: #{v}") }
+            # Must not save a user's password to the Origen log file! So build a shadow copy of the
+            # options hash and display that content in the log file with the auth_password removed.
+            options_reduced = options
+            options_reduced.delete(:auth_password)
+            options_reduced.each { |k, v| Origen.log.debug("  #{k}: #{v}") }
 
             # Net::SMTP.start(options[:server], options[:port]) do |smtp|
             #  smtp.send_message msg, options[:from], addr

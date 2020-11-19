@@ -116,4 +116,16 @@ describe String do
     'AA'.xls_col_index.should == 27
     'AA'.xlsx_col_index.should == 27
   end
+
+  specify 'underscores can be escaped' do
+    str = "_italic_ _italic_  _italic_   _italic_with_underscores_inbetween_ my_gem gem changed from 1.5.0 to [1.7.0](http://mywebsite.com/my_gem/latest/release_notes/#1.7.0)  my_gem http://mywebsite2biz.com  _italic_"
+    str.escape_underscores(smartly=true).should == "\\_italic\\_ \\_italic\\_  \\_italic\\_   \\_italic_with_underscores_inbetween\\_ my_gem gem changed from 1.5.0 to [1.7.0](http://mywebsite.com/my_gem/latest/release_notes/#1.7.0)  my_gem http://mywebsite2biz.com  \\_italic\\_"
+    str.escape_underscores.should == "\\_italic\\_ \\_italic\\_  \\_italic\\_   \\_italic\\_with\\_underscores\\_inbetween\\_ my\\_gem gem changed from 1.5.0 to [1.7.0](http://mywebsite.com/my\\_gem/latest/release\\_notes/#1.7.0)  my\\_gem http://mywebsite2biz.com  \\_italic\\_"
+  end
+
+  specify 'match_all returns an array of MatchData instances' do
+    match_all_result = 'ginty ginty'.match_all(/ginty/)
+    match_all_result.class.should == Array
+    match_all_result.map { |result| result.class }.uniq.should == [MatchData]
+  end
 end

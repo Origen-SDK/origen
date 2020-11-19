@@ -23,6 +23,6 @@
 # add_pin_group :jtag, :tdi, :tdo, :tck, :tms
 #
 # Examples of how to create pin aliases
-# add_pin_alias :old_name, :new_name
-# add_pin_group_alias :old_name, :new_name
+# add_pin_alias :new_name, :old_name
+# add_pin_group_alias :new_name, :old_name
 # add_pin_group_alias :data_byte0, :porta, pins: [7..0]

@@ -27,6 +27,7 @@ module Origen
     # @param [Hash] options Options to customize the run instance
     # @option options [Array]   :target String Array of target names on which to run regression
     # @option options [Boolean] :build_reference (true) Build reference workspace automatically
+    # @option options [Symbol]  :build_method (:init) whether to use a git init or git clone method to build the workspace
     # @option options [Boolean] :send_email (false) Send results email when regression complete
     # @option options [Boolean] :email_all_developers (false) If sending email, whether to email all developers or just user
     # @option options [Boolean] :report_results (false) Whether to report results inline to console
@@ -35,6 +36,7 @@ module Origen
     def run(options = {})
       options = {
         build_reference:      true,
+        build_method:         :init,
         send_email:           false,
         email_all_developers: false,
         report_results:       false,
@@ -46,7 +48,7 @@ module Origen
         Origen.lsf.clear_all
         yield options
         wait_for_completion(options) if options[:uses_lsf]
-        save_and_delete_output
+        save_and_delete_output(options)
       else
         if options[:build_reference]
           @reference_tag = version_to_tag(options[:version] || get_version(options))
@@ -58,7 +60,8 @@ module Origen
             disable_origen_version_check do
               Dir.chdir reference_origen_root do
                 Bundler.with_clean_env do
-                  system 'rm -rf lbin'
+                  # Origen 0.40.0 started using origen-owned binstubs
+                  system 'rm -rf lbin' if Gem::Version.new(Origen.version) < Gem::Version.new('0.40.0')
                   # If regression is run using a service account, we need to setup the path/bundler manually
                   # The regression manager needs to be passed a --service_account option when initiated.
                   if options[:service_account]
@@ -125,7 +128,7 @@ module Origen
     end
 
     def summarize_results(options = {})
-      Origen.lsf.build_log
+      Origen.lsf.build_log(options)
       stats = Origen.app.stats
       if options[:report_results]
         puts "Regression results: \n"
@@ -144,12 +147,16 @@ module Origen
 
     # Saves all generated output (to the reference dir) and then
     # deletes the output directory to save space
-    def save_and_delete_output
-      Origen.lsf.build_log
+    def save_and_delete_output(options = {})
+      Origen.lsf.build_log(options)
       Origen.log.flush
       Dir.chdir reference_origen_root do
         Bundler.with_clean_env do
-          system 'bundle exec origen save all'
+          if options[:log_file]
+            system "bundle exec origen save all -f log/#{options[:log_file]}.txt"
+          else
+            system 'bundle exec origen save all'
+          end
         end
       end
       FileUtils.rm_rf "#{reference_origen_root}/output"
@@ -214,7 +221,7 @@ module Origen
           # Build the new reference workspace now.
           unless File.exist?(@reference_workspace)
             highlight { Origen.log.info 'Building reference workspace...' }
-            ws.build(@reference_workspace)
+            ws.build(@reference_workspace, options)
           end
           ws.set_reference_workspace(@reference_workspace)
         else
@@ -229,7 +236,7 @@ module Origen
         end
         unless File.exist?(@reference_workspace)
           highlight { Origen.log.info 'Building reference workspace...' }
-          ws.build(@reference_workspace)
+          ws.build(@reference_workspace, options)
         end
         ws.set_reference_workspace(@reference_workspace)
       end

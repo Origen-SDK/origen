@@ -278,7 +278,9 @@ module Origen
       path
     end
 
+    # @deprecated
     def clean_path_to_sub_program(file)
+      Origen.deprecated 'Origen.file_handler.clean_path_to_sub_program is deprecated, update to use version ... of origen_testers instead.'
       file = add_underscore_to(file)
       file = add_rb_to(file)
       clean_path_to(file)

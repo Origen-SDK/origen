@@ -12,6 +12,10 @@ describe "Application Configuration" do
     Origen.config.lsf.debug.should == true
   end
 
+  it 'uses the correct default RC tag prepend' do
+    Origen.app.config.rc_tag_prepend_v.should == true
+  end
+
   #specify "LSF configuration can be set from the application.rb file" do
   #  Origen.config.lsf.project.should == "origen core"
   #end

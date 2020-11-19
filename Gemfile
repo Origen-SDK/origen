@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 # Development dependencies
 gem 'coveralls', require: false
-gem "byebug", "~>8"  # Keep support for Ruby 2.0
+gem "byebug", "~>10" #  Keep support for Ruby 2.3
 #gem "stackprof", "~>0"
 gem "origen_core_support", git: "https://github.com/Origen-SDK/origen_core_support.git"
 #gem "origen_core_support", path: "~/Code/github/origen_core_support"

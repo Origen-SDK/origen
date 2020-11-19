@@ -58,7 +58,13 @@ Some points to note in the above code:
 Pins are accessed via the <code>pin</code> method:
 
 ~~~ruby
-$dut.pin(:tdi)     # => <pin object>
+# Select a single pin
+$dut.pin(:tdi)
+  #=> <pin object>
+
+# Select multiple pins
+$dut.pin(:tdi, :tdo, :tclk)
+  #=> [<pin object>, <pin object>, <pin object>]
 ~~~
 
 Note that pins can be accessed locally from any object that includes the <code>Origen::Model</code> module:
@@ -86,6 +92,43 @@ Or called directly on the pin:
 
 ~~~ruby
 pin(:tdi).add_alias(:bisti)
+~~~
+
+For applications which have many, many pins `pin groups` (discussed below) can
+help organize them logically. However, multiple pins can also be selected
+by providing either a block and one or more `Regexp`s:
+
+~~~ruby
+# Find all pins matching /porta/
+dut.pins(/porta/)
+  #=> [<pin object>, ...]
+dut.pins(/porta/).map(&:name)
+  #=> [:porta31, :porta30, ...]
+
+# Find all pins matching /porta/ or /portc/
+dut.pins(/porta/, /clk/)
+  #=> [<pin object>, ...]
+dut.pins(/porta/, /clk/).map(&:name)
+  #=> [:porta31, :porta30, ..., :tclk]
+
+# Retrieve all pins matching /porta/ and :tdi, :tdo
+dut.pins(/porta/, :tdi, :tdo)
+  #=> [<pin object>, ...]
+dut.pins(/porta/, :tdi, :tdo).map(&:name)
+  #=> [:porta31, :porta30, ..., :tdi, :tdo]
+
+# Retrieve all pins for which the block is true
+# (Find all even-indexed pins for porta)
+dut.pins { |n, p| n.to_s.start_with?('porta') && (n.to_s.gsub('porta', '').to_i % 2 == 0) }
+  #=> [<pin object>, ...]
+dut.pins { |n, p| n.to_s.start_with?('porta') && (n.to_s.gsub('porta', '').to_i % 2 == 0) }.map(&:name)
+  #=> [:porta30, :porta28, :porta26, ...]
+
+# Retrieve all pins for which /clk/ matches OR the block is true
+dut.pins(/clk/) { |n, p| n.to_s.start_with?('porta') && (n.to_s.gsub('porta', '').to_i % 2 == 0) }
+  #=> [<pin object>, ...]
+dut.pins(/clk/) { |n, p| n.to_s.start_with?('porta') && (n.to_s.gsub('porta', '').to_i % 2 == 0) }.map(&:name)
+  #=> [:porta30, :porta28, :porta26, ..., :tclk]
 ~~~
 
 #### Defining Pin Groups
@@ -141,6 +184,27 @@ Within a pin group individual pins can be addressed via a local index:
 pins(:porta)[0] == pins(:porta0)   # => true
 ~~~
 
+The reverse is achieved using the `index` method and providing a `context` option:
+
+~~~ruby
+pins(:porta0).index(context: :porta)
+  #=> 0
+
+pins(:porta1).index(context: :porta)
+  #=> 1
+~~~
+
+If no context is given, Origen attempts to discern any implicit indexing, using
+the appendix of the pin, if it ends in a numeral.
+
+~~~ruby
+pins(:porta7).index
+  #=> 7
+  
+pin(:tclk).index
+  #=> nil
+~~~
+
 Anonymous pin groups can be composed from a range of indexes at runtime:
 
 ~~~ruby
@@ -184,6 +248,36 @@ add_pin_group_alias :data_byte_0, :porta, pins: [7..0]
 add_pin_group_alias :data_byte_1, :porta, pins: [8,9,10,11,12,13,14,15]
 
 pins(:data_byte_0).dont_care  # Can now be used as if it were a regular first class pin group
+~~~
+
+#### Mask Generation
+
+For GPIOs, PORTs, etc., situations in which you want to set or clear a single
+pin may arise. Origen can help here by generating masks to set or clear a pin
+within a given context. The context works the same here as when using `index`:
+
+~~~ruby
+# Generate a mask which sets only :porta4 in the context of :porta
+dut.pin(:porta4).mask(context: :porta)
+  #=> 0b10000
+
+dut.pin(:porta4).clr_mask(context: :porta)
+  #=> 0b1111_1111_1111_1111_1111_1111_1110_1111
+~~~
+
+Implicit masks work similarly, but the size of the `clear mask` is not known.
+A `:size` option can be given to set the size of the generated mask:
+
+~~~ruby
+dut.pin(:porta4).mask
+  #=> 0b10000
+
+dut.pin(:porta4).clr_mask
+  #=> 0b1111
+  #=> (0b0_1111)
+
+dut.pin(:porta4).clr_mask(size: 32)
+  #=> 0b1111_1111_1111_1111_1111_1111_1110_1111
 ~~~
 
 #### Power and Ground Pin Modelling
@@ -454,6 +548,19 @@ $dut.add_pin :tdi, packages: { bga: { location: 'BF2' } }
 $dut.pins(:tdi).add_dib_meta :bga, { channel: 100106, connection: "PE117.08", slot: "PE117", spring_pin: "08" }
 ~~~
 
+#### Updating packages for pins already defined.
+
+There might be a need to update the packages for a pin that has already been defined. This can now be done as follows:
+
+~~~ruby
+$dut.add_pin :p1
+$dut.add_package: package1
+$dut.add_package: package2
+$dut.pin(:p1).packages # => {}
+$dut.pin(:p1).update_packages :packages => [:package1, :package2]
+$dut.pin(:p1).packages # => {:package1=>{}, :package2=>{}}
+~~~
+
 #### Pin Functions
 
 Pin aliases are an example of modelling different pin functions that can be mux'd onto the same pin, in this case
@@ -588,6 +695,5 @@ $dut.pin(:pin2).start_clock(period_in_ns: 100)
 $dut.pin(:pin2).stop_clock
 ...
 ~~~
-
 
 % end

@@ -274,6 +274,7 @@ module Origen
       else
         msg = format_msg(method.to_s.upcase, msg)
       end
+      console.info msg if options[:verbose]
       @custom_logs[method.to_sym].info(msg)
     end
 
@@ -364,8 +365,10 @@ module Origen
       end
     end
 
-    def relog(msg)
-      if msg =~ /^\[(\w+)\] .*/
+    def relog(msg, options = {})
+      if options[:log_file]
+        send options[:log_file], msg.sub(/.*\|\|\s*/, ''), options
+      elsif msg =~ /^\[(\w+)\] .*/
         method = Regexp.last_match(1).downcase
         if respond_to?(method)
           send method, msg.sub(/.*\|\|\s*/, '')

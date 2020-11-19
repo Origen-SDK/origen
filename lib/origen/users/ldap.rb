@@ -15,9 +15,14 @@ module Origen
       HOST = Origen.site_config.ldap_host
       PORT = Origen.site_config.ldap_port
       BASE_DN = Origen.site_config.ldap_base_dn
+      LDAP_ENCRYPTION = Origen.site_config.ldap_encryption
+
+      if LDAP_ENCRYPTION.nil?
+        LDAP_ENCRYPTION = 'simple_tls'
+      end
 
       def available?
-        !!(SERVICE_ACCOUNT && SERVICE_PASS && HOST && PORT && BASE_DN)
+        !!(SERVICE_ACCOUNT && SERVICE_PASS && HOST && PORT && BASE_DN && LDAP_ENCRYPTION)
       end
 
       # Lookup the given user in the core directory and return an object representing the user's entry
@@ -57,7 +62,8 @@ module Origen
       def service
         @service ||= Net::LDAP.new host:       HOST,
                                    port:       PORT,
-                                   encryption: { method: :simple_tls },
+                                   base:       BASE_DN,
+                                   encryption: LDAP_ENCRYPTION,
                                    auth:       { method: :simple, username: SERVICE_ACCOUNT, password: SERVICE_PASS }
       end
     end

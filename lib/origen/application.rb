@@ -118,6 +118,11 @@ module Origen
             load file
           end
         else
+          # New application dir structure support
+          Dir.glob("#{Origen.root}/app/lib/tasks/*.rake").sort.each do |file|
+            load file
+          end
+
           Dir.glob("#{Origen.root}/lib/tasks/*.rake").sort.each do |file|
             load file
           end
@@ -125,6 +130,11 @@ module Origen
         # Finally those that the plugin's have given us
         ([Origen.app] + Origen.app.plugins).each do |plugin|
           namespace plugin.name do
+            # New application dir structure support
+            Dir.glob("#{plugin.root}/app/lib/tasks/shared/*.rake").sort.each do |file|
+              load file
+            end
+
             Dir.glob("#{plugin.root}/lib/tasks/shared/*.rake").sort.each do |file|
               load file
             end
