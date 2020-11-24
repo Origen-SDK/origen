@@ -6,7 +6,7 @@ module Origen
     def display
       # If the DUT responds to a sub_block "display" return the sub_block
       if model.sub_blocks.include? 'display'
-        Origen.log.success "Found a sub_block \'display\', passing control to the #{model.class}..."
+        Origen.log.debug "Found a sub_block \'display\', passing control to the #{model.class}..."
         model.sub_blocks['display']
       else
         # Else, pass control to the ruby core.
