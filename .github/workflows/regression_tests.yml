@@ -14,7 +14,7 @@ jobs:
     - name: Set up Ruby
       uses: actions/setup-ruby@v1
       with:
-        ruby-version: ${{ matrix.ruby-version }
+        ruby-version: ${{ matrix.ruby-version }}
     - name: Update Env
       run: echo "ACTIONS_ALLOW_UNSECURE_COMMANDS=true" >> $GITHUB_ENV
     - name: Install Bundler
