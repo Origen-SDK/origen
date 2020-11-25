@@ -416,9 +416,10 @@ module Origen
       # Load any centralized site configs now.
       centralized_site_config = find_val('centralized_site_config')
       if centralized_site_config
-        # We know the last two site configs will exists (they are in Origen core) and that they contain the default
-        # values. We want the centralized config to load right after those.
-        @configs.insert(-3, Config.new(path: centralized_site_config, parent: self))
+        # The first site configs found will exist in Origen core, and they contain the default values.
+        # We want the centralized config to load right after those.
+        centralized_index = -(@configs.select { |c| c.path.start_with?(Origen.top.to_s) }.size + 1)
+        @configs.insert(centralized_index, Config.new(path: centralized_site_config, parent: self))
       end
 
       # After all configs have been populated, see if the centralized needs refreshing

@@ -1,3 +1,14 @@
+<a class="anchor release_tag" name="v0_59_4"></a>
+<h1><a href="#v0_59_4">Tag: v0.59.4</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 24-Nov-2020 11:59AM
+
+
+* Enabled reserved keyword 'display' to be a sub_block
+* Updated pin type to be set automatically unless set by user - info-architect
+
 <a class="anchor release_tag" name="v0_59_3"></a>
 <h1><a href="#v0_59_3">Tag: v0.59.3</a></h1>
 
