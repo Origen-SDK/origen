@@ -418,7 +418,7 @@ module Origen
       if centralized_site_config
         # The first site configs found will exist in Origen core, and they contain the default values.
         # We want the centralized config to load right after those.
-        centralized_index = -(@configs.select { |c| c.path.start_with?(Origen.top.to_s) }.size + 1)
+        centralized_index = -(@configs.select { |c| c.path.start_with?(File.expand_path('../../../')) }.size + 1)
         @configs.insert(centralized_index, Config.new(path: centralized_site_config, parent: self))
       end
 
