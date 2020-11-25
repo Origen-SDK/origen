@@ -1,5 +1,5 @@
 name: Origen Core Regression Tests
-on: [push, pull_requests]
+on: [push, pull_request]
 jobs:
   build:
     strategy:
