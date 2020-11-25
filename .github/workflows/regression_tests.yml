@@ -10,7 +10,6 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    steps:
     - uses: actions/checkout@v2
     - name: Set up Ruby
       uses: actions/setup-ruby@v1
