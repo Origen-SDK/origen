@@ -1,5 +1,5 @@
-name: Regression Tests
-on: [push]
+name: Origen Core Regression Tests
+on: [push, pull_requests]
 jobs:
   build:
     strategy:
@@ -10,32 +10,25 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+    steps:
+    - uses: actions/checkout@v2
     - name: Set up Ruby
-    - uses: actions/checkout@v1
       uses: actions/setup-ruby@v1
       with:
-        ruby-version: ${{ matrix.ruby-version }}
-      env:
-        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-        CONTINUOUS_INTEGRATION: 1
-    - name: Verify app can boot successfully
-      run: |
-        gem install bundler -v '< 2'
-        bundle install --jobs 4 --retry 3
-        bundle exec origen -v
-    - name: Lint Check
-      run: |
-        bundle install
-        bundle exec origen lint --no-correct
-    - name: Run tests
-      run: |
-        bundle install
-        bundle exec origen m debug
-        bundle exec origen test -c
+        ruby-version: ${{ matrix.ruby-version }
+    - name: Update Env
+      run: echo "ACTIONS_ALLOW_UNSECURE_COMMANDS=true" >> $GITHUB_ENV
+    - name: Install Bundler
+      run: gem install bundler -v '< 2'
+    - name: Install dependencies
+      run: bundle install  
+    - name: Gem Install Origen 
+      run: gem install origen 
+    - name: Setup Dependencies
+      run: origen -v
+    - name: Set Origen to debug mode
+      run: origen m debug
+    - name: Run Spec tests
+      run: origen test -c
     - name: Verify Building website
-      run: |
-        bundle install
-        bundle exec origen web compile --no-serve
-
-      
-
+      run: origen web compile --no-serve
