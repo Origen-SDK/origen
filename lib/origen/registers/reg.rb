@@ -574,6 +574,16 @@ module Origen
         }.merge(options)
         result = []
 
+        # Shows the bits that have changed from the reset value of the register/bits.
+        # Currently logs it to the console window using Origen logger.
+        def changed_bits(options = {})
+          temp = named_bits.select { |name, bits| bits.data != bits.reset_val }
+          temp.each do |r|
+            Origen.log.info "\t\t#{self.name}.#{r[0]} : #{r[1].value.to_hex}".bold.blue
+          end
+          Origen.log.info '  '
+        end
+
         # test if @lookup has any values stored as an array
         # if so it means there is a split group of bits
         # process that differently to a single bit or continuous range of bits
