@@ -12,4 +12,10 @@ Pattern.sequence do |seq|
   PatSeq.wait_for_threads_to_complete
 
   5.ms!
+
+  if tester.v93k?
+    tester.handshake
+
+    5.ms!
+  end
 end

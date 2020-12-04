@@ -1,0 +1,45 @@
+# ***************************************************************************
+# GENERATED:
+#   Time:    11-Nov-2020 09:54AM
+#   By:      Stephen McGinty
+#   Mode:    debug
+#   Command: origen g concurrent_delays_with_sync.rb -t origen_sim_dut.rb -e v93k.rb
+# ***************************************************************************
+# ENVIRONMENT:
+#   Application
+#     Source:    git@github.com:Origen-SDK/origen.git
+#     Version:   0.59.3
+#     Branch:    master(5a5e8d2821b) (+local edits)
+#   Origen
+#     Source:    https://github.com/Origen-SDK/origen
+#     Version:   0.59.3
+#   Plugins
+#     origen_app_generators:    2.1.1
+#     origen_core_support:      0.2.3
+#     origen_debuggers:         0.6.1
+#     origen_doc_helpers:       0.8.2
+#     origen_jtag:              0.22.1
+#     origen_sim:               0.20.7
+#     origen_testers:           0.45.4
+# ***************************************************************************
+# Header Comments From Application: origen_core:
+#   This is a dummy pattern created by the Origen test environment
+# ***************************************************************************
+FORMAT TCK TDI TDO TMS RSTN TRSTN dout test_bus din_port P1 P2 p3 p4 V1 V2 DONE NOT_PRESENT ANA;
+#                                                   t t t t r t d                                t                d                                p p p    p    v v d n a
+#                                                   c d d m s r o                                e                i                                1 2 3    4    1 2 o o n
+#                                                   k i o s t s u                                s                n                                                  n t a
+#                                                           n t t                                t                -                                                  e -  
+#                                                             n                                  -                p                                                    p  
+#                                                                                                b                o                                                    r  
+#                                                                                                u                r                                                    e  
+#                                                                                                s                t                                                    s  
+#                                                                                                                                                                      e  
+#                                                                                                                                                                      n  
+#                                                                                                                                                                      t  
+# [main] Wait for 5.0ms
+R50000                   func                       1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # [main] Wait for 5.0ms;
+# ######################################################################
+# ## Pattern complete
+# ######################################################################
+SQPG STOP;

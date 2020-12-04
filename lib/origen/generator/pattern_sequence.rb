@@ -132,6 +132,13 @@ module Origen
             line_size = 150
           end
           line_size -= 16 if tester.try(:sim?)
+          # This should only occur when $tester.handshake has been called on the V93K or a similar API
+          # which splits a pattern up until multiple outputs.
+          # This is a quick patch to skip rendering an execution profile for pattern parts 1 to n, instead
+          # of crashing.
+          # It should be possible to get an execution profile in these cases if someone were to invest the
+          # time in it to workout why this variable is not set upstream in these cases.
+          return unless @cycle_count_stop
           cycles_per_tick = (@cycle_count_stop / (line_size * 1.0)).ceil
           if tester.try(:sim?)
             execution_time = tester.execution_time_in_ns / 1_000_000_000.0

@@ -21,9 +21,13 @@ load "origen/commands/generate.rb"
 # Test the --sequence option to create a concurrent pattern
 ARGV = %W(#{Origen.root(:origen_sim)}/pattern/ip1_test.rb
           #{Origen.root(:origen_sim)}/pattern/ip2_test.rb
-          --sequence concurrent -t origen_sim_dut -r approved --plugin origen_sim)
+          --sequence concurrent -t origen_sim_dut -r approved --plugin origen_sim -e j750.rb)
 load "origen/commands/generate.rb"
 
 # Other concurrent pattern tests
-ARGV = %w(concurrent.list -t origen_sim_dut -r approved --plugin none)
+ARGV = %w(concurrent.list -t origen_sim_dut -r approved --plugin none -e j750.rb)
+load "origen/commands/generate.rb"
+
+# Other concurrent pattern tests
+ARGV = %w(concurrent_delays_with_sync.rb -t origen_sim_dut -r approved --plugin none -e v93k.rb)
 load "origen/commands/generate.rb"
