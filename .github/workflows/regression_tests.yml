@@ -4,7 +4,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, windows-latest]
         ruby-version: [2.5, 2.6]
 
     runs-on: ${{ matrix.os }}
@@ -25,6 +25,8 @@ jobs:
       run: gem install origen 
     - name: Setup Dependencies
       run: origen -v
+    - name: Run Origen Lint
+      run: origen lint --no-correct  
     - name: Set Origen to debug mode
       run: origen m debug
     - name: Run Spec tests
