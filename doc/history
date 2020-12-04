@@ -1,3 +1,16 @@
+<a class="anchor release_tag" name="v0_59_5"></a>
+<h1><a href="#v0_59_5">Tag: v0.59.5</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 04-Dec-2020 14:30PM
+
+
+* Fixed tester.handshake crash for concurrent pats
+* bugfix for centralized index site configs
+* Enabled GitHub Actions & removed Travis CI
+* NOTE: GitHub Actions on windows currently fails.
+
 <a class="anchor release_tag" name="v0_59_4"></a>
 <h1><a href="#v0_59_4">Tag: v0.59.4</a></h1>
 
