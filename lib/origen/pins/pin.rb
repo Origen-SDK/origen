@@ -23,7 +23,7 @@ module Origen
       PACKAGE_SCOPED_ATTRIBUTES = [:location, :dib_assignment, :dib_meta]
 
       # Pin Types, 'digital' and 'analog' are legacy types kept for backwards compatibility
-      TYPES = [:analog, :digital]
+      TYPES = [:analog, :digital, :signal, :ground, :power, :virtual]
 
       attr_accessor :order
       # Inverts pin states for drive and compare, can be useful if a timing set change requires clocks to drive low for example when all pattern logic has been set up to drive them high.

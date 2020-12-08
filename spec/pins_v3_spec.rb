@@ -1409,4 +1409,23 @@ describe "Origen Pin API v3" do
     @dut.has_pin?(:pinx).should == false
   end
 
+  it 'defaults pin type to nil' do
+    $dut.add_pin :type_nil_by_default
+    $dut.pins(:type_nil_by_default).type.nil?.should == true
+  end
+  
+  it 'allows new pin types to be set' do
+    $dut.add_pin :type_signal
+    $dut.pins(:type_signal).type = :signal
+    $dut.pins(:type_signal).type.should == :signal
+    $dut.add_virtual_pin :type_virtual
+    $dut.virtual_pins(:type_virtual).type = :virtual
+    $dut.virtual_pins(:type_virtual).type.should == :virtual
+    $dut.add_ground_pin :type_ground
+    $dut.ground_pins(:type_ground).type = :ground
+    $dut.ground_pins(:type_ground).type.should == :ground
+    $dut.add_power_pin :type_power
+    $dut.power_pins(:type_power).type = :power
+    $dut.power_pins(:type_power).type.should == :power
+  end
 end
