@@ -200,7 +200,7 @@ module Origen
         elsif time < 1.s
           "%.#{number_decimal_places}fms" % (time * 1_000)
         else
-          "%.#{number_decimal_places}fs" % tick_time
+          "%.#{number_decimal_places}fs" % time
         end
       end
 
