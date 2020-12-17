@@ -501,8 +501,8 @@ module Origen
             rescue NameError => e
               raise if e.message !~ /^uninitialized constant (.*)$/ || tmp_class !~ /#{Regexp.last_match(1)}/
               begin
-                tmp_class = class_name.to_s
-                klass = eval(class_name)
+                tmp_class = "::#{class_name}"
+                klass = eval(tmp_class)
               rescue NameError => e
                 raise if e.message !~ /^uninitialized constant (.*)$/ || tmp_class !~ /#{Regexp.last_match(1)}/
                 begin
