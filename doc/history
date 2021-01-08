@@ -1,3 +1,18 @@
+<a class="anchor release_tag" name="v0_59_7"></a>
+<h1><a href="#v0_59_7">Tag: v0.59.7</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 08-Jan-2021 08:36AM
+
+
+* merged #412 (Merge pull request #417 from Origen-SDK/loader_bug)
+* merged #417 (Merge pull request #412 from CodyBriscoe/master)
+* Fix loader bug that manifested in CrossOrigen (Stephen)
+
+
+
+
 <a class="anchor release_tag" name="v0_59_6"></a>
 <h1><a href="#v0_59_6">Tag: v0.59.6</a></h1>
 
