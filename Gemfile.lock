@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/Origen-SDK/origen_app_generators.git
-  revision: 5e2dc47fd20a8b2c625e5044def2c66804ca95b0
+  revision: 5ba9d89528513a3872f8bb6f32997cb9c4c37cd4
   specs:
-    origen_app_generators (2.1.1)
+    origen_app_generators (2.2.0)
       origen (>= 0.40.2)
 
 GIT
@@ -24,7 +24,7 @@ GIT
 
 GIT
   remote: https://github.com/Origen-SDK/origen_testers.git
-  revision: addcf8050faf3a386036c12de5ab5f04f3eee1d3
+  revision: 27537eb1bcc39b6995bc28c4f2ead4187e26c7b9
   specs:
     origen_testers (0.48.2)
       ast (~> 2)
@@ -112,7 +112,7 @@ GEM
       multi_xml (>= 0.5.2)
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
-    json (2.3.1)
+    json (2.4.1)
     kramdown (1.17.0)
     loco (0.0.7)
     method_source (1.0.0)
@@ -205,7 +205,7 @@ GEM
       sync
     treetop (1.6.11)
       polyglot (~> 0.3)
-    tzinfo (1.2.8)
+    tzinfo (1.2.9)
       thread_safe (~> 0.1)
     unf (0.1.4)
       unf_ext
