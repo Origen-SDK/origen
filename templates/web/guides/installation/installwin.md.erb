@@ -2,10 +2,14 @@
 
 Origen can be installed on Linux or Windows, this guide refers to the Windows installation.
 
+<div class="alert alert-info" role="alert"> <strong>@powershell commands</strong>
+  <br> All @powershell commands should be run from a commandshell other than powershell.
+</div>
+
 If you want to run on Linux then please see this guide instead:
 [How to Install Origen on Linux](<%= path "guides/installation/installing" %>)
 
-<div class="alert alert-info" role="alert"> <strong>Last updated on 15th February 2017</strong>
+<div class="alert alert-info" role="alert"> <strong>Last updated on 11th January 2021</strong>
   <br>The vast majority of Origen use in production is on Linux, and over time this Windows guide can
   become out of date and no one realizes.
   If you do experience any issues when following this guide, then please do let us
@@ -13,7 +17,7 @@ If you want to run on Linux then please see this guide instead:
 </div>
 
 
-### 1. Install a Better Console
+### 1. (Optional) Install a Better Console
 
 Download Console [by following this link](https://sourceforge.net/projects/console/files/latest/download?source=typ_redirect).
 
@@ -75,6 +79,7 @@ Install some required packages by running these commands from the console:
 ~~~tetxt
 choco install git -y --force
 choco install unxutils -y --force
+### consoleZ installation is optional
 choco install consoleZ -y --force
 ~~~
 
@@ -85,7 +90,7 @@ choco install consoleZ -y --force
 #### 3.1 Install the Ruby Executable
 
 ~~~text
-choco install ruby -y --version=2.3 --force
+choco install ruby -y --version=2.7.2.1 --force
 choco install ruby2.devkit -y --force
 ~~~
 
@@ -93,7 +98,7 @@ choco install ruby2.devkit -y --force
 
 Execute the following command from the console:
 
-#### 3.2 Install RubyGems
+#### 3.2 (Only if symlink issues are encountered) Install RubyGems
 
 ~~~text
 @powershell (new-object System.Net.WebClient).DownloadFile('https://rubygems.org/downloads/rubygems-update-2.7.3.gem’,'C:\rubygems-update-2.7.3.gem') && gem install --local C:\rubygems-update-2.7.3.gem && update_rubygems --no-ri --no-rdoc && gem uninstall rubygems-update -x
@@ -118,7 +123,7 @@ Open <code>C:\tools\DevKit2\config.yml</code> in your favorite editor and write 
 bottom:
 
 ~~~text
-- C:/tools/ruby23
+- C:/tools/ruby27
 ~~~
 
 Save it, and then execute the following commands from the console:
@@ -132,8 +137,8 @@ Ensure that you see the following output when running the above command, if not 
 what you have added to <code>C:\tools\DevKit2\config.yml</code>:
 
 ~~~text
-[INFO] Installing 'C:/tools/ruby22/lib/ruby/site_ruby/2.2.0/rubygems/default
-[INFO] Installing 'C:/tools/ruby22/lib/ruby/site_ruby/devkit.rb'
+[INFO] Updating existing gem override for 'C:/tools/ruby27'
+[INFO] Installing 'C:/tools/ruby27/lib/ruby/site_ruby/devkit.rb'
 ~~~
 
 <div class="alert alert-danger" role="alert">Now re-open the console (Run as administrator)</div>
@@ -143,7 +148,7 @@ what you have added to <code>C:\tools\DevKit2\config.yml</code>:
 Finally, run this command to install Origen:
 
 ~~~text
-gem install origen --no-ri --no-rdoc
+gem install origen --no-document
 ~~~
 
 This can take several minutes to finish without updating the screen, so please be patient.
