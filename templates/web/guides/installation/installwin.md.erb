@@ -159,8 +159,26 @@ at which point you should see something like this:
 
 #### 4.1 Update PATH variable
 
-Add <code>.\lbin</code> as the first entry in your <code>PATH</code> variable by following this 3rd party tutorial on [How to Create an Environment Variable in Windows](https://kb.wisc.edu/cae/page.php?id=24500).
+This step is required to ensure that Origen boots correctly inside of a workspace. Add <code>.\lbin</code> as the first entry in your <code>PATH</code> variable by following this 3rd party tutorial on [How to Create an Environment Variable in Windows](https://kb.wisc.edu/cae/page.php?id=24500).
  The system variables PATH entry will need to be udpated.
+ 
+You can check that the path was updated correctly by opening a new powershell console (after the variable update) and typing:
+
+~~~text
+$env:path
+~~~
+
+<code>.\lbin</code> should appear as the first entry in your path. If it is not, be sure that you added it to the system variables (not user variables) PATH entry.
+
+#### 4.2 Install a newer bundler version
+
+This step is not required. But, you may quickly encounter a scenario where a newer bundler version is required. In this case before Origen boots it will display a message with instructions for what is needed.
+
+Run this command to install a newer version of bundler:
+
+~~~text
+gem install bundler -v 2.1.4
+~~~
 
 Congratulations, Origen is now installed!
 
