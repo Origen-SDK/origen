@@ -89,14 +89,11 @@ choco install consoleZ -y --force
 
 #### 3.1 Install the Ruby Executable
 
-~~~text
-choco install ruby -y --version=2.7.2.1 --force
-choco install ruby2.devkit -y --force
-~~~
+We are currently recommending installing Ruby version 2.6.
 
-<div class="alert alert-danger" role="alert">Now re-open the console (Run as administrator)</div>
+Follow the instructions at the [ruby-lang website](https://www.ruby-lang.org/en/downloads/) to install Ruby with the devkit.
 
-Execute the following command from the console:
+If you encounter issues with symlinks in gems, execute the following command from the console:
 
 #### 3.2 (Only if symlink issues are encountered) Install RubyGems
 
@@ -123,7 +120,7 @@ Open <code>C:\tools\DevKit2\config.yml</code> in your favorite editor and write 
 bottom:
 
 ~~~text
-- C:/tools/ruby27
+- C:/tools/ruby26
 ~~~
 
 Save it, and then execute the following commands from the console:
@@ -137,8 +134,8 @@ Ensure that you see the following output when running the above command, if not 
 what you have added to <code>C:\tools\DevKit2\config.yml</code>:
 
 ~~~text
-[INFO] Updating existing gem override for 'C:/tools/ruby27'
-[INFO] Installing 'C:/tools/ruby27/lib/ruby/site_ruby/devkit.rb'
+[INFO] Updating existing gem override for 'C:/tools/ruby26'
+[INFO] Installing 'C:/tools/ruby26/lib/ruby/site_ruby/devkit.rb'
 ~~~
 
 <div class="alert alert-danger" role="alert">Now re-open the console (Run as administrator)</div>
