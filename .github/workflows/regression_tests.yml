@@ -18,7 +18,7 @@ jobs:
     - name: Update Env
       run: echo "ACTIONS_ALLOW_UNSECURE_COMMANDS=true" >> $GITHUB_ENV
     - name: Install Bundler
-      run: gem install bundler -v '< 2'
+      run: gem install bundler -v '> 2'
     - name: Install dependencies
       run: bundle install  
     - name: Gem Install Origen 
