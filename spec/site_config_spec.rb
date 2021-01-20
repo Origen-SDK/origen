@@ -26,7 +26,9 @@ describe "Origen.site_config" do
   # => 'C:/example/path' (Windows)
   def to_os_path(path, options={})
     if Origen.running_on_windows?
-      drive = home.split(File::SEPARATOR)[0]
+      # don't assume we're running from the same drive as home
+      # drive = home.split(File::SEPARATOR)[0]
+      drive = __dir__.split(File::SEPARATOR)[0]
       "#{drive}#{path}"
     else
       path
