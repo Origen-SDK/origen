@@ -103,7 +103,7 @@ module Origen
         # not be an issue except when testing Origen and generating and compiling within
         # the same thread, but clearing this here doesn't seem to do any harm.
         Origen.file_handler.default_extension = nil
-        Origen.log.info "Compiling... #{relative_path_to(file)}" unless options[:quiet]
+        Origen.log.info "Compiling... #{@current_file}" unless options[:quiet]
         Origen.log.info "  Created... #{relative_path_to(output_file(file, options))}" unless options[:quiet]
         stats.completed_files += 1 if options[:collect_stats]
         if is_erb?(file)
