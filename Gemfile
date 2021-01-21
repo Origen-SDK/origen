@@ -7,7 +7,7 @@ gem "byebug", "~>10" #  Keep support for Ruby 2.3
 gem "origen_core_support", git: "https://github.com/Origen-SDK/origen_core_support.git"
 #gem "origen_core_support", path: "~/Code/github/origen_core_support"
 #gem "origen_doc_helpers", ">= 0.2.0"
-gem "origen_doc_helpers"
+gem "origen_doc_helpers", git: 'https://github.com/Origen-SDK/origen_doc_helpers.git', branch: 'WinGAWebCompile'
 gem "loco"
 #gem "origen_testers", "~> 0.7"
 gem 'origen_debuggers', '~> 0'
