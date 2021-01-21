@@ -132,7 +132,7 @@ GEM
     origen_debuggers (0.6.1)
       origen (>= 0.2.6)
       origen_testers (>= 0.5.0)
-    origen_doc_helpers (0.8.2)
+    origen_doc_helpers (0.8.3)
       origen (>= 0.7.15)
     origen_jtag (0.22.1)
       origen (~> 0.7, >= 0.7.35)
