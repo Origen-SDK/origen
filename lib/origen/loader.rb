@@ -116,62 +116,75 @@ module Origen
 
     # If a block definition exists for the given model, then this will load it and apply it to
     # the model.
+    # if options[:inherit] is passed, it will first try to load the files for the class name contained
+    # in that option, even if its from a plugin app
     # Returns true if a model is found and loaded, otherwise nil.
     def self.load_block(model, options = {})
       model = model.model  # Ensure we have a handle on the model and not its controller
       loaded = nil
-      if app = options[:app] || model.app
+      if local_app = options[:app] || model.app
         if options[:path]
-          full_paths = Array(options[:path])
+          local_full_paths = Array(options[:path])
         else
-          full_paths = model.class.to_s.split('::')
-          full_paths.shift  # Throw away the app namespace
-          full_paths = [full_paths.join('/')]
+          local_full_paths = model.class.to_s.split('::')
+          local_full_paths.shift  # Throw away the app namespace
+          local_full_paths = [local_full_paths.join('/')]
         end
-        full_paths.each do |full_path|
-          paths = full_path.to_s.split('/')
-          key = ''
-          only = Array(options[:only]) if options[:only]
-          except = Array(options[:except]) if options[:except]
-          path = paths.map(&:underscore).join('/')
-          # If the path refers to a nested sub-block then don't load the full hierarchy since they
-          # don't support inheritance or derivatives, modify the paths array so that only the sub-block
-          # level will be loaded and nothing else.
-          paths = [path] if app.blocks_files[path] && app.blocks_files[path][:_sub_block]
-          # These will be loaded first, followed by the rest in an undefined order.
-          # Attributes and parameters are first so that they may be referenced in the other files.
-          # Sub-blocks was added early due to a corner case issue that could be encountered if the pins or
-          # regs imported an Origen exported file that defined a module with the same name as a sub-block
-          # class, in that case the sub-block class would not be auto-loaded.
-          load_first = [:attributes, :parameters, :sub_blocks]
+        app_paths_map = { local_app => local_full_paths }
+        if options[:inherit]
+          inherit_full_paths = options[:inherit].split('::')
+          inherit_app = Origen.app(inherit_full_paths.shift.underscore.to_sym)
+          inherit_full_paths = [inherit_full_paths.join('/')]
+          # merge to get inherit ordered in the beginning
+          app_paths_map = { inherit_app => inherit_full_paths }.merge(app_paths_map)
+        end
+        # load the inherit files, then the current app's block files
+        app_paths_map.each do |app, full_paths|
+          full_paths.each do |full_path|
+            paths = full_path.to_s.split('/')
+            key = ''
+            only = Array(options[:only]) if options[:only]
+            except = Array(options[:except]) if options[:except]
+            path = paths.map(&:underscore).join('/')
+            # If the path refers to a nested sub-block then don't load the full hierarchy since they
+            # don't support inheritance or derivatives, modify the paths array so that only the sub-block
+            # level will be loaded and nothing else.
+            paths = [path] if app.blocks_files[path] && app.blocks_files[path][:_sub_block]
+            # These will be loaded first, followed by the rest in an undefined order.
+            # Attributes and parameters are first so that they may be referenced in the other files.
+            # Sub-blocks was added early due to a corner case issue that could be encountered if the pins or
+            # regs imported an Origen exported file that defined a module with the same name as a sub-block
+            # class, in that case the sub-block class would not be auto-loaded.
+            load_first = [:attributes, :parameters, :sub_blocks]
 
-          load_first.each do |type|
-            unless (only && !only.include?(type)) || (except && except.include?(type))
-              with_parameters_transaction(type) do
-                paths.each_with_index do |path, i|
-                  key = i == 0 ? path.underscore : "#{key}/#{path.underscore}"
-                  if app.blocks_files[key] && app.blocks_files[key][type]
-                    app.blocks_files[key][type].each do |f|
-                      if type == :attributes
-                        success = load_attributes(f, model)
-                      else
-                        success = load_block_file(f, model)
+            load_first.each do |type|
+              unless (only && !only.include?(type)) || (except && except.include?(type))
+                with_parameters_transaction(type) do
+                  paths.each_with_index do |path, i|
+                    key = i == 0 ? path.underscore : "#{key}/#{path.underscore}"
+                    if app.blocks_files[key] && app.blocks_files[key][type]
+                      app.blocks_files[key][type].each do |f|
+                        if type == :attributes
+                          success = load_attributes(f, model)
+                        else
+                          success = load_block_file(f, model)
+                        end
+                        loaded ||= success
                       end
-                      loaded ||= success
                     end
                   end
                 end
               end
             end
-          end
 
-          # Now load the rest
-          paths.each_with_index do |path, i|
-            key = i == 0 ? path.underscore : "#{key}/#{path.underscore}"
-            if app.blocks_files[key]
-              app.blocks_files[key].each do |type, files|
-                unless type == :_sub_block || load_first.include?(type) || (only && !only.include?(type)) || (except && except.include?(type))
-                  files.each { |f| success = load_block_file(f, model); loaded ||= success }
+            # Now load the rest
+            paths.each_with_index do |path, i|
+              key = i == 0 ? path.underscore : "#{key}/#{path.underscore}"
+              if app.blocks_files[key]
+                app.blocks_files[key].each do |type, files|
+                  unless type == :_sub_block || load_first.include?(type) || (only && !only.include?(type)) || (except && except.include?(type))
+                    files.each { |f| success = load_block_file(f, model); loaded ||= success }
+                  end
                 end
               end
             end

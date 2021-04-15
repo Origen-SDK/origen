@@ -317,10 +317,29 @@ module Origen
         # been instantiated yet. This is not supported yet for instantiated sub-blocks since
         # there are probably a lot more corner-cases to consider, and hopefully no one will
         # really need this anyway.
-        if sub_blocks[name] && !sub_blocks[name].is_a?(Placeholder)
-          fail "You have already defined a sub-block named #{name} within class #{self.class}"
+        # Note that override is to recreate an existing sub-block, not adding additional
+        # attributes to an existing one
+        if options[:override]
+          sub_blocks.delete(name)
+          # this is to handle the case where a previously instantiated subblock wont allow
+          # the current class name to exist
+          # e.g. NamespaceA:B:C
+          # =>  NameSpaceX:Y:Z
+          # After requiring the files, constants become sane again:
+          # e.g. NamespaceA:B:C
+          # =>  NameSpaceA:B:C
+          if options[:class_name] != options[:class_name].constantize.to_s
+            block_dir = options[:block_file] || _find_block_dir(options)
+            Dir.glob("#{block_dir}/*.rb").each do |file|
+              require file
+            end
+          end
+        else
+          if sub_blocks[name] && !sub_blocks[name].is_a?(Placeholder)
+            fail "You have already defined a sub-block named #{name} within class #{self.class}"
+          end
         end
-        if respond_to?(name)
+        if respond_to?(name) && !(singleton_class.instance_methods.include?(name) && options[:override])
           callers = Origen.split_caller_line caller[0]
           Origen.log.warning "The sub_block defined at #{Pathname.new(callers[0]).relative_path_from(Pathname.pwd)}:#{callers[1]} is overriding an existing method called #{name}"
         end
@@ -403,6 +422,33 @@ module Origen
     end
 
     private
+
+    # @api private
+    # find the block directory path containing the namespace of options[:class_name]
+    def _find_block_dir(options, current_path = nil, remaining_namespace = nil)
+      current_path ||= Pathname.new("#{Origen.root}/app/blocks")
+      remaining_namespace ||= options[:class_name].split('::')[1..-1].map(&:underscore)
+      current_namespace = remaining_namespace.shift
+      if current_namespace
+        if current_path.join(current_namespace).exist?
+          return _find_block_dir(options, current_path.join(current_namespace), remaining_namespace)
+        elsif current_path.join("derivatives/#{current_namespace}").exist?
+          return _find_block_dir(options, current_path.join("derivatives/#{current_namespace}"), remaining_namespace)
+        elsif current_path.join("sub_blocks/#{current_namespace}").exist?
+          return _find_block_dir(options, current_path.join("sub_blocks/#{current_namespace}"), remaining_namespace)
+        else
+          Origen.log.error "Could not find block dir for namespace #{options[:class_name]}!"
+          fail
+        end
+      else
+        if current_path.join('model.rb').exist?
+          return current_path.to_s
+        else
+          Origen.log.error "Could not find block dir for namespace #{options[:class_name]}!"
+          fail
+        end
+      end
+    end
 
     def instantiate_sub_block(name, klass, options)
       return sub_blocks[name] unless sub_blocks[name].is_a?(Placeholder)
