@@ -408,5 +408,63 @@ $dut = SOC::EAGLE_M352.new
 $dut.nvm.memories.size    # => 4
 ~~~  
 
+#### Overriding and Inheriting
+
+<mark><b>WARNING: </b>This is a beta feature, there still may be some bugs/undefined behavior when overriding or inheriting blocks.</mark>
+
+Ideally, you will not need to override or inherit blocks. But if you need to make some application
+specific overrides to methods defined in blocks that were instantiated in another application that
+you don't have control over, overriding may be the solution. Similarly, if you need to make an
+application specific derivative of a block thats been defined in another app, and it doesn't make
+sense to define the derivative in that app, then you may want to utilize the inherit functionality.
+
+##### Override
+
+Override allows you to recreate a block that already existed.
+For example, lets say that your dut included a sub block called 'dummy_block' of class
+`OtherApp::Block::BlockA` which was created in another app, and it instantiated a sub block
+called 'dummy_sub' of class `OtherApp::Block::BlockA::Sub1`.
+
+~~~ruby
+# file: app/blocks/dut/my_dut/sub_blocks.rb
+sub_block :dummy_block, class_name: 'OtherApp::Block::BlockA'
+~~~
+
+Which you can now access dummy_sub via `dut.dummy_block.dummy_sub`. But now lets say that your
+application needs a different sub block under dummy block, `MyApp::DUT::MyDut::Sub2`.
+
+You could override the existing `dut.dummy_block.dummy_sub` like so:
+
+~~~ruby
+# file: app/blocks/dut/my_dut/sub_blocks.rb
+sub_block :dummy_block, class_name: 'OtherApp::Block::BlockA'
+dummy_block.sub_block :dummy_sub, class_name: 'MyApp::DUT::MyDut::Sub2', override: true
+~~~
+
+##### Inherit
+
+Continuing the above example from Override, lets now say that you want your new
+`MyApp::DUT::MyDut::Sub2` sub block to inherit `OtherApp::Block::BlockA::Sub1` as a starting point.
+You can already mostly accomplish this the same way that derivatives operate by setting your class
+definitions in your model.rb and controller.rb files of `MyApp::DUT::MyDut::Sub2` to inherit the class
+of `OtherApp::Block::BlockA::Sub1`'s model.rb and controller.rb:
+
+~~~ruby
+# file: app/blocks/dut/my_dut/sub_blocks/sub2/model.rb
+class MyAPP::DUT::MyDut::Sub2 < OtherApp::Block::BlockA::Sub1
+
+# file: app/blocks/dut/my_dut/sub_blocks/sub2/controller.rb
+class MyAPP::DUT::MyDut::Sub2Controller < OtherApp::Block::BlockA::Sub1Controller
+~~~
+
+But what this does not do, is inherit the block files (attributes.rb, parameters.rb, etc...) associated
+with `OtherApp::Block::BlockA::Sub1`. To do that, you can also pass the inherit option to `sub_block`, which
+will instruct the block loader to pick up those files as well:
+
+~~~ruby
+# file: app/blocks/dut/my_dut/sub_blocks.rb
+sub_block :dummy_block, class_name: 'OtherApp::Block::BlockA'
+dummy_block.sub_block :dummy_sub, class_name: 'MyApp::DUT::MyDut::Sub2', override: true, inherit: 'OtherApp::Block::BlockA'
+~~~
 
 % end

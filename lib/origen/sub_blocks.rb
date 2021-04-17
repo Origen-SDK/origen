@@ -321,17 +321,24 @@ module Origen
         # attributes to an existing one
         if options[:override]
           sub_blocks.delete(name)
-          # this is to handle the case where a previously instantiated subblock wont allow
-          # the current class name to exist
-          # e.g. NamespaceA:B:C
-          # =>  NameSpaceX:Y:Z
-          # After requiring the files, constants become sane again:
-          # e.g. NamespaceA:B:C
-          # =>  NameSpaceA:B:C
-          if options[:class_name] != options[:class_name].constantize.to_s
-            block_dir = options[:block_file] || _find_block_dir(options)
-            Dir.glob("#{block_dir}/*.rb").each do |file|
-              require file
+          if options[:class_name]
+            begin
+              constantizable = !!options[:class_name].constantize
+            rescue NameError
+              constantizable = false
+            end
+            # this is to handle the case where a previously instantiated subblock wont allow
+            # the current class name to exist
+            # e.g. NamespaceA::B::C
+            # =>  NameSpaceX::Y::Z
+            # After requiring the files, constants become sane again:
+            # e.g. NamespaceA::B::C
+            # =>  NameSpaceA::B::C
+            if constantizable && (options[:class_name] != options[:class_name].constantize.to_s)
+              block_dir = options[:block_file] || _find_block_dir(options)
+              Dir.glob("#{block_dir}/*.rb").each do |file|
+                require file
+              end
             end
           end
         else
