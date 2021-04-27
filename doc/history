@@ -1,3 +1,13 @@
+<a class="anchor release_tag" name="v0_60_0"></a>
+<h1><a href="#v0_60_0">Tag: v0.60.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Cody Horton on 27-Apr-2021 09:27AM
+
+
+Added support for sub-block override and remote block file inheritance
+
 <a class="anchor release_tag" name="v0_59_8"></a>
 <h1><a href="#v0_59_8">Tag: v0.59.8</a></h1>
 
