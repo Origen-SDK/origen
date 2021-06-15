@@ -408,9 +408,12 @@ $dut = SOC::EAGLE_M352.new
 $dut.nvm.memories.size    # => 4
 ~~~  
 
-#### Overriding and Inheriting
+### Overriding and Inheriting
 
-<mark><b>WARNING: </b>This is a beta feature, there still may be some bugs/undefined behavior when overriding or inheriting blocks.</mark>
+<div class="alert alert-warning">
+  <strong>WARNING: </strong>This is a beta feature, there still may be some bugs/undefined behavior when overriding or inheriting blocks.
+</div>
+
 
 Ideally, you will not need to override or inherit blocks. But if you need to make some application
 specific overrides to methods defined in blocks that were instantiated in another application that
@@ -418,7 +421,7 @@ you don't have control over, overriding may be the solution. Similarly, if you n
 application specific derivative of a block thats been defined in another app, and it doesn't make
 sense to define the derivative in that app, then you may want to utilize the inherit functionality.
 
-##### Override
+#### Override
 
 Override allows you to recreate a block that already existed.
 For example, lets say that your dut included a sub block called 'dummy_block' of class
@@ -441,7 +444,35 @@ sub_block :dummy_block, class_name: 'OtherApp::Block::BlockA'
 dummy_block.sub_block :dummy_sub, class_name: 'MyApp::DUT::MyDut::Sub2', override: true
 ~~~
 
-##### Inherit
+##### skip_require_files
+
+When overriding, previously instantiated subblocks have already initialzed some namespaces, which can result in some funny constant behavior:
+
+~~~ruby
+NamespaceA::B::C
+=>  NameSpaceX::Y::Z
+~~~
+
+To get around this the override feature will require the relevant block files which returns the constant behavior back to sanity:
+
+~~~ruby
+NamespaceA::B::C
+=>  NameSpaceA::B::C
+~~~
+
+However, there are many block files which aren't meant to be required directly (e.g attributes.rb) as they could contain method calls which wouldn't
+be available at the time they are required. So by default, these kinds of block files are skipped.
+Specifically: attributes.rb, parameters.rb, pins.rb, registers.rb, sub_blocks.rb, and timesets.rb
+
+If you have other block files in your modeling that you need require to skip, you can do so by passing an array of files (without the extension) to the sub_block method as an option of `skip_require_files`:
+
+~~~ruby
+dummy_block.sub_block :dummy_sub, class_name: 'MyApp::DUT::MyDut::Sub2', override: true, skip_require_files: %w(file1 file2 file3)
+~~~
+
+Note however that you'll likely need to include the files that are skipped by default in your custom skip_require_files option as this will override the default array.
+
+#### Inherit
 
 Continuing the above example from Override, lets now say that you want your new
 `MyApp::DUT::MyDut::Sub2` sub block to inherit `OtherApp::Block::BlockA::Sub1` as a starting point.
