@@ -1,3 +1,15 @@
+<a class="anchor release_tag" name="v0_60_1"></a>
+<h1><a href="#v0_60_1">Tag: v0.60.1</a></h1>
+
+##### Branch: 'master'
+
+##### by priykuma on 17-Jun-2021 12:26PM
+
+
+* Released by [Cody Horton](@CodyBriscoe)
+
+ - bugfix for sub_block override feature: skip require on files that dont instantiate a namespace.
+
 <a class="anchor release_tag" name="v0_60_0"></a>
 <h1><a href="#v0_60_0">Tag: v0.60.0</a></h1>
 
