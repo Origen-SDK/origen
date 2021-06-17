@@ -336,7 +336,11 @@ module Origen
             # =>  NameSpaceA::B::C
             if constantizable && (options[:class_name] != options[:class_name].constantize.to_s)
               block_dir = options[:block_file] || _find_block_dir(options)
+              # files that aren't initializing a new namespace and have special loading shouldn't be required
+              # the code they contain may try to call methods that dont exist yet
+              skip_require_files = options[:skip_require_files] || %w(attributes parameters pins registers sub_blocks timesets)
               Dir.glob("#{block_dir}/*.rb").each do |file|
+                next if skip_require_files.include?(Pathname.new(file).basename('.rb').to_s)
                 require file
               end
             end
