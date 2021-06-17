@@ -57,7 +57,7 @@ PATH
       net-ldap (~> 0.13)
       nokogiri (>= 1.7.2)
       pry (~> 0.10)
-      rake (~> 10)
+      rake (>= 10, < 14)
       rspec (~> 3)
       rspec-legacy_formatters (~> 1)
       rubocop (= 0.30)
@@ -154,7 +154,7 @@ GEM
       method_source (~> 1.0)
     rainbow (2.2.2)
       rake
-    rake (10.5.0)
+    rake (13.0.3)
     require_all (1.5.0)
     rest-client (2.1.0)
       http-accept (>= 1.7.0, < 2.0)
