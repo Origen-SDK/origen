@@ -40,7 +40,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "kramdown", "~>1.5"
   spec.add_runtime_dependency "rubocop", "0.30"
   spec.add_runtime_dependency "coderay", "~>1.1"
-  spec.add_runtime_dependency "rake", "~>10"
+  spec.add_runtime_dependency "rake", ">=10", "<14"
   spec.add_runtime_dependency "pry", "~>0.10"
   spec.add_runtime_dependency "yard", "~>0.8"
   spec.add_runtime_dependency "simplecov", "~>0.17" # simplecov version 0.17 is the last release that supports older Ruby versions (< 2.4)
