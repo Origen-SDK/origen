@@ -134,30 +134,36 @@ module Origen
       #
       # @api private
       def record_invocation(options)
-        # record_invocation = false
-        # begin
-        #  # Only record user invocations at this time, also bypass windows since it seems
-        #  # that threads can't be trusted not to block
-        #  unless Origen.running_remotely? # || Origen.running_on_windows?
-        #    record_invocation = Thread.new do
-        #      Origen.client.record_invocation(options[:action]) if options[:action]
-        #    end
-        #  end
-        # rescue
-        #  # Don't allow this to kill an origen command
-        # end
+        if Origen.site_config.record_invocation == true
+          record_invocation = false
+          begin
+            # Only record user invocations at this time, also bypass windows since it seems
+            # that threads can't be trusted not to block
+            unless Origen.running_remotely? # || Origen.running_on_windows?
+              # rubocop:disable Style/RescueModifier
+              record_invocation = Thread.new(report_on_exception: false) do
+                Origen.client.record_invocation(options[:action]) if options[:action]
+                rescue Errno::ECONNREFUSED
+                # Dont allow server being down to flood the screen with the stacktrace
+              end
+              # rubocop:enable Style/RescueModifier
+            end
+           rescue
+            # Don't allow this to kill an origen command
+          end
         yield
-        # begin
-        #  unless Origen.running_remotely?
-        #    # Wait for a server response, ideally would like to not wait here, but it seems if not
-        #    # then invocation postings can be dropped, especially on windows
-        #    Origen.profile 'waiting for recording invocation' do
-        #      record_invocation.value
-        #    end
-        #  end
-        # rescue
-        #  # Don't allow this to kill an origen command
-        # end
+          begin
+            unless Origen.running_remotely?
+              # Wait for a server response, ideally would like to not wait here, but it seems if not
+              # then invocation postings can be dropped, especially on windows
+              Origen.profile 'waiting for recording invocation' do
+                record_invocation.value
+              end
+            end
+           rescue
+            # Don't allow this to kill an origen command
+          end
+        end
       end
 
       # The action to take should be set by the action option, but legacy code will pass
