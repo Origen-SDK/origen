@@ -151,7 +151,7 @@ module Origen
            rescue
             # Don't allow this to kill an origen command
           end
-        yield
+          yield
           begin
             unless Origen.running_remotely?
               # Wait for a server response, ideally would like to not wait here, but it seems if not
