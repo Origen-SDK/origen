@@ -1,3 +1,13 @@
+<a class="anchor release_tag" name="v0_60_2"></a>
+<h1><a href="#v0_60_2">Tag: v0.60.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 10-Aug-2021 13:26PM
+
+
+* Enabled invocation tracking, setup gated by site config variables
+
 <a class="anchor release_tag" name="v0_60_1"></a>
 <h1><a href="#v0_60_1">Tag: v0.60.1</a></h1>
 
