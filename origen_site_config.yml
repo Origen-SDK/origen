@@ -146,9 +146,11 @@ gem_use_from_system:
 #ldap_user_id_attribute: uid
 
 # LSF Configuration
-lsf_queue: 'batchq'
-lsf_group: 'nil'
-lsf_project: 'msg.te'
-lsf_resource: 'rhel6'
-lsf_cores: '1'
+# lsf_queue: 'batchq'
+# lsf_group: 'nil'
+# lsf_project: 'msg.te'
+# lsf_resource: 'rhel6'
+# lsf_cores: '1'
+
+# lsf_debug is needed for spec tests on the core.
 lsf_debug: 'false'
