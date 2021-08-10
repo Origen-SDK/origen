@@ -141,7 +141,7 @@ module Origen
             # that threads can't be trusted not to block
             unless Origen.running_remotely? # || Origen.running_on_windows?
               # rubocop:disable Style/RescueModifier
-              record_invocation = Thread.new(report_on_exception: false) do
+              record_invocation = Thread.new do
                 Origen.client.record_invocation(options[:action]) if options[:action]
                 rescue Errno::ECONNREFUSED
                 # Dont allow server being down to flood the screen with the stacktrace
@@ -151,7 +151,11 @@ module Origen
            rescue
             # Don't allow this to kill an origen command
           end
-          yield
+        end
+        # yield here is really important for the callback tests!!
+        yield
+
+        if Origen.site_config.record_invocation == true
           begin
             unless Origen.running_remotely?
               # Wait for a server response, ideally would like to not wait here, but it seems if not
