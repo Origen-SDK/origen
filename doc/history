@@ -1,3 +1,13 @@
+<a class="anchor release_tag" name="v0_60_3"></a>
+<h1><a href="#v0_60_3">Tag: v0.60.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 12-Aug-2021 11:36AM
+
+
+* commented out default values for the LSF grid from the site config.
+
 <a class="anchor release_tag" name="v0_60_2"></a>
 <h1><a href="#v0_60_2">Tag: v0.60.2</a></h1>
 
