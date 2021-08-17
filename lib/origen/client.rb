@@ -5,7 +5,7 @@ module Origen
     #   https://github.com/jnunemaker/httparty/tree/v0.9.0
 
     require 'json'
-    # require 'httparty'
+    require 'net/http'
     # include HTTParty
 
     USE_DEV_SERVER = false
