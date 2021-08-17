@@ -143,7 +143,7 @@ module Origen
               # rubocop:disable Style/RescueModifier
               record_invocation = Thread.new do
                 Origen.client.record_invocation(options[:action]) if options[:action]
-                rescue Errno::ECONNREFUSED
+                rescue
                 # Dont allow server being down to flood the screen with the stacktrace
               end
               # rubocop:enable Style/RescueModifier
