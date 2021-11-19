@@ -333,9 +333,9 @@ module Origen
           stats.total_duration += @total_duration
           stats.completed_files += @completed_files
           stats.changed_patterns += @changed_patterns
-          stats.changed_files +=  @changed_files
+          stats.changed_files += @changed_files
           stats.new_patterns += @new_patterns
-          stats.new_files +=  @new_files
+          stats.new_files += @new_files
           stats.failed_patterns += @failed_patterns
           stats.failed_files += @failed_files
         end
