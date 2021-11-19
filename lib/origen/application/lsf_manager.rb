@@ -253,6 +253,16 @@ module Origen
 
       # Build the log file from the completed jobs
       def build_log(options = {})
+        @completed_patterns = 0
+        @total_vectors = 0
+        @total_duration = 0
+        @completed_files = 0
+        @changed_patterns = 0
+        @changed_files = 0
+        @new_patterns = 0
+        @new_files = 0
+        @failed_patterns = 0
+        @failed_files = 0
         log_method = options[:log_file] ? options[:log_file] : :info
         Origen.log.send(log_method, '*' * 70)
         completed_jobs.each do |job|
@@ -271,25 +281,25 @@ module Origen
               begin
                 line.gsub!(/\e\[\d+m/, '')  # Remove any coloring
                 if line =~ /Total patterns:\s+(\d+)/
-                  stats.completed_patterns += Regexp.last_match[1].to_i
+                  @completed_patterns = Regexp.last_match[1].to_i
                 elsif line =~ /Total vectors:\s+(\d+)/
-                  stats.total_vectors += Regexp.last_match[1].to_i
+                  @total_vectors = Regexp.last_match[1].to_i
                 elsif line =~ /Total duration:\s+(\d+\.\d+)/
-                  stats.total_duration += Regexp.last_match[1].to_f
+                  @total_duration = Regexp.last_match[1].to_f
                 elsif line =~ /Total files:\s+(\d+)/
-                  stats.completed_files += Regexp.last_match[1].to_i
+                  @completed_files = Regexp.last_match[1].to_i
                 elsif line =~ /Changed patterns:\s+(\d+)/
-                  stats.changed_patterns += Regexp.last_match[1].to_i
+                  @changed_patterns = Regexp.last_match[1].to_i
                 elsif line =~ /Changed files:\s+(\d+)/
-                  stats.changed_files += Regexp.last_match[1].to_i
+                  @changed_files = Regexp.last_match[1].to_i
                 elsif line =~ /New patterns:\s+(\d+)/
-                  stats.new_patterns += Regexp.last_match[1].to_i
+                  @new_patterns = Regexp.last_match[1].to_i
                 elsif line =~ /New files:\s+(\d+)/
-                  stats.new_files += Regexp.last_match[1].to_i
+                  @new_files = Regexp.last_match[1].to_i
                 elsif line =~ /FAILED patterns:\s+(\d+)/
-                  stats.failed_patterns += Regexp.last_match[1].to_i
+                  @failed_patterns = Regexp.last_match[1].to_i
                 elsif line =~ /FAILED files:\s+(\d+)/
-                  stats.failed_files += Regexp.last_match[1].to_i
+                  @failed_files = Regexp.last_match[1].to_i
                 elsif line =~ /ERROR!/
                   stats.errors += 1
                   Origen.log.send :relog, line, options
@@ -318,6 +328,16 @@ module Origen
               end
             end
           end
+          stats.completed_patterns += @completed_patterns
+          stats.total_vectors += @total_vectors
+          stats.total_duration += @total_duration
+          stats.completed_files += @completed_files
+          stats.changed_patterns += @changed_patterns
+          stats.changed_files += @changed_files
+          stats.new_patterns += @new_patterns
+          stats.new_files += @new_files
+          stats.failed_patterns += @failed_patterns
+          stats.failed_files += @failed_files
         end
         Origen.log.send(log_method, '*' * 70)
         stats.print_summary
