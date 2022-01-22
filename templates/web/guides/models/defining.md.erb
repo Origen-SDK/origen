@@ -498,4 +498,14 @@ sub_block :dummy_block, class_name: 'OtherApp::Block::BlockA'
 dummy_block.sub_block :dummy_sub, class_name: 'MyApp::DUT::MyDut::Sub2', override: true, inherit: 'OtherApp::Block::BlockA'
 ~~~
 
+##### Bug and Feature inheritance
+
+By default, if the inherit option is passed it will attempt to propagate any features and bugs from the class specified in the inherit option to the sub block being defined.
+If you'd like to prevent either from happening, then you can pass either disable_bug_inheritance and/or disable_feature_inheritance options to the sub_block method:
+
+~~~ruby
+dummy_block.sub_block :dummy_sub, class_name: 'MyApp::DUT::MyDut::Sub2', override: true, inherit: 'OtherApp::Block::BlockA', disable_bug_inheritance: true, disable_feature_inheritance: true
+~~~
+
+
 % end

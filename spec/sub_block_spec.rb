@@ -34,6 +34,10 @@ module SubBlocksSpec
       sub_block :sub5, class_name: "Sub3", abs_path: "ftf3.blah", override: options[:override]
       sub_block :sub6, class_name: "Sub3", override: options[:override]
       sub_block :sub7, class_name: "Sub2", path: :hidden, base_address: 0x7000_0000, override: options[:override]
+      sub_block :sub8, class_name: "Sub6", override: options[:override], inherit: 'SubBlocksSpec::Sub4'
+      sub_block :sub9, class_name: "Sub7", override: options[:override], inherit: 'SubBlocksSpec::Sub5'
+      sub_block :sub10, class_name: "Sub8", override: options[:override], inherit: 'SubBlocksSpec::Sub4', disable_bug_inheritance: true
+      sub_block :sub11, class_name: "Sub9", override: options[:override], inherit: 'SubBlocksSpec::Sub5', disable_feature_inheritance: true
 
       sub_block_group :subgroups, class_name: "SubBlocksSpec::Subs" do
         sub_block :subitem0, class_name: "SubItem0", base_address: 0x000, some_attr: "There are two kinds of people"
@@ -83,6 +87,70 @@ module SubBlocksSpec
       end
     end
   end
+
+  class Sub4
+    include Origen::Model
+
+    bug :sub4_bug
+
+    def initialize
+    end
+  end
+
+  class Sub5
+    include Origen::Model
+
+    feature :sub5_feature
+
+    def initialize
+    end
+  end
+
+  class Sub6
+    include Origen::Model
+
+    feature :default_feature
+    bug :default_bug
+
+    def initialize
+      @version = 0
+    end
+  end
+
+  class Sub7
+    include Origen::Model
+
+    feature :default_feature
+    bug :default_bug
+
+    def initialize
+      @version = 0
+    end
+  end
+
+  class Sub8
+    include Origen::Model
+
+    feature :default_feature
+    bug :default_bug
+
+    def initialize
+      @version = 0
+    end
+  end
+
+  class Sub9
+    include Origen::Model
+
+    feature :default_feature
+    bug :default_bug
+
+    def initialize
+      @version = 0
+    end
+  end
+
+
 
   class Subs < ::Array
     def <<(sub_block)
@@ -653,6 +721,45 @@ module SubBlocksSpec
           m.blah.is_a?(Origen::SubBlock).should == true
           m.sub_block[:blah].is_a?(Origen::SubBlock).should == true
           m.sub_blocks[:blah].is_a?(Origen::SubBlock).should == true
+        end
+
+        describe 'sub_block inheritance' do 
+
+          it 'can inherit bugs' do
+            c = Top.new(override: override_setting)
+            b = c.sub8
+            b.has_bug?(:sub4_bug).should == true
+            b.has_bug?(:default_bug).should == true
+            b.has_feature?(:sub5_feature).should == false
+            b.has_feature?(:default_feature).should == true
+          end
+
+          it 'can disable inheritance of bugs' do
+            c = Top.new(override: override_setting)
+            b = c.sub10
+            b.has_bug?(:sub4_bug).should == false
+            b.has_bug?(:default_bug).should == true
+            b.has_feature?(:sub5_feature).should == false
+            b.has_feature?(:default_feature).should == true
+          end
+
+          it 'can inherit features' do
+            c = Top.new(override: override_setting)
+            b = c.sub9
+            b.has_bug?(:sub4_bug).should == false
+            b.has_bug?(:default_bug).should == true
+            b.has_feature?(:sub5_feature).should == true
+            b.has_feature?(:default_feature).should == true
+          end
+
+          it 'can disable inheritance of features' do
+            c = Top.new(override: override_setting)
+            b = c.sub11
+            b.has_bug?(:sub4_bug).should == false
+            b.has_bug?(:default_bug).should == true
+            b.has_feature?(:sub5_feature).should == false
+            b.has_feature?(:default_feature).should == true
+          end
         end
 
       end
