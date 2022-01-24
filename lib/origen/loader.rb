@@ -117,11 +117,23 @@ module Origen
     # If a block definition exists for the given model, then this will load it and apply it to
     # the model.
     # if options[:inherit] is passed, it will first try to load the files for the class name contained
-    # in that option, even if its from a plugin app
+    # in that option, even if its from a plugin app. Additionally, any bugs/features will be inherited
+    # as well unless disable_bug_inheritance or disable_feature_inheritance options are passed
     # Returns true if a model is found and loaded, otherwise nil.
     def self.load_block(model, options = {})
       model = model.model  # Ensure we have a handle on the model and not its controller
       loaded = nil
+
+      if options[:inherit]
+        # pass down any bugs/features from the inherited block class
+        unless options[:disable_bug_inheritance]
+          model.class.instance_variable_set(:@bugs, options[:inherit].constantize.bugs.merge(model.class.bugs))
+        end
+        unless options[:disable_feature_inheritance]
+          model.class.instance_variable_set(:@features, options[:inherit].constantize.features.merge(model.class.features))
+        end
+      end
+
       if local_app = options[:app] || model.app
         if options[:path]
           local_full_paths = Array(options[:path])
@@ -132,6 +144,7 @@ module Origen
         end
         app_paths_map = { local_app => local_full_paths }
         if options[:inherit]
+          # update app_paths_map with the relevant inherited files
           inherit_full_paths = options[:inherit].split('::')
           inherit_app = Origen.app(inherit_full_paths.shift.underscore.to_sym)
           inherit_full_paths = [inherit_full_paths.join('/')]
