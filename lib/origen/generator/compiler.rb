@@ -39,9 +39,10 @@ module Origen
       # to the destination un-altered
       def compile(file_or_dir, options = {})
         options = {
-          check_for_changes: true,
-          sub_template:      false,
-          collect_stats:     true
+          check_for_changes:  true,
+          sub_template:       false,
+          collect_stats:      true,
+          ignore_blank_lines: true
         }.merge(options)
         @scope = options[:scope]
         # Doing here so the output_directory (requiring target load) doesn't get hit if
@@ -130,7 +131,7 @@ module Origen
           if @check_for_changes
             check_for_changes(output_file(file, options), reference_file(file, options),
                               comment_char: Origen.app.tester ? Origen.app.tester.program_comment_char : nil,
-                              compile_job:  true)
+                              compile_job:  true, ignore_blank_lines: options[:ignore_blank_lines])
           end
         end
       end

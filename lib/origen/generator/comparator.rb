@@ -13,7 +13,7 @@ module Origen
         }.merge(options)
 
         if File.exist?(old)
-          if Utility::Diff.new(file_a: new, file_b: old, ignore_blank_lines: true,
+          if Utility::Diff.new(file_a: new, file_b: old, ignore_blank_lines: options[:ignore_blank_lines],
                                comment_char: options[:comment_char],
                                suspend_string: options[:suspend_string],
                                resume_string: options[:resume_string]).diffs?
