@@ -1,3 +1,13 @@
+<a class="anchor release_tag" name="v0_60_7"></a>
+<h1><a href="#v0_60_7">Tag: v0.60.7</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 11-Feb-2022 10:52AM
+
+
+* Added an option to not ignore blank lines during compile
+
 <a class="anchor release_tag" name="v0_60_6"></a>
 <h1><a href="#v0_60_6">Tag: v0.60.6</a></h1>
 
