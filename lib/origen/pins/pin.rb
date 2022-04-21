@@ -1095,7 +1095,7 @@ module Origen
       end
 
       def index(options = { context: nil })
-	    context = options[:context]
+        context = options[:context]
         if context.is_a?(Symbol)
           # Context pin group provided
           group = groups[context].instance_variable_get(:@store)
@@ -1116,7 +1116,7 @@ module Origen
       end
 
       def mask(options = { context: nil })
-	    context = options[:context]
+        context = options[:context]
         index = context.is_a?(Integer) ? context : self.index(context: context)
 
         if index.nil? && context.nil?
@@ -1133,9 +1133,9 @@ module Origen
       alias_method :smask, :mask
 
       def clear_mask(options = { context: nil, size: nil })
-	    context = options[:context]
-		size = options[:size]
-		
+        context = options[:context]
+        size = options[:size]
+
         index = context.is_a?(Integer) ? context : self.index(context: context)
 
         if index.nil? && context.nil?
