@@ -186,7 +186,7 @@ module Origen
     alias_method :dev, :pre
 
     def latest?
-      downcase.orig_equal?('trunk') || downcase.orig_equal?('latest')
+      downcase.to_s.eql?('trunk') || downcase.to_s.eql?('latest')
     end
 
     # Returns true if the version is a timestamp format version number
