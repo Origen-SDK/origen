@@ -20,6 +20,7 @@ jobs:
     - name: Install Bundler
       run: gem install bundler -v '> 2'
     - name: Install dependencies
+      run: rm Gemfile.lock
       run: bundle install  
     - name: Gem Install Origen 
       run: gem install origen 
