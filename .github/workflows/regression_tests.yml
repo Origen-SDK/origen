@@ -20,10 +20,10 @@ jobs:
       run: echo "ACTIONS_ALLOW_UNSECURE_COMMANDS=true" >> $GITHUB_ENV
 #    - name: Install Bundler
 #      run: gem install bundler -v '> 2'
+    - name: Gem Install Origen 
+      run: gem install origen --version 0.60.7
     - name: Install dependencies
       run: bundle install  
-    - name: Gem Install Origen 
-      run: gem install origen 
     - name: Setup Dependencies
       run: origen -v
     - name: Run Origen Lint
