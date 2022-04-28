@@ -1,4 +1,4 @@
-name: Origen Core Regression Tests
+name: Origen Core Regression Tests - Ruby 3
 on: [push, pull_request]
 jobs:
   build:
