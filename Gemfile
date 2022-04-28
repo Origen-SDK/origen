@@ -14,7 +14,6 @@ gem 'origen_debuggers', '~> 0'
 gem 'ripper-tags'
 # gem 'nokogiri', '1.10.10'  # Lock to this version to enable testing in Ruby 2.2
 gem 'nokogiri'
-gem 'kramdown', '2.4.0'
 
 # Plugins that provide guide pages
 gem "origen_testers", git: "https://github.com/Origen-SDK/origen_testers.git"
