@@ -6,7 +6,7 @@ jobs:
       matrix:
 #        os: [ubuntu-latest, windows-latest]
         os: [ubuntu-latest]
-        ruby-version: [2.6, 2.7, 3.0, 3.1]
+        ruby-version: [2.5, 2.6, 2.7]
 
     runs-on: ${{ matrix.os }}
 
@@ -24,10 +24,8 @@ jobs:
       run: rm Gemfile.lock
     - name: Install dependencies
       run: bundle install  
-    - name: Gem Build Origen
-      run: gem build origen.gemspec --output origen.gem
     - name: Gem Install Origen 
-      run: gem install origen.gem 
+      run: gem install origen 
     - name: Setup Dependencies
       run: origen -v
     - name: Run Origen Lint
