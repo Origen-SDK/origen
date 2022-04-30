@@ -6,7 +6,7 @@ jobs:
       matrix:
 #        os: [ubuntu-latest, windows-latest]
         os: [ubuntu-latest]
-        ruby-version: [3.0]
+        ruby-version: [3.0.4]
 
     runs-on: ${{ matrix.os }}
 
