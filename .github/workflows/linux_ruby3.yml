@@ -30,6 +30,8 @@ jobs:
       run: gem install origen.gem 
     - name: Setup Dependencies
       run: origen -v
+    - name: Run Origen Lint
+      run: origen lint --no-correct  
     - name: Set Origen to debug mode
       run: origen m debug
     - name: Run Spec tests
