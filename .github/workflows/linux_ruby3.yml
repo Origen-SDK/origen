@@ -36,3 +36,5 @@ jobs:
       run: origen m debug
     - name: Run Spec tests
       run: origen test -c
+    - name: Verify Building website
+      run: origen web compile --no-serve
