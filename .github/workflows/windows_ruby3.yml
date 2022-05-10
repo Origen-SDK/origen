@@ -1,4 +1,4 @@
-name: Origen Core Regression Tests - Windows
+name: Origen Core Regression Tests - Windows Ruby 3
 on: [push, pull_request]
 jobs:
   build:
@@ -6,7 +6,7 @@ jobs:
       matrix:
 #        os: [ubuntu-latest, windows-latest]
         os: [windows-latest]
-        ruby-version: [2.5, 2.6, 2.7]
+        ruby-version: [3.0.4]
 
     runs-on: ${{ matrix.os }}
 
@@ -24,8 +24,10 @@ jobs:
       run: rm Gemfile.lock
     - name: Install dependencies
       run: bundle install  
+    - name: Build Origen Gem
+      run: gem build origen.gemspec --output origen.gem    
     - name: Gem Install Origen 
-      run: gem install origen 
+      run: gem install origen.gem 
     - name: Setup Dependencies
       run: origen -v
     - name: Run Origen Lint
