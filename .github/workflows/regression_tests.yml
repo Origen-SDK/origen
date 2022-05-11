@@ -25,7 +25,7 @@ jobs:
     - name: Install dependencies
       run: bundle install  
     - name: Build Origen Gem
-      if: ruby-version == 3.0.4
+      if: matrix.ruby-version == 3.0.4
       run: gem build origen.gemspec --output origen.gem    
     - name: Gem Install Origen 
       run: gem install origen 
