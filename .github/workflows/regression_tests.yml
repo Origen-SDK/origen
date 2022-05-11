@@ -5,7 +5,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        ruby-version: [2.5, 2.6, 2.7, 3.0.4]
+        ruby-version: [2.5, 2.6, 2.7, 3.0.4, 3.1]
 
     runs-on: ${{ matrix.os }}
 
@@ -26,10 +26,10 @@ jobs:
       
     # Work around Ruby 3 gem install issue
     - name: Build Origen Gem - Ruby 3 work around
-      if: matrix.ruby-version == '3.0.4'
+      if: matrix.ruby-version == '3.0.4' || matrix.ruby-version == '3.1'
       run: gem build origen.gemspec --output origen.gem    
     - name: Gem Install Origen - Ruby 3 work around 
-      if: matrix.ruby-version == '3.0.4'
+      if: matrix.ruby-version == '3.0.4' || matrix.ruby-version == '3.1'
       run: gem install origen.gem 
       
     # Normal way of installing origen
@@ -39,7 +39,10 @@ jobs:
       
     - name: Setup Dependencies
       run: origen -v
+
+    # Rubocop 0.30.0 is not compatible with Ruby 3.1
     - name: Run Origen Lint
+      if: matrix.ruby-version == '2.5' || matrix.ruby-version == '2.6' || matrix.ruby-version == '2.7' || matrix.ruby-version == '3.0.4'
       run: origen lint --no-correct  
     - name: Set Origen to debug mode
       run: origen m debug
