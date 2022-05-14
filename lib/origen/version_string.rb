@@ -145,7 +145,7 @@ module Origen
         else
           fail "#{self} is not a valid semantic version number!"
         end
-      
+
     end
 
     def minor
@@ -155,7 +155,7 @@ module Origen
         else
           fail "#{self} is not a valid semantic version number!"
         end
-      
+
     end
 
     def bugfix
@@ -165,7 +165,7 @@ module Origen
         else
           fail "#{self} is not a valid semantic version number!"
         end
-      
+
     end
     alias_method :tiny, :bugfix
 
@@ -177,7 +177,7 @@ module Origen
         else
           fail "#{self} is not a valid semantic version number!"
         end
-      
+
     end
     alias_method :dev, :pre
 

@@ -90,7 +90,7 @@ module Origen
           @email ||= if Origen.site_config.email_domain
               "#{id}@#{Origen.site_config.email_domain}"
             end
-          
+
         end
       end
 

@@ -59,7 +59,7 @@ END_OF_MESSAGE
               else
                 [options[:domain], options[:auth_user], options[:auth_password], options[:authentication]]
               end
-            
+
 
             smtp.start(*opts) do |m|
               m.send_message(msg, options[:from], addr)

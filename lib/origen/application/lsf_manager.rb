@@ -278,7 +278,7 @@ module Origen
               #   New files:        0
               #   Changed files:    0
               #   FAILED files:     1
-              
+
                 line.gsub!(/\e\[\d+m/, '') # Remove any coloring
                 if line =~ /Total patterns:\s+(\d+)/
                   @completed_patterns = Regexp.last_match[1].to_i
@@ -325,7 +325,7 @@ module Origen
                 # Sometimes illegal UTF-8 characters can get into crash dumps, if this
                 # happens just print the line out rather than die
                 Origen.log.error line
-              
+
             end
           end
           stats.completed_patterns += @completed_patterns
@@ -628,11 +628,11 @@ module Origen
       def restore_remote_jobs
         if File.exist?(remote_jobs_file)
           File.open(remote_jobs_file) do |f|
-            
+
               Marshal.load(f)
             rescue
               nil
-            
+
           end
         end
       end

@@ -473,7 +473,7 @@ unless defined? RGen::ORIGENTRANSITION
       # In most cases this should never need to be called directly and will be called
       # automatically the first time the application is referenced via Origen.app
       def load_application(options = {})
-        
+
           # If running globally (outside of an app workspace), instantiate a bare bones app to help
           # many of Origen's features that expect an app to be present.
           @application ||= if running_globally?
@@ -522,7 +522,7 @@ unless defined? RGen::ORIGENTRANSITION
             Array(@after_app_loaded_blocks).each { |b| b.call(@application) }
             @application
           end
-        
+
       end
 
       # Sometimes it is necessary to refer to the app instance before it is fully loaded, which can lead to runtime

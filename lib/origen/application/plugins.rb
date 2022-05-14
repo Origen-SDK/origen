@@ -44,7 +44,7 @@ module Origen
           elsif Origen.app.config.default_plugin && !Origen.app.session.origen_core[:default_plugin_cleared_by_user]
             Origen.app.config.default_plugin
           end
-        
+
         find { |p| p.name.to_sym == name } if name
       end
 

@@ -266,7 +266,7 @@ module Origen
     # hash keys
     def all_sub_blocks
       @all_sub_blocks ||= (sub_blocks_array + sub_blocks_array.map(&:all_sub_blocks)).flatten
-      
+
     end
 
     # Returns true if the given sub block owns at least one register

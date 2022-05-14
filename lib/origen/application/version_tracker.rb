@@ -24,11 +24,11 @@ module Origen
 
         if File.exist?(STORAGE_FILE)
           File.open(STORAGE_FILE) do |f|
-            
+
               @storage = Marshal.load(f)
             rescue
               @storage = {}
-            
+
           end
         else
           @storage = {}

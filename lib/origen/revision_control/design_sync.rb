@@ -283,7 +283,7 @@ module Origen
           else
             'file://'
           end
-        
+
       end
 
       def initialize_local_dir(options = {})

@@ -9,7 +9,7 @@ module Origen
         else
           netlist_top_level.netlist
         end
-      
+
     end
 
     def netlist_top_level

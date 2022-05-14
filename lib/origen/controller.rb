@@ -86,7 +86,7 @@ module Origen
           end
           m
         end
-      
+
     end
 
     # When compared to another object, a controller will consider itself equal if either the controller

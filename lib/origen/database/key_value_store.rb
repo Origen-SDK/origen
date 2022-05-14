@@ -100,7 +100,7 @@ module Origen
             @uncommitted = true
             { refresh_interval_in_minutes: 60 }
           end
-        
+
       end
 
       def load_from_file

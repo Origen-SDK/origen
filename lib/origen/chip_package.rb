@@ -129,13 +129,13 @@ module Origen
         @groups << "#{marker} - Power"
         pin_list.each do |item|
           # puts items,owner.pins[items].location
-          
+
             coordinates = coordinate(item.location)
             @field[coordinates[0]][coordinates[1]] = [marker.red + ' ']
           rescue
             puts "#{item} doesn't appear to have a physical location in this configuration."
             puts "Current package = #{owner.package}"
-          
+
         end
         generate_field
       end
@@ -151,12 +151,12 @@ module Origen
         pin_list = owner.ground_pins.map { |_ken, pin| pin }
         @groups << "#{marker} - Ground"
         pin_list.each do |item|
-          
+
             coordinates = coordinate(item.location)
             @field[coordinates[0]][coordinates[1]] = [marker.green + ' ']
           rescue
             puts "#{item} doesn't appear to have a physical location in this configuration."
-          
+
         end
         generate_field
       end
@@ -299,14 +299,14 @@ module Origen
           end
           reg_state = quote_regex(pinName)
           found_pins.each do |item|
-            
+
               coordinates = coordinate(item.location)
               @field[coordinates[0]][coordinates[1]] = [marker + ' ']
               @groups.delete_if { |group| "#{marker} - \"#{reg_state}\"" == group }
               @groups << "#{marker} - \"#{pinName}\""
             rescue
               raise "\n#{item} doesn't appear to have a physical location in this configuration."
-            
+
           end
         end
         generate_field
