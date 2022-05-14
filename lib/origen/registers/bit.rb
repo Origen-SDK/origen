@@ -100,7 +100,7 @@ module Origen
       # Can be set to indicate that the current state of the bit is unknown, e.g. after reading X from a simulation
       attr_accessor :unknown
 
-      def initialize(owner, position, options = {}) # rubocop:disable MethodLength
+      def initialize(owner, position, options = {}) # rubocop:disable Metrics/MethodLength
         options = {
           start:                   false,        # whether bit starts a state machine so be careful
           read_data_matches_write: true,

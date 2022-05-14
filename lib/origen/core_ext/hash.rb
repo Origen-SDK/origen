@@ -33,7 +33,7 @@ class Hash
       when NilClass then true
       else true
     end
-    # rubocop:disable UnusedBlockArgument
+    # rubocop:disable Lint/UnusedBlockArgument
     filtered_hash = select do |k, v|
       [TrueClass, FalseClass].include?(select_logic.class) ? select_logic : !!eval(select_logic)
     end

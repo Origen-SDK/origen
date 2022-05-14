@@ -654,7 +654,7 @@ module Origen
         when NilClass then true # Return all specs if a filter is set to nil (i.e. user doesn't care about this filter)
         else true
       end
-      # rubocop:disable UnusedBlockArgument
+      # rubocop:disable Lint/UnusedBlockArgument
       filtered_hash = hash.select do |k, v|
         # binding.pry if filter == 'SubSection A'
         [TrueClass, FalseClass].include?(select_logic.class) ? select_logic : eval(select_logic)
