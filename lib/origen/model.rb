@@ -130,7 +130,7 @@ module Origen
 
     def wrap_in_controller
       c = Origen.controllers.find do |params|
-        self.is_a?(params[:model_class]) if params[:model_class]
+        is_a?(params[:model_class]) if params[:model_class]
       end
       if c
         c = c[:controller_class].send(:allocate)
@@ -178,7 +178,7 @@ module Origen
     end
 
     def current_configuration
-      if self.respond_to?(:configuration)
+      if respond_to?(:configuration)
         configuration
       end
     end
@@ -312,7 +312,7 @@ module Origen
     def find_specs
       specs_found = []
       # Check for specs the object owns
-      if self.respond_to? :specs
+      if respond_to? :specs
         object_specs = specs
         unless object_specs.nil?
           if object_specs.class == Origen::Specs::Spec

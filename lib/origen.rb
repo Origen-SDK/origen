@@ -473,56 +473,54 @@ unless defined? RGen::ORIGENTRANSITION
       # In most cases this should never need to be called directly and will be called
       # automatically the first time the application is referenced via Origen.app
       def load_application(options = {})
-
-          # If running globally (outside of an app workspace), instantiate a bare bones app to help
-          # many of Origen's features that expect an app to be present.
-          @application ||= if running_globally?
-            @plugins_loaded = true
-            # Now load the app
-            @loading_top_level = true
-            require 'origen/global_app'
-            @application = _applications_lookup[:root][root.to_s]
-            @loading_top_level = false
-            @application_loaded = true
-            @application
-          else
-            # Make sure the top-level root is always in the load path, it seems that some existing
-            # plugins do some strange things to require stuff from the top-level app and rely on this
-            path = File.join(root, 'lib')
-            $LOAD_PATH.unshift(path) unless $LOAD_PATH.include?(path)
-            if File.exist?(File.join(root, 'Gemfile')) && !@with_boot_environment
-              # Don't understand the rules here, belt and braces approach for now to make
-              # sure that all Origen plugins are auto-required (otherwise Origen won't know
-              # about them to plug them into the application)
-              Bundler.require
-              Bundler.require(:development)
-              Bundler.require(:runtime)
-              Bundler.require(:default)
-            end
-            @plugins_loaded = true
-            # Now load the app
-            @loading_top_level = true
-            require File.join(root, APP_CONFIG)
-            @application = _applications_lookup[:root][root.to_s]
-            @loading_top_level = false
-            if @with_boot_environment
-              @application.plugins.disable_current
-            else
-              Origen.remote_manager.require!
-            end
-            boot = File.join(root, 'config', 'boot.rb')
-            require boot if File.exist?(boot)
-            env = File.join(root, 'config', 'environment.rb')
-            require env if File.exist?(env)
-            dev = File.join(root, 'config', 'development.rb')
-            require dev if File.exist?(dev)
-            validate_origen_dev_configuration!
-            ([@application] + Origen.app.plugins).each(&:on_loaded)
-            @application_loaded = true
-            Array(@after_app_loaded_blocks).each { |b| b.call(@application) }
-            @application
-          end
-
+        # If running globally (outside of an app workspace), instantiate a bare bones app to help
+        # many of Origen's features that expect an app to be present.
+        @application ||= if running_globally?
+                           @plugins_loaded = true
+                           # Now load the app
+                           @loading_top_level = true
+                           require 'origen/global_app'
+                           @application = _applications_lookup[:root][root.to_s]
+                           @loading_top_level = false
+                           @application_loaded = true
+                           @application
+                         else
+                           # Make sure the top-level root is always in the load path, it seems that some existing
+                           # plugins do some strange things to require stuff from the top-level app and rely on this
+                           path = File.join(root, 'lib')
+                           $LOAD_PATH.unshift(path) unless $LOAD_PATH.include?(path)
+                           if File.exist?(File.join(root, 'Gemfile')) && !@with_boot_environment
+                             # Don't understand the rules here, belt and braces approach for now to make
+                             # sure that all Origen plugins are auto-required (otherwise Origen won't know
+                             # about them to plug them into the application)
+                             Bundler.require
+                             Bundler.require(:development)
+                             Bundler.require(:runtime)
+                             Bundler.require(:default)
+                           end
+                           @plugins_loaded = true
+                           # Now load the app
+                           @loading_top_level = true
+                           require File.join(root, APP_CONFIG)
+                           @application = _applications_lookup[:root][root.to_s]
+                           @loading_top_level = false
+                           if @with_boot_environment
+                             @application.plugins.disable_current
+                           else
+                             Origen.remote_manager.require!
+                           end
+                           boot = File.join(root, 'config', 'boot.rb')
+                           require boot if File.exist?(boot)
+                           env = File.join(root, 'config', 'environment.rb')
+                           require env if File.exist?(env)
+                           dev = File.join(root, 'config', 'development.rb')
+                           require dev if File.exist?(dev)
+                           validate_origen_dev_configuration!
+                           ([@application] + Origen.app.plugins).each(&:on_loaded)
+                           @application_loaded = true
+                           Array(@after_app_loaded_blocks).each { |b| b.call(@application) }
+                           @application
+                         end
       end
 
       # Sometimes it is necessary to refer to the app instance before it is fully loaded, which can lead to runtime

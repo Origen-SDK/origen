@@ -80,8 +80,7 @@ Usage: origen i [options]
       IRB::ExtendCommandBundle.send :include, Origen::ConsoleMethods
       IRB.start
     end
-    ensure
-      listeners_for(:interactive_shutdown).each(&:interactive_shutdown)
-
+  ensure
+    listeners_for(:interactive_shutdown).each(&:interactive_shutdown)
   end
 end

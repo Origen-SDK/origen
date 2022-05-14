@@ -7,8 +7,7 @@ module Origen
       def time_now(options = {})
         options = { underscore: false,
                     format: :human,
-                    include_time: true
-        }.merge(options)
+                    include_time: true }.merge(options)
 
         # Nice description of time format options
         # http://wesgarrison.us/2006/03/12/ruby-strftime-options-for-date-formatting/

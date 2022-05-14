@@ -179,9 +179,7 @@ module Origen
         # to get a hold of its internal scope
         unless b.is_a?(Binding)
           b.define_singleton_method :_get_binding do |local_opts, &_block|
-            # rubocop:disable Lint/UselessAssignment
             options = local_opts
-            # rubocop:enable Lint/UselessAssignment
             binding
           end
           # Here the global options, the ones visible right now, are passed to into the method defined above,

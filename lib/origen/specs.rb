@@ -53,15 +53,15 @@ module Origen
       }.update(options || {})
       _specs
       if s.nil?
-        return show_specs(options)
+        show_specs(options)
       elsif s.is_a? Hash
         # no spec was passed but some option was passed
         options.update(s)
-        return show_specs(options)
+        show_specs(options)
       else
         # a spec was passed
         options[:spec] = s
-        return show_specs(options)
+        show_specs(options)
       end
     end
 
@@ -78,7 +78,7 @@ module Origen
       type = type
       mode = get_mode if mode.nil?
       owner_name = ''
-      if self.respond_to?(:name) && send(:name)
+      if respond_to?(:name) && send(:name)
         owner_name = self.name.to_s.downcase.to_sym
       elsif self == Origen.top_level
         owner_name = self.class.to_s.split('::').last.downcase.to_sym
@@ -110,9 +110,9 @@ module Origen
         creating_spec: false
       }.update(options)
       if @_specs.nil? || @_specs == {}
-        return false
+        false
       else
-        return !!show_specs(options)
+        !!show_specs(options)
       end
     end
 
@@ -247,11 +247,11 @@ module Origen
         end
       end
       if notes_found.empty?
-        return nil
+        nil
       elsif notes_found.size == 1
         notes_found.values.first.values.first
       else
-        return notes_found
+        notes_found
       end
     end
 
@@ -273,11 +273,11 @@ module Origen
         end
       end
       if features_found.empty?
-        return nil
+        nil
       elsif features_found.size == 1
         features_found.values.first.values.first
       else
-        return features_found
+        features_found
       end
     end
 
@@ -303,9 +303,9 @@ module Origen
         end
       end
       if ex_found.empty?
-        return nil
+        nil
       else
-        return ex_found
+        ex_found
       end
     end
 
@@ -336,9 +336,9 @@ module Origen
         end
       end
       if dr_found.empty?
-        return nil
+        nil
       else
-        return dr_found
+        dr_found
       end
     end
 
@@ -384,9 +384,9 @@ module Origen
         end
       end
       if doc_found.empty?
-        return nil
+        nil
       else
-        return doc_found
+        doc_found
       end
     end
 
@@ -422,9 +422,9 @@ module Origen
         end
       end
       if overrides_found.empty?
-        return nil
+        nil
       else
-        return overrides_found
+        overrides_found
       end
     end
 
@@ -436,7 +436,7 @@ module Origen
       return nil if @_mode_selects.nil?
       return nil if @_mode_selects.empty?
 
-      modes_found = Hash.new do|h, k|
+      modes_found = Hash.new do |h, k|
         h[k] = {}
       end
       filter_hash(@_mode_selects, options[:block]).each do |block, hash|
@@ -445,9 +445,9 @@ module Origen
         end
       end
       if modes_found.empty?
-        return nil
+        nil
       else
-        return modes_found
+        modes_found
       end
     end
 
@@ -456,7 +456,7 @@ module Origen
         gen: nil,
         act: nil
       }.update(options)
-      ps_found = Hash.new do|h, k|
+      ps_found = Hash.new do |h, k|
         h[k] = {}
       end
       return nil if @_power_supplies.nil?
@@ -468,9 +468,9 @@ module Origen
         end
       end
       if ps_found.empty?
-        return nil
+        nil
       else
-        return ps_found
+        ps_found
       end
     end
 
@@ -496,9 +496,9 @@ module Origen
         end
       end
       if vh_found.empty?
-        return nil
+        nil
       else
-        return vh_found
+        vh_found
       end
     end
 
@@ -666,8 +666,7 @@ module Origen
           'k == filter'
         when NilClass then true # Return all specs if a filter is set to nil (i.e. user doesn't care about this filter)
         else true
-      end
-      # rubocop:disable Lint/UnusedBlockArgument
+                     end
       filtered_hash = hash.select do |k, v|
         # binding.pry if filter == 'SubSection A'
         [TrueClass, FalseClass].include?(select_logic.class) ? select_logic : eval(select_logic)
@@ -724,14 +723,14 @@ module Origen
           end
         end
         Origen.log.debug "Returning no specs for options #{options}"
-        return nil
+        nil
       elsif specs_to_be_shown.size == 1
         print_to_console(specs_to_be_shown) if options[:verbose] == true
         Origen.log.debug "returning one spec #{specs_to_be_shown.first.name}"
-        return specs_to_be_shown.first
+        specs_to_be_shown.first
       else
         Origen.log.debug "returning an array of specs during initial search: #{specs_to_be_shown}"
-        return specs_to_be_shown
+        specs_to_be_shown
       end
     end
 
@@ -740,18 +739,18 @@ module Origen
       whitespace_padding = 3
       table = []
       attrs_to_be_shown = {
-        name: SpecTableAttr.new('Name',      true,  'Name'.length + whitespace_padding),
-        symbol: SpecTableAttr.new('Symbol',    false, 'Symbol'.length + whitespace_padding),
+        name: SpecTableAttr.new('Name', true, 'Name'.length + whitespace_padding),
+        symbol: SpecTableAttr.new('Symbol', false, 'Symbol'.length + whitespace_padding),
         mode: SpecTableAttr.new('Mode',      true,  'Mode'.length + whitespace_padding),
         type: SpecTableAttr.new('Type',      true,  'Type'.length + whitespace_padding),
-        sub_type: SpecTableAttr.new('Sub-Type',  false, 'Sub-Type'.length + whitespace_padding),
+        sub_type: SpecTableAttr.new('Sub-Type', false, 'Sub-Type'.length + whitespace_padding),
         # spec SpecTableAttribute :description is called parameter in the spec table output to match historical docs
         description: SpecTableAttr.new('Parameter', false, 'Parameter'.length + whitespace_padding),
         min: SpecTableAttr.new('Min',       false, 'Min'.length + whitespace_padding),
         typ: SpecTableAttr.new('Typ',       false, 'Typ'.length + whitespace_padding),
         max: SpecTableAttr.new('Max',       false, 'Max'.length + whitespace_padding),
-        unit: SpecTableAttr.new('Unit',      false, 'Unit'.length + whitespace_padding),
-        audience: SpecTableAttr.new('Audience',  false, 'Audience'.length + whitespace_padding)
+        unit: SpecTableAttr.new('Unit', false, 'Unit'.length + whitespace_padding),
+        audience: SpecTableAttr.new('Audience', false, 'Audience'.length + whitespace_padding)
         # notes:       SpecTableAttr.new('Notes',     false, 'Notes'.length + whitespace_padding)
       }
       # Calculate the padding needed in the spec table for the longest attr of all specs

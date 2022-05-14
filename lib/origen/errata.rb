@@ -40,12 +40,12 @@ module Origen
 
       # Return nil if there are no errata that meet criteria
       if errata_found.empty?
-        return nil
+        nil
       # If only one errata meets criteria, return that HwErratum object
       elsif errata_found.size == 1
         errata_found.values.first.values.first.values.first
       else
-        return errata_found
+        errata_found
       end
     end
 
@@ -72,11 +72,11 @@ module Origen
         sw_workarounds_found[id] = workarounds
       end
       if sw_workarounds_found.empty?
-        return nil
+        nil
       elsif sw_workarounds_found.size == 1
         sw_workarounds_found.values.first # .values.first
       else
-        return sw_workarounds_found
+        sw_workarounds_found
       end
     end
 
@@ -107,7 +107,6 @@ module Origen
     #    when NilClass then true # Return all specs if a filter is set to nil (i.e. user doesn't care about this filter)
     #    else true
     #  end
-    # rubocop:disable Lint/UnusedBlockArgument
     #  filtered_hash = hash.select do |k, v|
     #    [TrueClass, FalseClass].include?(select_logic.class) ? select_logic : eval(select_logic)
     #  end

@@ -651,7 +651,7 @@ module Origen
 
       # Sets the store flag on all bits that already have the overlay flag set
       def store_overlay_bits(options = {})
-        options = { exclude: [], # Pass in an array of any overlays that are to be excluded from store
+        options = { exclude: [] # Pass in an array of any overlays that are to be excluded from store
                   }.merge(options)
         each do |bit|
           bit.store if bit.has_overlay? && !options[:exclude].include?(bit.overlay_str)
@@ -804,16 +804,16 @@ module Origen
         feature.delete(nil) if feature.include?(nil)
         if !feature.empty?
           if feature.size == 1
-            return feature[0]
+            feature[0]
           else
-            return feature.uniq
+            feature.uniq
           end
         else
           if Origen.config.strict_errors
             fail 'No feature found'
           end
 
-          return nil
+          nil
         end
       end
       alias_method :features, :feature

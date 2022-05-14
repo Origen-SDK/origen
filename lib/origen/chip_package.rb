@@ -18,6 +18,7 @@ module Origen
     attr_reader :last_empty_char
     attr_reader :plottable
     attr_writer :name
+
     alias_writer :full_name, :name
     # Returns the owner that $owns the mode (the SoC instance usually)
     attr_accessor :owner
@@ -69,7 +70,7 @@ module Origen
         (1..@number_of_columns).map { |item| @columns << item }
         @upper_axes = []
         @lower_axes = []
-        @columns.each_with_index do|column, index|
+        @columns.each_with_index do |column, index|
           # if index % 2 == 0
           if index.even?
             temp = column.to_s
@@ -130,12 +131,11 @@ module Origen
         pin_list.each do |item|
           # puts items,owner.pins[items].location
 
-            coordinates = coordinate(item.location)
-            @field[coordinates[0]][coordinates[1]] = [marker.red + ' ']
-          rescue
-            puts "#{item} doesn't appear to have a physical location in this configuration."
-            puts "Current package = #{owner.package}"
-
+          coordinates = coordinate(item.location)
+          @field[coordinates[0]][coordinates[1]] = [marker.red + ' ']
+        rescue
+          puts "#{item} doesn't appear to have a physical location in this configuration."
+          puts "Current package = #{owner.package}"
         end
         generate_field
       end
@@ -151,12 +151,10 @@ module Origen
         pin_list = owner.ground_pins.map { |_ken, pin| pin }
         @groups << "#{marker} - Ground"
         pin_list.each do |item|
-
-            coordinates = coordinate(item.location)
-            @field[coordinates[0]][coordinates[1]] = [marker.green + ' ']
-          rescue
-            puts "#{item} doesn't appear to have a physical location in this configuration."
-
+          coordinates = coordinate(item.location)
+          @field[coordinates[0]][coordinates[1]] = [marker.green + ' ']
+        rescue
+          puts "#{item} doesn't appear to have a physical location in this configuration."
         end
         generate_field
       end
@@ -183,16 +181,16 @@ module Origen
       if plottable
         puts "\nPLOTTING GROUPS:"
         puts '$dut.package.list_groups <-- to see available group names'
-        puts "$dut.package.plot(\"ddr_interface_1\")"
+        puts '$dut.package.plot("ddr_interface_1")'
         puts "$dut.package.plot_group(\"serdes_1\",'Z') <--denotes custom legend marker, Z"
         puts "\nPLOTTING INDIVIDUAL PINS:"
-        puts "$dut.package.plot(\"d1_mdqs00\")"
+        puts '$dut.package.plot("d1_mdqs00")'
         puts "\nPLOTTING WITH REGEXP:"
-        puts "$dut.package.plot(\"d1_mdqs\") <-- Plot all controller 1 DQS pins."
-        puts "$dut.package.plot(\"d1_mdqs0[0-9]\") <-- Plot d1_mdqs00 - d1_mdqs09."
+        puts '$dut.package.plot("d1_mdqs") <-- Plot all controller 1 DQS pins.'
+        puts '$dut.package.plot("d1_mdqs0[0-9]") <-- Plot d1_mdqs00 - d1_mdqs09.'
         puts "\nADDING POWER/GROUND:"
-        puts "$dut.package.plot(\"grounds\")"
-        puts "$dut.package.plot(\"power\")"
+        puts '$dut.package.plot("grounds")'
+        puts '$dut.package.plot("power")'
         puts "\nVIEW CURRENT PLOT\n"
         puts '$dut.package.show'
       else
@@ -206,7 +204,7 @@ module Origen
       grps = owner.pins.map { |_key, val| val.group }
       grps.uniq!
     rescue
-      return []
+      []
     end
     alias_method :group_list, :list_groups
 
@@ -216,7 +214,7 @@ module Origen
       pin_list[0].compact!
       puts 'No pins found under that group name.' unless pin_list.any?
     rescue
-      return []
+      []
     end
 
     # ##############################################################
@@ -282,12 +280,12 @@ module Origen
           end
           coordinates = coordinate(found_pins[0].location)
           @field[coordinates[0]][coordinates[1]] = [marker.white_on_blue + ' ']
-          @groups.delete_if { |group| /#{pinName.to_s}/ =~ group }
+          @groups.delete_if { |group| /#{pinName}/ =~ group }
           @groups << "#{marker} - #{found_pins[0].name} - #{found_pins[0].location}"
         elsif found_pins.size == 1
           coordinates = coordinate(found_pins[0].location)
           @field[coordinates[0]][coordinates[1]] = [marker.white_on_blue + ' ']
-          @groups.delete_if { |group| /#{pinName.to_s}/ =~ group }
+          @groups.delete_if { |group| /#{pinName}/ =~ group }
           @groups << "#{marker} - #{found_pins[0].name} - #{found_pins[0].location}"
         else
           if marker.nil?
@@ -299,14 +297,12 @@ module Origen
           end
           reg_state = quote_regex(pinName)
           found_pins.each do |item|
-
-              coordinates = coordinate(item.location)
-              @field[coordinates[0]][coordinates[1]] = [marker + ' ']
-              @groups.delete_if { |group| "#{marker} - \"#{reg_state}\"" == group }
-              @groups << "#{marker} - \"#{pinName}\""
-            rescue
-              raise "\n#{item} doesn't appear to have a physical location in this configuration."
-
+            coordinates = coordinate(item.location)
+            @field[coordinates[0]][coordinates[1]] = [marker + ' ']
+            @groups.delete_if { |group| "#{marker} - \"#{reg_state}\"" == group }
+            @groups << "#{marker} - \"#{pinName}\""
+          rescue
+            raise "\n#{item} doesn't appear to have a physical location in this configuration."
           end
         end
         generate_field
@@ -336,13 +332,13 @@ module Origen
             found_pins.each do |pin|
               coordinates = coordinate(pin.location)
               @field[coordinates[0]][coordinates[1]] = [marker.white_on_blue + ' ']
-              @groups.delete_if { |group| /#{coord.to_s}/ =~ group }
+              @groups.delete_if { |group| /#{coord}/ =~ group }
               @groups << "#{marker} - #{found_pins[0].name} - #{found_pins[0].location}"
             end
           else
             coordinates = coordinate(found_pins[0].location)
             @field[coordinates[0]][coordinates[1]] = [marker.white_on_blue + ' ']
-            @groups.delete_if { |group| /#{coord.to_s}/ =~ group }
+            @groups.delete_if { |group| /#{coord}/ =~ group }
             @groups << "#{marker} - #{found_pins[0].name} - #{found_pins[0].location}"
           end
           if found_pins.size > 0

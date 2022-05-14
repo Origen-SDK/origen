@@ -400,7 +400,7 @@ module Origen
         injection = config_loc.config.send(scope).call({})
         if injection.nil?
           # Do nothing. It is assumed in this acase that the pattern header has not comments to add at this scope.
-          return
+          nil
         elsif injection.is_a?(String)
           c2(' ' * message_spacing + message)
           c2(' ' * line_spacing + injection.to_s)

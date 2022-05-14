@@ -89,7 +89,7 @@ module Origen
 
       # Prints out the current environment details to the command line
       def describe
-        f = self.file!
+        f = file!
         puts "Current environment: #{f.basename}"
         puts '*' * 70
         File.open(f).each do |line|

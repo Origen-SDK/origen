@@ -11,7 +11,7 @@ module Origen
                     accept: false, # Supply and array of entries you are willing to accept
                     case_sensitive: false, # If accept values are supplied they will be treated as case
                     # in-sensitive by default
-                    wrap: true, # Automatically split long lines
+                    wrap: true # Automatically split long lines
         }.merge(options)
         if options[:confirm]
           puts "Type 'yes' or 'no' to confirm or 'quit' to abort."
@@ -65,9 +65,7 @@ module Origen
           end
           if confirm == 'yes' || confirm == 'y'
             if options[:confirm] == :return_boolean
-              return true
-            else
-              return
+              true
             end
           else
             get_text(options)

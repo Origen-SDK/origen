@@ -133,20 +133,20 @@ module Origen
         if file_plugin
           if Origen.app.plugins.current
             if file_plugin == Origen.app.plugins.current.name
-              return proceed_with_pattern?(path) ? path : :skip
+              proceed_with_pattern?(path) ? path : :skip
             elsif !options[:current_plugin]
               Origen.app.plugins.current.temporary = file_plugin
-              return proceed_with_pattern?(path) ? path : :skip
+              proceed_with_pattern?(path) ? path : :skip
             else
               puts "The requested pattern is from plugin #{file_plugin} and current system plugin is set to plugin #{Origen.app.plugins.current.name}!"
               fail 'Incorrect plugin error!'
             end
           else
             Origen.app.plugins.current.temporary = file_plugin
-            return proceed_with_pattern?(path) ? path : :skip
+            proceed_with_pattern?(path) ? path : :skip
           end
         else
-          return proceed_with_pattern?(path) ? path : :skip
+          proceed_with_pattern?(path) ? path : :skip
         end
       end
 

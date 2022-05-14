@@ -382,7 +382,8 @@ module Origen
       # this register specifically however, use the meta method to get that.
       def default_reg_metadata
         Origen::Registers.default_reg_metadata.merge(
-          Origen::Registers.reg_metadata[owner.class] || {})
+          Origen::Registers.reg_metadata[owner.class] || {}
+        )
       end
 
       def bit_value_descriptions(bitname, options = {})
@@ -980,7 +981,7 @@ module Origen
       # Add a bit to the register, should only be called internally
       def add_bit(id, position, options = {}) # :nodoc:
         options = { data: @bits[position].data, # If undefined preserve any data/reset value that has
-                    res: @bits[position].data, # already been applied at reg level
+                    res: @bits[position].data # already been applied at reg level
                   }.merge(options)
 
         @lookup[id] = { pos: position, bits: 1, feature: options[:feature] }
@@ -997,7 +998,7 @@ module Origen
           default_data |= @bits[position + n].data << n
         end
         options = { data: default_data, # If undefined preserve any data/reset value that has
-                    res: default_data, # already been applied at reg level
+                    res: default_data # already been applied at reg level
                   }.merge(options)
 
         @lookup[id] = { pos: position, bits: size }
@@ -1028,7 +1029,7 @@ module Origen
             default_data |= @bits[position + n].data << n
           end
           options = { data: default_data, # If undefined preserve any data/reset value that has
-                      res: default_data, # already been applied at reg level
+                      res: default_data # already been applied at reg level
                     }.merge(options)
 
           @lookup[id] = [] if @lookup[id].nil?
@@ -1183,7 +1184,7 @@ module Origen
         elsif @bits[number].enabled_by_feature?(params)
           @bits[number]
         else
-          return Bit.new(self, number, writable: false)
+          Bit.new(self, number, writable: false)
         end
       end
 
@@ -1215,9 +1216,9 @@ module Origen
                 return collection
               end
             end
-            return BitCollection.dummy(self, bit_name, size: collection.size, pos: @lookup[bit_name][:pos])
+            BitCollection.dummy(self, bit_name, size: collection.size, pos: @lookup[bit_name][:pos])
           else
-            return []
+            []
           end
 
         elsif split_group_reg == true # if this registers has split bits in its range
@@ -1259,12 +1260,12 @@ module Origen
               end
             end
             if @lookup.is_a?(Hash) && @lookup[bit_name].is_a?(Array)
-              return BitCollection.dummy(self, bit_name, size: collection.size, pos: @lookup[bit_name][0][:pos])
+              BitCollection.dummy(self, bit_name, size: collection.size, pos: @lookup[bit_name][0][:pos])
             else
-              return BitCollection.dummy(self, bit_name, size: collection.size, pos: @lookup[bit_name[:pos]])
+              BitCollection.dummy(self, bit_name, size: collection.size, pos: @lookup[bit_name[:pos]])
             end
           else
-            return []
+            []
           end
         end
       end
@@ -1278,9 +1279,7 @@ module Origen
         end
 
         if params
-          return params[:enabled_features] || params[:enabled_feature]
-        else
-          return nil
+          params[:enabled_features] || params[:enabled_feature]
         end
       end
 
@@ -1443,9 +1442,9 @@ module Origen
                 return true
               end
             end
-            return false
+            false
           else
-            return feature == name
+            feature == name
           end
         end
       end
@@ -1487,7 +1486,7 @@ module Origen
                 break # break if feature not found and return false
               end
             end # iterated through all features in array
-            return value
+            value
           else # if feature.class != Array
             loop do
               if current_owner.respond_to?(:owner)
@@ -1510,10 +1509,10 @@ module Origen
                 value = true
               end
             end
-            return value
+            value
           end
         else
-          return true
+          true
         end
       end
 

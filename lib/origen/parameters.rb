@@ -233,7 +233,7 @@ module Origen
         end
       end
       if param_context[:obj]._parameter_sets.key?(param_context[:context])
-        return param_context
+        param_context
       else
         puts "Unknown parameter set :#{param_context[:context]} requested for #{param_context[:obj].class}, these are the valid sets:"
         param_context[:obj]._parameter_sets.keys.each { |k| puts "  :#{k}" }

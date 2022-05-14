@@ -111,7 +111,7 @@ module Origen
 
       # Checks for a pin type, returns nil if it is not found
       def pin_type(pin)
-        if self.has_pin?(pin) == false
+        if has_pin?(pin) == false
           nil
         else
           [:signal, :ground, :power].each do |pintype|

@@ -9,8 +9,7 @@ module Origen
         file = Origen.file_handler.clean_path_to_sub_template(file)
         current_pipeline << { file: file, options: options,
                               placeholder: placeholder, block: block,
-                              indent: options[:indent] || 0
-                            }
+                              indent: options[:indent] || 0 }
         if block_given?
           self.current_buffer += current_pipeline.last[:placeholder] + "\n"
         end
@@ -48,8 +47,7 @@ module Origen
           output = compile(current[:file],
                            sub_template: true,
                            block: current[:block],
-                           scope: @scope
-                          )
+                           scope: @scope)
           if current[:indent] && current[:indent] > 0
             indent = ' ' * current[:indent]
             output = output.split("\n").map { |l| indent + l }.join("\n")

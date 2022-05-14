@@ -19,8 +19,6 @@ module Origen
       # Method to use by Origen::RemoteManager to handle fetching a remote file
       attr_reader :remotes_method
 
-      # rubocop:disable Lint/UnusedMethodArgument
-
       # All revision control instances represent a remote server mapping
       # to a local directory, :remote and :local options are required
       def initialize(options = {})
@@ -207,8 +205,6 @@ module Origen
         is_a?(Subversion) # :-)
       end
       alias_method :subversion?, :svn?
-
-      # rubocop:enable Lint/UnusedMethodArgument
 
       private
 

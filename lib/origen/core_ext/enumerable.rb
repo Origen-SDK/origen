@@ -29,11 +29,11 @@ module Enumerable
     unless options[:ignore].empty? || options[:select].empty?
       fail "Cannot have the same arguments for 'ignore' and 'select' options" unless (options[:ignore] & options[:select]).empty?
     end
-    if self.respond_to?(:empty?) && self.empty?
+    if respond_to?(:empty?) && empty?
       list_array << self if options[:nil_or_empty]
     else
       each do |k, v|
-        self.is_a?(Hash) ? item = v : item = k
+        is_a?(Hash) ? item = v : item = k
         klass = item.class.to_s
         superklass = item.class.superclass.to_s
         if options[:flatten].include? item.class

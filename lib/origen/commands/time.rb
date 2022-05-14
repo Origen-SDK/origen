@@ -75,8 +75,7 @@ when 'new'
                              file: "#{Origen.top}/templates/time/rules.rb.erb",
                              output: "#{Origen.root}/config/test_time",
                              quiet: true,
-                             check_for_changes: false
-                            )
+                             check_for_changes: false)
     # Add this to the environment if not already present...
     env = "#{Origen.root}/config/environment.rb"
     unless File.readlines(env).any? { |l| l =~ /config\/test_time\/rules/ }
@@ -99,8 +98,7 @@ when 'new'
                              file: "#{Origen.top}/templates/time/filter.rb.erb",
                              output: "#{Origen.root}/config/test_time",
                              quiet: true,
-                             check_for_changes: false
-                            )
+                             check_for_changes: false)
     # Add this to the environment if not already present...
     env = "#{Origen.root}/config/environment.rb"
     unless File.readlines(env).any? { |l| l =~ /config\/test_time\/filter/ }

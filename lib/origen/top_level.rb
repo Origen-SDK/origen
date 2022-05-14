@@ -79,7 +79,7 @@ module Origen
         val.id
       else
         packages.include?(val) ? val : nil
-      end
+                            end
     end
     alias_method :package=, :current_package=
 

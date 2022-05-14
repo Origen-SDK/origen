@@ -37,17 +37,17 @@ module Origen
         val = @setpoint if val.nil?
         if @freq_range == :fixed
           if val == @freq_target
-            return true
+            true
           else
             Origen.log.warn("Clock '#{id}' is a fixed clock with a target frequency of #{@freq_target.as_Hz}")
-            return false
+            false
           end
         else
           if @freq_range.include?(val)
-            return true
+            true
           else
             Origen.log.warn("Setpoint (#{setpoint_string(val)}) for clock '#{id}' is not within the frequency range (#{freq_range_string})")
-            return false
+            false
           end
         end
       end
@@ -100,10 +100,10 @@ module Origen
       def users_defined?
         undefined_ips = ips - Origen.all_sub_blocks
         if undefined_ips.empty?
-          return true
+          true
         else
           Origen.log.warn("Clock '#{id}' has the following IP undefined: #{undefined_ips}")
-          return false
+          false
         end
       end
 

@@ -30,7 +30,7 @@ module Origen
                 "#{start_frequency.as_Hz}\.\.#{end_frequency.as_Hz}"
               else
                 attr_val.to_s
-              end
+                    end
               curr_longest = [attr_getter, str].max_by(&:length).size + 2 # Add 2 for the whitespace
               if colhash[attr].nil? || (colhash[attr] < curr_longest)
                 colhash[attr] = curr_longest

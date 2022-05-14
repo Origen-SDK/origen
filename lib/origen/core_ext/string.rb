@@ -11,7 +11,7 @@ end
 
 class String
   def to_dec
-    if self.is_verilog_number?
+    if is_verilog_number?
       verilog_to_dec
     elsif match(/^0[x,o,d,b]\S+/)
       _to_dec(self)
@@ -166,11 +166,9 @@ class String
   # Attempt to convert a String to a boolean answer
   def to_bool
     if self == true || self =~ (/^(true|t|yes|y|1)$/i)
-      return true
-    elsif self == false || self.empty? || self =~ (/^(false|f|no|n|0)$/i)
-      return false
-    else
-      return nil
+      true
+    elsif self == false || empty? || self =~ (/^(false|f|no|n|0)$/i)
+      false
     end
   end
 
@@ -184,7 +182,7 @@ class String
 
   # Convert the String to a Numeric (Float or Integer)
   def to_numeric
-    if self.numeric?
+    if numeric?
       if to_i == to_f
         to_i
       else

@@ -694,7 +694,7 @@ module Origen
           # If val is a data bit extract the value of it
           val = val.respond_to?(:data) ? val.data : val
           # Assume driving/asserting a nil value means 0
-          val = 0 unless val
+          val ||= 0
           if !val.x_or_z? && val > 1
             fail "Attempt to set a value of #{val} on pin #{name}"
           end

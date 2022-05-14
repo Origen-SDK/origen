@@ -3,7 +3,7 @@ class Object
   # ultimately returns nil if no value is found.
   def try(*methods)
     methods.each do |method|
-      if self.respond_to?(method)
+      if respond_to?(method)
         val = send(method)
         return val if val
       end
@@ -21,7 +21,7 @@ class Object
   #   'hi'.origen_subblock? #=> false
   # @see https://origen-sdk.org/origen/guides/models/defining/#Adding_Sub_Blocks
   def origen_subblock?
-    self.is_a?(Origen::Model) || self.is_a?(Origen::Controller) || self.is_a?(Origen::SubBlocks::Placeholder)
+    is_a?(Origen::Model) || is_a?(Origen::Controller) || is_a?(Origen::SubBlocks::Placeholder)
   end
   alias_method :origen_sub_block?, :origen_subblock?
 end

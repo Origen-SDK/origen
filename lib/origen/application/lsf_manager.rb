@@ -209,7 +209,7 @@ module Origen
           if options[:type] == :all
             File.delete(remote_jobs_file) if File.exist?(remote_jobs_file)
             @remote_jobs = {}
-            return
+            nil
           else
             send("#{options[:type]}_jobs").each do |job|
               remote_jobs.delete(job[:id])
@@ -279,53 +279,52 @@ module Origen
               #   Changed files:    0
               #   FAILED files:     1
 
-                line.gsub!(/\e\[\d+m/, '') # Remove any coloring
-                if line =~ /Total patterns:\s+(\d+)/
-                  @completed_patterns = Regexp.last_match[1].to_i
-                elsif line =~ /Total vectors:\s+(\d+)/
-                  @total_vectors = Regexp.last_match[1].to_i
-                elsif line =~ /Total duration:\s+(\d+\.\d+)/
-                  @total_duration = Regexp.last_match[1].to_f
-                elsif line =~ /Total files:\s+(\d+)/
-                  @completed_files = Regexp.last_match[1].to_i
-                elsif line =~ /Changed patterns:\s+(\d+)/
-                  @changed_patterns = Regexp.last_match[1].to_i
-                elsif line =~ /Changed files:\s+(\d+)/
-                  @changed_files = Regexp.last_match[1].to_i
-                elsif line =~ /New patterns:\s+(\d+)/
-                  @new_patterns = Regexp.last_match[1].to_i
-                elsif line =~ /New files:\s+(\d+)/
-                  @new_files = Regexp.last_match[1].to_i
-                elsif line =~ /FAILED patterns:\s+(\d+)/
-                  @failed_patterns = Regexp.last_match[1].to_i
-                elsif line =~ /FAILED files:\s+(\d+)/
-                  @failed_files = Regexp.last_match[1].to_i
-                elsif line =~ /ERROR!/
-                  stats.errors += 1
-                  Origen.log.send :relog, line, options
+              line.gsub!(/\e\[\d+m/, '') # Remove any coloring
+              if line =~ /Total patterns:\s+(\d+)/
+                @completed_patterns = Regexp.last_match[1].to_i
+              elsif line =~ /Total vectors:\s+(\d+)/
+                @total_vectors = Regexp.last_match[1].to_i
+              elsif line =~ /Total duration:\s+(\d+\.\d+)/
+                @total_duration = Regexp.last_match[1].to_f
+              elsif line =~ /Total files:\s+(\d+)/
+                @completed_files = Regexp.last_match[1].to_i
+              elsif line =~ /Changed patterns:\s+(\d+)/
+                @changed_patterns = Regexp.last_match[1].to_i
+              elsif line =~ /Changed files:\s+(\d+)/
+                @changed_files = Regexp.last_match[1].to_i
+              elsif line =~ /New patterns:\s+(\d+)/
+                @new_patterns = Regexp.last_match[1].to_i
+              elsif line =~ /New files:\s+(\d+)/
+                @new_files = Regexp.last_match[1].to_i
+              elsif line =~ /FAILED patterns:\s+(\d+)/
+                @failed_patterns = Regexp.last_match[1].to_i
+              elsif line =~ /FAILED files:\s+(\d+)/
+                @failed_files = Regexp.last_match[1].to_i
+              elsif line =~ /ERROR!/
+                stats.errors += 1
+                Origen.log.send :relog, line, options
+              else
+                # Compress multiple blank lines
+                if line =~ /^\s*$/ || line =~ /.*\|\|\s*$/
+                  unless last_line_blank
+                    Origen.log.send(log_method, nil)
+                    last_line_blank = true
+                  end
                 else
-                  # Compress multiple blank lines
-                  if line =~ /^\s*$/ || line =~ /.*\|\|\s*$/
-                    unless last_line_blank
-                      Origen.log.send(log_method, nil)
-                      last_line_blank = true
-                    end
-                  else
-                    # Screen std origen output
-                    unless line =~ /  origen save/ ||
-                           line =~ /Insecure world writable dir/ ||
-                           line =~ /To save all of/
-                      line.strip!
-                      Origen.log.send :relog, line, options
-                      last_line_blank = false
-                    end
+                  # Screen std origen output
+                  unless line =~ /  origen save/ ||
+                         line =~ /Insecure world writable dir/ ||
+                         line =~ /To save all of/
+                    line.strip!
+                    Origen.log.send :relog, line, options
+                    last_line_blank = false
                   end
                 end
-              rescue
-                # Sometimes illegal UTF-8 characters can get into crash dumps, if this
-                # happens just print the line out rather than die
-                Origen.log.error line
-
+              end
+            rescue
+              # Sometimes illegal UTF-8 characters can get into crash dumps, if this
+              # happens just print the line out rather than die
+              Origen.log.error line
             end
           end
           stats.completed_patterns += @completed_patterns
@@ -628,11 +627,9 @@ module Origen
       def restore_remote_jobs
         if File.exist?(remote_jobs_file)
           File.open(remote_jobs_file) do |f|
-
-              Marshal.load(f)
-            rescue
-              nil
-
+            Marshal.load(f)
+          rescue
+            nil
           end
         end
       end
@@ -655,8 +652,7 @@ module Origen
                                 poll_duration_in_seconds: 1,
                                 # Don't wait long by the time this runs the LSF
                                 # should have guaranteed the job has run
-                                timeout_in_seconds: 120
-                               )
+                                timeout_in_seconds: 120)
             unless options[:dependents].all? { |id| job_passed?(id) }
               File.open(log_file(options[:id]), 'w') do |f|
                 f.puts "*** ERROR! *** #{options[:cmd].join(' ')} ***"

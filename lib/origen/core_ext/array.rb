@@ -12,7 +12,7 @@ class Array
   end
 
   def dups_with_index
-    return {} unless self.dups?
+    return {} unless dups?
 
     hash = Hash.new { |h, k| h[k] = [] }
     each_with_index do |val, idx|

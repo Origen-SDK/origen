@@ -40,7 +40,7 @@ module Origen
 
       # Cache source root and add lib/generators/base/generator/templates to
       # source paths.
-      def self.inherited(base) #:nodoc:
+      def self.inherited(base) # :nodoc:
         super
         if base.name && base.name !~ /Base$/
           if base.namespace == 'origen'

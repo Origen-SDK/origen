@@ -266,7 +266,6 @@ module Origen
     # hash keys
     def all_sub_blocks
       @all_sub_blocks ||= (sub_blocks_array + sub_blocks_array.map(&:all_sub_blocks)).flatten
-
     end
 
     # Returns true if the given sub block owns at least one register
@@ -443,18 +442,18 @@ module Origen
       current_namespace = remaining_namespace.shift
       if current_namespace
         if current_path.join(current_namespace).exist?
-          return _find_block_dir(options, current_path.join(current_namespace), remaining_namespace)
+          _find_block_dir(options, current_path.join(current_namespace), remaining_namespace)
         elsif current_path.join("derivatives/#{current_namespace}").exist?
-          return _find_block_dir(options, current_path.join("derivatives/#{current_namespace}"), remaining_namespace)
+          _find_block_dir(options, current_path.join("derivatives/#{current_namespace}"), remaining_namespace)
         elsif current_path.join("sub_blocks/#{current_namespace}").exist?
-          return _find_block_dir(options, current_path.join("sub_blocks/#{current_namespace}"), remaining_namespace)
+          _find_block_dir(options, current_path.join("sub_blocks/#{current_namespace}"), remaining_namespace)
         else
           Origen.log.error "Could not find block dir for namespace #{options[:class_name]}!"
           fail
         end
       else
         if current_path.join('model.rb').exist?
-          return current_path.to_s
+          current_path.to_s
         else
           Origen.log.error "Could not find block dir for namespace #{options[:class_name]}!"
           fail
@@ -615,8 +614,8 @@ module Origen
     def method_missing(method, *args, &block)
       super
     rescue NoMethodError
-      return regs(method) if self.has_reg?(method)
-      return ports(method) if self.has_port?(method)
+      return regs(method) if has_reg?(method)
+      return ports(method) if has_port?(method)
 
       if method.to_s =~ /=$/
         define_singleton_method(method) do |val|

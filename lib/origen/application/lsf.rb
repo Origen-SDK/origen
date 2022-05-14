@@ -80,7 +80,7 @@ module Origen
       def submit(command, options = {})
         options = {
           dependents: [],
-          rerunnable: true, # Will rerun automatically if the execution host fails
+          rerunnable: true # Will rerun automatically if the execution host fails
         }.merge(options)
         limit_job_submissions do
           group = options[:group] || config.group

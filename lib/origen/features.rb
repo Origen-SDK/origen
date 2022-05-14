@@ -72,17 +72,15 @@ module Origen
       end
     end
 
-    public
-
     def has_features?(name = nil)
       if !name
         if feature.size == 0
-          return false
+          false
         else
-          return true
+          true
         end
       else
-        return feature.include?(name)
+        feature.include?(name)
       end
     end
     alias_method :has_feature?, :has_features?

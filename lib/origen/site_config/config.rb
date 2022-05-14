@@ -86,7 +86,6 @@ module Origen
             File.open(cached_file, 'w+') do |f|
               f.write(text)
             end
-
           rescue SocketError => e
             puts red("Origen: Site Config: Unable to connect to #{path}")
             puts red('Origen: Site Config: Failed to retrieve centralized site config!')

@@ -292,9 +292,9 @@ module Origen
     def call_interceptor(interceptors, msg, type, options, &original)
       interceptor = interceptors.shift
       if interceptors.empty?
-        func = -> (msg, type, options) { original.call(msg, type, options) }
+        func = ->(msg, type, options) { original.call(msg, type, options) }
       else
-        func = -> (msg, type, options) { call_interceptor(interceptors, msg, type, options, &original) }
+        func = ->(msg, type, options) { call_interceptor(interceptors, msg, type, options, &original) }
       end
       interceptor.call(msg, type, options, func)
     end

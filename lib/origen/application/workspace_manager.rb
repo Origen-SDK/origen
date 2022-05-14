@@ -124,7 +124,7 @@ module Origen
       # Switches the given workspace path to the given version tag
       def switch_version(workspace, tag, options = {})
         options = {
-          origen_root_only: false, # When true pop the Origen.root dir only instead
+          origen_root_only: false # When true pop the Origen.root dir only instead
           # of the whole application workspace - these may or may
           # not be the same thing depending on the application.
         }.merge(options)

@@ -53,9 +53,9 @@ module Origen
             # Need to check the limit type and retrieve the appropriate value
             case @type.to_s
             when /target|typ/
-              return Origen.top_level.clocks(ref).freq_target
+              Origen.top_level.clocks(ref).freq_target
             else
-              return Origen.top_level.clocks(ref).send(@type)
+              Origen.top_level.clocks(ref).send(@type)
             end
           end
         end
@@ -111,16 +111,16 @@ module Origen
           begin
             result = eval(@expr)
             return result.round(4) if result.is_a? Numeric
-            rescue ::SyntaxError, ::NameError, ::TypeError
-              Origen.log.debug "Limit '#{@expr}' had to be rescued, storing it as a #{@expr.class}"
-              if @expr.is_a? Symbol
-                return @expr
-              else
-                return "#{@expr}"
-              end
+          rescue ::SyntaxError, ::NameError, ::TypeError
+            Origen.log.debug "Limit '#{@expr}' had to be rescued, storing it as a #{@expr.class}"
+            if @expr.is_a? Symbol
+              @expr
+            else
+              "#{@expr}"
+            end
           end
         else
-          return result
+          result
         end
       end
     end

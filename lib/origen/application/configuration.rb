@@ -54,7 +54,7 @@ module Origen
       ]
 
       ATTRS_THAT_ARE_SET_TO_A_BLOCK = [
-        :current_plugin_pattern_header, :application_pattern_header, :shared_pattern_header, #:pattern_footer
+        :current_plugin_pattern_header, :application_pattern_header, :shared_pattern_header # :pattern_footer
       ]
 
       def log_deprecations
@@ -134,6 +134,7 @@ module Origen
           depend_on_target: true
         }.merge(options)
         attr_writer name
+
         define_method name do |override = true, &block|
           if block # _given?
             instance_variable_set("@#{name}".to_sym, block)

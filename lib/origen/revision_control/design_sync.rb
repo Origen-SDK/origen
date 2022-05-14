@@ -182,7 +182,7 @@ module Origen
 
         files = dssc(cmd, options).reject do |item|
           item.strip.empty? ||
-          item =~ /^(Name|Directory|---)/
+            item =~ /^(Name|Directory|---)/
         end
         files.map! do |file|
           file.strip! # Strip off any whitespace from all objects
@@ -279,11 +279,10 @@ module Origen
 
       def full_path_prefix
         @full_path_prefix ||= if Origen.running_on_windows?
-            'file:///'
-          else
-            'file://'
-          end
-
+                                'file:///'
+                              else
+                                'file://'
+                              end
       end
 
       def initialize_local_dir(options = {})

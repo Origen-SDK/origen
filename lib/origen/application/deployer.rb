@@ -162,7 +162,7 @@ module Origen
         remote_dir = deploy_to_git? ? "#{git_repo.local}/#{git_sub_dir}" : live_remote_directory
         if remote_dir
           file = Origen.file_handler.clean_path_to(file)
-          sub_dir = Origen.file_handler.sub_dir_of(file, "#{Origen.root}/templates/web") .to_s
+          sub_dir = Origen.file_handler.sub_dir_of(file, "#{Origen.root}/templates/web").to_s
           page = file.basename.to_s.sub(/\..*/, '')
           # Special case for the main index page
           if page == 'index' && sub_dir == '.'

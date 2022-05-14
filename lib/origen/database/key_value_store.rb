@@ -92,15 +92,14 @@ module Origen
 
       def store
         @store ||= if file.exist?
-            load_from_file
-          elsif persisted? && dssc.managed_by_design_sync?(file)
-            refresh
-            load_from_file
-          else
-            @uncommitted = true
-            { refresh_interval_in_minutes: 60 }
-          end
-
+                     load_from_file
+                   elsif persisted? && dssc.managed_by_design_sync?(file)
+                     refresh
+                     load_from_file
+                   else
+                     @uncommitted = true
+                     { refresh_interval_in_minutes: 60 }
+                   end
       end
 
       def load_from_file
@@ -123,9 +122,9 @@ module Origen
           Marshal.dump(store, f)
         end
         if private?
-          FileUtils.chmod(0600, file)
+          FileUtils.chmod(0o600, file)
         else
-          FileUtils.chmod(0664, file)
+          FileUtils.chmod(0o664, file)
         end
         if persisted?
           dssc.check_in file, new: true, keep: true, branch: 'Trunk'

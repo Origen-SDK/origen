@@ -140,15 +140,13 @@ module Origen
             # Only record user invocations at this time, also bypass windows since it seems
             # that threads can't be trusted not to block
             unless Origen.running_remotely? # || Origen.running_on_windows?
-              # rubocop:disable Style/RescueModifier
               record_invocation = Thread.new do
                 Origen.client.record_invocation(options[:action]) if options[:action]
-                rescue
+              rescue
                 # Dont allow server being down to flood the screen with the stacktrace
               end
-              # rubocop:enable Style/RescueModifier
             end
-           rescue
+          rescue
             # Don't allow this to kill an origen command
           end
         end
@@ -164,7 +162,7 @@ module Origen
                 record_invocation.value
               end
             end
-           rescue
+          rescue
             # Don't allow this to kill an origen command
           end
         end

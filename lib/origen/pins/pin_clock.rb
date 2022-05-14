@@ -85,10 +85,10 @@ module Origen
 
       def update_tester_period_local
         if Origen.tester.current_period_in_ns == @tester_period_in_ns
-          return false
+          false
         else
           @tester_period_in_ns = Origen.tester.current_period_in_ns
-          return true
+          true
         end
       end
 

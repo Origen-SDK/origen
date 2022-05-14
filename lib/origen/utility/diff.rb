@@ -112,8 +112,8 @@ module Origen
               end
             # This rescue is a crude way to guard against non-ASCII files that find
             # their way in here
-          rescue
-            return line
+            rescue
+              line
             end
           else
             line.strip
@@ -144,10 +144,10 @@ module Origen
             else
               matched = true
             end
-        # This rescue is a crude way to guard against non-ASCII files that find
-        # there way in here
-        rescue
-          matched = true
+          # This rescue is a crude way to guard against non-ASCII files that find
+          # there way in here
+          rescue
+            matched = true
           end
         end
         ix

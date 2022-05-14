@@ -1032,14 +1032,10 @@ END
     #   When debug is enabled, exception_class will be raised, defaulting to <code>RuntimeError</code>.
     def fail!(message: nil, exception_class: RuntimeError, exit_status: 1)
       if Origen.debug?
-        # rubocop:disable Style/RedundantSelf
         self.fail(message: message, exception_class: exception_class)
-        # rubocop:enable Style/RedundantSelf
       else
         begin
-          # rubocop:disable Style/RedundantSelf
           self.fail(message: message, exception_class: exception_class)
-          # rubocop:enable Style/RedundantSelf
         rescue exception_class => e
           Origen.log.error(e.message)
           exit exit_status
@@ -1055,7 +1051,7 @@ END
     #     require "my_backend" # in lib/my_backend
     #     config.i18n.backend = MyBackend
     #   end
-    def add_lib_to_load_path! #:nodoc:
+    def add_lib_to_load_path! # :nodoc:
       [root.join('lib'), root.join('vendor', 'lib'), root.join('app', 'lib')].each do |path|
         $LOAD_PATH.unshift(path.to_s) if File.exist?(path) && !$LOAD_PATH.include?(path.to_s)
       end

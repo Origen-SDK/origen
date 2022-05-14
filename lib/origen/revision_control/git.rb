@@ -123,7 +123,7 @@ module Origen
           if options[:comment] && !options[:comment].strip.empty?
             cmd += " -m \"#{options[:comment].strip}\""
           else
-            cmd += " -m \"No comment!\""
+            cmd += ' -m "No comment!"'
           end
           if options[:author]
             if options[:author].respond_to?(:name_and_email)

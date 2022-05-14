@@ -132,16 +132,16 @@ module Origen
           begin
             result = eval(limit)
             return result.round(4) if result.is_a? Numeric
-            rescue ::SyntaxError, ::NameError, ::TypeError
-              Origen.log.debug "Limit '#{limit}' had to be rescued, storing it as a #{limit.class}"
-              if limit.is_a? Symbol
-                return limit
-              else
-                return "#{limit}"
-              end
+          rescue ::SyntaxError, ::NameError, ::TypeError
+            Origen.log.debug "Limit '#{limit}' had to be rescued, storing it as a #{limit.class}"
+            if limit.is_a? Symbol
+              limit
+            else
+              "#{limit}"
+            end
           end
         else
-          return result
+          result
         end
       end
     end

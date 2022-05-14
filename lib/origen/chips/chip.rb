@@ -70,11 +70,11 @@ module Origen
           end
         end
         if notes_found.empty?
-          return nil
+          nil
         elsif notes_found.size == 1
           notes_found.values.first.values.first
         else
-          return notes_found
+          notes_found
         end
       end
 
@@ -156,8 +156,7 @@ module Origen
             'k == filter'
           when NilClass then true # Return all specs if a filter is set to nil (i.e. user doesn't care about this filter)
           else true
-        end
-        # rubocop:disable Lint/UnusedBlockArgument
+                       end
         filtered_hash = hash.select do |k, v|
           [TrueClass, FalseClass].include?(select_logic.class) ? select_logic : eval(select_logic)
         end
