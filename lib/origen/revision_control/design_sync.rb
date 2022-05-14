@@ -24,6 +24,7 @@ module Origen
         fail "Directory does not exist: #{dir}" unless dir.exist?
         fail "Only directories are supported by remote_check_in, this is not a directory: #{dir}" unless dir.directory?
         fail 'No vault option supplied to remote_check_in!' unless options[:vault]
+
         scratch = Pathname.new("#{Origen.app.workspace_manager.imports_directory}/design_sync/scratch")
         FileUtils.rm_rf(scratch) if scratch.exist?
         FileUtils.mkdir_p(scratch)
@@ -77,6 +78,7 @@ module Origen
         dir = Pathname.new(dir)
         fail "Directory does not exist: #{dir}" unless dir.exist?
         fail "Only directories are supported by remove_dot_syncs, this is not a directory: #{dir}" unless dir.directory?
+
         Dir.glob("#{dir}/**/.SYNC").sort.each do |dot_sync|
           FileUtils.rm_rf(dot_sync)
         end
@@ -276,13 +278,12 @@ module Origen
       private
 
       def full_path_prefix
-        @full_path_prefix ||= begin
-          if Origen.running_on_windows?
+        @full_path_prefix ||= if Origen.running_on_windows?
             'file:///'
           else
             'file://'
           end
-        end
+        
       end
 
       def initialize_local_dir(options = {})
@@ -301,8 +302,8 @@ module Origen
       def self.dssc(command, options = {})
         options = {
           check_errors: true,
-          verbose:      true,
-          local:        Dir.pwd
+          verbose: true,
+          local: Dir.pwd
         }.merge(options)
         output = []
         if options[:verbose]

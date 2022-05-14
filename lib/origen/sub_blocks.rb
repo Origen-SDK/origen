@@ -179,6 +179,7 @@ module Origen
 
       def path(options = {})
         return abs_path if abs_path
+
         if is_a?(Origen::Registers::BitCollection)
           # Special case where path relative to the register has been requested
           if options[:relative_to] == parent
@@ -264,9 +265,8 @@ module Origen
     # Note that this returns an array instead of a hash since there could be naming collisions in the
     # hash keys
     def all_sub_blocks
-      @all_sub_blocks ||= begin
-        (sub_blocks_array + sub_blocks_array.map(&:all_sub_blocks)).flatten
-      end
+      @all_sub_blocks ||= (sub_blocks_array + sub_blocks_array.map(&:all_sub_blocks)).flatten
+      
     end
 
     # Returns true if the given sub block owns at least one register
@@ -341,6 +341,7 @@ module Origen
               skip_require_files = options[:skip_require_files] || %w(attributes parameters pins registers sub_blocks timesets)
               Dir.glob("#{block_dir}/*.rb").each do |file|
                 next if skip_require_files.include?(Pathname.new(file).basename('.rb').to_s)
+
                 require file
               end
             end
@@ -463,6 +464,7 @@ module Origen
 
     def instantiate_sub_block(name, klass, options)
       return sub_blocks[name] unless sub_blocks[name].is_a?(Placeholder)
+
       sub_blocks[name] = klass.new(options.merge(parent: self, name: name))
     end
 
@@ -491,6 +493,7 @@ module Origen
         # looking up and loaded by the autoload system straight away, especially if the sub-block
         # has been specified to lazy load
         return false if klass == Hash || klass == Array
+
         klass == self.klass || klass == Placeholder
       end
 
@@ -557,16 +560,19 @@ module Origen
               klass = eval(tmp_class)
             rescue NameError => e
               raise if e.message !~ /^uninitialized constant (.*)$/ || tmp_class !~ /#{Regexp.last_match(1)}/
+
               begin
                 tmp_class = "::#{class_name}"
                 klass = eval(tmp_class)
               rescue NameError => e
                 raise if e.message !~ /^uninitialized constant (.*)$/ || tmp_class !~ /#{Regexp.last_match(1)}/
+
                 begin
                   tmp_class = "#{owner.class}::#{class_name}"
                   klass = eval(tmp_class)
                 rescue NameError => e
                   raise if e.message !~ /^uninitialized constant (.*)$/ || tmp_class !~ /#{Regexp.last_match(1)}/
+
                   puts "Could not find class: #{class_name}"
                   raise 'Unknown sub block class!'
                 end
@@ -611,6 +617,7 @@ module Origen
     rescue NoMethodError
       return regs(method) if self.has_reg?(method)
       return ports(method) if self.has_port?(method)
+
       if method.to_s =~ /=$/
         define_singleton_method(method) do |val|
           instance_variable_set("@#{method.to_s.sub('=', '')}", val)

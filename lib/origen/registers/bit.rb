@@ -12,34 +12,34 @@ module Origen
       # and 'modifiedWriteValue' attributes in the IEEE 1685-2009 schema - they do not affect
       # Origen Core functionality (yet?).
       ACCESS_CODES = {
-        ro:    { implemented: false, base: 'read-only',      write: nil,            read: nil,      writable: false, readable: true,  w1c: false, set_only: false,  clr_only: false, description: 'Read-Only' },
-        rw:    { implemented: true,  base: 'read-write',     write: nil,            read: nil,      writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: 'Read-Write' },
-        rc:    { implemented: false, base: 'read-only',      write: nil,            read: 'clear',  writable: false, readable: true,  w1c: false, set_only: false,  clr_only: false, description: 'Read-only, Clear-on-read' },
-        rs:    { implemented: false, base: 'read-only',      write: nil,            read: 'set',    writable: false, readable: true,  w1c: false, set_only: false,  clr_only: false, description: "Set-on-read (all bits become '1' on read)" },
-        wrc:   { implemented: false, base: 'read-write',     write: nil,            read: 'clear',  writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: 'Writable, clear-on-read' },
-        wrs:   { implemented: false, base: 'read-write',     write: nil,            read: 'set',    writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: 'Writable, Sets-on-read' },
-        wc:    { implemented: false, base: 'read-write',     write: 'clear',        read: nil,      writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: true,  description: 'Clear-on-write' },
-        ws:    { implemented: false, base: 'read-write',     write: 'set',          read: nil,      writable: true,  readable: true,  w1c: false, set_only: true,   clr_only: false, description: 'Set-on-write' },
-        wsrc:  { implemented: false, base: 'read-write',     write: 'set',          read: 'clear',  writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: 'Set-on-write, clear-on-read' },
-        wcrs:  { implemented: false, base: 'read-write',     write: 'clear',        read: 'set',    writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: 'Clear-on-write, set-on-read' },
-        w1c:   { implemented: false, base: 'read-write',     write: 'oneToClear',   read: nil,      writable: true,  readable: true,  w1c: true,  set_only: false,  clr_only: false, description: "Write '1' to clear bits" },
-        w1s:   { implemented: false, base: 'read-write',     write: 'oneToSet',     read: nil,      writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: "Write '1' to set bits" },
-        w1t:   { implemented: false, base: 'read-write',     write: 'oneToToggle',  read: nil,      writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: "Write '1' to toggle bits" },
-        w0c:   { implemented: false, base: 'read-write',     write: 'zeroToClear',  read: nil,      writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: "Write '0' to clear bits" },
-        w0s:   { implemented: false, base: 'read-write',     write: 'zeroToSet',    read: nil,      writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: "Write '0' to set bits" },
-        w0t:   { implemented: false, base: 'read-write',     write: 'zeroToToggle', read: nil,      writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: "Write '0' to toggle bits" },
+        ro: { implemented: false, base: 'read-only',      write: nil,            read: nil,      writable: false, readable: true,  w1c: false, set_only: false,  clr_only: false, description: 'Read-Only' },
+        rw: { implemented: true,  base: 'read-write',     write: nil,            read: nil,      writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: 'Read-Write' },
+        rc: { implemented: false, base: 'read-only',      write: nil,            read: 'clear',  writable: false, readable: true,  w1c: false, set_only: false,  clr_only: false, description: 'Read-only, Clear-on-read' },
+        rs: { implemented: false, base: 'read-only',      write: nil,            read: 'set',    writable: false, readable: true,  w1c: false, set_only: false,  clr_only: false, description: "Set-on-read (all bits become '1' on read)" },
+        wrc: { implemented: false, base: 'read-write',     write: nil,            read: 'clear',  writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: 'Writable, clear-on-read' },
+        wrs: { implemented: false, base: 'read-write',     write: nil,            read: 'set',    writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: 'Writable, Sets-on-read' },
+        wc: { implemented: false, base: 'read-write',     write: 'clear',        read: nil,      writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: true,  description: 'Clear-on-write' },
+        ws: { implemented: false, base: 'read-write',     write: 'set',          read: nil,      writable: true,  readable: true,  w1c: false, set_only: true,   clr_only: false, description: 'Set-on-write' },
+        wsrc: { implemented: false, base: 'read-write',     write: 'set',          read: 'clear',  writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: 'Set-on-write, clear-on-read' },
+        wcrs: { implemented: false, base: 'read-write',     write: 'clear',        read: 'set',    writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: 'Clear-on-write, set-on-read' },
+        w1c: { implemented: false, base: 'read-write',     write: 'oneToClear',   read: nil,      writable: true,  readable: true,  w1c: true,  set_only: false,  clr_only: false, description: "Write '1' to clear bits" },
+        w1s: { implemented: false, base: 'read-write',     write: 'oneToSet',     read: nil,      writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: "Write '1' to set bits" },
+        w1t: { implemented: false, base: 'read-write',     write: 'oneToToggle',  read: nil,      writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: "Write '1' to toggle bits" },
+        w0c: { implemented: false, base: 'read-write',     write: 'zeroToClear',  read: nil,      writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: "Write '0' to clear bits" },
+        w0s: { implemented: false, base: 'read-write',     write: 'zeroToSet',    read: nil,      writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: "Write '0' to set bits" },
+        w0t: { implemented: false, base: 'read-write',     write: 'zeroToToggle', read: nil,      writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: "Write '0' to toggle bits" },
         w1src: { implemented: false, base: 'read-write',     write: 'oneToSet',     read: 'clear',  writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: "Write '1' to set and clear-on-read" },
         w1crs: { implemented: false, base: 'read-write',     write: 'oneToClear',   read: 'set',    writable: true,  readable: true,  w1c: true,  set_only: false,  clr_only: false, description: "Write '1' to clear and set-on-read" },
         w0src: { implemented: false, base: 'read-write',     write: 'zeroToSet',    read: 'clear',  writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: "Write '0' to set and clear-on-read" },
         w0crs: { implemented: false, base: 'read-write',     write: 'zeroToClear',  read: 'set',    writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: "Write '0' to clear and set-on-read" },
-        wo:    { implemented: false, base: 'write-only',     write: nil,            read: nil,      writable: true,  readable: false, w1c: false, set_only: false,  clr_only: false, description: 'Write-only' },
-        woc:   { implemented: false, base: 'write-only',     write: 'clear',        read: nil,      writable: true,  readable: false, w1c: false, set_only: false,  clr_only: true,  description: "When written sets the field to '0'. Read undeterministic" },
-        worz:  { implemented: false, base: 'write-only',     write: nil,            read: nil,      writable: true,  readable: false, w1c: false, set_only: false,  clr_only: false, description: 'Write-only, Reads zero' },
-        wos:   { implemented: false, base: 'write-only',     write: 'set',          read: nil,      writable: true,  readable: false, w1c: false, set_only: true,   clr_only: false, description: "When written sets all bits to '1'. Read undeterministic" },
-        w1:    { implemented: false, base: 'read-writeOnce', write: nil,            read: nil,      writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: 'Write-once. Next time onwards, write is ignored. Read returns the value' },
-        wo1:   { implemented: false, base: 'writeOnce',      write: nil,            read: nil,      writable: true,  readable: false, w1c: false, set_only: false,  clr_only: false, description: 'Write-once. Next time onwards, write is ignored. Read is undeterministic' },
-        dc:    { implemented: false, base: 'read-write',     write: nil,            read: nil,      writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: 'RW but no check' },
-        rowz:  { implemented: false, base: 'read-only',      write: nil,            read: 'clear',  writable: false, readable: true,  w1c: false, set_only: false,  clr_only: false, description: 'Read-only, value is cleared on read' }
+        wo: { implemented: false, base: 'write-only',     write: nil,            read: nil,      writable: true,  readable: false, w1c: false, set_only: false,  clr_only: false, description: 'Write-only' },
+        woc: { implemented: false, base: 'write-only',     write: 'clear',        read: nil,      writable: true,  readable: false, w1c: false, set_only: false,  clr_only: true,  description: "When written sets the field to '0'. Read undeterministic" },
+        worz: { implemented: false, base: 'write-only',     write: nil,            read: nil,      writable: true,  readable: false, w1c: false, set_only: false,  clr_only: false, description: 'Write-only, Reads zero' },
+        wos: { implemented: false, base: 'write-only',     write: 'set',          read: nil,      writable: true,  readable: false, w1c: false, set_only: true,   clr_only: false, description: "When written sets all bits to '1'. Read undeterministic" },
+        w1: { implemented: false, base: 'read-writeOnce', write: nil,            read: nil,      writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: 'Write-once. Next time onwards, write is ignored. Read returns the value' },
+        wo1: { implemented: false, base: 'writeOnce',      write: nil,            read: nil,      writable: true,  readable: false, w1c: false, set_only: false,  clr_only: false, description: 'Write-once. Next time onwards, write is ignored. Read is undeterministic' },
+        dc: { implemented: false, base: 'read-write',     write: nil,            read: nil,      writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: 'RW but no check' },
+        rowz: { implemented: false, base: 'read-only',      write: nil,            read: 'clear',  writable: false, readable: true,  w1c: false, set_only: false,  clr_only: false, description: 'Read-only, value is cleared on read' }
       }
 
       # Returns the Reg object that owns the bit
@@ -102,14 +102,14 @@ module Origen
 
       def initialize(owner, position, options = {}) # rubocop:disable Metrics/MethodLength
         options = {
-          start:                   false,        # whether bit starts a state machine so be careful
+          start: false,        # whether bit starts a state machine so be careful
           read_data_matches_write: true,
-          read:                    false,
-          overlay:                 false,
-          store:                   false,
-          sticky_overlay:          true,
-          sticky_store:            false,
-          nvm_dep:                 false,        # whether is an NVM dependent bit
+          read: false,
+          overlay: false,
+          store: false,
+          sticky_overlay: true,
+          sticky_store: false,
+          nvm_dep: false,        # whether is an NVM dependent bit
         }.merge(options)
         @owner = owner
         @position = position
@@ -141,7 +141,7 @@ module Origen
             readable: true,         # whether bit is readable
             clr_only: false,        # whether bit is clear only
             set_only: false,        # whether bit is set only
-            w1c:      false,        # whether bit is w1c (when written to 1 immediately becomes 0)
+            w1c: false,        # whether bit is w1c (when written to 1 immediately becomes 0)
           }.merge(options)
           @readable = options.delete(:readable)
           @writable = options.delete(:writable)

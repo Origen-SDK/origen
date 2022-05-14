@@ -11,10 +11,10 @@ module Enumerable
   def list(options = {})
     options = {
       nil_or_empty: false,
-      flatten:      [], # Can be a single class or an array of classes to 'flatten' when enumerating (treated as a single value)
-      select:       [], # Select certain complex data types for enumeration
-      ignore:       [], # Ignore certain complex data types for enumeration
-      to_s:         false # If set to true this will convert a complex object called with 'flatten' option to a String
+      flatten: [], # Can be a single class or an array of classes to 'flatten' when enumerating (treated as a single value)
+      select: [], # Select certain complex data types for enumeration
+      ignore: [], # Ignore certain complex data types for enumeration
+      to_s: false # If set to true this will convert a complex object called with 'flatten' option to a String
     }.update(options)
     list_array ||= []
     [:ignore, :select, :flatten].each do |opt|
@@ -50,6 +50,7 @@ module Enumerable
         else
           next unless options[:select].empty? || options[:select].include?(item.class) || PRIMATIVES.any? { |klass| item.is_a?(klass) }
           next if options[:ignore].include?(item.class)
+
           case item
           when NilClass
             list_array << item if options[:nil_or_empty]
@@ -64,6 +65,7 @@ module Enumerable
             list_array += item.list(options)
           when String
             next if item.empty? && options[:nil_or_empty] == false
+
             list_array << item
           else
             list_array << item

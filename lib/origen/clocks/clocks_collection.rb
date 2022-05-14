@@ -18,6 +18,7 @@ module Origen
               attr_getter = attr.to_s[/\@(\S+)/, 1].to_sym
               attr_val = clk.send attr_getter
               next unless [String, Numeric, Float, Integer, Symbol, Range].include? attr_val.class
+
               headers << attr_getter unless headers.include?(attr_getter)
               str = case attr_val
               when Numeric

@@ -70,7 +70,7 @@ module Origen
       # Returns an array containing all data from given CSV file
       def extract_csv_data(options = {}) # :nodoc:
         options = { field_names_only: false, # whether to obtain field names only
-                    comment_char:     '#', # ignore lines that start with comment character
+                    comment_char: '#', # ignore lines that start with comment character
                   }.merge(options)
 
         field_names = []

@@ -140,6 +140,7 @@ elsif Origen.site_config.gem_manage_bundler && (Origen.site_config.user_install_
       if STDOUT.tty?
         begin
           fail OrigenBootError unless File.exist?(ENV['BUNDLE_BIN'])
+
           Bundler.setup
           fail OrigenBootError unless File.exist?(ENV['BUNDLE_BIN'])
         rescue Gem::LoadError, Bundler::BundlerError, OrigenBootError => e

@@ -27,6 +27,7 @@ module Origen
         unless options[:remote] && options[:local]
           fail ':remote and :local options must be supplied when instantiating a new RevisionControl object'
         end
+
         @remote = Pathname.new(options[:remote])
         @local = Pathname.new(options[:local]).expand_path
         @remotes_method = :checkout

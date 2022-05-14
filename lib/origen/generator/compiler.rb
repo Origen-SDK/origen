@@ -26,9 +26,9 @@ module Origen
         initial_options = options.merge({})
         options = {
           check_for_changes: false,
-          sub_template:      false,
-          collect_stats:     false,
-          initial_options:   initial_options
+          sub_template: false,
+          collect_stats: false,
+          initial_options: initial_options
         }.merge(options)
         @scope = options[:scope]
         file = Pathname.new(file) unless options[:string]
@@ -39,9 +39,9 @@ module Origen
       # to the destination un-altered
       def compile(file_or_dir, options = {})
         options = {
-          check_for_changes:  true,
-          sub_template:       false,
-          collect_stats:      true,
+          check_for_changes: true,
+          sub_template: false,
+          collect_stats: true,
           ignore_blank_lines: true
         }.merge(options)
         @scope = options[:scope]
@@ -131,7 +131,7 @@ module Origen
           if @check_for_changes
             check_for_changes(output_file(file, options), reference_file(file, options),
                               comment_char: Origen.app.tester ? Origen.app.tester.program_comment_char : nil,
-                              compile_job:  true, ignore_blank_lines: options[:ignore_blank_lines])
+                              compile_job: true, ignore_blank_lines: options[:ignore_blank_lines])
           end
         end
       end

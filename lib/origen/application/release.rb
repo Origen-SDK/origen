@@ -32,6 +32,7 @@ module Origen
         if authorized?
           Origen.app.plugins.validate_production_status(true)
           fail 'No revision control configured for this application, cannot release a new version' if Origen.app.rc.nil?
+
           unless Origen.app.rc.local_modifications.empty?
             puts <<-EOT
 Your workspace has local modifications that are preventing the requested action
@@ -59,6 +60,7 @@ Your workspace has local modifications that are preventing the requested action
           if Origen.app.version != new_version
             fail "Sorry something has gone wrong trying to update the version counter to #{new_version}!"
           end
+
           Origen.app.version_tracker.add_version(Origen.app.version) if Origen.app.version.production?
           write_history
           Origen.app.listeners_for(:before_release_tag).each do |listener|

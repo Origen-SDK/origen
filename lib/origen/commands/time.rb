@@ -40,8 +40,8 @@ cmd = ARGV[0] || 'missing'
 case cmd.downcase
 when 'forecast'
   Origen.target.loop(options) do |options|
-    Origen.app.runner.launch(action:   :forecast_test_time,
-                             summary:  options[:summary],
+    Origen.app.runner.launch(action: :forecast_test_time,
+                             summary: options[:summary],
                              ref_name: options[:ref_name])
   end
 
@@ -60,21 +60,21 @@ when 'import'
   Origen.target.loop(options) do |options|
     # This step seems redundant, the flow should be imported at the
     # same time as extracting the test times
-    Origen.app.runner.launch(action:   :import_test_flow,
-                             file:     ARGV[1],
+    Origen.app.runner.launch(action: :import_test_flow,
+                             file: ARGV[1],
                              ref_name: options[:ref_name])
 
-    Origen.app.runner.launch(action:   :import_test_time,
-                             file:     ARGV[1],
+    Origen.app.runner.launch(action: :import_test_time,
+                             file: ARGV[1],
                              ref_name: options[:ref_name])
   end
 
 when 'new'
   if ARGV[1] == 'rules'
-    Origen.app.runner.launch(action:            :compile,
-                             file:              "#{Origen.top}/templates/time/rules.rb.erb",
-                             output:            "#{Origen.root}/config/test_time",
-                             quiet:             true,
+    Origen.app.runner.launch(action: :compile,
+                             file: "#{Origen.top}/templates/time/rules.rb.erb",
+                             output: "#{Origen.root}/config/test_time",
+                             quiet: true,
                              check_for_changes: false
                             )
     # Add this to the environment if not already present...
@@ -95,10 +95,10 @@ when 'new'
     puts 'To check this in run:'
     puts "  dssc ci -new -keep -com \"Initial\" #{Origen.root}/config/test_time/rules.rb"
   elsif ARGV[1] == 'filter'
-    Origen.app.runner.launch(action:            :compile,
-                             file:              "#{Origen.top}/templates/time/filter.rb.erb",
-                             output:            "#{Origen.root}/config/test_time",
-                             quiet:             true,
+    Origen.app.runner.launch(action: :compile,
+                             file: "#{Origen.top}/templates/time/filter.rb.erb",
+                             output: "#{Origen.root}/config/test_time",
+                             quiet: true,
                              check_for_changes: false
                             )
     # Add this to the environment if not already present...

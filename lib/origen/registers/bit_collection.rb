@@ -88,6 +88,7 @@ module Origen
       #   end
       def [](*indexes)
         return self if indexes.empty?
+
         b = BitCollection.new(parent, name)
         expand_and_order(*indexes).each do |i|
           b << fetch(i)
@@ -261,6 +262,7 @@ module Origen
         if any? { |b| b.access != val }
           fail 'Not all bits the collection have the same access value!'
         end
+
         val
       end
 
@@ -301,7 +303,7 @@ module Origen
         name, options = nil, name if name.is_a?(Hash)
         options = {
           size: 8,
-          pos:  0
+          pos: 0
         }.merge(options)
         collection = new(reg, name)
         pos = options[:pos]
@@ -334,6 +336,7 @@ module Origen
         data = 0
         shift_out_with_index do |bit, i|
           return undefined if bit.is_a?(Origen::UndefinedClass)
+
           data |= bit.data << i
         end
         data
@@ -352,6 +355,7 @@ module Origen
         data = 0
         reverse_shift_out_with_index do |bit, i|
           return undefined if bit.is_a?(Origen::UndefinedClass)
+
           data |= bit.data << i
         end
         data
@@ -768,6 +772,7 @@ module Origen
           data = 0
           shift_out_with_index do |bit, i|
             return bit.reset_data if bit.reset_data.is_a?(Symbol)
+
             data |= bit.reset_data << i
           end
           data
@@ -807,6 +812,7 @@ module Origen
           if Origen.config.strict_errors
             fail 'No feature found'
           end
+
           return nil
         end
       end

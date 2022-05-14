@@ -75,8 +75,7 @@ module Origen
 
     # Returns the controller's model
     def model
-      @model ||= begin
-        if self.class.path_to_model
+      @model ||= if self.class.path_to_model
           m = eval(self.class.path_to_model)
           if m
             if m.respond_to?(:_controller=)
@@ -87,7 +86,7 @@ module Origen
           end
           m
         end
-      end
+      
     end
 
     # When compared to another object, a controller will consider itself equal if either the controller

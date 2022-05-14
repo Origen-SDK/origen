@@ -29,11 +29,11 @@ module Origen
     # and visa-versa
     def chips(s = nil, options = {})
       options = {
-        group:       nil,
-        family:      nil,
+        group: nil,
+        family: nil,
         performance: nil,
-        part:        nil,
-        chip:        nil
+        part: nil,
+        chip: nil
       }.update(options || {})
       _chips
       if s.nil?
@@ -61,6 +61,7 @@ module Origen
       if has_chip?(name, group: group, family: family, performance: performance, creating_chip: true)
         fail "Chip already exists for chip: #{name}, group: #{group}, family: #{family} for object #{self}"
       end
+
       @_chips[group][family][performance][name] = chip_holder
     end
 
@@ -69,10 +70,10 @@ module Origen
     def has_chips?(options = {})
       _chips
       options = {
-        group:         nil,
-        family:        nil,
-        performance:   nil,
-        chip:          nil,
+        group: nil,
+        family: nil,
+        performance: nil,
+        chip: nil,
         creating_chip: false
       }.update(options)
       if @_chips.nil? || @_chips == {}
@@ -86,10 +87,10 @@ module Origen
     def has_chip?(s, options = {})
       _chips
       options = {
-        group:         nil,
-        family:        nil,
-        performance:   nil,
-        chip:          nil,
+        group: nil,
+        family: nil,
+        performance: nil,
+        chip: nil,
         creating_spec: false
       }.update(options)
       options[:chip] = s
@@ -115,7 +116,7 @@ module Origen
     # Returns a Note object from the notes hash
     def notes(options = {})
       options = {
-        id:   nil,
+        id: nil,
         type: nil
       }.update(options)
       notes_found = Hash.new do |h, k|
@@ -138,7 +139,7 @@ module Origen
     def docs(options = {})
       options = {
         type: nil,
-        rev:  nil
+        rev: nil
       }.update(options)
       docs_to_be_shown = []
       filter_hash(_docs, options[:type]).each do |type, hash|
@@ -152,7 +153,7 @@ module Origen
     def designs(options = {})
       options = {
         type: nil,
-        rev:  nil
+        rev: nil
       }.update(options)
       designs_to_be_shown = []
       filter_hash(_designs, options[:type]).each do |type, hash|
@@ -219,6 +220,7 @@ module Origen
     # Return a hash based on the filter provided
     def filter_hash(hash, filter)
       fail 'Hash argument is not a Hash!' unless hash.is_a? Hash
+
       filtered_hash = {}
       select_logic = case filter
         when String then 'k[Regexp.new(filter)]'
@@ -239,12 +241,12 @@ module Origen
     # Filters the 4D hash to find specs for all user visible API
     def show_chips(options = {})
       options = {
-        group:             nil,
-        family:            nil,
-        performance:       nil,
-        part:              nil,
+        group: nil,
+        family: nil,
+        performance: nil,
+        part: nil,
         chips_to_be_shown: ChipArray.new,
-        creating_chip:     false
+        creating_chip: false
       }.update(options)
       chips_to_be_shown = options[:chips_to_be_shown]
       filter_hash(_chips, options[:group]).each do |_group, hash|

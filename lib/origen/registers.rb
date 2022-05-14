@@ -31,13 +31,12 @@ module Origen
     # not explicitly defined on this model it will be inherited from the parent
     # and will default to :lsb0 at the top-level
     def bit_order
-      @bit_order ||= begin
-        if parent
+      @bit_order ||= if parent
           parent.bit_order
         else
           :lsb0
         end
-      end
+      
     end
 
     def method_missing(method, *args, &block) # :nodoc:
@@ -311,6 +310,7 @@ module Origen
       if address.is_a?(Hash)
         fail 'add_reg requires the address to be supplied as the 2nd argument, e.g. add_reg :my_reg, 0x1000'
       end
+
       size, bit_info = nil, size if size.is_a?(Hash)
       size ||= bit_info.delete(:size) || 32
       description = bit_info.delete(:description)
@@ -355,9 +355,9 @@ module Origen
       else
         attributes = {
           define_file: @reg_define_file,
-          address:     address,
-          size:        size,
-          bit_info:    bit_info,
+          address: address,
+          size: size,
+          bit_info: bit_info,
           description: description
         }
         Reg::REG_LEVEL_ATTRIBUTES.each do |attribute, _meta|
@@ -449,6 +449,7 @@ module Origen
     # @api private
     def instantiate_reg(id, attrs)
       return _registers[id] unless _registers[id].is_a?(Origen::Registers::Placeholder)
+
       attributes = {
         define_file: attrs[:define_file],
         description: attrs[:description]

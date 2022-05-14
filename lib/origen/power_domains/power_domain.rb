@@ -38,6 +38,7 @@ module Origen
         (block.arity < 1 ? (instance_eval(&block)) : block.call(self)) if block_given?
         @unit_voltage_range = :fixed if @unit_voltage_range.nil?
         fail unless attrs_ok?
+
         create_dut_spec unless @min.nil? || @max.nil?
       end
 
@@ -152,6 +153,7 @@ module Origen
       # This will need rework once the class has spec limits added
       def setpoint_ok?(val = nil)
         return true if maximum_voltage_rating.nil?
+
         compare_val = val.nil? ? setpoint : val
         if compare_val.nil?
           false

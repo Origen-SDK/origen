@@ -11,11 +11,11 @@ module Origen
 
       def initialize(options = {})
         options = {
-          size_in_bytes:      1,
+          size_in_bytes: 1,
           word_size_in_bytes: 2,
-          endian:             :big,
-          data:               0,
-          nil_state:          0
+          endian: :big,
+          data: 0,
+          nil_state: 0
         }.merge(options)
         @address = options.delete(:address) || options.delete(:byte_address)
         @endian = options.delete(:endian)

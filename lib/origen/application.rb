@@ -84,6 +84,7 @@ module Origen
         @apps_by_namespace ||= {}
         @apps_by_namespace[namespace] ||= begin
           return Origen.app if Origen.app.namespace == namespace
+
           Origen.app.plugins.each do |plugin|
             return plugin if plugin.namespace == namespace
           end
@@ -219,15 +220,15 @@ module Origen
           begin
             if config.rc_url =~ /^sync:/
               @revision_controller ||= RevisionControl::DesignSync.new(
-                local:  root,
+                local: root,
                 remote: config.rc_url
               )
             elsif config.rc_url =~ /git/
               @revision_controller ||= RevisionControl::Git.new(
-                local:                  root,
+                local: root,
                 # If a workspace is based on a fork of the master repo, config.rc_url may not
                 # be correct
-                remote:                 (options[:uninitialized] ? config.rc_url : (RevisionControl::Git.origin || config.rc_url)),
+                remote: (options[:uninitialized] ? config.rc_url : (RevisionControl::Git.origin || config.rc_url)),
                 allow_local_adjustment: true
               )
 
@@ -238,7 +239,7 @@ module Origen
           end
         elsif config.vault
           @revision_controller ||= RevisionControl::DesignSync.new(
-            local:  root,
+            local: root,
             remote: config.vault
           )
         end
@@ -463,12 +464,14 @@ END
       if max && listeners.size > max
         fail "You can only define a #{callback} callback #{max > 1 ? (max.to_s + 'times') : 'once'}, however you have declared it #{listeners.size} times for instances of: #{listeners.map(&:class)}"
       end
+
       listeners
     end
 
     def version(options = {})
       @version = nil if options[:refresh]
       return @version if @version
+
       if Origen.running_globally?
         @version = Origen.version
       else
@@ -567,6 +570,7 @@ END
           if capture && line =~ /^#+ by (.*) on (.*(AM|PM))/
             user = Origen.fsl.find_by_name(Regexp.last_match(1))
             return user if user
+
             return Regexp.last_match(1)
           end
         else

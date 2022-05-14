@@ -91,8 +91,7 @@ module Origen
       end
 
       def store
-        @store ||= begin
-          if file.exist?
+        @store ||= if file.exist?
             load_from_file
           elsif persisted? && dssc.managed_by_design_sync?(file)
             refresh
@@ -101,7 +100,7 @@ module Origen
             @uncommitted = true
             { refresh_interval_in_minutes: 60 }
           end
-        end
+        
       end
 
       def load_from_file

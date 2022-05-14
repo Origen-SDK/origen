@@ -35,6 +35,7 @@ module Origen
           return owner.limits(ref).send(type).value
           # Check if the reference is to a power domain
         end
+
         if Origen.top_level.respond_to? :power_domains
           if Origen.top_level.power_domains.include? ref
             # Need to check the limit type and retrieve the appropriate value
@@ -63,6 +64,7 @@ module Origen
       def evaluate_expr
         return @expr if @expr.is_a?(Numeric)
         return nil if @expr.nil?
+
         if @expr.is_a? Symbol
           @expr = ':' + @expr.to_s
         else

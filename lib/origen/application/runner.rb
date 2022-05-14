@@ -174,6 +174,7 @@ module Origen
       # things like :compile => true, the extract_action method handles the old code
       def extract_action(options)
         return options[:action] if options[:action]
+
         if options[:compile]
           :compile
         elsif options[:program]

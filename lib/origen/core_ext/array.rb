@@ -13,6 +13,7 @@ class Array
 
   def dups_with_index
     return {} unless self.dups?
+
     hash = Hash.new { |h, k| h[k] = [] }
     each_with_index do |val, idx|
       hash[val] << idx

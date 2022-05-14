@@ -44,11 +44,11 @@ module Origen
     # and visa-versa
     def specs(s = nil, options = {})
       options = {
-        type:          nil,
-        sub_type:      nil,
-        mode:          current_mode.nil? ? nil : current_mode.name,
-        spec:          nil,
-        symbol:        false,
+        type: nil,
+        sub_type: nil,
+        mode: current_mode.nil? ? nil : current_mode.name,
+        spec: nil,
+        symbol: false,
         creating_spec: false
       }.update(options || {})
       _specs
@@ -69,10 +69,12 @@ module Origen
     def spec(name, type = nil, mode = nil, &block)
       return specs(name, type) unless block_given?
       fail 'A type argument is required when defining a spec!' unless type
+
       _specs
       name = name_audit(name)
       fail 'Specification names must be of SPEC_TYPES Symbol or String and cannot start with a number' if name.nil?
       fail "Spec type must be one of #{SPEC_TYPES.join(', ')}" unless SPEC_TYPES.include? type
+
       type = type
       mode = get_mode if mode.nil?
       owner_name = ''
@@ -91,6 +93,7 @@ module Origen
         # This is a fatal error.
         fail "Spec already exists for name: #{name}, type: #{type}, mode: #{mode} for object #{self}"
       end
+
       @_specs[name][mode][type][spec_placeholder.sub_type] = spec_placeholder
     end
 
@@ -99,11 +102,11 @@ module Origen
     def has_specs?(options = {})
       _specs
       options = {
-        type:          nil,
-        sub_type:      nil,
-        mode:          current_mode.nil? ? nil : current_mode.name,
-        spec:          nil,
-        symbol:        false,
+        type: nil,
+        sub_type: nil,
+        mode: current_mode.nil? ? nil : current_mode.name,
+        spec: nil,
+        symbol: false,
         creating_spec: false
       }.update(options)
       if @_specs.nil? || @_specs == {}
@@ -122,11 +125,11 @@ module Origen
     def has_spec?(s, options = {})
       _specs
       options = {
-        type:          nil,
-        sub_type:      nil,
-        mode:          current_mode.nil? ? nil : current_mode.name,
-        spec:          nil,
-        symbol:        false,
+        type: nil,
+        sub_type: nil,
+        mode: current_mode.nil? ? nil : current_mode.name,
+        spec: nil,
+        symbol: false,
         creating_spec: false
       }.update(options)
       options[:spec] = s
@@ -223,11 +226,12 @@ module Origen
     def notes(options = {})
       # Create a default 2 item hash and update if options is supplied
       options = {
-        id:   nil,
+        id: nil,
         type: nil
       }.update(options)
       return nil if @_notes.nil?
       return nil if @_notes.empty?
+
       # Empty 2-D Hash to be used for notes found based on id and type
       notes_found = Hash.new do |h, k|
         # h is the id portion of the hash
@@ -253,12 +257,13 @@ module Origen
 
     def spec_features(options = {})
       options = {
-        id:     nil,
+        id: nil,
         device: nil
       }.update(options)
       return @_spec_features if options[:id].nil? && options[:device].nil?
       return nil if @_spec_features.nil?
       return nil if @_spec_features.empty?
+
       features_found = Hash.new do |h, k|
         h[k] = {}
       end
@@ -279,11 +284,12 @@ module Origen
     def exhibits(options = {})
       options = {
         block: nil,
-        id:    nil,
-        type:  nil
+        id: nil,
+        type: nil
       }.update(options)
       return nil if @_exhibits.nil?
       return nil if @_exhibits.empty?
+
       ex_found = Hash.new do |h, k|
         h[k] = Hash.new do |hh, kk|
           hh[kk] = {}
@@ -305,13 +311,14 @@ module Origen
 
     def doc_resources(options = {})
       options = {
-        mode:     nil,
-        type:     nil,
+        mode: nil,
+        type: nil,
         sub_type: nil,
         audience: nil
       }.update(options)
       return nil if @_doc_resources.nil?
       return nil if @_doc_resources.empty?
+
       dr_found = Hash.new do |h, k|
         h[k] = Hash.new do |hh, kk|
           hh[kk] = Hash.new do |hhh, kkk|
@@ -337,16 +344,17 @@ module Origen
 
     def documentations(options = {})
       options = {
-        section:    nil,
+        section: nil,
         subsection: nil,
-        interface:  nil,
-        mode:       nil,
-        type:       nil,
-        sub_type:   nil,
-        audience:   nil
+        interface: nil,
+        mode: nil,
+        type: nil,
+        sub_type: nil,
+        audience: nil
       }.update(options)
       return nil if @_documentation.nil?
       return nil if @_documentation.empty?
+
       doc_found = Hash.new do |h, k|
         h[k] = Hash.new do |hh, kk|
           hh[kk] = Hash.new do |hhh, kkk|
@@ -384,7 +392,7 @@ module Origen
 
     def overrides(options = {})
       options = {
-        block:    nil,
+        block: nil,
         spec_ref: nil,
         mode_ref: nil,
         sub_type: nil,
@@ -392,6 +400,7 @@ module Origen
       }.update(options)
       return nil if @_overrides.nil?
       return nil if @_overrides.empty?
+
       overrides_found = Hash.new do |h, k|
         h[k] = Hash.new do |hh, kk|
           hh[kk] = Hash.new do |hhh, kkk|
@@ -422,10 +431,11 @@ module Origen
     def mode_selects(options = {})
       options = {
         block: nil,
-        mode:  nil
+        mode: nil
       }.update(options)
       return nil if @_mode_selects.nil?
       return nil if @_mode_selects.empty?
+
       modes_found = Hash.new do|h, k|
         h[k] = {}
       end
@@ -451,6 +461,7 @@ module Origen
       end
       return nil if @_power_supplies.nil?
       return nil if @_power_supplies.empty?
+
       filter_hash(@_power_supplies, options[:gen]).each do |gen, hash|
         filter_hash(hash, options[:act]).each do |act, sel|
           ps_found[gen][act] = sel
@@ -465,9 +476,9 @@ module Origen
 
     def version_histories(options = {})
       options = {
-        date:   nil,
+        date: nil,
         author: nil,
-        label:  nil
+        label: nil
       }.update(options)
       vh_found = Hash.new do |h, k|
         h[k] = Hash.new do |hh, kk|
@@ -476,6 +487,7 @@ module Origen
       end
       return nil if @_version_history.nil?
       return nil if @_version_history.empty?
+
       filter_hash(@_version_history, options[:date]).each do |date, hash|
         filter_hash(hash, options[:author]).each do |author, hash1|
           filter_hash(hash1, options[:label]).each do |label, ver|
@@ -644,6 +656,7 @@ module Origen
     # Return a hash based on the filter provided
     def filter_hash(hash, filter, debug = false)
       fail 'Hash argument is not a Hash!' unless hash.is_a? Hash
+
       filtered_hash = {}
       select_logic = case filter
         when String then 'k.nil? ? false : k[Regexp.new(filter)] && k.length == filter.length'
@@ -665,14 +678,14 @@ module Origen
     # Filters the 4D hash to find specs for all user visible API
     def show_specs(options = {})
       options = {
-        mode:              nil,
-        spec:              nil,
-        type:              nil,
-        sub_type:          nil,
+        mode: nil,
+        spec: nil,
+        type: nil,
+        sub_type: nil,
         specs_to_be_shown: SpecArray.new,
-        owner:             nil,
-        symbol:            false,
-        creating_spec:     false
+        owner: nil,
+        symbol: false,
+        creating_spec: false
       }.update(options)
       options[:symbol] ? symbol = options.delete(:spec) : symbol = nil
       specs_to_be_shown = options[:specs_to_be_shown]
@@ -727,18 +740,18 @@ module Origen
       whitespace_padding = 3
       table = []
       attrs_to_be_shown = {
-        name:        SpecTableAttr.new('Name',      true,  'Name'.length + whitespace_padding),
-        symbol:      SpecTableAttr.new('Symbol',    false, 'Symbol'.length + whitespace_padding),
-        mode:        SpecTableAttr.new('Mode',      true,  'Mode'.length + whitespace_padding),
-        type:        SpecTableAttr.new('Type',      true,  'Type'.length + whitespace_padding),
-        sub_type:    SpecTableAttr.new('Sub-Type',  false, 'Sub-Type'.length + whitespace_padding),
+        name: SpecTableAttr.new('Name',      true,  'Name'.length + whitespace_padding),
+        symbol: SpecTableAttr.new('Symbol',    false, 'Symbol'.length + whitespace_padding),
+        mode: SpecTableAttr.new('Mode',      true,  'Mode'.length + whitespace_padding),
+        type: SpecTableAttr.new('Type',      true,  'Type'.length + whitespace_padding),
+        sub_type: SpecTableAttr.new('Sub-Type',  false, 'Sub-Type'.length + whitespace_padding),
         # spec SpecTableAttribute :description is called parameter in the spec table output to match historical docs
         description: SpecTableAttr.new('Parameter', false, 'Parameter'.length + whitespace_padding),
-        min:         SpecTableAttr.new('Min',       false, 'Min'.length + whitespace_padding),
-        typ:         SpecTableAttr.new('Typ',       false, 'Typ'.length + whitespace_padding),
-        max:         SpecTableAttr.new('Max',       false, 'Max'.length + whitespace_padding),
-        unit:        SpecTableAttr.new('Unit',      false, 'Unit'.length + whitespace_padding),
-        audience:    SpecTableAttr.new('Audience',  false, 'Audience'.length + whitespace_padding)
+        min: SpecTableAttr.new('Min',       false, 'Min'.length + whitespace_padding),
+        typ: SpecTableAttr.new('Typ',       false, 'Typ'.length + whitespace_padding),
+        max: SpecTableAttr.new('Max',       false, 'Max'.length + whitespace_padding),
+        unit: SpecTableAttr.new('Unit',      false, 'Unit'.length + whitespace_padding),
+        audience: SpecTableAttr.new('Audience',  false, 'Audience'.length + whitespace_padding)
         # notes:       SpecTableAttr.new('Notes',     false, 'Notes'.length + whitespace_padding)
       }
       # Calculate the padding needed in the spec table for the longest attr of all specs
@@ -747,6 +760,7 @@ module Origen
           unless spec.send(attr_name).nil?
             if spec.send(attr_name).class == Origen::Specs::Spec::Limit
               next if spec.send(attr_name).value.nil?
+
               current_padding = spec.send(attr_name).value.to_s.length + whitespace_padding
             else
               current_padding = spec.send(attr_name).to_s.length + whitespace_padding
@@ -760,6 +774,7 @@ module Origen
       header = ''
       attrs_to_be_shown.each do |_attr_name, attr_struct|
         next if attr_struct.show == false
+
         header += "| #{attr_struct.table_text}".ljust(attr_struct.padding)
       end
       header += '|'
@@ -775,6 +790,7 @@ module Origen
         data = ''
         attrs_to_be_shown.each do |attr_name, attr_struct|
           next if attr_struct.show == false
+
           if spec.send(attr_name).class == Origen::Specs::Spec::Limit
             data += "| #{spec.send(attr_name).value}".ljust(attr_struct.padding)
           else

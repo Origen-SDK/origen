@@ -114,11 +114,13 @@ module Origen
 
     def write_memory(*args)
       return super if defined?(super)
+
       write_register(*args)
     end
 
     def read_memory(*args)
       return super if defined?(super)
+
       read_register(*args)
     end
 
@@ -222,12 +224,14 @@ module Origen
     def current_mode
       if @current_mode
         return _modes[@current_mode] if _modes[@current_mode]
+
         fail "The mode #{@current_mode} of #{self.class} has not been defined!"
       else
         unless top_level?
           # Need to do this in case a class besides SubBlock includes Origen::Model
           obj_above_self = parent.nil? ? Origen.top_level : parent
           return nil if obj_above_self.nil?
+
           if obj_above_self.current_mode
             _modes[obj_above_self.current_mode.id] if _modes.include? obj_above_self.current_mode.id
           end
@@ -320,6 +324,7 @@ module Origen
       end
       sub_blocks.each do |_name, sb|
         next unless sb.respond_to? :specs
+
         child_specs = sb.specs
         unless child_specs.nil?
           if child_specs.class == Origen::Specs::Spec
@@ -340,6 +345,7 @@ module Origen
       obj.delete_all_exhibits
       obj.children.each do |_name, child|
         next unless child.has_specs?
+
         delete_all_specs_and_notes(child)
       end
     end
@@ -396,12 +402,12 @@ module Origen
 
     def to_json(*args)
       JSON.pretty_generate({
-                             name:      name,
-                             address:   base_address,
-                             path:      path,
-                             blocks:    sub_blocks.map do |name, block|
+                             name: name,
+                             address: base_address,
+                             path: path,
+                             blocks: sub_blocks.map do |name, block|
                                {
-                                 name:    name,
+                                 name: name,
                                  address: block.base_address
                                }
                              end,

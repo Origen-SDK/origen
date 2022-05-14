@@ -51,10 +51,10 @@ def self._local_gems
   gems = {}
   Gem::Specification.sort_by { |g| [g.name.downcase, g.version] }.group_by(&:name).map do |name, specs|
     gems[name.to_sym] = {
-      name:     name,
-      version:  specs.map(&:version).join(','),
+      name: name,
+      version: specs.map(&:version).join(','),
       location: specs.map(&:full_gem_path).join(','),
-      authors:  specs.map(&:authors).join(',')
+      authors: specs.map(&:authors).join(',')
     }
   end
   gems

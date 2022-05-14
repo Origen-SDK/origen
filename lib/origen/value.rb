@@ -107,6 +107,7 @@ module Origen
       if index.is_a?(Range)
         fail 'Currently, only single bit extraction from a Value object is supported'
       end
+
       val[index]
     end
 

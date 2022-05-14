@@ -239,7 +239,7 @@ end
           gem_dir = Pathname.new(Gem.dir)
 
           Origen.site_config.gem_use_from_system.each do |gem, version|
-            begin
+            
               # This will raise an error if the system doesn't have this gem installed, that
               # will be rescued below
               spec = Gem::Specification.find_by_name(gem, version)
@@ -275,7 +275,7 @@ end
               # continue and try and install the gem if this fails rather than crash
               # This just means that one of the gems that should be copied from the system
               # was not actually installed in the system, so nothing we can do about that here
-            end
+            
           end
         end
       end

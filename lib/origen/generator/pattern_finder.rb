@@ -56,6 +56,7 @@ module Origen
             end
           end
           return :skip unless proceed_with_pattern?(name) # The application has elected not to run this pattern
+
           pats = matching_patterns(name)
           if pats.size == 0
             pats = all_matches(name)

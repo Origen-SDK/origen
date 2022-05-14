@@ -5,11 +5,11 @@ module Origen
       # Returns true if it is a new file, or if a change has been detected
       def check_for_changes(new, old, options = {})
         options = {
-          comment_char:   Origen.app.tester ? Origen.app.tester.comment_char : nil,
-          quiet:          false,
-          compile_job:    false,
+          comment_char: Origen.app.tester ? Origen.app.tester.comment_char : nil,
+          quiet: false,
+          compile_job: false,
           suspend_string: 'STOPDIFF',
-          resume_string:  'STARTDIFF'
+          resume_string: 'STARTDIFF'
         }.merge(options)
 
         if File.exist?(old)

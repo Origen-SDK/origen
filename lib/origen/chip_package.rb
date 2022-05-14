@@ -129,13 +129,13 @@ module Origen
         @groups << "#{marker} - Power"
         pin_list.each do |item|
           # puts items,owner.pins[items].location
-          begin
+          
             coordinates = coordinate(item.location)
             @field[coordinates[0]][coordinates[1]] = [marker.red + ' ']
           rescue
             puts "#{item} doesn't appear to have a physical location in this configuration."
             puts "Current package = #{owner.package}"
-          end
+          
         end
         generate_field
       end
@@ -151,12 +151,12 @@ module Origen
         pin_list = owner.ground_pins.map { |_ken, pin| pin }
         @groups << "#{marker} - Ground"
         pin_list.each do |item|
-          begin
+          
             coordinates = coordinate(item.location)
             @field[coordinates[0]][coordinates[1]] = [marker.green + ' ']
           rescue
             puts "#{item} doesn't appear to have a physical location in this configuration."
-          end
+          
         end
         generate_field
       end
@@ -235,6 +235,7 @@ module Origen
       row = location[0..split_index]
       column = location[split_index + 1..-1]
       fail ArgumentError, error unless row.length > 0 && column.length > 0
+
       ## Now convert alphanumeric row to jedec equiv' with to_row() method
       # and return coordinates.
       coordinates = [to_row(row), column.to_i - 1]
@@ -298,14 +299,14 @@ module Origen
           end
           reg_state = quote_regex(pinName)
           found_pins.each do |item|
-            begin
+            
               coordinates = coordinate(item.location)
               @field[coordinates[0]][coordinates[1]] = [marker + ' ']
               @groups.delete_if { |group| "#{marker} - \"#{reg_state}\"" == group }
               @groups << "#{marker} - \"#{pinName}\""
             rescue
               raise "\n#{item} doesn't appear to have a physical location in this configuration."
-            end
+            
           end
         end
         generate_field

@@ -88,6 +88,7 @@ module Origen
           unless valid
             fail 'Invalid parameters context, must be :top or a string path to a model object'
           end
+
           @parameters_context = obj
         else
           @parameters_context
@@ -136,6 +137,7 @@ module Origen
           redefine_children.each { |model, set_name| Origen::Parameters.redefine(model, set_name) }
         end
       end
+
       _parameter_sets[name]
     end
     alias_method :define_parameters, :define_params

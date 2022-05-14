@@ -50,6 +50,7 @@ module Origen
       # all imported application workspaces
       def imports_directory
         return @imports_directory if @imports_directory
+
         old = "#{container_directory}/#{revision_control_root.basename}_imports_DO_NOT_HAND_MODIFY"
         @imports_directory = "#{container_directory}/.#{revision_control_root.basename}_imports_DO_NOT_HAND_MODIFY"
         FileUtils.rm_rf(old) if File.exist?(old)
@@ -60,6 +61,7 @@ module Origen
       # all remotes workspaces
       def remotes_directory
         return @remotes_directory if @remotes_directory
+
         old = "#{container_directory}/#{revision_control_root.basename}_remotes_DO_NOT_HAND_MODIFY"
         @remotes_directory = "#{container_directory}/.#{revision_control_root.basename}_remotes_DO_NOT_HAND_MODIFY"
         FileUtils.rm_rf(old) if File.exist?(old)
@@ -107,12 +109,13 @@ module Origen
       # Builds a new workspace at the given path
       def build(path, options = {})
         options = {
-          rc_url:        Origen.app.config.rc_url || Origen.app.config.vault,
+          rc_url: Origen.app.config.rc_url || Origen.app.config.vault,
           allow_rebuild: false
         }.merge(options)
         if File.exist?(path.to_s) && !options[:allow_rebuild]
           fail "Sorry but #{path} already exists!"
         end
+
         FileUtils.rm_rf(path.to_s) if File.exist?(path.to_s)
         rc = RevisionControl.new options.merge(remote: options[:rc_url], local: path.to_s)
         rc.build

@@ -14,6 +14,7 @@ module Origen
 
       def open(id, options = {})
         fail "An org_file is already open with id: #{id}" if open_files[id]
+
         @internal_new = true
         f = OrgFile.new(id, options)
         @internal_new = nil
@@ -28,6 +29,7 @@ module Origen
 
       def close(id, options = {})
         fail "An org_file with this ID has not been opened id: #{id}" unless open_files[id]
+
         open_files[id].close unless options[:_internal_org_file_call_]
         open_files.delete(id)
       end

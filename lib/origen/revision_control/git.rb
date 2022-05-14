@@ -66,6 +66,7 @@ module Origen
           if paths.size > 1 || paths.first != local.to_s
             fail 'The Git driver does not support partial merge checkout, it has to be the whole workspace'
           end
+
           git 'reset HEAD'
           res = git 'stash', options
           stashed = !res.any? { |l| l =~ /^No local changes to save/ }
@@ -334,8 +335,8 @@ module Origen
       def create_gitignore
         c = Origen::Generator::Compiler.new
         c.compile "#{Origen.top}/templates/git/gitignore.erb",
-                  output_directory:  local,
-                  quiet:             true,
+                  output_directory: local,
+                  quiet: true,
                   check_for_changes: false
         FileUtils.mv "#{local}/gitignore", "#{local}/.gitignore"
       end
@@ -346,6 +347,7 @@ module Origen
 
       def initialize_local_dir(options = {})
         return if options[:build_method] == :clone
+
         super
         unless initialized?(options)
           Origen.log.debug "Initializing Git workspace at #{local}"
@@ -364,7 +366,7 @@ module Origen
       def self.git(command, options = {})
         options = {
           check_errors: true,
-          verbose:      true
+          verbose: true
         }.merge(options)
         output = []
         if options[:verbose]

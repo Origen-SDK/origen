@@ -57,6 +57,7 @@ module Origen
           if remote[:path]
             fail "The following remote is defined as a path, but that is not allowed in production: #{remote}"
           end
+
           version = Origen::VersionString.new(remote[:version])
           unless version.valid?
             fail "The following remote version is not in a valid format: #{remote}"

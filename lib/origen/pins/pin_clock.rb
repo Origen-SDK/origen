@@ -127,6 +127,7 @@ module Origen
 
         return @clock_period_in_ns if p.empty?
         fail "[Pin Clock] ERROR: Multiple unit declarations for #{@owner.name}.clock" if p.size > 1
+
         p[0].to_int
       end
 

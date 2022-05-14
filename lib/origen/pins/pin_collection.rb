@@ -62,6 +62,7 @@ module Origen
       #   pin_group.to_vector   # => "LLLLLLLL"
       def to_vector
         return @vector_formatted_value if @vector_formatted_value
+
         vals = map(&:to_vector)
         vals.reverse! if endian == :little
         @vector_formatted_value = vals.join('')
@@ -90,6 +91,7 @@ module Origen
           unless val.size == size
             fail 'When setting vector_formatted_value on a pin group you must supply values for all pins!'
           end
+
           val.split(//).reverse.each_with_index do |val, i|
             myself[i].vector_formatted_value = val
           end
@@ -507,6 +509,7 @@ pins(:some_group).map(&:id).sort
 
       def clean_value(val)
         return val if val.respond_to?(:contains_bits?)
+
         val = val.data if val.respond_to?('data')
         if val.is_a?(String) || val.is_a?(Symbol)
           Origen::Value.new(val)

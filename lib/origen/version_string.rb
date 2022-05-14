@@ -139,49 +139,45 @@ module Origen
     end
 
     def major
-      @major ||= begin
-        if semantic?
+      @major ||= if semantic?
           self =~ /v?(\d+)/
           Regexp.last_match[1].to_i
         else
           fail "#{self} is not a valid semantic version number!"
         end
-      end
+      
     end
 
     def minor
-      @minor ||= begin
-        if semantic?
+      @minor ||= if semantic?
           self =~ /v?\d+.(\d+)/
           Regexp.last_match[1].to_i
         else
           fail "#{self} is not a valid semantic version number!"
         end
-      end
+      
     end
 
     def bugfix
-      @bugfix ||= begin
-        if semantic?
+      @bugfix ||= if semantic?
           self =~ /v?\d+.\d+.(\d+)/
           Regexp.last_match[1].to_i
         else
           fail "#{self} is not a valid semantic version number!"
         end
-      end
+      
     end
     alias_method :tiny, :bugfix
 
     def pre
-      @pre ||= begin
-        if semantic?
+      @pre ||= if semantic?
           if self =~ /(dev|pre)(\d+)$/
             Regexp.last_match[2].to_i
           end
         else
           fail "#{self} is not a valid semantic version number!"
         end
-      end
+      
     end
     alias_method :dev, :pre
 

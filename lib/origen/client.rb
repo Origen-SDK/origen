@@ -37,14 +37,14 @@ module Origen
     def record_invocation(command)
       content = {
         data: {
-          type:       'applications',
+          type: 'applications',
           attributes: {
-            user:             Origen.current_user.core_id,
-            application:      Origen.app.config.initials,
-            "app-version":    Origen.app.version,
+            user: Origen.current_user.core_id,
+            application: Origen.app.config.initials,
+            "app-version": Origen.app.version,
             "origen-version": Origen.version,
-            command:          command,
-            platform:         Origen.running_on_windows? ? 'windows' : 'linux'
+            command: command,
+            platform: Origen.running_on_windows? ? 'windows' : 'linux'
           }
         }
       }
@@ -54,6 +54,7 @@ module Origen
     # Returns an array of data packets for all plugins
     def plugins
       return @plugins if @plugins
+
       response = get('plugins')
       @plugins = JSON.parse(response.body, symbolize_names: true)[:plugins]
     end

@@ -82,6 +82,7 @@ module Origen
           instance_variable_get(ivar)
         end
       end
+
       send(method_name, *arguments, &block)
     end
 

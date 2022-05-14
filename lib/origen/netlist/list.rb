@@ -29,6 +29,7 @@ module Origen
         elsif bits.size == 0
           return undefined
         end
+
         bits.first
       end
 

@@ -54,6 +54,7 @@ module Origen
         if !@pattern && !@output_file_body
           fail 'Sorry the output_pattern is not available until the job has been run'
         end
+
         body = @output_file_body ? @output_file_body : File.basename(@pattern, '.rb')
         output_prefix + body + output_postfix + split_number + output_extension
       end

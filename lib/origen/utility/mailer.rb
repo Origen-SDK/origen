@@ -7,18 +7,18 @@ module Origen
       # Generic method to send an email, alternatively use one of the
       # pre-defined mail types using the other methods.
       def send_email(options = {})
-        options = { server:         Origen.site_config.email_server,
-                    port:           Origen.site_config.email_port,
-                    from:           current_user.email,
-                    from_alias:     current_user.name,
-                    subject:        'Hello',
-                    body:           'Hello from Origen!',
-                    to:             current_user.email,
+        options = { server: Origen.site_config.email_server,
+                    port: Origen.site_config.email_port,
+                    from: current_user.email,
+                    from_alias: current_user.name,
+                    subject: 'Hello',
+                    body: 'Hello from Origen!',
+                    to: current_user.email,
                     authentication: (Origen.site_config.email_authentication || :none).to_sym,
-                    domain:         (Origen.site_config.email_domain || ''),
+                    domain: (Origen.site_config.email_domain || ''),
 
-                    auth_user:      (Origen.site_config.email_auth_user || current_user.email),
-                    auth_password:  (Origen.site_config.email_auth_password || current_user.password)
+                    auth_user: (Origen.site_config.email_auth_user || current_user.email),
+                    auth_password: (Origen.site_config.email_auth_password || current_user.password)
                   }.merge(options)
 
         # Force to an array
@@ -52,15 +52,14 @@ END_OF_MESSAGE
             smtp = Net::SMTP.new(options[:server], options[:port])
             smtp.enable_starttls if options[:authentication] != :none
 
-            opts = begin
-              if options[:authentication] == :none
+            opts = if options[:authentication] == :none
                 # Trying to add username and password if there's no authentication will actually be rejected by
                 # the server.
                 [options[:domain]]
               else
                 [options[:domain], options[:auth_user], options[:auth_password], options[:authentication]]
               end
-            end
+            
 
             smtp.start(*opts) do |m|
               m.send_message(msg, options[:from], addr)

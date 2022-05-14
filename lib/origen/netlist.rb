@@ -4,13 +4,12 @@ module Origen
     autoload :Connectable, 'origen/netlist/connectable'
 
     def netlist
-      @netlist ||= begin
-        if netlist_top_level == self
+      @netlist ||= if netlist_top_level == self
           List.new(self)
         else
           netlist_top_level.netlist
         end
-      end
+      
     end
 
     def netlist_top_level

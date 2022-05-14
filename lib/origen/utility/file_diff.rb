@@ -28,6 +28,7 @@ module Origen
           def initialize(type, input_file)
             self.type = type
             return unless input_file
+
             replace(input_file.current_line)
             self.original_number = input_file.pointer + 1
             input_file.advance_pointer!

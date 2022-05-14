@@ -380,6 +380,7 @@ module Origen
 
     def current_directory
       return @current_directory if @current_directory
+
       @current_directory = clean_path_to(current_file).dirname if current_file
     end
 

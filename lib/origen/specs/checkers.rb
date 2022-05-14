@@ -5,6 +5,7 @@ module Origen
       def name_audit(name)
         return name if name.nil?
         return nil unless name.is_a?(Symbol) || name.is_a?(String)
+
         if name == :inspect
           Origen.log.debug ':inspect is a reserved spec name'
           return nil
@@ -28,6 +29,7 @@ module Origen
         if (@min.exp.to_s.include? '/') || (@max.exp.to_s.include? '/')
           return status
         end
+
         if @min.exp.nil? ^ @max.exp.nil?
           @limit_type = :single_sided
           if @typ.exp
@@ -72,6 +74,7 @@ module Origen
       def evaluate_limit(limit)
         return limit if limit.is_a?(Numeric)
         return nil if limit.nil?
+
         if limit.is_a? Symbol
           limit = ':' + limit.to_s
         else

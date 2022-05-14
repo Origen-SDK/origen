@@ -213,6 +213,7 @@ module Origen
         base.class_eval do
           # Emulate #exclude via an ivar
           return if defined?(@_const_missing) && @_const_missing
+
           @_const_missing = instance_method(:const_missing)
           remove_method(:const_missing)
         end
@@ -256,6 +257,7 @@ module Origen
             name = "#{self}::#{name}"
           end
           return nil if @_checking_name == name
+
           names = name.split('::')
           namespace = names.shift
           if app = Origen::Application.from_namespace(namespace)

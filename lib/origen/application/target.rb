@@ -33,7 +33,7 @@ module Origen
       # set to the current target.
       def loop(options = {})
         options = {
-          set_target:  true,
+          set_target: true,
           force_debug: false, # Set true to force debug mode for all targets
         }.merge(options)
         targets = [options.delete(:target), options.delete(:targets)].flatten.compact.uniq
@@ -279,6 +279,7 @@ module Origen
       # otherwise returns nil
       def default_file
         return @default_file if @default_file
+
         if File.exist?(SAVE_FILE)
           File.open(SAVE_FILE) do |f|
             @default_file = Marshal.load(f)
@@ -292,6 +293,7 @@ module Origen
       # Returns the target file (a Pathname object) if it has been defined, otherwise nil
       def file # :nodoc:
         return @file if @file
+
         if default_file && File.exist?(default_file)
           @file = default_file
         end
@@ -374,6 +376,7 @@ module Origen
       def prod_targets # :nodoc:
         return {} unless Origen.config.production_targets
         return @prod_targets if @prod_targets
+
         @prod_targets = {}
         Origen.config.production_targets.each do |key, value|
           @prod_targets[key.upcase] = value

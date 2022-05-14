@@ -336,12 +336,12 @@ module Origen
                 header_printed = true
               end
               inject_pattern_header(
-                config_loc:      plugin,
-                scope:           :shared_pattern_header,
-                message:         "Header Comments From Shared Plugin: #{plugin.name}:",
+                config_loc: plugin,
+                scope: :shared_pattern_header,
+                message: "Header Comments From Shared Plugin: #{plugin.name}:",
                 message_spacing: 2,
-                line_spacing:    4,
-                no_separator:    true
+                line_spacing: 4,
+                no_separator: true
               )
             end
           end
@@ -353,16 +353,16 @@ module Origen
           # These will only appear if the plugin is the top-level plugin though.
           inject_pattern_header(
             config_loc: Origen.app.plugins.current,
-            scope:      :current_plugin_pattern_header,
-            message:    "Header Comments From The Current Plugin: #{Origen.app.plugins.current.name}:"
+            scope: :current_plugin_pattern_header,
+            message: "Header Comments From The Current Plugin: #{Origen.app.plugins.current.name}:"
           )
         end
 
         unless Origen.app.config.send(:application_pattern_header).nil?
           inject_pattern_header(
             config_loc: Origen.app,
-            scope:      :application_pattern_header,
-            message:    "Header Comments From Application: #{Origen.app.name}:"
+            scope: :application_pattern_header,
+            message: "Header Comments From Application: #{Origen.app.name}:"
           )
         end
 

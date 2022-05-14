@@ -55,6 +55,7 @@ module Origen
       unless LEVELS.include?(val)
         fail "Unknown log level, valid values are: #{LEVELS}"
       end
+
       # Map the log4r levels to our simplified 3 level system
       # log4r level order is DEBUG < INFO < WARN < ERROR < FATAL
       case val

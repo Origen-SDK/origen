@@ -431,7 +431,7 @@ module Origen
       # Add the name and parent to the options if they aren't already given
       # If the parent isn't available on the includer class, it will remain nil.
       options = {
-        name:   name,
+        name: name,
         parent: parent
       }.merge(options)
 
@@ -577,6 +577,7 @@ module Origen
     def delete(to_delete)
       obj = delete!(to_delete)
       fail Origen::Componentable::NameDoesNotExistError, "#{_singleton_name} name :#{to_delete} does not exist" if obj.nil?
+
       obj
     end
     alias_method :remove, :delete

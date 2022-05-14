@@ -92,6 +92,7 @@ class String
     while match_str.length > 0
       md = match_str.match(regex)
       break unless md
+
       matches << md
       match_str = md.post_match
     end
@@ -176,6 +177,7 @@ class String
   # Check if a String is a numeric
   def is_numeric?
     return true if self =~ /\A\d+\Z/
+
     true if Float(self) rescue false # rubocop:disable Style/RescueModifier
   end
   alias_method :numeric?, :is_numeric?

@@ -87,11 +87,10 @@ module Origen
             end
           end
         else
-          @email ||= begin
-            if Origen.site_config.email_domain
+          @email ||= if Origen.site_config.email_domain
               "#{id}@#{Origen.site_config.email_domain}"
             end
-          end
+          
         end
       end
 
