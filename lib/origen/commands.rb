@@ -7,20 +7,20 @@ require 'fileutils'
 ARGV << '--help' if ARGV.empty?
 
 ORIGEN_COMMAND_ALIASES = {
-  'g' => 'generate',
-  'p' => 'program',
-  't' => 'target',
-  '-t' => 'target', # For legacy reasons
-  'e' => 'environment',
-  '-e' => 'environment',
-  'l' => 'lsf',
-  'i' => 'interactive',
-  'c' => 'compile',
-  'pl' => 'plugin',
-  '-v' => 'version',
+  'g'         => 'generate',
+  'p'         => 'program',
+  't'         => 'target',
+  '-t'        => 'target', # For legacy reasons
+  'e'         => 'environment',
+  '-e'        => 'environment',
+  'l'         => 'lsf',
+  'i'         => 'interactive',
+  'c'         => 'compile',
+  'pl'        => 'plugin',
+  '-v'        => 'version',
   '--version' => 'version',
-  '-version' => 'version',
-  'm' => 'mode'
+  '-version'  => 'version',
+  'm'         => 'mode'
 }
 
 @command = ARGV.shift

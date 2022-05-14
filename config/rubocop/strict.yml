@@ -815,7 +815,7 @@ Layout/HashAlignment:
   # table - left alignment of keys, hash rockets, and values
   #   'a'  => 2
   #   'bb' => 3
-  EnforcedHashRocketStyle: key
+  EnforcedHashRocketStyle: table
   SupportedHashRocketStyles:
     - key
     - separator

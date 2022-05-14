@@ -471,15 +471,15 @@ module Origen
         # Ensure these options are removed, these are either incompatible with the LSF,
         # or will already have been added elsewhere
         {
-          ['-h', '--help'] => false,
-          ['-w', '--wait'] => false,
-          ['-d', '--debug'] => false,
-          ['-c', '--continue'] => false,
-          '--exec_remote' => false,
-          ['-t', '--target'] => '*',
+          ['-h', '--help']        => false,
+          ['-w', '--wait']        => false,
+          ['-d', '--debug']       => false,
+          ['-c', '--continue']    => false,
+          '--exec_remote'         => false,
+          ['-t', '--target']      => '*',
           ['-e', '--environment'] => '*',
-          '--id' => '*',
-          ['-l', '--lsf'] => %w(add clear)
+          '--id'                  => '*',
+          ['-l', '--lsf']         => %w(add clear)
         }.each do |names, values|
           [names].flatten.each do |name|
             ix = opts.index(name)
