@@ -11,7 +11,8 @@ unless defined? RGen::ORIGENTRANSITION
   # Keep a note of the pwd at the time when Origen was first loaded, this is initially used
   # by the site_config lookup.
   $_origen_invocation_pwd ||= Pathname.pwd
-  require 'fileutils'
+  # duplicated require commented out below
+  # require 'fileutils'
   # Force these to re-load since they could have been loaded from an earlier version of Origen during boot
   load 'origen/loader.rb'
   load 'origen/site_config.rb'

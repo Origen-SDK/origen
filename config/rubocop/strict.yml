@@ -3746,7 +3746,7 @@ Style/IdenticalConditionalBranches:
                  Checks that conditional statements do not have an identical
                  line at the end of each branch, which can validly be moved
                  out of the conditional.
-  Enabled: true
+  Enabled: false
   SafeAutoCorrect: false
   VersionAdded: '0.36'
   VersionChanged: '1.19'
