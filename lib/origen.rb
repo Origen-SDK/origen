@@ -31,7 +31,7 @@ unless defined? RGen::ORIGENTRANSITION
   require 'origen/undefined'
   require 'origen/componentable'
 
-  autoload :PatSeq,              'origen/generator/pattern_sequencer'
+  autoload :PatSeq, 'origen/generator/pattern_sequencer'
 
   module Origen
     autoload :Features,          'origen/features'
