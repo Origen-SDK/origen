@@ -119,7 +119,7 @@ module Origen
           else
             File.open(f, 'w') { |out| out.puts output }
           end
-        else  # Just copy it across
+        else # Just copy it across
           out = output_file(file, options)
           # Delete the target if it already exists, this prevents permission denied errors when copying
           FileUtils.rm_f(out.to_s) if File.exist?(out.to_s)

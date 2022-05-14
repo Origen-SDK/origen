@@ -12,7 +12,7 @@ By default this will always create the workspace at './[PLUGIN_NAME]'
 Usage: origen fetch [PLUGIN_NAME] [options]
 END
   opts.on('-o', '--outputdir PATH', 'User defined destination directory of the plugin workspace') { |o| options[:outputdir] = o }
-  opts.on('-v', '--version VERSION', 'User requested plugin/gem version') {  |v| options[:version] = v }
+  opts.on('-v', '--version VERSION', 'User requested plugin/gem version') { |v| options[:version] = v }
   opts.on('-h', '--help', 'Show this message') { puts opts; exit }
 end.parse!
 

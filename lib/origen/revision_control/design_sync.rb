@@ -183,7 +183,7 @@ module Origen
           item =~ /^(Name|Directory|---)/
         end
         files.map! do |file|
-          file.strip!  # Strip off any whitespace from all objects
+          file.strip! # Strip off any whitespace from all objects
           file.sub!(/^#{full_path_prefix}/, '')
           file.sub('|', ':')
           file.sub!(/^/, "#{paths.first}/")
@@ -202,7 +202,7 @@ module Origen
           item =~ /^(Name|Directory|---)/ || item.strip.empty?
         end
         files.map! do |file|
-          file.strip!  # Strip off any whitespace from all objects
+          file.strip! # Strip off any whitespace from all objects
           file.sub!(/^#{full_path_prefix}/, '')
           file.sub('|', ':')
         end

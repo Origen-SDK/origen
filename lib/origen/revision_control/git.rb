@@ -126,7 +126,7 @@ module Origen
           end
           if options[:author]
             if options[:author].respond_to?(:name_and_email)
-              author =  options[:author].name_and_email
+              author = options[:author].name_and_email
             else
               author = "#{options[:author]} <>"
             end

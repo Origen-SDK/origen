@@ -229,7 +229,7 @@ end
 
       def setup_bundler(origen_root)
         bundle_path = nil
-        eval BUNDLER_SETUP  # Will update bundle_path
+        eval BUNDLER_SETUP # Will update bundle_path
         bundle_path
       end
 

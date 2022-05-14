@@ -527,7 +527,7 @@ module Origen
             bit_params[:res] = bit_params[:data] if bit_params[:data]
             bit_params[:res] = bit_params[:reset] if bit_params[:reset]
             if num_bits == 1
-              add_bit(bit_id, position, bit_params)   # and add the new one
+              add_bit(bit_id, position, bit_params) # and add the new one
             else
               add_bus(bit_id, position, num_bits, bit_params)
             end
@@ -977,12 +977,12 @@ module Origen
 
       # Add a bit to the register, should only be called internally
       def add_bit(id, position, options = {}) # :nodoc:
-        options = { data: @bits[position].data,  # If undefined preserve any data/reset value that has
-                    res:  @bits[position].data,   # already been applied at reg level
+        options = { data: @bits[position].data, # If undefined preserve any data/reset value that has
+                    res:  @bits[position].data, # already been applied at reg level
                   }.merge(options)
 
         @lookup[id] = { pos: position, bits: 1, feature: options[:feature] }
-        @bits.delete_at(position)    # Remove the initial bit from this position
+        @bits.delete_at(position) # Remove the initial bit from this position
 
         @bits.insert(position, Bit.new(self, position, options))
         self
@@ -994,8 +994,8 @@ module Origen
         size.times do |n|
           default_data |= @bits[position + n].data << n
         end
-        options = { data: default_data,  # If undefined preserve any data/reset value that has
-                    res:  default_data,   # already been applied at reg level
+        options = { data: default_data, # If undefined preserve any data/reset value that has
+                    res:  default_data, # already been applied at reg level
                   }.merge(options)
 
         @lookup[id] = { pos: position, bits: size }
@@ -1025,8 +1025,8 @@ module Origen
           size.times do |n|
             default_data |= @bits[position + n].data << n
           end
-          options = { data: default_data,  # If undefined preserve any data/reset value that has
-                      res:  default_data,   # already been applied at reg level
+          options = { data: default_data, # If undefined preserve any data/reset value that has
+                      res:  default_data, # already been applied at reg level
                     }.merge(options)
 
           @lookup[id] = [] if @lookup[id].nil?
@@ -1048,7 +1048,7 @@ module Origen
           @lookup.delete(name)
         end
         collection.each do |bit|
-          @bits.delete_at(bit.position)    # Remove the bit
+          @bits.delete_at(bit.position) # Remove the bit
           @bits.insert(bit.position, Bit.new(self, bit.position, writable: @init_as_writable))
         end
         self
@@ -1219,11 +1219,11 @@ module Origen
         elsif split_group_reg == true # if this registers has split bits in its range
           if @lookup.is_a?(Hash) # && @lookup.include?(bit_name)
             collection = false
-            @lookup.each do |k, v|  # k is the bitname, v is the hash of bit data
+            @lookup.each do |k, v| # k is the bitname, v is the hash of bit data
               if k == bit_name
                 collection ||= BitCollection.new(self, k)
                 if v.is_a?(Array)
-                  v.reverse_each do |pb|  # loop each piece of bit group data
+                  v.reverse_each do |pb| # loop each piece of bit group data
                     (pb[:bits]).times do |i|
                       collection << @bits[pb[:pos] + i]
                     end
@@ -1401,7 +1401,7 @@ module Origen
       # Cleans an input value, in some cases it could be a register object, or an explicit value.
       # This will return an explicit value in either case.
       def self.clean_value(value) # :nodoc:
-        value = value.val if value.respond_to?('val')  # Pull out the data value if a reg object has been passed in
+        value = value.val if value.respond_to?('val') # Pull out the data value if a reg object has been passed in
         value
       end
 

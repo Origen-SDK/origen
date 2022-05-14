@@ -57,7 +57,7 @@ module Origen
     #
     def prepare_plot
       @plottable = types.any? { |x| /BGA/i =~ x }
-      if  @plottable
+      if @plottable
         @last_empty_char = '.'
         @field = []
         @groups = []

@@ -2,7 +2,7 @@ module Origen
   module Ports
     autoload :Port,     'origen/ports/port'
     autoload :Section,  'origen/ports/section'
-    autoload :BitCollection,  'origen/ports/bit_collection'
+    autoload :BitCollection, 'origen/ports/bit_collection'
     autoload :PortCollection,  'origen/ports/port_collection'
 
     def add_port(name, options = {})

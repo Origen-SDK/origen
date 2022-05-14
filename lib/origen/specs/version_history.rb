@@ -4,7 +4,7 @@ module Origen
     class Version_History
       attr_accessor :label, :date, :author, :changes, :external_changes_internal
 
-      def initialize(date, author, changes, label = nil, external_changes_internal =  nil)
+      def initialize(date, author, changes, label = nil, external_changes_internal = nil)
         @date = date
         @author = author
         @changes = changes

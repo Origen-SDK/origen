@@ -58,7 +58,7 @@ module Origen
         when 'd'
           @val = val.to_s[1..-1].to_i
         else
-          if  val =~ /^[0-9]+$/
+          if val =~ /^[0-9]+$/
             @val = val.to_i
           else
             fail 'Unsupported value syntax'

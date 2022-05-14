@@ -1,7 +1,7 @@
 require 'fileutils'
 module Origen
   class Application
-    autoload :Statistics,    'origen/application/statistics'
+    autoload :Statistics, 'origen/application/statistics'
 
     # The Runner is responsible for co-ordinating all compile and generate
     # requests from the command line

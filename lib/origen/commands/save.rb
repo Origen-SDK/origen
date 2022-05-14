@@ -13,7 +13,7 @@ Usage: origen save TYPE [options]
     valid TYPE values: all, new, changed
   EOT
   opts.on('-f', '--file FILE', String, 'Override the default log file') { |o| options[:log_file] = o }
-  opts.on('-d', '--debugger', 'Enable the debugger') {  options[:debugger] = true }
+  opts.on('-d', '--debugger', 'Enable the debugger') { options[:debugger] = true }
   opts.on('-m', '--mode MODE', Origen::Mode::MODES, 'Force the Origen operating mode:', '  ' + Origen::Mode::MODES.join(', ')) { |_m| }
   # Apply any application option extensions to the OptionParser
   Origen::CommandHelpers.extend_options(opts, app_options, options)

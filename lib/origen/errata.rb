@@ -1,6 +1,6 @@
 module Origen
   module Errata
-    autoload :HwErratum,		'origen/errata/hw_erratum'
+    autoload :HwErratum,	'origen/errata/hw_erratum'
     autoload :SwErratumWorkaround,	'origen/errata/sw_erratum_workaround'
 
     attr_accessor :_errata

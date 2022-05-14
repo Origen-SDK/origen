@@ -27,7 +27,7 @@ module Origen
             options[:description] = fetch_description(name)
           end
           features[name] = Feature.new(name, options)
-        else          # if feature with given name already exists
+        else # if feature with given name already exists
           fail "Feature #{name} already added!"
         end
       end

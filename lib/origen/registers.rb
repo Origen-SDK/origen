@@ -20,7 +20,7 @@ module Origen
     included do
       include Origen::ModelInitializer
       include Origen::SubBlocks
-      include Origen::Callbacks  # Required for global register reset
+      include Origen::Callbacks # Required for global register reset
 
       attr_accessor :owner
       attr_accessor :name

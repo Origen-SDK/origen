@@ -14,7 +14,7 @@ module Origen
     # An instance of this class is automatically
     # instantiated and available globally as Origen.environment.
     class Environment
-      DIR = "#{Origen.root}/environment"   # :nodoc:
+      DIR = "#{Origen.root}/environment" # :nodoc:
       SAVE_FILE = "#{DIR}/.default"      # :nodoc:
       DEFAULT_FILE = "#{DIR}/default.rb" # :nodoc:
 

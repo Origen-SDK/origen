@@ -155,7 +155,7 @@ module Origen
             else
               Origen.log.start_job(strip_dir_and_ext(@requested_pattern), :pattern_generator)
             end
-            Origen.generator.pattern.reset      # Resets the pattern controller ready for a new pattern
+            Origen.generator.pattern.reset # Resets the pattern controller ready for a new pattern
             # Give the app a chance to handle pattern dispatch
             skip = false
             Origen.app.listeners_for(:before_pattern_lookup).each do |listener|
@@ -190,7 +190,7 @@ module Origen
                   @output_file_body = @pattern[:output]
                   @pattern = @pattern[:pattern]
                 end
-                load @pattern unless @pattern == :skip  # Run the pattern
+                load @pattern unless @pattern == :skip # Run the pattern
               end
             end
           end

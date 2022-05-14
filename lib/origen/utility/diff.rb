@@ -48,14 +48,14 @@ module Origen
         lines_remaining = true
 
         while lines_remaining
-          a = get_next_line_a(content_a)   # Get the next vectors
+          a = get_next_line_a(content_a) # Get the next vectors
           b = get_next_line_b(content_b)
           if !a && !b       # If both patterns finished
             lines_remaining = false
           elsif !a || !b    # If only 1 pattern finished
             lines_remaining = false
-            changes = true unless @suspend_diff     # There are extra vectors in one of the patterns
-          elsif a != b      # If the vectors don't match
+            changes = true unless @suspend_diff # There are extra vectors in one of the patterns
+          elsif a != b # If the vectors don't match
             changes = true unless @suspend_diff
           end
           if @resume_diff # resume checking diffs for subsequent lines

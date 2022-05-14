@@ -17,7 +17,7 @@ module Origen
         # address API, but will accept any of these
         @reg_base_address = options.delete(:reg_base_address) ||
                             options.delete(:base_address) || options.delete(:base) || 0
-        if options[:_instance]                # to be deprecated as part of multi-instance removal below
+        if options[:_instance] # to be deprecated as part of multi-instance removal below
           if @reg_base_address.is_a?(Array)
             @reg_base_address = @reg_base_address[options[:_instance]]
           elsif options[:base_address_step]
@@ -301,7 +301,7 @@ module Origen
         # permit creating multiple instances of a particular sub_block class
         # can pass array for base_address, which will be processed above
         Origen.deprecate 'instances: option to sub_block is deprecated, use sub_block_groups instead'
-        group_name = name =~ /s$/ ? name : "#{name}s"  # take care if name already with 's' is passed
+        group_name = name =~ /s$/ ? name : "#{name}s" # take care if name already with 's' is passed
         unless respond_to?(group_name)
           sub_block_groups group_name do
             i.times do |j|
@@ -362,7 +362,7 @@ module Origen
         else
           sub_blocks[name] = block
         end
-        unless @current_group.nil?  # a group is currently open, store sub_block id only
+        unless @current_group.nil? # a group is currently open, store sub_block id only
           @current_group << name
         end
         if options.key?(:lazy)
@@ -417,14 +417,14 @@ module Origen
       if options[:class_name]
         b = Object.const_get(options[:class_name]).new
       else
-        b = []             # Will use Array if no class defined
+        b = [] # Will use Array if no class defined
       end
       # Add sub_blocks to group
       my_group.each do |group_id|
         b << send(group_id)
       end
       sub_block_groups[id] = b
-      @current_group = nil   # close group
+      @current_group = nil # close group
     end
     alias_method :sub_blocks_group, :sub_block_group
 

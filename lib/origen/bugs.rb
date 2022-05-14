@@ -2,7 +2,7 @@ module Origen
   module Bugs
     extend ActiveSupport::Concern
 
-    autoload :Bug,           'origen/bugs/bug'
+    autoload :Bug, 'origen/bugs/bug'
 
     module ClassMethods # :nodoc:
       # Define a bug on the given IP

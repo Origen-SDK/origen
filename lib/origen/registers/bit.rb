@@ -411,7 +411,7 @@ module Origen
       # Returns the value you would need to write to the register to put the given
       # value in this bit
       def setting(value)
-        value = value & 1   # As this bit can only hold one bit of data force it
+        value = value & 1 # As this bit can only hold one bit of data force it
         value << @position
       end
 

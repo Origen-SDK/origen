@@ -11,7 +11,7 @@ module Origen
         end
 
         name = File.basename(name)
-        @requested_pattern = name   # Remember what was originally asked for in case
+        @requested_pattern = name # Remember what was originally asked for in case
         # it needs to be output in an error message
 
         # Strip the prefix if exists

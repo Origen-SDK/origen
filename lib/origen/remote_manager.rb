@@ -269,7 +269,7 @@ module Origen
     end
 
     def top_level_remotes
-      Origen.app.config.remotes    #+ Origen.app.config.remotes_dev (there are no core remotes at this time)
+      Origen.app.config.remotes #+ Origen.app.config.remotes_dev (there are no core remotes at this time)
     end
 
     def remotes
@@ -353,7 +353,7 @@ module Origen
                 f.write tag
               end
             end
-          rescue Origen::GitError, Origen::DesignSyncError, Origen::PerforceError  => e
+          rescue Origen::GitError, Origen::DesignSyncError, Origen::PerforceError => e
             # If Git failed in the remote, its usually easy to see what the problem is, but now *where* it is.
             # This will prepend the failing remote along with the error from the revision control system,
             # then rethrow the error

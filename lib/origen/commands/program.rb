@@ -12,7 +12,7 @@ opt_parser = OptionParser.new do |opts|
   opts.on('-l', '--lsf [ACTION]', [:clear, :add], "Submit jobs to the LSF, optionally specify whether to 'clear' or 'add' to existing jobs") { |a| options[:lsf] = true; options[:lsf_action] = a }
   opts.on('-w', '--wait', 'Wait for LSF processing to complete') { options[:wait_for_lsf_completion] = true }
   opts.on('-c', '--continue', 'Continue on error (to the next file)') { options[:continue] = true }
-  opts.on('-d', '--debugger', 'Enable the debugger') {  options[:debugger] = true }
+  opts.on('-d', '--debugger', 'Enable the debugger') { options[:debugger] = true }
   opts.on('-f', '--file FILE', String, 'Override the default log file') { |o| options[:log_file] = o }
   opts.on('-pl', '--plugin PLUGIN_NAME', String, 'Set current plugin') { |pl_n|  options[:current_plugin] = pl_n }
   opts.on('-o', '--output DIR', String, 'Override the default output directory') { |o| options[:output] = o }
@@ -21,7 +21,7 @@ opt_parser = OptionParser.new do |opts|
   opts.on('--doc', 'Generate into doc (yaml) format, requires a Doc interface to be setup in your application') { options[:doc] = true }
   opts.on('-q', '--queue NAME', String, 'Specify the LSF queue, default is short') { |o| options[:queue] = o }
   opts.on('-p', '--project NAME', String, 'Specify the LSF project, default is msg.te') { |o| options[:project] = o }
-  opts.on('-d', '--debugger', 'Enable the debugger') {  options[:debugger] = true }
+  opts.on('-d', '--debugger', 'Enable the debugger') { options[:debugger] = true }
   opts.on('-m', '--mode MODE', Origen::Mode::MODES, 'Force the Origen operating mode:', '  ' + Origen::Mode::MODES.join(', ')) { |_m| }
   # Apply any application option extensions to the OptionParser
   Origen::CommandHelpers.extend_options(opts, app_options, options)
@@ -55,7 +55,7 @@ _with_doc_tester(options) do
   Origen.app.plugins.temporary = options[:current_plugin] if options[:current_plugin]
   Origen.environment.temporary = options[:environment] if options[:environment]
   Origen.target.temporary = options[:target] if options[:target]
-  Origen.app.load_target!  # This initial load is required to apply any configuration
+  Origen.app.load_target! # This initial load is required to apply any configuration
   # options present in the target, it will loaded again before
   # each generate/compile job
 

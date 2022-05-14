@@ -279,7 +279,7 @@ module Origen
               #   Changed files:    0
               #   FAILED files:     1
               begin
-                line.gsub!(/\e\[\d+m/, '')  # Remove any coloring
+                line.gsub!(/\e\[\d+m/, '') # Remove any coloring
                 if line =~ /Total patterns:\s+(\d+)/
                   @completed_patterns = Regexp.last_match[1].to_i
                 elsif line =~ /Total vectors:\s+(\d+)/

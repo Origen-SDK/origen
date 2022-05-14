@@ -131,7 +131,7 @@ The following options are available:
     # Apply any application option extensions to the OptionParser
     Origen::CommandHelpers.extend_options(opts, app_options, options)
     opts.separator ''
-    opts.on('-d', '--debugger', 'Enable the debugger') {  options[:debugger] = true }
+    opts.on('-d', '--debugger', 'Enable the debugger') { options[:debugger] = true }
     opts.on('-m', '--mode MODE', Origen::Mode::MODES, 'Force the Origen operating mode:', '  ' + Origen::Mode::MODES.join(', ')) { |_m| }
     opts.separator ''
     opts.separator "The following options apply to the 'tag' command only:"
@@ -369,13 +369,13 @@ The following options are available:
       filelist = Origen.app.rc.unmanaged.reject do |file|
         reject = false
         unmanaged_dirs.each do |dir_filter|
-          if file =~ /^#{Regexp.escape(dir_filter)}\//i         # dir matching
+          if file =~ /^#{Regexp.escape(dir_filter)}\//i # dir matching
             reject = true
           end
         end
         unless reject
           unmanaged_files.each do |file_filter|
-            if file_filter =~ /\*/                      # wildcard used
+            if file_filter =~ /\*/ # wildcard used
               temp_file_filter = file_filter.gsub('.', '___')         # replace . with ___
               temp_file_filter2 = temp_file_filter.sub(/\*/, '')      # remove *
               temp_file = file.gsub('.', '___')                       # replace . with __
@@ -383,7 +383,7 @@ The following options are available:
                 reject = true
               end
             else
-              if file.downcase == file_filter.downcase    # exact match
+              if file.downcase == file_filter.downcase # exact match
                 reject = true
               end
             end

@@ -245,7 +245,7 @@ module Origen
       #
       # @api private
       def reset
-        $desc = nil  # Clear the description
+        $desc = nil # Clear the description
       end
 
       private
@@ -267,7 +267,7 @@ module Origen
       # Creates a header and footer for the pattern based on the current tester and any supplied options
       def pattern_wrapper(iterators, args, options = {})
         pattern_open(options.merge(iterators: iterators, args: args))
-        yield      # Pass control back to the pattern source
+        yield # Pass control back to the pattern source
         pattern_close(options)
       end
 

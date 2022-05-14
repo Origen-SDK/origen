@@ -647,7 +647,7 @@ module Origen
 
       # Sets the store flag on all bits that already have the overlay flag set
       def store_overlay_bits(options = {})
-        options = { exclude: [],         # Pass in an array of any overlays that are to be excluded from store
+        options = { exclude: [], # Pass in an array of any overlays that are to be excluded from store
                   }.merge(options)
         each do |bit|
           bit.store if bit.has_overlay? && !options[:exclude].include?(bit.overlay_str)
@@ -995,7 +995,7 @@ module Origen
         Regexp.new(regex) =~ regval
 
         nibbles = []
-        size_in_nibbles.times do |n|                   # now grouped by nibble
+        size_in_nibbles.times do |n| # now grouped by nibble
           nibbles << Regexp.last_match[n + 1]
         end
 

@@ -20,7 +20,7 @@ http://origen.freescale.net/origen/latest/guides/utilities/lint/
   opts.on('-n', '--no-correct', "Don't correct errors automatically (override if the app default is set to auto correct)") { options[:no_correct] = true }
   opts.on('-e', '--easy', 'Be less strict, most checks run with this flag enabled can be corrected automatically') { options[:easy] = true }
   opts.on('-m', '--mode MODE', Origen::Mode::MODES, 'Force the Origen operating mode:', '  ' + Origen::Mode::MODES.join(', ')) { |_m| }
-  opts.on('-d', '--debugger', 'Enable the debugger') {  options[:debugger] = true }
+  opts.on('-d', '--debugger', 'Enable the debugger') { options[:debugger] = true }
   # Apply any application option extensions to the OptionParser
   Origen::CommandHelpers.extend_options(opts, app_options, options)
   opts.separator ''

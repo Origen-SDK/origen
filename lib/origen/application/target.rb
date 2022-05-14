@@ -12,7 +12,7 @@ module Origen
     # An instance of this class is automatically instantiated and available globally
     # as Origen.app.target
     class Target
-      DIR = "#{Origen.root}/target"        # :nodoc:
+      DIR = "#{Origen.root}/target" # :nodoc:
       SAVE_FILE = "#{DIR}/.default"      # :nodoc:
       DEFAULT_FILE = "#{DIR}/default.rb" # :nodoc:
 
@@ -34,7 +34,7 @@ module Origen
       def loop(options = {})
         options = {
           set_target:  true,
-          force_debug: false,  # Set true to force debug mode for all targets
+          force_debug: false, # Set true to force debug mode for all targets
         }.merge(options)
         targets = [options.delete(:target), options.delete(:targets)].flatten.compact.uniq
         targets = [file!.basename.to_s] if targets.empty?
@@ -57,7 +57,7 @@ module Origen
       #   end
       def each_production(options = {})
         options = {
-          force_debug: false,  # Set true to force debug mode for all targets
+          force_debug: false, # Set true to force debug mode for all targets
         }.merge(options)
         prod_targets.each do |moo, targets|
           [targets].flatten.each do |target|
@@ -79,7 +79,7 @@ module Origen
       #   end
       def each_unique_production(options = {})
         options = {
-          force_debug: false,  # Set true to force debug mode for all targets
+          force_debug: false, # Set true to force debug mode for all targets
         }.merge(options)
         targets = {}
         prod_targets.each do |moo, moos_targets|
@@ -118,7 +118,7 @@ module Origen
       # defined there.
       def load!(options = {})
         options = {
-          force_debug: false,  # Set true to force debug mode for all targets
+          force_debug: false, # Set true to force debug mode for all targets
         }.merge(options)
         Origen.app.load_target!(options)
       end

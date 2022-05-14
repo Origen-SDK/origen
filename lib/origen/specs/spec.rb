@@ -310,7 +310,7 @@ module Origen
         name_set += 4 unless @type.nil?
         name_set += 2 unless @sub_type.nil?
         unless @mode.nil?
-          unless  (@mode.to_s.include? 'local') || (@mode.to_s.include? 'global')
+          unless (@mode.to_s.include? 'local') || (@mode.to_s.include? 'global')
             name_set += 1
           end
         end

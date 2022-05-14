@@ -46,7 +46,7 @@ Usage: origen lsf [options]
   EOT
   opts.on('-v', '--verbose', 'Show job details') { options[:verbose] = true }
   opts.on('-r', '--resubmit', 'Re-submit jobs') { options[:resubmit] = true }
-  opts.on('-c', '--clear', 'Clear jobs') {  options[:clear] = true }
+  opts.on('-c', '--clear', 'Clear jobs') { options[:clear] = true }
   opts.on('-l', '--log', 'Build a log file from the completed jobs') { options[:log] = true }
   #  opts.on("-k", "--kill", "Kill jobs") { options[:kill] = true }
   types = [:queuing, :running, :lost, :passed, :failed, :all]
@@ -55,7 +55,7 @@ Usage: origen lsf [options]
   opts.on('-w', '--wait', 'Wait for LSF processing to complete') { options[:wait_for_lsf_completion] = true }
   # opts.on("-e", "--execute", "Execute....") { options[:execute] = true }
   opts.on('-m', '--mode MODE', Origen::Mode::MODES, 'Force the Origen operating mode:', '  ' + Origen::Mode::MODES.join(', ')) { |_m| }
-  opts.on('-d', '--debugger', 'Enable the debugger') {  options[:debugger] = true }
+  opts.on('-d', '--debugger', 'Enable the debugger') { options[:debugger] = true }
   # Apply any application option extensions to the OptionParser
   Origen::CommandHelpers.extend_options(opts, app_options, options)
   opts.separator ''

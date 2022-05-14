@@ -25,7 +25,7 @@ https://origen-sdk.org/origen_app_generators
 
 Usage: origen new [APP_NAME] [options]
 END
-  opts.on('-d', '--debugger', 'Enable the debugger') {  options[:debugger] = true }
+  opts.on('-d', '--debugger', 'Enable the debugger') { options[:debugger] = true }
   opts.on('-f', '--fetch', 'Fetch the latest versions of the app generators, otherwise happens every 24hrs') { options[:fetch] = true }
   opts.separator ''
   opts.on('-h', '--help', 'Show this message') { puts opts; exit }

@@ -105,7 +105,7 @@ module Origen
       include Rake::DSL
 
       def load_tasks
-        $VERBOSE = nil  # Don't care about world writable dir warnings and the like
+        $VERBOSE = nil # Don't care about world writable dir warnings and the like
         require 'colored'
 
         # Load all Origen tasks first
@@ -871,7 +871,7 @@ END
       # declares here, the objects registered with origen should be refreshed accordingly
       clear_dynamic_resources
       load_event(:transient) do
-        Origen.mode = Origen.app.session.origen_core[:mode] || :production  # Important since a production target may rely on the default
+        Origen.mode = Origen.app.session.origen_core[:mode] || :production # Important since a production target may rely on the default
         begin
           $_target_options = @target_load_options
           Origen.target.set_signature(@target_load_options)

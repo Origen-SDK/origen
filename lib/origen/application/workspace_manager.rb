@@ -86,7 +86,7 @@ module Origen
         remote_ref = "#{origen_root(workspace)}/.ref"
         unless File.exist?(remote_ref)
           FileUtils.mkdir_p(remote_ref)
-          `touch #{remote_ref}/dont_delete`  # Make sure the pop does not blow this away
+          `touch #{remote_ref}/dont_delete` # Make sure the pop does not blow this away
         end
         if Origen.running_on_windows?
           system("call mklink /h #{reference_dir} #{remote_ref}")

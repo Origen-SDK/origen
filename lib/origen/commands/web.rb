@@ -39,14 +39,14 @@ The following options are available:
     END
     opts.on('-e', '--environment NAME', String, 'Override the default environment, NAME can be a full path or a fragment of an environment file name') { |e| options[:environment] = e }
     opts.on('-t', '--target NAME', String, 'Override the default target, NAME can be a full path or a fragment of a target file name') { |t| options[:target] = t }
-    opts.on('-r', '--remote', 'Use in conjunction with the compile command to deploy files to a remote web server') {  options[:remote] = true }
+    opts.on('-r', '--remote', 'Use in conjunction with the compile command to deploy files to a remote web server') { options[:remote] = true }
     opts.on('-a', '--api', 'Generate API documentation after compiling') {  options[:api] = true }
     opts.on('--archive ID', String, 'Archive the documents after compiling or deploying remotely') do |id|
       options[:archive] = id
       require "#{Origen.top}/helpers/url"
       Origen::Generator::Compiler::Helpers.archive_name = id
     end
-    opts.on('-d', '--debugger', 'Enable the debugger') {  options[:debugger] = true }
+    opts.on('-d', '--debugger', 'Enable the debugger') { options[:debugger] = true }
     opts.on('-m', '--mode MODE', Origen::Mode::MODES, 'Force the Origen operating mode:', '  ' + Origen::Mode::MODES.join(', ')) { |_m| }
     opts.on('--no-serve', "Don't serve the website after compiling without the remote option") { options[:no_serve] = true }
     opts.on('-c', '--comment COMMENT', String, 'Supply a commit comment when deploying to Git') { |o| options[:comment] = o }

@@ -6,12 +6,12 @@ module Origen
       # Supply an optional default value in the event that the user enters nothing
       def get_text(options = {})
         options = { default:        false,
-                    single:         false,     # Set if only a single line entry is expected
+                    single:         false, # Set if only a single line entry is expected
                     confirm:        false,
-                    accept:         false,         # Supply and array of entries you are willing to accept
+                    accept:         false, # Supply and array of entries you are willing to accept
                     case_sensitive: false, # If accept values are supplied they will be treated as case
                     # in-sensitive by default
-                    wrap:           true,   # Automatically split long lines
+                    wrap:           true, # Automatically split long lines
         }.merge(options)
         if options[:confirm]
           puts "Type 'yes' or 'no' to confirm or 'quit' to abort."

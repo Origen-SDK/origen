@@ -50,9 +50,9 @@ Your workspace has local modifications that are preventing the requested action
           Origen.app.listeners_for(:validate_release).each(&:validate_release)
           lint_test
           get_latest_version_files
-          base_version = Origen.app.version(refresh: true)  # Read in the latest version
+          base_version = Origen.app.version(refresh: true) # Read in the latest version
           get_release_note unless note
-          new_version = get_or_confirm_version(type)  # Don't mask this like the above!
+          new_version = get_or_confirm_version(type) # Don't mask this like the above!
           write_version(new_version)
           # Refresh the version in the current thread
           Origen.app.version(refresh: true)

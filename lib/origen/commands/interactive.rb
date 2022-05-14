@@ -36,9 +36,9 @@ Usage: origen i [options]
     END
     opts.on('-e', '--environment NAME', String, 'Override the default environment, NAME can be a full path or a fragment of an environment file name') { |e| options[:environment] = e }
     opts.on('-t', '--target NAME', String, 'Override the default target, NAME can be a full path or a fragment of a target file name') { |t| options[:target] = t }
-    opts.on('-pl', '--plugin PLUGIN_NAME', String, 'Set current plugin') { |pl_n|  options[:current_plugin] = pl_n }
+    opts.on('-pl', '--plugin PLUGIN_NAME', String, 'Set current plugin') { |pl_n| options[:current_plugin] = pl_n }
     opts.on('-p', '--pry', 'Use Pry for the session (instead of IRB)') { options[:pry] = true }
-    opts.on('-d', '--debugger', 'Enable the debugger') {  options[:debugger] = true }
+    opts.on('-d', '--debugger', 'Enable the debugger') { options[:debugger] = true }
     opts.on('-m', '--mode MODE', Origen::Mode::MODES, 'Force the Origen operating mode:', '  ' + Origen::Mode::MODES.join(', ')) { |_m| }
     # Apply any application option extensions to the OptionParser
     Origen::CommandHelpers.extend_options(opts, app_options, options)
