@@ -693,7 +693,13 @@ If you meant to define the virtual_pin_group then use the add_virtual_pin_group 
     end
     alias_method :virtual_pin_group, :virtual_pin_groups
 
-    def all_pin_ids(type: nil, **options)
+    def all_pin_ids(*options)
+      type = nil
+      if options.first.is_a?(Hash)
+        options = options.first
+        type = options[:type]
+      end
+
       case type
       when :power_pin, :power_pins
         dut.pins(power_pin: true).map { |n, p| [n, *p.aliases.keys] }.flatten.map { |n| [n, dut.power_pin(n)] }.to_h
