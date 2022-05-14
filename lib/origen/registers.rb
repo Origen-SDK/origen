@@ -408,11 +408,11 @@ module Origen
         @new_reg_attrs[name] = attrs
       else
         if @new_reg_attrs[name].is_a? Hash
-          temparray = temparray.push(@new_reg_attrs[name])
+          temparray.push(@new_reg_attrs[name])
         else
           temparray = @new_reg_attrs[name]
         end
-        temparray = temparray.push(attrs)
+        temparray.push(attrs)
         # added the sort so that the order the registers bits is described is not important
         @new_reg_attrs[name] = temparray.sort { |a, b| b[:pos] <=> a[:pos] }
 

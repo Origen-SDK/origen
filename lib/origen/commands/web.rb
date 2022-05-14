@@ -75,7 +75,10 @@ The following options are available:
   def self._start_server
     # Get the current host
     require 'socket'
+    # gethostbyname is deprecated in favor of Addrinfo#getaddrinfo
+    # rubocop:disable Lint/DeprecatedClassMethods
     host = Socket.gethostbyname(Socket.gethostname).first.downcase
+    # rubocop:enable Lint/DeprecatedClassMethods
 
     # Get a free port
     port = 8000 # preferred port

@@ -23,8 +23,8 @@ module Origen
     require 'origen/users'
     include Origen::Users
 
-    attr_accessor :name
-    attr_accessor :namespace
+    attr_writer :name                       # attr_accessor leads to a duplicate method
+    attr_writer :namespace                  # attr_accessor leads to a duplicate method
 
     class << self
       def inherited(base)

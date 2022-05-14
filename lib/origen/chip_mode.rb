@@ -4,7 +4,7 @@ module Origen
     attr_accessor :brief_description
     attr_accessor :description
     attr_writer :name
-    attr_accessor :data_rate
+    attr_writer :data_rate
     attr_accessor :data_rate_unit
     attr_accessor :minimum_version_enabled
 

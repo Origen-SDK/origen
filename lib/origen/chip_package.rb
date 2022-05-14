@@ -6,7 +6,7 @@ module Origen
     attr_accessor :number_of_rows
     attr_accessor :number_of_columns
     attr_accessor :interconnects
-    attr_accessor :types
+    attr_writer :types
     attr_reader :upper_axes
     attr_reader :lower_axes
     attr_reader :rows
@@ -14,7 +14,7 @@ module Origen
     attr_reader :field
     attr_reader :obj
     attr_reader :groups
-    attr_reader :group_list
+    # attr_reader :group_list       # method is redefined further down
     attr_reader :last_empty_char
     attr_reader :plottable
     attr_writer :name
@@ -97,20 +97,20 @@ module Origen
     #    2. It concatenates the array elements into printable rows, and prints
     #       them.
     #
-    def generate_field(emptyChar = @last_empty_char)
+    def generate_field(empty_char = @last_empty_char)
       if plottable
         new_field = []
         @field.each do |rows|
           rows.each do |items|
             if items.length == 0
-              items.insert(0, "#{emptyChar} ")
-            elsif emptyChar != @last_empty_char && items == ["#{last_empty_char} "]
-              items[0] = "#{emptyChar} "
+              items.insert(0, "#{empty_char} ")
+            elsif empty_char != @last_empty_char && items == ["#{last_empty_char} "]
+              items[0] = "#{empty_char} "
             end
           end
           new_field.insert(-1, rows.join(''))
         end
-        @last_empty_char = emptyChar
+        @last_empty_char = empty_char
         package = (owner.package.nil?) ? 'No package chosen.' : owner.package.to_s
         puts "\nPin field: #{package}\n\n"
         group_display = @groups.join("\n")
@@ -263,44 +263,44 @@ module Origen
     #    $dut.package.plot("d1_mdq37","$") # plots controller 1 mdq 37, and uses $ as a legend marker
     #    $dut.package.plot("d2_mdq[3-6]0) # plots d2_mdq30, d2_mdq40, d2_md520, and d2_md620
     #
-    def plot(pinName, marker = nil)
+    def plot(pin_name, marker = nil)
       prepare_plot if field.nil?
-      if plottable && pinName.is_a?(String) && /ground/ =~ pinName.downcase
+      if plottable && pin_name.is_a?(String) && /ground/ =~ pin_name.downcase
         add_grounds('G')
-      elsif plottable && pinName.is_a?(String) && /power/ =~ pinName.downcase
+      elsif plottable && pin_name.is_a?(String) && /power/ =~ pin_name.downcase
         add_power('P')
-      elsif plottable && pinName.is_a?(String)
+      elsif plottable && pin_name.is_a?(String)
         found_pins = []
-        owner.pins.map { |pin| found_pins << pin[1] if /#{pinName}/ =~ pin[1].name.to_s || /#{pinName}/ =~ pin[1].group.to_s }
+        owner.pins.map { |pin| found_pins << pin[1] if /#{pin_name}/ =~ pin[1].name.to_s || /#{pin_name}/ =~ pin[1].group.to_s }
         if found_pins.size == 1 && marker.nil?
-          marker = initial(pinName.to_s)
-          while @groups.index { |grpName| grpName =~ /#{marker} -/ }
+          marker = initial(pin_name.to_s)
+          while @groups.index { |grp_name| grp_name =~ /#{marker} -/ }
             marker.next!
             marker = '0' unless marker.size < 2
           end
           coordinates = coordinate(found_pins[0].location)
           @field[coordinates[0]][coordinates[1]] = [marker.white_on_blue + ' ']
-          @groups.delete_if { |group| /#{pinName}/ =~ group }
+          @groups.delete_if { |group| /#{pin_name}/ =~ group }
           @groups << "#{marker} - #{found_pins[0].name} - #{found_pins[0].location}"
         elsif found_pins.size == 1
           coordinates = coordinate(found_pins[0].location)
           @field[coordinates[0]][coordinates[1]] = [marker.white_on_blue + ' ']
-          @groups.delete_if { |group| /#{pinName}/ =~ group }
+          @groups.delete_if { |group| /#{pin_name}/ =~ group }
           @groups << "#{marker} - #{found_pins[0].name} - #{found_pins[0].location}"
         else
           if marker.nil?
-            marker = initial(pinName.to_s)
-            while @groups.index { |grpName| grpName =~ /#{marker} -/ }
+            marker = initial(pin_name.to_s)
+            while @groups.index { |grp_name| grp_name =~ /#{marker} -/ }
               marker.next!
               marker = '0' unless marker.size < 2
             end
           end
-          reg_state = quote_regex(pinName)
+          reg_state = quote_regex(pin_name)
           found_pins.each do |item|
             coordinates = coordinate(item.location)
             @field[coordinates[0]][coordinates[1]] = [marker + ' ']
             @groups.delete_if { |group| "#{marker} - \"#{reg_state}\"" == group }
-            @groups << "#{marker} - \"#{pinName}\""
+            @groups << "#{marker} - \"#{pin_name}\""
           rescue
             raise "\n#{item} doesn't appear to have a physical location in this configuration."
           end
@@ -325,7 +325,7 @@ module Origen
           owner.pins.map { |pin| found_pins << pin[1] if coord == pin[1].location.to_s }
           if marker.nil?
             marker = initial(coord.to_s)
-            while @groups.index { |grpName| grpName =~ /#{marker} -/ }
+            while @groups.index { |grp_name| grp_name =~ /#{marker} -/ }
               marker.next!
               marker = '0' unless marker.size < 2
             end

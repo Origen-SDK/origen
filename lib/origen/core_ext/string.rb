@@ -183,7 +183,7 @@ class String
   # Convert the String to a Numeric (Float or Integer)
   def to_numeric
     if numeric?
-      if to_i == to_f
+      if to_i == to_f # rubocop:disable Lint/FloatComparison
         to_i
       else
         to_f

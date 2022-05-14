@@ -3,7 +3,8 @@ module Origen
   module PowerDomains
     class PowerDomain
       include Origen::Specs
-      attr_accessor :id, :description, :unit_voltage_range, :nominal_voltage, :setpoint, :maximum_voltage_rating, :min, :max
+      attr_accessor :id, :description, :min, :max
+      attr_writer :maximum_voltage_rating, :nominal_voltage, :unit_voltage_range
 
       # Generic Power Domain Name
       # This is the power supply that can be blocked off to multiple power supplies

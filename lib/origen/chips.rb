@@ -185,6 +185,8 @@ module Origen
 
     private
 
+    # rubocop:disable Lint/DuplicateMethods
+
     def _chips
       # 4D hash with group, family, and performance
       @_chips ||= Hash.new do |h, k|
@@ -216,6 +218,7 @@ module Origen
         h[k] = {}
       end
     end
+    # rubocop:enable Lint/DuplicateMethods
 
     # Return a hash based on the filter provided
     def filter_hash(hash, filter)

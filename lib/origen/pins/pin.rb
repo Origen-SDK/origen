@@ -30,7 +30,7 @@ module Origen
       attr_accessor :invert
       # Attribute used to generate vectors where the pin state is assigned the
       # repeat_previous opcode, used by Tester#repeat_previous
-      attr_accessor :repeat_previous
+      attr_reader :repeat_previous
       attr_reader :owner
       attr_reader :size
       # Returns a hash containing the aliases associated with the given pin
@@ -41,15 +41,15 @@ module Origen
       attr_accessor :supply
       attr_accessor :supply_str
       # Boolean on whether pin is open drain
-      attr_accessor :open_drain
+      attr_reader :open_drain
       # Boolean on whether pin has external pull-up
-      attr_accessor :ext_pullup
+      attr_reader :ext_pullup
       # Boolean on whether pin has external pull-down
-      attr_accessor :ext_pulldown
+      attr_reader :ext_pulldown
       # Pin type, either :analog or :digital
-      attr_accessor :type
+      attr_reader :type
       # Pin RTL name
-      attr_accessor :rtl_name
+      attr_writer :rtl_name
       # Value to be forced on the pin, e.g. during simulation
       attr_accessor :force
 

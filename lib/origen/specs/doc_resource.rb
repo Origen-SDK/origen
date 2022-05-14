@@ -62,7 +62,7 @@ module Origen
         tmp['audience'] = @audience unless @audience.nil?
         doc_resource_ml = Nokogiri::XML::Builder.new do |xml|
           xml.doc_resource(tmp.each do |t, d|
-            "#{t}=\"#{d}\""
+            "#{t}=\"#{d}\""     # rubocop:disable Lint/Void
           end) do
             unless @table_title.nil? && @note_refs.size == 0 && @exhibit_refs.size == 0
               unless @note_refs.first.to_s.size == 0

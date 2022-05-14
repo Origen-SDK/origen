@@ -144,6 +144,7 @@ module Origen
           result
         end
       end
+      # rubocop:enable Style/RescueModifier:
     end
   end
 end

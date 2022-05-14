@@ -8,6 +8,9 @@ module Origen
 
   # Platform independent means of retrieving the hostname
   def self.hostname
+    # gethostbyname is deprecated in favor of Addrinfo#getaddrinfo
+    # rubocop:disable Lint/DeprecatedClassMethods
     Socket.gethostbyname(Socket.gethostname).first.downcase
+    # rubocop:enable Lint/DeprecatedClassMethods
   end
 end

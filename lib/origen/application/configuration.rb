@@ -10,9 +10,9 @@ module Origen
                     :history_file, :release_directory, :release_email_subject,
                     :production_targets,
                     :vault, :output_directory, :reference_directory,
-                    :semantically_version, :log_directory, :pattern_name_translator,
+                    :semantically_version, :log_directory,
                     :pattern_directory, :pattern_output_directory, :pattern_prefix, :pattern_postfix,
-                    :pattern_header, :default_lsf_action, :release_instructions, :proceed_with_pattern,
+                    :pattern_header, :default_lsf_action, :release_instructions,
                     :test_program_output_directory, :erb_trim_mode, :test_program_source_directory,
                     :test_program_template_directory, :referenced_pattern_list, :program_prefix,
                     :copy_command, :diff_command, :compile_only_dot_erb_files, :web_directory,
@@ -21,6 +21,8 @@ module Origen
                     :external_app_dirs, :lint_test, :shared, :yammer_group, :rc_url, :rc_workflow,
                     :user_aliases, :release_externally, :gem_name, :disqus_shortname,
                     :default_plugin, :rc_tag_prepend_v
+
+      attr_writer :pattern_name_translator, :proceed_with_pattern
 
       # Mark any attributes that are likely to depend on properties of the target here,
       # this will raise an error if they are ever accessed before the target has been

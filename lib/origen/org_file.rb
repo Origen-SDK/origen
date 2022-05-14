@@ -8,7 +8,8 @@ module Origen
         if @internal_new
           super
         else
-          open(*args, &block)
+          # Kernel#open is a serious security risk
+          open(*args, &block)   # rubocop:disable Security/Open
         end
       end
 

@@ -362,10 +362,13 @@ module Origen
       end
       alias_method :reverse_data, :data_reverse
 
+      # rubocop:disable Lint/DuplicateMethods
+
       # Supports reg.bit[0] and bitcollection.bit[0]
       def bit
         self
       end
+      # rubocop:enable Lint/DuplicateMethods
 
       # Returns true if the collection contains all bits in the register
       def whole_reg?
@@ -651,8 +654,8 @@ module Origen
 
       # Sets the store flag on all bits that already have the overlay flag set
       def store_overlay_bits(options = {})
-        options = { exclude: [] # Pass in an array of any overlays that are to be excluded from store
-                  }.merge(options)
+        # Pass in an array of any overlays that are to be excluded from store
+        options = { exclude: [] }.merge(options)
         each do |bit|
           bit.store if bit.has_overlay? && !options[:exclude].include?(bit.overlay_str)
         end

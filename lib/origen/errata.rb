@@ -3,9 +3,9 @@ module Origen
     autoload :HwErratum,	'origen/errata/hw_erratum'
     autoload :SwErratumWorkaround,	'origen/errata/sw_erratum_workaround'
 
-    attr_accessor :_errata
+    attr_writer :_errata
 
-    attr_accessor :_sw_workarounds
+    attr_writer :_sw_workarounds
 
     # Define and instantiate an erratum object
     def erratum(id, ip_block, overview = {}, status = {}, sw_workaround = {})

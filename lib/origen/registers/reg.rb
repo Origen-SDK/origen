@@ -978,6 +978,8 @@ module Origen
       alias_method :has_bit, :has_bit?
       alias_method :has_bits, :has_bit?
 
+      # rubocop:disable Layout/MultilineHashBraceLayout
+
       # Add a bit to the register, should only be called internally
       def add_bit(id, position, options = {}) # :nodoc:
         options = { data: @bits[position].data, # If undefined preserve any data/reset value that has
@@ -1041,9 +1043,10 @@ module Origen
             @bits.delete_at(position + n)
             @bits.insert(position + n, Bit.new(self, position + n, bit_options))
           end
-          self
+          self    # rubocop:disable Lint/Void
         end
       end
+      # rubocop:enable Layout/MultilineHashBraceLayout
 
       # Delete the bits in the collection from the register
       def delete_bit(collection)

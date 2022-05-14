@@ -1,7 +1,8 @@
 module Origen
   module Clocks
     class Clock
-      attr_accessor :id, :owner, :users, :freq_target, :freq_range, :setpoint, :instantiate_users
+      attr_accessor :id, :owner, :instantiate_users
+      attr_writer :users, :freq_target, :freq_range
 
       def initialize(id, owner, options = {}, &block)
         @id = id

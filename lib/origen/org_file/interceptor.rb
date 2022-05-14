@@ -89,7 +89,7 @@ module Origen
       private
 
       def debugger
-        ::Kernel.debugger
+        ::Kernel.debugger   # rubocop:disable Lint/Debugger
       end
 
       def default_org_file_captures

@@ -246,7 +246,7 @@ module Origen
       Origen.app.listeners_for(:on_mode_changed).each do |listener|
         listener.on_mode_changed(mode: @current_mode, instance: self)
       end
-      @current_mode
+      @current_mode     # rubocop:disable Lint/Void
     end
     alias_method :mode=, :current_mode=
 

@@ -122,6 +122,8 @@ module Origen
 
       private
 
+      # rubocop:disable Lint/DuplicateMethods
+
       # Two-dimensional hash with note id and type as the keys
       def _notes
         @_notes ||= Hash.new do |h, k|
@@ -142,6 +144,8 @@ module Origen
           h[k] = {}
         end
       end
+
+      # rubocop:enable Lint/DuplicateMethods
 
       # Return a hash based on the filter provided
       def filter_hash(hash, filter)

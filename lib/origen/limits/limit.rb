@@ -1,7 +1,8 @@
 module Origen
   module Limits
     class Limit
-      attr_accessor :expr, :value, :owner, :type
+      attr_accessor :expr, :owner, :type
+      attr_writer :value
 
       def initialize(expr, type, owner, options = {})
         @expr = expr

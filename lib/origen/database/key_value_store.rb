@@ -24,7 +24,7 @@ module Origen
         refresh if persisted?
         store[key] = val
         save_to_file
-        val
+        val               # rubocop:disable Lint/Void
       end
 
       # Force a refresh of the database

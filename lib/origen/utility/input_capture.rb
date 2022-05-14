@@ -5,6 +5,7 @@ module Origen
       # Gets text input from the user
       # Supply an optional default value in the event that the user enters nothing
       def get_text(options = {})
+        # rubocop:disable Layout/MultilineHashBraceLayout
         options = { default: false,
                     single: false, # Set if only a single line entry is expected
                     confirm: false,
@@ -13,6 +14,7 @@ module Origen
                     # in-sensitive by default
                     wrap: true # Automatically split long lines
         }.merge(options)
+        # rubocop:enable Layout/MultilineHashBraceLayout
         if options[:confirm]
           puts "Type 'yes' or 'no' to confirm or 'quit' to abort."
         elsif options[:accept]

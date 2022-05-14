@@ -337,11 +337,14 @@ module Origen
         self
       end
 
+      # rubocop:disable Lint/DuplicateMethods
+
       # Set the overlay attribute to the supplied value
       def overlay(value)
         @overlay = value
         self
       end
+      # rubocop:enable Lint/DuplicateMethods
 
       # Returns the overlay attribute
       def overlay_str
