@@ -7,18 +7,18 @@ module Origen
       # Generic method to send an email, alternatively use one of the
       # pre-defined mail types using the other methods.
       def send_email(options = {})
-        options = { server: Origen.site_config.email_server,
-                    port: Origen.site_config.email_port,
-                    from: current_user.email,
-                    from_alias: current_user.name,
-                    subject: 'Hello',
-                    body: 'Hello from Origen!',
-                    to: current_user.email,
+        options = { server:         Origen.site_config.email_server,
+                    port:           Origen.site_config.email_port,
+                    from:           current_user.email,
+                    from_alias:     current_user.name,
+                    subject:        'Hello',
+                    body:           'Hello from Origen!',
+                    to:             current_user.email,
                     authentication: (Origen.site_config.email_authentication || :none).to_sym,
-                    domain: (Origen.site_config.email_domain || ''),
+                    domain:         (Origen.site_config.email_domain || ''),
 
-                    auth_user: (Origen.site_config.email_auth_user || current_user.email),
-                    auth_password: (Origen.site_config.email_auth_password || current_user.password) }.merge(options)
+                    auth_user:      (Origen.site_config.email_auth_user || current_user.email),
+                    auth_password:  (Origen.site_config.email_auth_password || current_user.password) }.merge(options)
 
         # Force to an array
         to = options[:to].respond_to?('each') ? options[:to] : [options[:to]]

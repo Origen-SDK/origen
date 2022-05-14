@@ -335,8 +335,8 @@ module Origen
       def create_gitignore
         c = Origen::Generator::Compiler.new
         c.compile "#{Origen.top}/templates/git/gitignore.erb",
-                  output_directory: local,
-                  quiet: true,
+                  output_directory:  local,
+                  quiet:             true,
                   check_for_changes: false
         FileUtils.mv "#{local}/gitignore", "#{local}/.gitignore"
       end
@@ -366,7 +366,7 @@ module Origen
       def self.git(command, options = {})
         options = {
           check_errors: true,
-          verbose: true
+          verbose:      true
         }.merge(options)
         output = []
         if options[:verbose]

@@ -46,8 +46,8 @@ module Origen
           self.current_buffer = ''
           output = compile(current[:file],
                            sub_template: true,
-                           block: current[:block],
-                           scope: @scope)
+                           block:        current[:block],
+                           scope:        @scope)
           if current[:indent] && current[:indent] > 0
             indent = ' ' * current[:indent]
             output = output.split("\n").map { |l| indent + l }.join("\n")

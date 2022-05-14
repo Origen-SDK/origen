@@ -156,7 +156,7 @@ The following options are available:
           templates_web_dir = 'templates/web' unless File.exist?("#{Origen.root}/#{templates_web_dir}")
           templates_web_dir =
         Origen.app.runner.launch action: :compile,
-                                 files: templates_web_dir,
+                                 files:  templates_web_dir,
                                  output: 'web/content'
           Origen.app.listeners_for(:after_web_compile).each do |listener|
             listener.after_web_compile(options)
@@ -181,7 +181,7 @@ The following options are available:
             output = Origen.file_handler.sub_dir_of(path, "#{Origen.root}/templates/web")
           end
           Origen.app.runner.launch action: :compile,
-                                   files: file,
+                                   files:  file,
                                    output: "#{Origen.root}/web/content/#{output}"
         end
         Origen.app.listeners_for(:after_web_compile).each do |listener|

@@ -15,12 +15,12 @@ module Origen
       # to all of its contained bits unless a specific bit has its own definition of the same
       # attribute
       REG_LEVEL_ATTRIBUTES = {
-        _feature: {},
-        _reset: { aliases: [:res] },
-        _memory: {},
-        _path: { aliases: [:hdl_path] },
-        _abs_path: { aliases: [:absolute_path] },
-        _access: {},
+        _feature:   {},
+        _reset:     { aliases: [:res] },
+        _memory:    {},
+        _path:      { aliases: [:hdl_path] },
+        _abs_path:  { aliases: [:absolute_path] },
+        _access:    {},
         _bit_order: {}
       }
 
@@ -442,7 +442,7 @@ module Origen
       def description(bitname = :_reg, options = {})
         bitname, options = :_reg, bitname if bitname.is_a?(Hash)
         options = {
-          include_name: true,
+          include_name:       true,
           include_bit_values: true
         }.merge(options)
         if @description_from_api[bitname]
@@ -983,7 +983,7 @@ module Origen
       # Add a bit to the register, should only be called internally
       def add_bit(id, position, options = {}) # :nodoc:
         options = { data: @bits[position].data, # If undefined preserve any data/reset value that has
-                    res: @bits[position].data # already been applied at reg level
+                    res:  @bits[position].data # already been applied at reg level
                   }.merge(options)
 
         @lookup[id] = { pos: position, bits: 1, feature: options[:feature] }
@@ -1000,7 +1000,7 @@ module Origen
           default_data |= @bits[position + n].data << n
         end
         options = { data: default_data, # If undefined preserve any data/reset value that has
-                    res: default_data # already been applied at reg level
+                    res:  default_data # already been applied at reg level
                   }.merge(options)
 
         @lookup[id] = { pos: position, bits: size }
@@ -1031,7 +1031,7 @@ module Origen
             default_data |= @bits[position + n].data << n
           end
           options = { data: default_data, # If undefined preserve any data/reset value that has
-                      res: default_data # already been applied at reg level
+                      res:  default_data # already been applied at reg level
                     }.merge(options)
 
           @lookup[id] = [] if @lookup[id].nil?
@@ -1531,26 +1531,26 @@ module Origen
 
       def to_json(*args)
         JSON.pretty_generate({
-                               name: name,
-                               full_name: full_name,
-                               address: address,
-                               offset: offset,
-                               size: size,
-                               path: path,
+                               name:        name,
+                               full_name:   full_name,
+                               address:     address,
+                               offset:      offset,
+                               size:        size,
+                               path:        path,
                                reset_value: reset_value,
                                description: description(include_name: false, include_bit_values: false),
-                               bits: named_bits.map do |name, bit|
+                               bits:        named_bits.map do |name, bit|
                                  {
-                                   name: name,
-                                   full_name: bit.full_name,
-                                   position: bit.position,
-                                   size: bit.size,
+                                   name:        name,
+                                   full_name:   bit.full_name,
+                                   position:    bit.position,
+                                   size:        bit.size,
                                    reset_value: bit.reset_value,
-                                   access: bit.access,
+                                   access:      bit.access,
                                    description: bit.description(include_name: false, include_bit_values: false),
-                                   bit_values: bit.bit_value_descriptions.map do |val, desc|
+                                   bit_values:  bit.bit_value_descriptions.map do |val, desc|
                                      {
-                                       value: val,
+                                       value:       val,
                                        description: desc
                                      }
                                    end

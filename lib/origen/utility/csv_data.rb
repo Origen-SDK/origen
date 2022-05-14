@@ -71,7 +71,7 @@ module Origen
       def extract_csv_data(options = {}) # :nodoc:
         # rubocop:disable Layout/MultilineHashBraceLayout
         options = { field_names_only: false, # whether to obtain field names only
-                    comment_char: '#' # ignore lines that start with comment character
+                    comment_char:     '#' # ignore lines that start with comment character
                   }.merge(options)
         # rubocop:enable Layout/MultilineHashBraceLayout
 

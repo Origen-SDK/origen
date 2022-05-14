@@ -16,8 +16,8 @@ module Origen
     # Returns an erratum or list of erratum that meet a specific criteria
     def errata(options = {})
       options = {
-        id: nil,
-        ip_block: nil,
+        id:          nil,
+        ip_block:    nil,
         disposition: nil
       }.update(options)
       return nil if @_errata.nil?

@@ -33,7 +33,7 @@ module Origen
       # set to the current target.
       def loop(options = {})
         options = {
-          set_target: true,
+          set_target:  true,
           force_debug: false # Set true to force debug mode for all targets
         }.merge(options)
         targets = [options.delete(:target), options.delete(:targets)].flatten.compact.uniq

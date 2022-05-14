@@ -301,8 +301,8 @@ module Origen
       def self.dssc(command, options = {})
         options = {
           check_errors: true,
-          verbose: true,
-          local: Dir.pwd
+          verbose:      true,
+          local:        Dir.pwd
         }.merge(options)
         output = []
         if options[:verbose]

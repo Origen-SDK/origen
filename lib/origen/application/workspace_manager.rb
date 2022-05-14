@@ -109,7 +109,7 @@ module Origen
       # Builds a new workspace at the given path
       def build(path, options = {})
         options = {
-          rc_url: Origen.app.config.rc_url || Origen.app.config.vault,
+          rc_url:        Origen.app.config.rc_url || Origen.app.config.vault,
           allow_rebuild: false
         }.merge(options)
         if File.exist?(path.to_s) && !options[:allow_rebuild]

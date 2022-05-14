@@ -431,7 +431,7 @@ module Origen
       # Add the name and parent to the options if they aren't already given
       # If the parent isn't available on the includer class, it will remain nil.
       options = {
-        name: name,
+        name:   name,
         parent: parent
       }.merge(options)
 

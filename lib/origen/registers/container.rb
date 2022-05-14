@@ -88,8 +88,8 @@ module Origen
       #   by an address increment of the given register's addresses
       def initialize(options = {})
         options = {
-          size: 32,
-          endian: :big,
+          size:             32,
+          endian:           :big,
           bits_per_address: 8
         }.merge(options)
         @size = options[:size]

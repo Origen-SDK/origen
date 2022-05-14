@@ -58,7 +58,7 @@ module Origen
       # Returns a Note object from the notes hash
       def notes(options = {})
         options = {
-          id: nil,
+          id:   nil,
           type: nil
         }.update(options)
         notes_found = Hash.new do |h, k|
@@ -81,7 +81,7 @@ module Origen
       def docs(options = {})
         options = {
           type: nil,
-          rev: nil
+          rev:  nil
         }.update(options)
         docs_to_be_shown = []
         filter_hash(_docs, options[:type]).each do |type, hash|
@@ -95,7 +95,7 @@ module Origen
       def designs(options = {})
         options = {
           type: nil,
-          rev: nil
+          rev:  nil
         }.update(options)
         designs_to_be_shown = []
         filter_hash(_designs, options[:type]).each do |type, hash|

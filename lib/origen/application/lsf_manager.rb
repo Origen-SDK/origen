@@ -37,10 +37,10 @@ module Origen
       # for specific job(s) to complete.
       def wait_for_completion(options = {})
         options = {
-          max_lost_retries: 10,
-          max_fail_retries: 0,
+          max_lost_retries:         10,
+          max_fail_retries:         0,
           poll_duration_in_seconds: 10,
-          timeout_in_seconds: 3600
+          timeout_in_seconds:       3600
         }.merge(options)
         options[:start_time] ||= Time.now
         if Time.now - options[:start_time] < options[:timeout_in_seconds]
@@ -404,13 +404,13 @@ module Origen
         dependents_lsf_ids = dependents_ids.map { |dep_id| remote_jobs[dep_id][:lsf_id] }
         lsf_id = lsf.submit(command_prefix(id, dependents_ids) + command + switches, dependents: dependents_lsf_ids)
         job_attrs = {
-          id: id,
-          lsf_id: lsf_id,
-          command: command,
-          submitted_at: Time.now,
-          submissions: 1,
-          switches: switches,
-          dependents_ids: dependents_ids,
+          id:                 id,
+          lsf_id:             lsf_id,
+          command:            command,
+          submitted_at:       Time.now,
+          submissions:        1,
+          switches:           switches,
+          dependents_ids:     dependents_ids,
           dependents_lsf_ids: dependents_lsf_ids
         }
         remote_jobs[id] = job_attrs
@@ -648,11 +648,11 @@ module Origen
         job_started(options[:id])
         begin
           if options[:dependents]
-            wait_for_completion(ids: options[:dependents],
+            wait_for_completion(ids:                      options[:dependents],
                                 poll_duration_in_seconds: 1,
                                 # Don't wait long by the time this runs the LSF
                                 # should have guaranteed the job has run
-                                timeout_in_seconds: 120)
+                                timeout_in_seconds:       120)
             unless options[:dependents].all? { |id| job_passed?(id) }
               File.open(log_file(options[:id]), 'w') do |f|
                 f.puts "*** ERROR! *** #{options[:cmd].join(' ')} ***"

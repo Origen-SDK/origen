@@ -831,7 +831,7 @@ Layout/HashAlignment:
   # table - left alignment of keys and values
   #   a:  0
   #   bb: 1
-  EnforcedColonStyle: key
+  EnforcedColonStyle: table
   SupportedColonStyles:
     - key
     - separator

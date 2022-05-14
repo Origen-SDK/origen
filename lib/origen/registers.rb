@@ -354,9 +354,9 @@ module Origen
       else
         attributes = {
           define_file: @reg_define_file,
-          address: address,
-          size: size,
-          bit_info: bit_info,
+          address:     address,
+          size:        size,
+          bit_info:    bit_info,
           description: description
         }
         Reg::REG_LEVEL_ATTRIBUTES.each do |attribute, _meta|

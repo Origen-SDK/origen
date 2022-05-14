@@ -60,11 +60,11 @@ module Origen
       end
 
       def service
-        @service ||= Net::LDAP.new host: HOST,
-                                   port: PORT,
-                                   base: BASE_DN,
+        @service ||= Net::LDAP.new host:       HOST,
+                                   port:       PORT,
+                                   base:       BASE_DN,
                                    encryption: LDAP_ENCRYPTION,
-                                   auth: { method: :simple, username: SERVICE_ACCOUNT, password: SERVICE_PASS }
+                                   auth:       { method: :simple, username: SERVICE_ACCOUNT, password: SERVICE_PASS }
       end
     end
   end

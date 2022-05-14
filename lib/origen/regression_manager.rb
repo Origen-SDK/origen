@@ -35,12 +35,12 @@ module Origen
     #
     def run(options = {})
       options = {
-        build_reference: true,
-        build_method: :init,
-        send_email: false,
+        build_reference:      true,
+        build_method:         :init,
+        send_email:           false,
         email_all_developers: false,
-        report_results: false,
-        uses_lsf: true
+        report_results:       false,
+        uses_lsf:             true
       }.merge(options)
       options = load_options if running_in_reference_workspace?
       targets = prepare_targets(options)

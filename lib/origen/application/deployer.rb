@@ -234,7 +234,7 @@ module Origen
           FileUtils.cp_r Dir.glob("#{Origen.top}/templates/nanoc/*").sort, dir
           # Compile the dynamic stuff
           Origen.app.runner.launch action: :compile,
-                                   files: "#{Origen.top}/templates/nanoc_dynamic",
+                                   files:  "#{Origen.top}/templates/nanoc_dynamic",
                                    output: dir
           unless Origen.root == Origen.top
             # Copy any application overrides if they exist

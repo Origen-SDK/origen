@@ -67,13 +67,13 @@ module Origen
       # Should be instantiated through the HasPins macros
       def initialize(id, owner, options = {}) # :nodoc:
         options = {
-          reset: :dont_care,
-          invert: false,
-          direction: :io,
-          open_drain: false,
-          ext_pullup: false,
+          reset:        :dont_care,
+          invert:       false,
+          direction:    :io,
+          open_drain:   false,
+          ext_pullup:   false,
           ext_pulldown: false,
-          rtl_name: nil
+          rtl_name:     nil
         }.merge(options)
         @aliases = {}
         @functions = {}
@@ -582,8 +582,8 @@ module Origen
           aliases[id][:configurations].uniq!
         else
           aliases[id] = {
-            packages: resolve_packages(options),
-            modes: resolve_modes(options),
+            packages:       resolve_packages(options),
+            modes:          resolve_modes(options),
             configurations: resolve_configurations(options)
           }
           Origen.pin_bank.register_alias(id, obj, options)

@@ -5,8 +5,8 @@ module Origen
       # Returns the current time in this format:
       # 05-Jun-2010 10:05AM
       def time_now(options = {})
-        options = { underscore: false,
-                    format: :human,
+        options = { underscore:   false,
+                    format:       :human,
                     include_time: true }.merge(options)
 
         # Nice description of time format options

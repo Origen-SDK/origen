@@ -303,7 +303,7 @@ module Origen
         name, options = nil, name if name.is_a?(Hash)
         options = {
           size: 8,
-          pos: 0
+          pos:  0
         }.merge(options)
         collection = new(reg, name)
         pos = options[:pos]
