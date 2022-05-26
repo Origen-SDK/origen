@@ -17,6 +17,7 @@
 /lbin/*.bat
 
 # RGen local files
+/app
 /.bundle
 /target/.default
 /environment/.default

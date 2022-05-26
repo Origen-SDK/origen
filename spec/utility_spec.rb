@@ -41,4 +41,10 @@ describe "Utilities" do
     dut.d1[3..0].read
     u.read_hex(dut.d1).should == "0xXXXXXXXX0"
   end
+  
+  it "Can create net smtp object" do
+	require 'net/smtp'
+	smtp = Net::SMTP.new('dummy', '0.0')
+	smtp.is_a?(Net::SMTP).should == true
+  end
 end
