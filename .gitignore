@@ -13,6 +13,9 @@
 *.swo
 *~
 
+# Windows lbin files
+/lbin/*.bat
+
 # RGen local files
 /.bundle
 /target/.default
