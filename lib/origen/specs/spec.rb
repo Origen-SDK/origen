@@ -83,6 +83,7 @@ module Origen
       def initialize(name, type, mode, owner_name, &block)
         @name = name_audit(name)
         fail 'Specification names must be of types Symbol or String and cannot start with a number' if @name.nil?
+
         @type = type
         @sub_type = nil # not necessary to be able to find a unique spec, but required for some specs
         @mode = mode
@@ -98,6 +99,7 @@ module Origen
         @guardband = nil
         (block.arity < 1 ? (instance_eval(&block)) : block.call(self)) if block_given?
         fail "Spec type must be one of #{TYPES.join(', ')}" unless TYPES.include? type
+
         @min = Limit.new(@min)
         @max = Limit.new(@max)
         @typ = Limit.new(@typ)
@@ -206,6 +208,7 @@ module Origen
         instance_variables.each do |ivar|
           ivar_sym = ivar.to_s.gsub('@', '').to_sym
           next if ivar_sym == :notes # temporarily disable until notes diff method written
+
           ivar_str = ivar.to_s.gsub('@', '')
           if compare_spec.respond_to? ivar_sym
             # Check if the instance variable is a Limit and if so then find
@@ -261,6 +264,7 @@ module Origen
       # Returns a Note object from the notes hash
       def notes(id = nil)
         return nil if @notes.nil?
+
         @notes.filter(id)
       end
 
@@ -310,7 +314,7 @@ module Origen
         name_set += 4 unless @type.nil?
         name_set += 2 unless @sub_type.nil?
         unless @mode.nil?
-          unless  (@mode.to_s.include? 'local') || (@mode.to_s.include? 'global')
+          unless (@mode.to_s.include? 'local') || (@mode.to_s.include? 'global')
             name_set += 1
           end
         end

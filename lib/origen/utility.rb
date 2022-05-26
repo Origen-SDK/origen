@@ -2,7 +2,7 @@ module Origen
   module Utility
     autoload :Diff,        'origen/utility/diff'
     autoload :Mailer,      'origen/utility/mailer'
-    autoload :CSV,     'origen/utility/csv_data'
+    autoload :CSV, 'origen/utility/csv_data'
     autoload :TimeAndDate, 'origen/utility/time_and_date'
     autoload :InputCapture, 'origen/utility/input_capture'
     autoload :BlockArgs, 'origen/utility/block_args'
@@ -64,7 +64,7 @@ module Origen
         Regexp.new(regex) =~ regval
 
         nibbles = []
-        (reg_or_val.size / 4).times do |n|                   # now grouped by nibble
+        (reg_or_val.size / 4).times do |n| # now grouped by nibble
           nibbles << Regexp.last_match[n + 1]
         end
         unless r == 0

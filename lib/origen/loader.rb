@@ -121,7 +121,7 @@ module Origen
     # as well unless disable_bug_inheritance or disable_feature_inheritance options are passed
     # Returns true if a model is found and loaded, otherwise nil.
     def self.load_block(model, options = {})
-      model = model.model  # Ensure we have a handle on the model and not its controller
+      model = model.model # Ensure we have a handle on the model and not its controller
       loaded = nil
 
       if options[:inherit]
@@ -139,7 +139,7 @@ module Origen
           local_full_paths = Array(options[:path])
         else
           local_full_paths = model.class.to_s.split('::')
-          local_full_paths.shift  # Throw away the app namespace
+          local_full_paths.shift # Throw away the app namespace
           local_full_paths = [local_full_paths.join('/')]
         end
         app_paths_map = { local_app => local_full_paths }
@@ -213,6 +213,7 @@ module Origen
         base.class_eval do
           # Emulate #exclude via an ivar
           return if defined?(@_const_missing) && @_const_missing
+
           @_const_missing = instance_method(:const_missing)
           remove_method(:const_missing)
         end
@@ -256,6 +257,7 @@ module Origen
             name = "#{self}::#{name}"
           end
           return nil if @_checking_name == name
+
           names = name.split('::')
           namespace = names.shift
           if app = Origen::Application.from_namespace(namespace)

@@ -66,6 +66,7 @@ module Origen
           if paths.size > 1 || paths.first != local.to_s
             fail 'The Git driver does not support partial merge checkout, it has to be the whole workspace'
           end
+
           git 'reset HEAD'
           res = git 'stash', options
           stashed = !res.any? { |l| l =~ /^No local changes to save/ }
@@ -122,11 +123,11 @@ module Origen
           if options[:comment] && !options[:comment].strip.empty?
             cmd += " -m \"#{options[:comment].strip}\""
           else
-            cmd += " -m \"No comment!\""
+            cmd += ' -m "No comment!"'
           end
           if options[:author]
             if options[:author].respond_to?(:name_and_email)
-              author =  options[:author].name_and_email
+              author = options[:author].name_and_email
             else
               author = "#{options[:author]} <>"
             end
@@ -346,6 +347,7 @@ module Origen
 
       def initialize_local_dir(options = {})
         return if options[:build_method] == :clone
+
         super
         unless initialized?(options)
           Origen.log.debug "Initializing Git workspace at #{local}"

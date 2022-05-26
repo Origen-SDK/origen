@@ -88,6 +88,7 @@ module Origen
       #   end
       def [](*indexes)
         return self if indexes.empty?
+
         b = BitCollection.new(parent, name)
         expand_and_order(*indexes).each do |i|
           b << fetch(i)
@@ -261,6 +262,7 @@ module Origen
         if any? { |b| b.access != val }
           fail 'Not all bits the collection have the same access value!'
         end
+
         val
       end
 
@@ -334,6 +336,7 @@ module Origen
         data = 0
         shift_out_with_index do |bit, i|
           return undefined if bit.is_a?(Origen::UndefinedClass)
+
           data |= bit.data << i
         end
         data
@@ -352,16 +355,20 @@ module Origen
         data = 0
         reverse_shift_out_with_index do |bit, i|
           return undefined if bit.is_a?(Origen::UndefinedClass)
+
           data |= bit.data << i
         end
         data
       end
       alias_method :reverse_data, :data_reverse
 
+      # rubocop:disable Lint/DuplicateMethods
+
       # Supports reg.bit[0] and bitcollection.bit[0]
       def bit
         self
       end
+      # rubocop:enable Lint/DuplicateMethods
 
       # Returns true if the collection contains all bits in the register
       def whole_reg?
@@ -647,8 +654,8 @@ module Origen
 
       # Sets the store flag on all bits that already have the overlay flag set
       def store_overlay_bits(options = {})
-        options = { exclude: [],         # Pass in an array of any overlays that are to be excluded from store
-                  }.merge(options)
+        # Pass in an array of any overlays that are to be excluded from store
+        options = { exclude: [] }.merge(options)
         each do |bit|
           bit.store if bit.has_overlay? && !options[:exclude].include?(bit.overlay_str)
         end
@@ -768,6 +775,7 @@ module Origen
           data = 0
           shift_out_with_index do |bit, i|
             return bit.reset_data if bit.reset_data.is_a?(Symbol)
+
             data |= bit.reset_data << i
           end
           data
@@ -799,15 +807,16 @@ module Origen
         feature.delete(nil) if feature.include?(nil)
         if !feature.empty?
           if feature.size == 1
-            return feature[0]
+            feature[0]
           else
-            return feature.uniq
+            feature.uniq
           end
         else
           if Origen.config.strict_errors
             fail 'No feature found'
           end
-          return nil
+
+          nil
         end
       end
       alias_method :features, :feature
@@ -995,7 +1004,7 @@ module Origen
         Regexp.new(regex) =~ regval
 
         nibbles = []
-        size_in_nibbles.times do |n|                   # now grouped by nibble
+        size_in_nibbles.times do |n| # now grouped by nibble
           nibbles << Regexp.last_match[n + 1]
         end
 

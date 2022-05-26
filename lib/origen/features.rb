@@ -27,7 +27,7 @@ module Origen
             options[:description] = fetch_description(name)
           end
           features[name] = Feature.new(name, options)
-        else          # if feature with given name already exists
+        else # if feature with given name already exists
           fail "Feature #{name} already added!"
         end
       end
@@ -72,17 +72,15 @@ module Origen
       end
     end
 
-    public
-
     def has_features?(name = nil)
       if !name
         if feature.size == 0
-          return false
+          false
         else
-          return true
+          true
         end
       else
-        return feature.include?(name)
+        feature.include?(name)
       end
     end
     alias_method :has_feature?, :has_features?

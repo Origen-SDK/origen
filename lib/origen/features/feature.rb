@@ -11,6 +11,7 @@ module Origen
 
       def describe
         return 'No description provided!' if @description == []
+
         if @description.class == Array
           @description.join(' ')
         else

@@ -33,6 +33,7 @@ module Origen
         if bank[pin.id]
           fail "A pin with id #{pin.id} already exists!"
         end
+
         all_ids << pin.id
         bank[pin.id] = pin
         # If ends in a number
@@ -248,6 +249,7 @@ module Origen
         # First delete the pin from any of the pin groups it resides
         Origen.pin_bank.pin_groups.each do |_name, grp|
           next unless grp.store.include?(pin)
+
           grp.delete(pin)
         end
         # Now delete the pin from the pin bank
@@ -391,6 +393,7 @@ module Origen
           if pins.size > 1
             fail "Mutliple pins with the alias #{id} have been found in the current scope!"
           end
+
           pins.first
         end
       end

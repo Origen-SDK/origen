@@ -577,6 +577,7 @@ module Origen
     def delete(to_delete)
       obj = delete!(to_delete)
       fail Origen::Componentable::NameDoesNotExistError, "#{_singleton_name} name :#{to_delete} does not exist" if obj.nil?
+
       obj
     end
     alias_method :remove, :delete

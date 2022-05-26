@@ -99,11 +99,13 @@ module Origen
           unless valid.include?(data)
             fail "Uknown data value #{data}, only these are valid: #{valid.join(', ')}"
           end
+
           yield data
         end
 
         def calc
           return @calc if @calc
+
           require 'dentaku'
           @calc = Dentaku::Calculator.new
         end
@@ -122,6 +124,7 @@ module Origen
           unless options[:at]
             fail 'When defining a wave event you must supply the time via the option :at'
           end
+
           t = options[:at]
 
           if t.is_a?(String)
@@ -129,10 +132,12 @@ module Origen
             unless d.empty?
               fail "Wave time formulas can only include the variable 'period' (or 'period_in_ns'), this variable is not allowed: #{d}"
             end
+
             t = t.gsub('period_in_ns', 'period')
             unless calc.evaluate(t, period: 100)
               fail "There appears to be an error in the formula: #{t}"
             end
+
             yield t
             return
           elsif t.is_a?(Numeric)

@@ -5,6 +5,7 @@ module Origen
       def name_audit(name)
         return name if name.nil?
         return nil unless name.is_a?(Symbol) || name.is_a?(String)
+
         if name == :inspect
           Origen.log.debug ':inspect is a reserved spec name'
           return nil
@@ -28,6 +29,7 @@ module Origen
         if (@min.exp.to_s.include? '/') || (@max.exp.to_s.include? '/')
           return status
         end
+
         if @min.exp.nil? ^ @max.exp.nil?
           @limit_type = :single_sided
           if @typ.exp
@@ -72,6 +74,7 @@ module Origen
       def evaluate_limit(limit)
         return limit if limit.is_a?(Numeric)
         return nil if limit.nil?
+
         if limit.is_a? Symbol
           limit = ':' + limit.to_s
         else
@@ -129,18 +132,19 @@ module Origen
           begin
             result = eval(limit)
             return result.round(4) if result.is_a? Numeric
-            rescue ::SyntaxError, ::NameError, ::TypeError
-              Origen.log.debug "Limit '#{limit}' had to be rescued, storing it as a #{limit.class}"
-              if limit.is_a? Symbol
-                return limit
-              else
-                return "#{limit}"
-              end
+          rescue ::SyntaxError, ::NameError, ::TypeError
+            Origen.log.debug "Limit '#{limit}' had to be rescued, storing it as a #{limit.class}"
+            if limit.is_a? Symbol
+              limit
+            else
+              "#{limit}"
+            end
           end
         else
-          return result
+          result
         end
       end
+      # rubocop:enable Style/RescueModifier:
     end
   end
 end

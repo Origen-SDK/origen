@@ -1,7 +1,8 @@
 module Origen
   module Limits
     class Limit
-      attr_accessor :expr, :value, :owner, :type
+      attr_accessor :expr, :owner, :type
+      attr_writer :value
 
       def initialize(expr, type, owner, options = {})
         @expr = expr
@@ -35,6 +36,7 @@ module Origen
           return owner.limits(ref).send(type).value
           # Check if the reference is to a power domain
         end
+
         if Origen.top_level.respond_to? :power_domains
           if Origen.top_level.power_domains.include? ref
             # Need to check the limit type and retrieve the appropriate value
@@ -52,9 +54,9 @@ module Origen
             # Need to check the limit type and retrieve the appropriate value
             case @type.to_s
             when /target|typ/
-              return Origen.top_level.clocks(ref).freq_target
+              Origen.top_level.clocks(ref).freq_target
             else
-              return Origen.top_level.clocks(ref).send(@type)
+              Origen.top_level.clocks(ref).send(@type)
             end
           end
         end
@@ -63,6 +65,7 @@ module Origen
       def evaluate_expr
         return @expr if @expr.is_a?(Numeric)
         return nil if @expr.nil?
+
         if @expr.is_a? Symbol
           @expr = ':' + @expr.to_s
         else
@@ -109,16 +112,16 @@ module Origen
           begin
             result = eval(@expr)
             return result.round(4) if result.is_a? Numeric
-            rescue ::SyntaxError, ::NameError, ::TypeError
-              Origen.log.debug "Limit '#{@expr}' had to be rescued, storing it as a #{@expr.class}"
-              if @expr.is_a? Symbol
-                return @expr
-              else
-                return "#{@expr}"
-              end
+          rescue ::SyntaxError, ::NameError, ::TypeError
+            Origen.log.debug "Limit '#{@expr}' had to be rescued, storing it as a #{@expr.class}"
+            if @expr.is_a? Symbol
+              @expr
+            else
+              "#{@expr}"
+            end
           end
         else
-          return result
+          result
         end
       end
     end

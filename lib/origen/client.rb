@@ -54,6 +54,7 @@ module Origen
     # Returns an array of data packets for all plugins
     def plugins
       return @plugins if @plugins
+
       response = get('plugins')
       @plugins = JSON.parse(response.body, symbolize_names: true)[:plugins]
     end

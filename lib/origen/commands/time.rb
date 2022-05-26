@@ -24,9 +24,9 @@ Usage: origen time CMD [args] [options]
 
   STOP
   opts.on('-n', '--name FILE', String, 'Use the given named reference instead of the default') { |o| options[:ref_name] = o }
-  opts.on('-s', '--summary', 'Output flow summary results only (instead of details for each test)') {  options[:summary] = true }
+  opts.on('-s', '--summary', 'Output flow summary results only (instead of details for each test)') { options[:summary] = true }
   opts.on('-t', '--target NAME1,NAME2,NAME3', Array, 'Override the default target, NAME can be a full path or a fragment of a target file name') { |t| options[:target] = t }
-  opts.on('-d', '--debugger', 'Enable the debugger') {  options[:debugger] = true }
+  opts.on('-d', '--debugger', 'Enable the debugger') { options[:debugger] = true }
   opts.on('-m', '--mode MODE', Origen::Mode::MODES, 'Force the Origen operating mode:', '  ' + Origen::Mode::MODES.join(', ')) { |_m| }
   opts.on('-f', '--file FILE', String, 'Override the default log file') { |o| options[:log_file] = o }
   # Apply any application option extensions to the OptionParser
@@ -75,8 +75,7 @@ when 'new'
                              file:              "#{Origen.top}/templates/time/rules.rb.erb",
                              output:            "#{Origen.root}/config/test_time",
                              quiet:             true,
-                             check_for_changes: false
-                            )
+                             check_for_changes: false)
     # Add this to the environment if not already present...
     env = "#{Origen.root}/config/environment.rb"
     unless File.readlines(env).any? { |l| l =~ /config\/test_time\/rules/ }
@@ -99,8 +98,7 @@ when 'new'
                              file:              "#{Origen.top}/templates/time/filter.rb.erb",
                              output:            "#{Origen.root}/config/test_time",
                              quiet:             true,
-                             check_for_changes: false
-                            )
+                             check_for_changes: false)
     # Add this to the environment if not already present...
     env = "#{Origen.root}/config/environment.rb"
     unless File.readlines(env).any? { |l| l =~ /config\/test_time\/filter/ }

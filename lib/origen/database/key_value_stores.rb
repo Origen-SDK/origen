@@ -73,6 +73,7 @@ module Origen
             loaded[method] ||= KeyValueStore.new(self, method)
           end
         end
+
         send(method, *args, &block)
       end
 

@@ -14,7 +14,7 @@ module Origen
     # An instance of this class is automatically
     # instantiated and available globally as Origen.environment.
     class Environment
-      DIR = "#{Origen.root}/environment"   # :nodoc:
+      DIR = "#{Origen.root}/environment" # :nodoc:
       SAVE_FILE = "#{DIR}/.default"      # :nodoc:
       DEFAULT_FILE = "#{DIR}/default.rb" # :nodoc:
 
@@ -89,7 +89,7 @@ module Origen
 
       # Prints out the current environment details to the command line
       def describe
-        f = self.file!
+        f = file!
         puts "Current environment: #{f.basename}"
         puts '*' * 70
         File.open(f).each do |line|
@@ -133,6 +133,7 @@ module Origen
       # otherwise returns nil
       def default_file
         return @default_file if @default_file
+
         if File.exist?(SAVE_FILE)
           File.open(SAVE_FILE) do |f|
             @default_file = Marshal.load(f)
@@ -146,6 +147,7 @@ module Origen
       # Returns the environment file (a Pathname object) if it has been defined, otherwise nil
       def file # :nodoc:
         return @file if @file
+
         if default_file && File.exist?(default_file)
           @file = default_file
         end

@@ -34,7 +34,7 @@ module Origen
       #   end
       def parse(options = {})
         csv_data = extract_csv_data(options)
-        if block_given?  # doesn't do much at this point
+        if block_given? # doesn't do much at this point
           csv_data.each do |dataset|
             yield dataset
           end
@@ -69,9 +69,11 @@ module Origen
 
       # Returns an array containing all data from given CSV file
       def extract_csv_data(options = {}) # :nodoc:
-        options = { field_names_only: false,  # whether to obtain field names only
-                    comment_char:     '#',        # ignore lines that start with comment character
+        # rubocop:disable Layout/MultilineHashBraceLayout
+        options = { field_names_only: false, # whether to obtain field names only
+                    comment_char:     '#' # ignore lines that start with comment character
                   }.merge(options)
+        # rubocop:enable Layout/MultilineHashBraceLayout
 
         field_names = []
         field_values = []
@@ -87,7 +89,7 @@ module Origen
           end
           if line_no == 1 # Field names
             field_names = line.split(',')
-          else  # Field values
+          else # Field values
             field_values = line.split(',')
             if field_names.length != field_values.length
               abort "ERROR! Invalid number of fields (#{field_values.length}) in CVS file on line # #{line_no}. Should be #{field_names.length}.\n"

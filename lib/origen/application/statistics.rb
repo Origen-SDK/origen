@@ -10,6 +10,7 @@ module Origen
 
       class Pattern
         attr_accessor :vectors, :cycles, :duration
+
         def initialize
           @vectors = 0
           @cycles = 0

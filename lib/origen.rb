@@ -11,7 +11,8 @@ unless defined? RGen::ORIGENTRANSITION
   # Keep a note of the pwd at the time when Origen was first loaded, this is initially used
   # by the site_config lookup.
   $_origen_invocation_pwd ||= Pathname.pwd
-  require 'fileutils'
+  # duplicated require commented out below
+  # require 'fileutils'
   # Force these to re-load since they could have been loaded from an earlier version of Origen during boot
   load 'origen/loader.rb'
   load 'origen/site_config.rb'
@@ -31,7 +32,7 @@ unless defined? RGen::ORIGENTRANSITION
   require 'origen/undefined'
   require 'origen/componentable'
 
-  autoload :PatSeq,              'origen/generator/pattern_sequencer'
+  autoload :PatSeq, 'origen/generator/pattern_sequencer'
 
   module Origen
     autoload :Features,          'origen/features'
@@ -171,12 +172,11 @@ unless defined? RGen::ORIGENTRANSITION
       def app!
         file = caller[0]
         path = @current_source_dir || Pathname.new(file).dirname
-        until File.exist?(File.join(path, APP_CONFIG)) || path.root?
-          path = path.parent
-        end
+        path = path.parent until File.exist?(File.join(path, APP_CONFIG)) || path.root?
         if path.root?
           fail "Something went wrong resoving Origen.app! from: #{caller[0]}"
         end
+
         find_app_by_root(path)
       end
       alias_method :application!, :app!
@@ -251,6 +251,7 @@ unless defined? RGen::ORIGENTRANSITION
           app = _applications_lookup[:root][Pathname.new(path_to_origen_root).realpath.to_s]
         end
         return app if app
+
         puts "Couldn't find application instance with root #{path_to_origen_root}, known roots are:"
         _applications_lookup[:root].keys.each do |key|
           puts "  #{key}"
@@ -292,11 +293,10 @@ unless defined? RGen::ORIGENTRANSITION
       # Returns true if Origen is running in an application workspace
       def in_app_workspace?
         return @in_app_workspace if defined? @in_app_workspace
+
         @in_app_workspace ||= begin
           path = Pathname.new(Dir.pwd)
-          until path.root? || File.exist?(File.join(path, APP_CONFIG))
-            path = path.parent
-          end
+          path = path.parent until path.root? || File.exist?(File.join(path, APP_CONFIG))
           !path.root?
         end
       end
@@ -317,9 +317,7 @@ unless defined? RGen::ORIGENTRANSITION
           else
             @root ||= begin
               path = Pathname.new(Dir.pwd)
-              until path.root? || File.exist?(File.join(path, APP_CONFIG))
-                path = path.parent
-              end
+              path = path.parent until path.root? || File.exist?(File.join(path, APP_CONFIG))
               if path.root?
                 @running_globally = true
                 path = Pathname.new($_origen_invocation_pwd || Dir.pwd)
@@ -337,12 +335,11 @@ unless defined? RGen::ORIGENTRANSITION
       def root!
         file = caller[0]
         path = Pathname.new(file).dirname
-        until path.root? || File.exist?(File.join(path, APP_CONFIG))
-          path = path.parent
-        end
+        path = path.parent until path.root? || File.exist?(File.join(path, APP_CONFIG))
         if path.root?
           fail "Something went wrong resolving Origen.root! from: #{caller[0]}"
         end
+
         path.realpath
       end
 
@@ -396,6 +393,7 @@ unless defined? RGen::ORIGENTRANSITION
         if max && listeners.size > max
           fail "You can only define a #{callback} callback #{max > 1 ? (max.to_s + 'times') : 'once'}, however you have declared it #{listeners.size} times for instances of: #{listeners.map(&:class)}"
         end
+
         listeners
       end
 
@@ -464,6 +462,7 @@ unless defined? RGen::ORIGENTRANSITION
       def version(options = {})
         @version = nil if options[:refresh]
         return @version if @version && !options[:refresh]
+
         if options[:refresh] || !defined?(Origen::VERSION)
           load File.join(Pathname.new(File.dirname(__FILE__)).parent, 'config', 'version.rb')
         end
@@ -475,56 +474,54 @@ unless defined? RGen::ORIGENTRANSITION
       # In most cases this should never need to be called directly and will be called
       # automatically the first time the application is referenced via Origen.app
       def load_application(options = {})
-        @application ||= begin
-          # If running globally (outside of an app workspace), instantiate a bare bones app to help
-          # many of Origen's features that expect an app to be present.
-          if running_globally?
-            @plugins_loaded = true
-            # Now load the app
-            @loading_top_level = true
-            require 'origen/global_app'
-            @application = _applications_lookup[:root][root.to_s]
-            @loading_top_level = false
-            @application_loaded = true
-            @application
-          else
-            # Make sure the top-level root is always in the load path, it seems that some existing
-            # plugins do some strange things to require stuff from the top-level app and rely on this
-            path = File.join(root, 'lib')
-            $LOAD_PATH.unshift(path) unless $LOAD_PATH.include?(path)
-            if File.exist?(File.join(root, 'Gemfile')) && !@with_boot_environment
-              # Don't understand the rules here, belt and braces approach for now to make
-              # sure that all Origen plugins are auto-required (otherwise Origen won't know
-              # about them to plug them into the application)
-              Bundler.require
-              Bundler.require(:development)
-              Bundler.require(:runtime)
-              Bundler.require(:default)
-            end
-            @plugins_loaded = true
-            # Now load the app
-            @loading_top_level = true
-            require File.join(root, APP_CONFIG)
-            @application = _applications_lookup[:root][root.to_s]
-            @loading_top_level = false
-            if @with_boot_environment
-              @application.plugins.disable_current
-            else
-              Origen.remote_manager.require!
-            end
-            boot = File.join(root, 'config', 'boot.rb')
-            require boot if File.exist?(boot)
-            env = File.join(root, 'config', 'environment.rb')
-            require env if File.exist?(env)
-            dev = File.join(root, 'config', 'development.rb')
-            require dev if File.exist?(dev)
-            validate_origen_dev_configuration!
-            ([@application] + Origen.app.plugins).each(&:on_loaded)
-            @application_loaded = true
-            Array(@after_app_loaded_blocks).each { |b| b.call(@application) }
-            @application
-          end
-        end
+        # If running globally (outside of an app workspace), instantiate a bare bones app to help
+        # many of Origen's features that expect an app to be present.
+        @application ||= if running_globally?
+                           @plugins_loaded = true
+                           # Now load the app
+                           @loading_top_level = true
+                           require 'origen/global_app'
+                           @application = _applications_lookup[:root][root.to_s]
+                           @loading_top_level = false
+                           @application_loaded = true
+                           @application
+                         else
+                           # Make sure the top-level root is always in the load path, it seems that some existing
+                           # plugins do some strange things to require stuff from the top-level app and rely on this
+                           path = File.join(root, 'lib')
+                           $LOAD_PATH.unshift(path) unless $LOAD_PATH.include?(path)
+                           if File.exist?(File.join(root, 'Gemfile')) && !@with_boot_environment
+                             # Don't understand the rules here, belt and braces approach for now to make
+                             # sure that all Origen plugins are auto-required (otherwise Origen won't know
+                             # about them to plug them into the application)
+                             Bundler.require
+                             Bundler.require(:development)
+                             Bundler.require(:runtime)
+                             Bundler.require(:default)
+                           end
+                           @plugins_loaded = true
+                           # Now load the app
+                           @loading_top_level = true
+                           require File.join(root, APP_CONFIG)
+                           @application = _applications_lookup[:root][root.to_s]
+                           @loading_top_level = false
+                           if @with_boot_environment
+                             @application.plugins.disable_current
+                           else
+                             Origen.remote_manager.require!
+                           end
+                           boot = File.join(root, 'config', 'boot.rb')
+                           require boot if File.exist?(boot)
+                           env = File.join(root, 'config', 'environment.rb')
+                           require env if File.exist?(env)
+                           dev = File.join(root, 'config', 'development.rb')
+                           require dev if File.exist?(dev)
+                           validate_origen_dev_configuration!
+                           ([@application] + Origen.app.plugins).each(&:on_loaded)
+                           @application_loaded = true
+                           Array(@after_app_loaded_blocks).each { |b| b.call(@application) }
+                           @application
+                         end
       end
 
       # Sometimes it is necessary to refer to the app instance before it is fully loaded, which can lead to runtime
@@ -638,6 +635,7 @@ unless defined? RGen::ORIGENTRANSITION
         @current_user = nil if options[:refresh]
         if app_loaded? || in_app_workspace?
           return @switch_user unless @switch_user.nil?
+
           @current_user ||= application.current_user
         else
           @current_user ||= User.new(User.current_user_id)

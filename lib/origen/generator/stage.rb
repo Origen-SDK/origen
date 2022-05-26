@@ -19,8 +19,10 @@ module Origen
         i = current_bank.size - 1
         while offset >= 0
           return nil if i < 0
+
           unless current_bank[i].is_a?(String)
             return current_bank[i] if offset == 0
+
             offset -= 1
           end
           i -= 1
@@ -74,6 +76,7 @@ module Origen
 
       def current_bank
         return @vault[@bank] if @vault[@bank]
+
         @vault[@bank] = []
       end
 

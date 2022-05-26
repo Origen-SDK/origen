@@ -32,14 +32,14 @@ module Origen
         w1crs: { implemented: false, base: 'read-write',     write: 'oneToClear',   read: 'set',    writable: true,  readable: true,  w1c: true,  set_only: false,  clr_only: false, description: "Write '1' to clear and set-on-read" },
         w0src: { implemented: false, base: 'read-write',     write: 'zeroToSet',    read: 'clear',  writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: "Write '0' to set and clear-on-read" },
         w0crs: { implemented: false, base: 'read-write',     write: 'zeroToClear',  read: 'set',    writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: "Write '0' to clear and set-on-read" },
-        wo:    { implemented: false, base: 'write-only',     write: nil,            read: nil,      writable: true,  readable: false, w1c: false, set_only: false,  clr_only: false, description: 'Write-only' },
-        woc:   { implemented: false, base: 'write-only',     write: 'clear',        read: nil,      writable: true,  readable: false, w1c: false, set_only: false,  clr_only: true,  description: "When written sets the field to '0'. Read undeterministic" },
-        worz:  { implemented: false, base: 'write-only',     write: nil,            read: nil,      writable: true,  readable: false, w1c: false, set_only: false,  clr_only: false, description: 'Write-only, Reads zero' },
-        wos:   { implemented: false, base: 'write-only',     write: 'set',          read: nil,      writable: true,  readable: false, w1c: false, set_only: true,   clr_only: false, description: "When written sets all bits to '1'. Read undeterministic" },
-        w1:    { implemented: false, base: 'read-writeOnce', write: nil,            read: nil,      writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: 'Write-once. Next time onwards, write is ignored. Read returns the value' },
-        wo1:   { implemented: false, base: 'writeOnce',      write: nil,            read: nil,      writable: true,  readable: false, w1c: false, set_only: false,  clr_only: false, description: 'Write-once. Next time onwards, write is ignored. Read is undeterministic' },
-        dc:    { implemented: false, base: 'read-write',     write: nil,            read: nil,      writable: true,  readable: true,  w1c: false, set_only: false,  clr_only: false, description: 'RW but no check' },
-        rowz:  { implemented: false, base: 'read-only',      write: nil,            read: 'clear',  writable: false, readable: true,  w1c: false, set_only: false,  clr_only: false, description: 'Read-only, value is cleared on read' }
+        wo:    { implemented: false, base: 'write-only', write: nil, read: nil, writable: true, readable: false, w1c: false, set_only: false, clr_only: false, description: 'Write-only' },
+        woc:   { implemented: false, base: 'write-only', write: 'clear', read: nil, writable: true, readable: false, w1c: false, set_only: false, clr_only: true, description: "When written sets the field to '0'. Read undeterministic" },
+        worz:  { implemented: false, base: 'write-only', write: nil, read: nil, writable: true, readable: false, w1c: false, set_only: false, clr_only: false, description: 'Write-only, Reads zero' },
+        wos:   { implemented: false, base: 'write-only', write: 'set', read: nil, writable: true, readable: false, w1c: false, set_only: true, clr_only: false, description: "When written sets all bits to '1'. Read undeterministic" },
+        w1:    { implemented: false, base: 'read-writeOnce', write: nil, read: nil, writable: true, readable: true, w1c: false, set_only: false, clr_only: false, description: 'Write-once. Next time onwards, write is ignored. Read returns the value' },
+        wo1:   { implemented: false, base: 'writeOnce', write: nil, read: nil, writable: true, readable: false, w1c: false, set_only: false, clr_only: false, description: 'Write-once. Next time onwards, write is ignored. Read is undeterministic' },
+        dc:    { implemented: false, base: 'read-write', write: nil, read: nil, writable: true, readable: true, w1c: false, set_only: false, clr_only: false, description: 'RW but no check' },
+        rowz:  { implemented: false, base: 'read-only', write: nil, read: 'clear', writable: false, readable: true, w1c: false, set_only: false, clr_only: false, description: 'Read-only, value is cleared on read' }
       }
 
       # Returns the Reg object that owns the bit
@@ -100,7 +100,7 @@ module Origen
       # Can be set to indicate that the current state of the bit is unknown, e.g. after reading X from a simulation
       attr_accessor :unknown
 
-      def initialize(owner, position, options = {}) # rubocop:disable MethodLength
+      def initialize(owner, position, options = {})
         options = {
           start:                   false,        # whether bit starts a state machine so be careful
           read_data_matches_write: true,
@@ -109,7 +109,7 @@ module Origen
           store:                   false,
           sticky_overlay:          true,
           sticky_store:            false,
-          nvm_dep:                 false,        # whether is an NVM dependent bit
+          nvm_dep:                 false        # whether is an NVM dependent bit
         }.merge(options)
         @owner = owner
         @position = position
@@ -141,7 +141,7 @@ module Origen
             readable: true,         # whether bit is readable
             clr_only: false,        # whether bit is clear only
             set_only: false,        # whether bit is set only
-            w1c:      false,        # whether bit is w1c (when written to 1 immediately becomes 0)
+            w1c:      false        # whether bit is w1c (when written to 1 immediately becomes 0)
           }.merge(options)
           @readable = options.delete(:readable)
           @writable = options.delete(:writable)
@@ -240,7 +240,8 @@ module Origen
       def default_bit_metadata
         if owner
           Origen::Registers.default_bit_metadata.merge(
-            Origen::Registers.bit_metadata[owner.owner.class] || {})
+            Origen::Registers.bit_metadata[owner.owner.class] || {}
+          )
         else
           Origen::Registers.default_bit_metadata
         end
@@ -336,11 +337,14 @@ module Origen
         self
       end
 
+      # rubocop:disable Lint/DuplicateMethods
+
       # Set the overlay attribute to the supplied value
       def overlay(value)
         @overlay = value
         self
       end
+      # rubocop:enable Lint/DuplicateMethods
 
       # Returns the overlay attribute
       def overlay_str
@@ -411,7 +415,7 @@ module Origen
       # Returns the value you would need to write to the register to put the given
       # value in this bit
       def setting(value)
-        value = value & 1   # As this bit can only hold one bit of data force it
+        value = value & 1 # As this bit can only hold one bit of data force it
         value << @position
       end
 
@@ -495,7 +499,7 @@ module Origen
                 return true
               end
             end
-            return false
+            false
           else
             feature == name
           end
@@ -538,7 +542,7 @@ module Origen
                 break # break if feature not found and return false
               end
             end # iterated through all features in array
-            return value
+            value
           else # if feature.class != Array
             loop do
               if current_owner.respond_to?(:owner)
@@ -561,10 +565,10 @@ module Origen
                 value = true
               end
             end
-            return value
+            value
           end
         else
-          return true
+          true
         end
       end
     end

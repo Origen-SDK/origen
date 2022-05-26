@@ -89,6 +89,7 @@ module Origen
         end
         # Just continue if this thread is not in the list
         return unless ids.include?(current_thread.id)
+
         # If we have entered the same sync up point after having previously completed it,
         # then clear it and start again
         if @sync_ups[location] && @sync_ups[location][:completed]
@@ -139,6 +140,7 @@ module Origen
           # It should be possible to get an execution profile in these cases if someone were to invest the
           # time in it to workout why this variable is not set upstream in these cases.
           return unless @cycle_count_stop
+
           cycles_per_tick = (@cycle_count_stop / (line_size * 1.0)).ceil
           if tester.try(:sim?)
             execution_time = tester.execution_time_in_ns / 1_000_000_000.0
@@ -193,6 +195,7 @@ module Origen
 
       def pretty_time(time, number_decimal_places = 0)
         return '0' if time == 0
+
         if time < 1.us
           "%.#{number_decimal_places}fns" % (time * 1_000_000_000)
         elsif time < 1.ms

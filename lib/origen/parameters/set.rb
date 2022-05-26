@@ -115,6 +115,7 @@ module Origen
 
       def defining?
         return true if Origen::Parameters.transaction_open
+
         if top_level?
           @defining
         else

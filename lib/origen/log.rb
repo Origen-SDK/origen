@@ -55,6 +55,7 @@ module Origen
       unless LEVELS.include?(val)
         fail "Unknown log level, valid values are: #{LEVELS}"
       end
+
       # Map the log4r levels to our simplified 3 level system
       # log4r level order is DEBUG < INFO < WARN < ERROR < FATAL
       case val
@@ -291,9 +292,9 @@ module Origen
     def call_interceptor(interceptors, msg, type, options, &original)
       interceptor = interceptors.shift
       if interceptors.empty?
-        func = -> (msg, type, options) { original.call(msg, type, options) }
+        func = ->(msg, type, options) { original.call(msg, type, options) }
       else
-        func = -> (msg, type, options) { call_interceptor(interceptors, msg, type, options, &original) }
+        func = ->(msg, type, options) { call_interceptor(interceptors, msg, type, options, &original) }
       end
       interceptor.call(msg, type, options, func)
     end

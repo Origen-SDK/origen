@@ -32,11 +32,11 @@ Usage: origen compile [space separated files, lists or directories] [options]
   EOT
   opts.on('-e', '--environment NAME', String, 'Override the default environment, NAME can be a full path or a fragment of an environment file name') { |e| options[:environment] = e }
   opts.on('-t', '--target NAME', String, 'Override the default target, NAME can be a full path or a fragment of a target file name') { |t| options[:target] = t }
-  opts.on('-pl', '--plugin PLUGIN_NAME', String, 'Set current plugin') { |pl_n|  options[:current_plugin] = pl_n }
+  opts.on('-pl', '--plugin PLUGIN_NAME', String, 'Set current plugin') { |pl_n| options[:current_plugin] = pl_n }
   opts.on('-l', '--lsf [ACTION]', [:clear, :add], "Submit jobs to the LSF, optionally specify whether to 'clear' or 'add' to existing jobs") { |a| options[:lsf] = true; options[:lsf_action] = a }
   opts.on('-w', '--wait', 'Wait for LSF processing to complete') { options[:wait_for_lsf_completion] = true }
   opts.on('-c', '--continue', 'Continue on error (to the next file)') { options[:continue] = true }
-  opts.on('-d', '--debugger', 'Enable the debugger') {  options[:debugger] = true }
+  opts.on('-d', '--debugger', 'Enable the debugger') { options[:debugger] = true }
   opts.on('-m', '--mode MODE', Origen::Mode::MODES, 'Force the Origen operating mode:', '  ' + Origen::Mode::MODES.join(', ')) { |_m| }
   opts.on('-f', '--file FILE', String, 'Override the default log file') { |o| options[:log_file] = o }
   opts.on('-o', '--output DIR', String, 'Override the default output directory') { |o| options[:output] = o }

@@ -9,7 +9,7 @@ module Origen
         Origen.app.reload_target!
         Origen.tester.generating = :program
         sub_flow = @top_level
-        @top_level = true unless @top_level
+        @top_level ||= true
         job.output_file_body = options.delete(:name).to_s if options[:name]
         if sub_flow
           interface = Origen.interface

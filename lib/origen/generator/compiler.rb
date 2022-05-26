@@ -119,7 +119,7 @@ module Origen
           else
             File.open(f, 'w') { |out| out.puts output }
           end
-        else  # Just copy it across
+        else # Just copy it across
           out = output_file(file, options)
           # Delete the target if it already exists, this prevents permission denied errors when copying
           FileUtils.rm_f(out.to_s) if File.exist?(out.to_s)
@@ -131,7 +131,7 @@ module Origen
           if @check_for_changes
             check_for_changes(output_file(file, options), reference_file(file, options),
                               comment_char: Origen.app.tester ? Origen.app.tester.program_comment_char : nil,
-                              compile_job:  true, ignore_blank_lines: options[:ignore_blank_lines])
+                              compile_job: true, ignore_blank_lines: options[:ignore_blank_lines])
           end
         end
       end
@@ -179,9 +179,7 @@ module Origen
         # to get a hold of its internal scope
         unless b.is_a?(Binding)
           b.define_singleton_method :_get_binding do |local_opts, &_block|
-            # rubocop:disable Lint/UselessAssignment
             options = local_opts
-            # rubocop:enable Lint/UselessAssignment
             binding
           end
           # Here the global options, the ones visible right now, are passed to into the method defined above,

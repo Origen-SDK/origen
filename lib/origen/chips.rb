@@ -37,13 +37,13 @@ module Origen
       }.update(options || {})
       _chips
       if s.nil?
-        return show_chips(options)
+        show_chips(options)
       elsif s.is_a? Hash
         options.update(s)
-        return show_chips(options)
+        show_chips(options)
       else
         options[:chip] = s
-        return show_chips(options)
+        show_chips(options)
       end
     end
 
@@ -61,6 +61,7 @@ module Origen
       if has_chip?(name, group: group, family: family, performance: performance, creating_chip: true)
         fail "Chip already exists for chip: #{name}, group: #{group}, family: #{family} for object #{self}"
       end
+
       @_chips[group][family][performance][name] = chip_holder
     end
 
@@ -76,9 +77,9 @@ module Origen
         creating_chip: false
       }.update(options)
       if @_chips.nil? || @_chips == {}
-        return false
+        false
       else
-        return !!show_chips(options)
+        !!show_chips(options)
       end
     end
 
@@ -127,11 +128,11 @@ module Origen
         end
       end
       if notes_found.empty?
-        return nil
+        nil
       elsif notes_found.size == 1
         notes_found.values.first.values.first
       else
-        return notes_found
+        notes_found
       end
     end
 
@@ -184,6 +185,8 @@ module Origen
 
     private
 
+    # rubocop:disable Lint/DuplicateMethods
+
     def _chips
       # 4D hash with group, family, and performance
       @_chips ||= Hash.new do |h, k|
@@ -215,10 +218,12 @@ module Origen
         h[k] = {}
       end
     end
+    # rubocop:enable Lint/DuplicateMethods
 
     # Return a hash based on the filter provided
     def filter_hash(hash, filter)
       fail 'Hash argument is not a Hash!' unless hash.is_a? Hash
+
       filtered_hash = {}
       select_logic = case filter
         when String then 'k[Regexp.new(filter)]'
@@ -228,8 +233,7 @@ module Origen
           'k == filter'
         when NilClass then true # Return all specs if a filter is set to nil (i.e. user doesn't care about this filter)
         else true
-      end
-      # rubocop:disable UnusedBlockArgument
+                     end
       filtered_hash = hash.select do |k, v|
         [TrueClass, FalseClass].include?(select_logic.class) ? select_logic : eval(select_logic)
       end
@@ -268,13 +272,13 @@ module Origen
           return show_chips(options)
         end
         Origen.log.debug "Returning no chips for options #{options}"
-        return nil
+        nil
       elsif chips_to_be_shown.size == 1
         Origen.log.debug "returning one spec #{chips_to_be_shown.first.part_name}"
-        return chips_to_be_shown.first
+        chips_to_be_shown.first
       else
         Origen.log.debug "returning an array of specs during initial search: #{chips_to_be_shown}"
-        return chips_to_be_shown
+        chips_to_be_shown
       end
     end
   end

@@ -75,19 +75,17 @@ module Origen
 
     # Returns the controller's model
     def model
-      @model ||= begin
-        if self.class.path_to_model
-          m = eval(self.class.path_to_model)
-          if m
-            if m.respond_to?(:_controller=)
-              m.send(:_controller=, self)
-            end
-          else
-            fail "No model object found at path: #{self.class.path_to_model}"
-          end
-          m
-        end
-      end
+      @model ||= if self.class.path_to_model
+                   m = eval(self.class.path_to_model)
+                   if m
+                     if m.respond_to?(:_controller=)
+                       m.send(:_controller=, self)
+                     end
+                   else
+                     fail "No model object found at path: #{self.class.path_to_model}"
+                   end
+                   m
+                 end
     end
 
     # When compared to another object, a controller will consider itself equal if either the controller

@@ -23,8 +23,8 @@ module Origen
     require 'origen/users'
     include Origen::Users
 
-    attr_accessor :name
-    attr_accessor :namespace
+    attr_writer :name                       # attr_accessor leads to a duplicate method
+    attr_writer :namespace                  # attr_accessor leads to a duplicate method
 
     class << self
       def inherited(base)
@@ -84,6 +84,7 @@ module Origen
         @apps_by_namespace ||= {}
         @apps_by_namespace[namespace] ||= begin
           return Origen.app if Origen.app.namespace == namespace
+
           Origen.app.plugins.each do |plugin|
             return plugin if plugin.namespace == namespace
           end
@@ -105,7 +106,7 @@ module Origen
       include Rake::DSL
 
       def load_tasks
-        $VERBOSE = nil  # Don't care about world writable dir warnings and the like
+        $VERBOSE = nil # Don't care about world writable dir warnings and the like
         require 'colored'
 
         # Load all Origen tasks first
@@ -463,12 +464,14 @@ END
       if max && listeners.size > max
         fail "You can only define a #{callback} callback #{max > 1 ? (max.to_s + 'times') : 'once'}, however you have declared it #{listeners.size} times for instances of: #{listeners.map(&:class)}"
       end
+
       listeners
     end
 
     def version(options = {})
       @version = nil if options[:refresh]
       return @version if @version
+
       if Origen.running_globally?
         @version = Origen.version
       else
@@ -567,6 +570,7 @@ END
           if capture && line =~ /^#+ by (.*) on (.*(AM|PM))/
             user = Origen.fsl.find_by_name(Regexp.last_match(1))
             return user if user
+
             return Regexp.last_match(1)
           end
         else
@@ -871,7 +875,7 @@ END
       # declares here, the objects registered with origen should be refreshed accordingly
       clear_dynamic_resources
       load_event(:transient) do
-        Origen.mode = Origen.app.session.origen_core[:mode] || :production  # Important since a production target may rely on the default
+        Origen.mode = Origen.app.session.origen_core[:mode] || :production # Important since a production target may rely on the default
         begin
           $_target_options = @target_load_options
           Origen.target.set_signature(@target_load_options)
@@ -1028,14 +1032,10 @@ END
     #   When debug is enabled, exception_class will be raised, defaulting to <code>RuntimeError</code>.
     def fail!(message: nil, exception_class: RuntimeError, exit_status: 1)
       if Origen.debug?
-        # rubocop:disable Style/RedundantSelf
         self.fail(message: message, exception_class: exception_class)
-        # rubocop:enable Style/RedundantSelf
       else
         begin
-          # rubocop:disable Style/RedundantSelf
           self.fail(message: message, exception_class: exception_class)
-          # rubocop:enable Style/RedundantSelf
         rescue exception_class => e
           Origen.log.error(e.message)
           exit exit_status
@@ -1051,7 +1051,7 @@ END
     #     require "my_backend" # in lib/my_backend
     #     config.i18n.backend = MyBackend
     #   end
-    def add_lib_to_load_path! #:nodoc:
+    def add_lib_to_load_path! # :nodoc:
       [root.join('lib'), root.join('vendor', 'lib'), root.join('app', 'lib')].each do |path|
         $LOAD_PATH.unshift(path.to_s) if File.exist?(path) && !$LOAD_PATH.include?(path.to_s)
       end

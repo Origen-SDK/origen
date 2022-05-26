@@ -127,6 +127,7 @@ module Origen
         unless live_parameter.respond_to?(:is_a_live_parameter?) && live_parameter.is_a_live_parameter?
           fail 'Only live updating parameters should be bound, make sure you have not missed .live in the path to the parameter!'
         end
+
         @parameter_bound_bits ||= {}
         @parameter_bound_bits[bitname] = live_parameter
       end
@@ -381,7 +382,8 @@ module Origen
       # this register specifically however, use the meta method to get that.
       def default_reg_metadata
         Origen::Registers.default_reg_metadata.merge(
-          Origen::Registers.reg_metadata[owner.class] || {})
+          Origen::Registers.reg_metadata[owner.class] || {}
+        )
       end
 
       def bit_value_descriptions(bitname, options = {})
@@ -479,6 +481,7 @@ module Origen
         unless File.exist?(define_file)
           return desc
         end
+
         File.readlines(define_file).each do |line|
           if line =~ /^\s*#(.*)/
             desc << Regexp.last_match[1].strip
@@ -527,7 +530,7 @@ module Origen
             bit_params[:res] = bit_params[:data] if bit_params[:data]
             bit_params[:res] = bit_params[:reset] if bit_params[:reset]
             if num_bits == 1
-              add_bit(bit_id, position, bit_params)   # and add the new one
+              add_bit(bit_id, position, bit_params) # and add the new one
             else
               add_bus(bit_id, position, num_bits, bit_params)
             end
@@ -975,14 +978,16 @@ module Origen
       alias_method :has_bit, :has_bit?
       alias_method :has_bits, :has_bit?
 
+      # rubocop:disable Layout/MultilineHashBraceLayout
+
       # Add a bit to the register, should only be called internally
       def add_bit(id, position, options = {}) # :nodoc:
-        options = { data: @bits[position].data,  # If undefined preserve any data/reset value that has
-                    res:  @bits[position].data,   # already been applied at reg level
+        options = { data: @bits[position].data, # If undefined preserve any data/reset value that has
+                    res:  @bits[position].data # already been applied at reg level
                   }.merge(options)
 
         @lookup[id] = { pos: position, bits: 1, feature: options[:feature] }
-        @bits.delete_at(position)    # Remove the initial bit from this position
+        @bits.delete_at(position) # Remove the initial bit from this position
 
         @bits.insert(position, Bit.new(self, position, options))
         self
@@ -994,8 +999,8 @@ module Origen
         size.times do |n|
           default_data |= @bits[position + n].data << n
         end
-        options = { data: default_data,  # If undefined preserve any data/reset value that has
-                    res:  default_data,   # already been applied at reg level
+        options = { data: default_data, # If undefined preserve any data/reset value that has
+                    res:  default_data # already been applied at reg level
                   }.merge(options)
 
         @lookup[id] = { pos: position, bits: size }
@@ -1025,8 +1030,8 @@ module Origen
           size.times do |n|
             default_data |= @bits[position + n].data << n
           end
-          options = { data: default_data,  # If undefined preserve any data/reset value that has
-                      res:  default_data,   # already been applied at reg level
+          options = { data: default_data, # If undefined preserve any data/reset value that has
+                      res:  default_data # already been applied at reg level
                     }.merge(options)
 
           @lookup[id] = [] if @lookup[id].nil?
@@ -1038,9 +1043,10 @@ module Origen
             @bits.delete_at(position + n)
             @bits.insert(position + n, Bit.new(self, position + n, bit_options))
           end
-          self
+          self    # rubocop:disable Lint/Void
         end
       end
+      # rubocop:enable Layout/MultilineHashBraceLayout
 
       # Delete the bits in the collection from the register
       def delete_bit(collection)
@@ -1048,7 +1054,7 @@ module Origen
           @lookup.delete(name)
         end
         collection.each do |bit|
-          @bits.delete_at(bit.position)    # Remove the bit
+          @bits.delete_at(bit.position) # Remove the bit
           @bits.insert(bit.position, Bit.new(self, bit.position, writable: @init_as_writable))
         end
         self
@@ -1163,6 +1169,7 @@ module Origen
         end
 
         return nil unless @bits[number]
+
         if (params == :default || !params) && @bits[number].enabled?
           @bits[number]
         elsif params == :none && !@bits[number].has_feature_constraint?
@@ -1174,12 +1181,13 @@ module Origen
             unless @bits[number].enabled_by_feature?(param)
               return nil
             end
+
             @bits[number]
           end
         elsif @bits[number].enabled_by_feature?(params)
           @bits[number]
         else
-          return Bit.new(self, number, writable: false)
+          Bit.new(self, number, writable: false)
         end
       end
 
@@ -1211,19 +1219,19 @@ module Origen
                 return collection
               end
             end
-            return BitCollection.dummy(self, bit_name, size: collection.size, pos: @lookup[bit_name][:pos])
+            BitCollection.dummy(self, bit_name, size: collection.size, pos: @lookup[bit_name][:pos])
           else
-            return []
+            []
           end
 
         elsif split_group_reg == true # if this registers has split bits in its range
           if @lookup.is_a?(Hash) # && @lookup.include?(bit_name)
             collection = false
-            @lookup.each do |k, v|  # k is the bitname, v is the hash of bit data
+            @lookup.each do |k, v| # k is the bitname, v is the hash of bit data
               if k == bit_name
                 collection ||= BitCollection.new(self, k)
                 if v.is_a?(Array)
-                  v.reverse_each do |pb|  # loop each piece of bit group data
+                  v.reverse_each do |pb| # loop each piece of bit group data
                     (pb[:bits]).times do |i|
                       collection << @bits[pb[:pos] + i]
                     end
@@ -1255,12 +1263,12 @@ module Origen
               end
             end
             if @lookup.is_a?(Hash) && @lookup[bit_name].is_a?(Array)
-              return BitCollection.dummy(self, bit_name, size: collection.size, pos: @lookup[bit_name][0][:pos])
+              BitCollection.dummy(self, bit_name, size: collection.size, pos: @lookup[bit_name][0][:pos])
             else
-              return BitCollection.dummy(self, bit_name, size: collection.size, pos: @lookup[bit_name[:pos]])
+              BitCollection.dummy(self, bit_name, size: collection.size, pos: @lookup[bit_name[:pos]])
             end
           else
-            return []
+            []
           end
         end
       end
@@ -1274,9 +1282,7 @@ module Origen
         end
 
         if params
-          return params[:enabled_features] || params[:enabled_feature]
-        else
-          return nil
+          params[:enabled_features] || params[:enabled_feature]
         end
       end
 
@@ -1401,7 +1407,7 @@ module Origen
       # Cleans an input value, in some cases it could be a register object, or an explicit value.
       # This will return an explicit value in either case.
       def self.clean_value(value) # :nodoc:
-        value = value.val if value.respond_to?('val')  # Pull out the data value if a reg object has been passed in
+        value = value.val if value.respond_to?('val') # Pull out the data value if a reg object has been passed in
         value
       end
 
@@ -1439,9 +1445,9 @@ module Origen
                 return true
               end
             end
-            return false
+            false
           else
-            return feature == name
+            feature == name
           end
         end
       end
@@ -1483,7 +1489,7 @@ module Origen
                 break # break if feature not found and return false
               end
             end # iterated through all features in array
-            return value
+            value
           else # if feature.class != Array
             loop do
               if current_owner.respond_to?(:owner)
@@ -1506,10 +1512,10 @@ module Origen
                 value = true
               end
             end
-            return value
+            value
           end
         else
-          return true
+          true
         end
       end
 

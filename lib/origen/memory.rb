@@ -41,6 +41,7 @@ module Origen
         if @memory_width
           fail 'The memory width cannot be changed after a memory location has been referenced'
         end
+
         @memory_width = size
       else
         Origen.top_level.memory_width = size

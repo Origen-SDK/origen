@@ -50,6 +50,7 @@ module Origen
       # all imported application workspaces
       def imports_directory
         return @imports_directory if @imports_directory
+
         old = "#{container_directory}/#{revision_control_root.basename}_imports_DO_NOT_HAND_MODIFY"
         @imports_directory = "#{container_directory}/.#{revision_control_root.basename}_imports_DO_NOT_HAND_MODIFY"
         FileUtils.rm_rf(old) if File.exist?(old)
@@ -60,6 +61,7 @@ module Origen
       # all remotes workspaces
       def remotes_directory
         return @remotes_directory if @remotes_directory
+
         old = "#{container_directory}/#{revision_control_root.basename}_remotes_DO_NOT_HAND_MODIFY"
         @remotes_directory = "#{container_directory}/.#{revision_control_root.basename}_remotes_DO_NOT_HAND_MODIFY"
         FileUtils.rm_rf(old) if File.exist?(old)
@@ -86,7 +88,7 @@ module Origen
         remote_ref = "#{origen_root(workspace)}/.ref"
         unless File.exist?(remote_ref)
           FileUtils.mkdir_p(remote_ref)
-          `touch #{remote_ref}/dont_delete`  # Make sure the pop does not blow this away
+          `touch #{remote_ref}/dont_delete` # Make sure the pop does not blow this away
         end
         if Origen.running_on_windows?
           system("call mklink /h #{reference_dir} #{remote_ref}")
@@ -113,6 +115,7 @@ module Origen
         if File.exist?(path.to_s) && !options[:allow_rebuild]
           fail "Sorry but #{path} already exists!"
         end
+
         FileUtils.rm_rf(path.to_s) if File.exist?(path.to_s)
         rc = RevisionControl.new options.merge(remote: options[:rc_url], local: path.to_s)
         rc.build
@@ -121,7 +124,7 @@ module Origen
       # Switches the given workspace path to the given version tag
       def switch_version(workspace, tag, options = {})
         options = {
-          origen_root_only: false, # When true pop the Origen.root dir only instead
+          origen_root_only: false # When true pop the Origen.root dir only instead
           # of the whole application workspace - these may or may
           # not be the same thing depending on the application.
         }.merge(options)

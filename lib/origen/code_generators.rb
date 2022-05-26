@@ -28,6 +28,7 @@ module Origen
 
     def self.load_generators
       return if @generators_loaded
+
       # Load Origen's generators
       require_relative 'code_generators/block_common'
       require_relative 'code_generators/dut'
@@ -43,6 +44,7 @@ module Origen
     # Loaded separately so as not to pollute the generated list of generators available to users
     def self.load_internal_generators
       return if @internal_generators_loaded
+
       require_relative 'code_generators/semver'
       require_relative 'code_generators/timever'
       @internal_generators_loaded = true
@@ -121,6 +123,7 @@ END
       end
       plugin_generators.each do |namespace, generators|
         next if namespace.to_s == 'origen_app_generators'
+
         puts
         generators.each do |_name, gen|
           puts "#{namespace}:#{gen}"

@@ -80,7 +80,7 @@ module Origen
       def submit(command, options = {})
         options = {
           dependents: [],
-          rerunnable: true,  # Will rerun automatically if the execution host fails
+          rerunnable: true # Will rerun automatically if the execution host fails
         }.merge(options)
         limit_job_submissions do
           group = options[:group] || config.group
@@ -103,7 +103,7 @@ module Origen
           cmd = "bsub -oo /dev/null #{dependents} #{rerunnable} #{group} #{project} #{resource} #{queue} #{cores} '#{command}'"
           if config.debug
             puts cmd
-            '496212'  # Return a dummy ID to keep the caller happy
+            '496212' # Return a dummy ID to keep the caller happy
           else
             output = `#{cmd}`
             Origen.log.info output.strip

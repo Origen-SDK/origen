@@ -32,8 +32,7 @@ class Hash
       when Symbol then 'k == filter'
       when NilClass then true
       else true
-    end
-    # rubocop:disable UnusedBlockArgument
+                   end
     filtered_hash = select do |k, v|
       [TrueClass, FalseClass].include?(select_logic.class) ? select_logic : !!eval(select_logic)
     end
@@ -66,16 +65,16 @@ class Hash
         elsif key.is_a? Regexp
           search_results[k] = v if key.match(k.to_s)
         else
-          return v if (k == key)
+          return v if k == key
         end
       end
     end
     if search_results.empty?
-      return nil
+      nil
     elsif search_results.size == 1
-      return search_results.values.first
+      search_results.values.first
     else
-      return search_results
+      search_results
     end
   end
 end

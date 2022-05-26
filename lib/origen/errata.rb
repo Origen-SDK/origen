@@ -1,11 +1,11 @@
 module Origen
   module Errata
-    autoload :HwErratum,		'origen/errata/hw_erratum'
+    autoload :HwErratum,	'origen/errata/hw_erratum'
     autoload :SwErratumWorkaround,	'origen/errata/sw_erratum_workaround'
 
-    attr_accessor :_errata
+    attr_writer :_errata
 
-    attr_accessor :_sw_workarounds
+    attr_writer :_sw_workarounds
 
     # Define and instantiate an erratum object
     def erratum(id, ip_block, overview = {}, status = {}, sw_workaround = {})
@@ -40,12 +40,12 @@ module Origen
 
       # Return nil if there are no errata that meet criteria
       if errata_found.empty?
-        return nil
+        nil
       # If only one errata meets criteria, return that HwErratum object
       elsif errata_found.size == 1
         errata_found.values.first.values.first.values.first
       else
-        return errata_found
+        errata_found
       end
     end
 
@@ -72,11 +72,11 @@ module Origen
         sw_workarounds_found[id] = workarounds
       end
       if sw_workarounds_found.empty?
-        return nil
+        nil
       elsif sw_workarounds_found.size == 1
         sw_workarounds_found.values.first # .values.first
       else
-        return sw_workarounds_found
+        sw_workarounds_found
       end
     end
 
@@ -107,7 +107,6 @@ module Origen
     #    when NilClass then true # Return all specs if a filter is set to nil (i.e. user doesn't care about this filter)
     #    else true
     #  end
-    # rubocop:disable UnusedBlockArgument
     #  filtered_hash = hash.select do |k, v|
     #    [TrueClass, FalseClass].include?(select_logic.class) ? select_logic : eval(select_logic)
     #  end
