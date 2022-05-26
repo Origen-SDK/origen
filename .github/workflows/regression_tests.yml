@@ -5,7 +5,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        ruby-version: [2.5, 2.6, 3.0.4, 3.1]
+        ruby-version: [2.5, 2.6, 2.7, 3.0.4, 3.1]
 
     runs-on: ${{ matrix.os }}
 
@@ -21,8 +21,8 @@ jobs:
       run: gem install bundler -v '> 2'
     - name: Remove Gemfile.lock
       run: rm Gemfile.lock
-    - name: Install dependencies
-      run: bundle install  
+    # - name: Install dependencies
+    #   run: bundle install  
       
     # Work around Ruby 3 gem install issue
     - name: Build Origen Gem - Ruby 3 work around
