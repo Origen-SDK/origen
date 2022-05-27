@@ -4,12 +4,13 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        # os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
         # For some reason ruby 2.7 checks on the GA machine
         # wind up in an infinite loop on origen -v
         # this doesn't happen on local machines
         # ruby-version: [2.5, 2.6, 2.7, 3.0.4, 3.1]
-        ruby-version: [2.5, 2.6, 3.0.4, 3.1]
+        ruby-version: [2.6, 2.7]
 
     runs-on: ${{ matrix.os }}
 

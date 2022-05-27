@@ -157,6 +157,7 @@ end
           begin
             Bundler.setup
           rescue Gem::LoadError, Bundler::BundlerError => e
+		    puts "\n\n------TEMP - Bundle.setup error:"
             puts e
             puts
             if exec_remote
