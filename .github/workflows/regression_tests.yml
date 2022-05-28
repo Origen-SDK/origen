@@ -26,10 +26,11 @@ jobs:
       run: gem install bundler -v '> 2'
     - name: Remove Gemfile.lock
       run: rm Gemfile.lock
-    - name: Force Binstub Rebuild
-      run: rm lbin/*
     - name: Install dependencies
       run: bundle install  
+    - name: Force Binstub Rebuild
+      run: rm lbin/*
+      run: origen setup
       
     # Work around Ruby 3 gem install issue
     - name: Build Origen Gem - Ruby 3 work around
