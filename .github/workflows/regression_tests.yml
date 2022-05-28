@@ -42,8 +42,8 @@ jobs:
       if: matrix.ruby-version == '2.5' || matrix.ruby-version == '2.6' || matrix.ruby-version == '2.7'
       run: gem install origen
       
-    - name: Gem Install timeout
-      run: gem install timeout -v 0.3.0    
+    - name: Gem Install net-smtp
+      run: gem install net-smtp   
       
     - name: Force Binstub Rebuild
       run: rm lbin/*
