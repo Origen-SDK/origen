@@ -4,8 +4,7 @@ jobs:
   build:
     strategy:
       matrix:
-        # os: [ubuntu-latest, windows-latest]
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, windows-latest]
         # For some reason ruby 2.7 checks on the GA machine
         # wind up in an infinite loop on origen -v
         # this doesn't happen on local machines
@@ -31,10 +30,10 @@ jobs:
     # "using timeout" from this bundle install step, but then finding that it doesn't exist where the
     # origen gems are installed. This doesn't happen on local machines. So, installing to this path
     # is a work around
-    # - name: Install dependencies
-    #   run: bundle install --path /home/runner/.origen/gems
     - name: Install dependencies
-      run: bundle install
+      run: bundle install --path /home/runner/.origen/gems
+    # - name: Install dependencies
+    #   run: bundle install
       
     # Work around Ruby 3 gem install issue
     - name: Build Origen Gem - Ruby 3 work around
