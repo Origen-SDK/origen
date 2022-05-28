@@ -26,8 +26,15 @@ jobs:
       run: gem install bundler -v '> 2'
     - name: Remove Gemfile.lock
       run: rm Gemfile.lock
+      
+    # On the GA machine when running tests with Ruby 2.7 'origen -v' will get stuck in an infinite loop
+    # "using timeout" from this bundle install step, but then finding that it doesn't exist where the
+    # origen gems are installed. This doesn't happen on local machines. So, installing to this path
+    # is a work around
+    # - name: Install dependencies
+    #   run: bundle install --path /home/runner/.origen/gems
     - name: Install dependencies
-      run: bundle install --path /home/runner/.origen/gems
+      run: bundle install
       
     # Work around Ruby 3 gem install issue
     - name: Build Origen Gem - Ruby 3 work around

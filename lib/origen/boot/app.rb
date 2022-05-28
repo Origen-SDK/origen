@@ -157,8 +157,6 @@ end
           begin
             Bundler.setup
           rescue Gem::LoadError, Bundler::BundlerError => e
-		    puts "\n\n------TEMP - Bundle.setup error:"
-            puts e
             puts
             if exec_remote
               puts 'App failed to boot, run it locally so that this can be resolved before re-submitting to the LSF'
@@ -169,14 +167,16 @@ end
 
             passed = false
 
-            Bundler.with_clean_env do
+            # Bundler wants us to use either .with_unbundled_env (or .with_original_env if you want the env before Bundler was loaded)
+            # .with_clean_env is deprecated
+            Bundler.with_original_env do
               cmd = 'bundle install'
               cmd += ' --local' if File.exist?('.origen_archive')
               passed = system(cmd)
             end
 
             if passed
-              Bundler.with_clean_env do
+              Bundler.with_original_env do
                 exec "origen #{ARGV.join(' ')}"
               end
               exit 0
