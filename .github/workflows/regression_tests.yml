@@ -34,25 +34,26 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: bundle install --path /home/runner/.origen/gems
 
-    - name: Install dependencies Windows
-      if: matrix.os == 'windows-latest'
-      run: bundle install --path C:/Users/runneradmin/.origen/gems
     # - name: Install dependencies
     #   run: bundle install
       
     # Work around Ruby 3 gem install issue
     - name: Build Origen Gem - Ruby 3 work around
-      if: matrix.ruby-version == '3.0.4' || matrix.ruby-version == '3.1' || matrix.ruby-version == '2.7'
+      if: matrix.ruby-version == '3.0.4' || matrix.ruby-version == '3.1'
       run: gem build origen.gemspec --output origen.gem    
     - name: Gem Install Origen - Ruby 3 work around 
-      if: matrix.ruby-version == '3.0.4' || matrix.ruby-version == '3.1' || matrix.ruby-version == '2.7'
+      if: matrix.ruby-version == '3.0.4' || matrix.ruby-version == '3.1'
       run: gem install origen.gem 
       
     # Normal way of installing origen
     - name: Gem Install Origen Ruby 2
-      if: matrix.ruby-version == '2.5' || matrix.ruby-version == '2.6'
+      if: matrix.ruby-version == '2.5' || matrix.ruby-version == '2.6' || matrix.ruby-version == '2.7'
       run: gem install origen
       
+    - name: Install dependencies Windows
+      if: matrix.os == 'windows-latest'
+      run: bundle install --path C:/Users/runneradmin/.origen/gems
+
     - name: Setup Dependencies
       run: origen -v
     - name: Run Origen Lint
