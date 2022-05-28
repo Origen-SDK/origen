@@ -4,12 +4,13 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        # Couldn't figure out a workaround for the GA bundle bug
+        # os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
         # For some reason ruby 2.7 checks on the GA machine
         # wind up in an infinite loop on origen -v
         # this doesn't happen on local machines
-        # ruby-version: [2.5, 2.6, 2.7, 3.0.4, 3.1]
-        ruby-version: [2.7]
+        ruby-version: [2.5, 2.6, 2.7, 3.0.4, 3.1]
 
     runs-on: ${{ matrix.os }}
 
@@ -33,10 +34,6 @@ jobs:
     - name: Install dependencies Linux
       if: matrix.os == 'ubuntu-latest'
       run: bundle install --path /home/runner/.origen/gems
-      
-    - name: Install dependencies Windows
-      if: matrix.os == 'windows-latest'
-      run: bundle install
     # - name: Install dependencies
     #   run: bundle install
       
@@ -53,10 +50,6 @@ jobs:
       if: matrix.ruby-version == '2.5' || matrix.ruby-version == '2.6' || matrix.ruby-version == '2.7'
       run: gem install origen
       
-    - name: Install dependencies Windows Again
-      if: matrix.os == 'windows-latest'
-      run: bundle install --path C:/Users/runneradmin/.origen/gems
-
     - name: Setup Dependencies
       run: origen -v
     - name: Run Origen Lint
