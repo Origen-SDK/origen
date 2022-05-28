@@ -26,6 +26,8 @@ jobs:
       run: gem install bundler -v '> 2'
     - name: Remove Gemfile.lock
       run: rm Gemfile.lock
+    - name: Force Binstub Rebuild
+      run: rm lbin/*
     - name: Install dependencies
       run: bundle install  
       
