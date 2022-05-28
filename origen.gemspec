@@ -53,6 +53,5 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'nokogiri', '>= 1.11.0'
   #spec.add_runtime_dependency 'cri', '~>2.10.0' # Not required by Origen, but add constrain to avoid Ruby 2.3 requirement
   spec.add_runtime_dependency 'concurrent-ruby'
-  spec.add_runtime_dependency 'timeout'
   spec.add_runtime_dependency 'net-smtp'
 end
