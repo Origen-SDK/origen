@@ -46,7 +46,7 @@ jobs:
       
     # Normal way of installing origen
     - name: Gem Install Origen Ruby 2
-      if: matrix.ruby-version == '2.5' || matrix.ruby-version == '2.6' || matrix.ruby-version == '2.7'
+      if: matrix.ruby-version == '2.5' || matrix.ruby-version == '2.6'
       run: gem install origen
       
     - name: Setup Dependencies
