@@ -28,9 +28,6 @@ jobs:
       run: rm Gemfile.lock
     - name: Install dependencies
       run: bundle install  
-    - name: Force Binstub Rebuild
-      run: rm lbin/*
-      run: origen setup
       
     # Work around Ruby 3 gem install issue
     - name: Build Origen Gem - Ruby 3 work around
@@ -45,6 +42,11 @@ jobs:
       if: matrix.ruby-version == '2.5' || matrix.ruby-version == '2.6' || matrix.ruby-version == '2.7'
       run: gem install origen 
       
+    - name: Force Binstub Rebuild
+      run: rm lbin/*
+    - name: Rebuild Binstubs
+      run: origen setup
+
     - name: Setup Dependencies
       run: origen -v
     - name: Run Origen Lint
