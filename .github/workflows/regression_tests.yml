@@ -30,8 +30,13 @@ jobs:
     # "using timeout" from this bundle install step, but then finding that it doesn't exist where the
     # origen gems are installed. This doesn't happen on local machines. So, installing to this path
     # is a work around
-    - name: Install dependencies
+    - name: Install dependencies Linux
+      if: matrix.os == 'ubuntu-latest'
       run: bundle install --path /home/runner/.origen/gems
+
+    - name: Install dependencies Windows
+      if: matrix.os == 'windows-latest'
+      run: bundle install
     # - name: Install dependencies
     #   run: bundle install
       
