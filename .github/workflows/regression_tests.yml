@@ -33,7 +33,10 @@ jobs:
     - name: Install dependencies Linux
       if: matrix.os == 'ubuntu-latest'
       run: bundle install --path /home/runner/.origen/gems
-
+      
+    - name: Install dependencies Windows
+      if: matrix.os == 'windows-latest'
+      run: bundle install
     # - name: Install dependencies
     #   run: bundle install
       
@@ -50,7 +53,7 @@ jobs:
       if: matrix.ruby-version == '2.5' || matrix.ruby-version == '2.6' || matrix.ruby-version == '2.7'
       run: gem install origen
       
-    - name: Install dependencies Windows
+    - name: Install dependencies Windows Again
       if: matrix.os == 'windows-latest'
       run: bundle install --path C:/Users/runneradmin/.origen/gems
 
