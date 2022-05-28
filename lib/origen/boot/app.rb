@@ -169,14 +169,14 @@ end
 
             # Bundler wants us to use either .with_unbundled_env (or .with_original_env if you want the env before Bundler was loaded)
             # .with_clean_env is deprecated
-            Bundler.with_original_env do
+            Bundler.with_unbundled_env do
               cmd = 'bundle install'
               cmd += ' --local' if File.exist?('.origen_archive')
               passed = system(cmd)
             end
 
             if passed
-              Bundler.with_original_env do
+              Bundler.with_unbundled_env do
                 exec "origen #{ARGV.join(' ')}"
               end
               exit 0
