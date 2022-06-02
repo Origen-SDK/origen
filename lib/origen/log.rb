@@ -264,10 +264,7 @@ module Origen
       @custom_logs[method.to_sym] ||= begin
         log_file = File.join(Log.log_file_directory, "#{method}.txt")
         unless Origen.running_remotely?
-          if File.exist?(log_file)
-            FileUtils.rm "#{log_file}.old" if File.exist?("#{log_file}.old")
-            FileUtils.mv log_file, "#{log_file}.old"
-          end
+          FileUtils.mv Log.log_file, "#{Log.log_file}.old", force: true if File.exist?(Log.log_file)
         end
         open_log(log_file)
       end
@@ -334,10 +331,7 @@ module Origen
     def last_file
       @last_file ||= begin
         # Preserve one prior version of the log file
-        if File.exist?(Log.log_file)
-          FileUtils.rm "#{Log.log_file}.old" if File.exist?("#{Log.log_file}.old")
-          FileUtils.mv Log.log_file, "#{Log.log_file}.old"
-        end
+        FileUtils.mv Log.log_file, "#{Log.log_file}.old", force: true if File.exist?(Log.log_file)
         open_log(Log.log_file)
       end
     end
