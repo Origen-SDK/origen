@@ -3109,7 +3109,7 @@ Style/ClassAndModuleChildren:
   # have the knowledge to perform either operation safely and thus requires
   # manual oversight.
   SafeAutoCorrect: false
-  Enabled: true
+  Enabled: false
   VersionAdded: '0.19'
   #
   # Basically there are two different styles:
