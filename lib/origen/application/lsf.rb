@@ -42,6 +42,7 @@ module Origen
           @queue = Origen.site_config.lsf_queue
           @debug = Origen.site_config.lsf_debug
           @cores = Origen.site_config.lsf_cores
+          @max_jobs = Origen.site_config.lsf_max_jobs || 400
         end
       end
 
@@ -152,7 +153,7 @@ module Origen
       def limit_job_submissions
         @local_job_count ||= 0
         if @local_job_count == 100
-          while remote_jobs_count > 400
+          while remote_jobs_count > @max_jobs
             puts 'Waiting for submitted jobs count to fall below limit...'
             sleep 5
           end
