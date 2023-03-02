@@ -124,7 +124,7 @@ GEM
       cri (~> 2.3)
     net-ldap (0.17.0)
     netrc (0.11.0)
-    nokogiri (1.13.6-x64-mingw-ucrt)
+    nokogiri (1.13.6-x64-unknown)
       racc (~> 1.4)
     origen_debuggers (0.6.1)
       origen (>= 0.2.6)
@@ -219,8 +219,9 @@ GEM
       webrick (~> 1.7.0)
 
 PLATFORMS
-  x64-mingw-ucrt
   x64-mingw32
+  x64-unknown
+  x86_64-linux
 
 DEPENDENCIES
   byebug (~> 10)
