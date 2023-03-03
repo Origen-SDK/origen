@@ -150,11 +150,11 @@ module Origen
         i = 0
         `bjobs 2>&1`.split("\n").each do |line|
           if line =~ /^(\d+).*(RUN|PEND)/
-            if @queue_count_only && @queue
+            if config.queue_count_only && config.queue
               # only count jobs for current queue, helpful for when
               # you have a service account user that runs lsf for a
               # lot of jobs in addition to origen jobs
-              if line =~ /#{@queue}/
+              if line =~ /#{config.queue}/
                 i += 1
               end
             else
@@ -171,7 +171,7 @@ module Origen
       def limit_job_submissions
         @local_job_count ||= 0
         if @local_job_count == 100
-          while remote_jobs_count > @max_jobs
+          while remote_jobs_count > config.max_jobs
             puts 'Waiting for submitted jobs count to fall below limit...'
             sleep 5
           end
