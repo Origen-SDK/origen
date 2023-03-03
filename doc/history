@@ -1,3 +1,13 @@
+<a class="anchor release_tag" name="v0_60_9"></a>
+<h1><a href="#v0_60_9">Tag: v0.60.9</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 02-Mar-2023 19:31PM
+
+
+corrected scope access for config variables during remote job count - Cody Horton
+
 <a class="anchor release_tag" name="v0_60_8"></a>
 <h1><a href="#v0_60_8">Tag: v0.60.8</a></h1>
 
