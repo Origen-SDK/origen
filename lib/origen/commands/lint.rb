@@ -18,9 +18,11 @@ http://origen.freescale.net/origen/latest/guides/utilities/lint/
   END
   opts.on('-c', '--correct', 'Correct errors automatically where possible') { options[:correct] = true }
   opts.on('-n', '--no-correct', "Don't correct errors automatically (override if the app default is set to auto correct)") { options[:no_correct] = true }
+  opts.on('-A', '--auto-correct-all', 'Autocorrect offenses (safe and unsafe)') { options[:correct_all] = true }
   opts.on('-e', '--easy', 'Be less strict, most checks run with this flag enabled can be corrected automatically') { options[:easy] = true }
   opts.on('-m', '--mode MODE', Origen::Mode::MODES, 'Force the Origen operating mode:', '  ' + Origen::Mode::MODES.join(', ')) { |_m| }
   opts.on('-d', '--debugger', 'Enable the debugger') { options[:debugger] = true }
+  opts.on('-o', '--override-config CONFIG', String, 'Path to a rubocop rules yml file to use instead of the default rules') { |file| options[:override_config] = file }
   # Apply any application option extensions to the OptionParser
   Origen::CommandHelpers.extend_options(opts, app_options, options)
   opts.separator ''
@@ -48,11 +50,14 @@ if options[:easy] || Origen.config.lint_test[:level] == :easy
 else
   config = "#{Origen.top}/config/rubocop/strict.yml"
 end
+config = options[:override_config] || config
 
 command = "rubocop #{files} --config #{config} --display-cop-names"
 
 unless options[:no_correct]
-  if options[:correct] || Origen.config.lint_test[:auto_correct]
+  if options[:correct_all] || Origen.config.lint_test[:auto_correct_all]
+    command += ' --auto-correct-all'
+  elsif options[:correct] || Origen.config.lint_test[:auto_correct]
     command += ' --auto-correct'
   end
 end
