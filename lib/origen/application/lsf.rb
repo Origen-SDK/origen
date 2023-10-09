@@ -34,6 +34,14 @@ module Origen
         #         -			  wam	  		WAM cron processing
         #         -			  grid	     		Low-priority batch jobs (random sim, regressions, etc). Access to all spare CPU cycles.
         attr_accessor :cores
+        # default 400. Set number of max jobs (- 100) to be able to run by this user before lsf submission pauses.
+        # eg if max jobs you want ran is 500, set to 400, which will block until local submissions
+        # is less than 400 at which point it can batch submit up to 100 more jobs
+        attr_accessor :max_jobs
+        # default false. used when calculating remote job count for comparison with the max jobs parameter
+        # If set to true, then only jobs of the specified queue will be counted, effectively making
+        # the max_jobs value a max_jobs per queue
+        attr_accessor :queue_count_only
 
         def initialize
           @group = Origen.site_config.lsf_group
@@ -42,6 +50,8 @@ module Origen
           @queue = Origen.site_config.lsf_queue
           @debug = Origen.site_config.lsf_debug
           @cores = Origen.site_config.lsf_cores
+          @max_jobs = Origen.site_config.lsf_max_jobs || 400
+          @queue_count_only = Origen.site_config.lsf_queue_count_only || false
         end
       end
 
@@ -140,7 +150,16 @@ module Origen
         i = 0
         `bjobs 2>&1`.split("\n").each do |line|
           if line =~ /^(\d+).*(RUN|PEND)/
-            i += 1
+            if config.queue_count_only && config.queue
+              # only count jobs for current queue, helpful for when
+              # you have a service account user that runs lsf for a
+              # lot of jobs in addition to origen jobs
+              if line =~ /#{config.queue}/
+                i += 1
+              end
+            else
+              i += 1
+            end
           end
         end
         i
@@ -152,7 +171,7 @@ module Origen
       def limit_job_submissions
         @local_job_count ||= 0
         if @local_job_count == 100
-          while remote_jobs_count > 400
+          while remote_jobs_count > config.max_jobs
             puts 'Waiting for submitted jobs count to fall below limit...'
             sleep 5
           end

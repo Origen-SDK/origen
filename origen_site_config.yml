@@ -151,6 +151,8 @@ gem_use_from_system:
 # lsf_project: 'msg.te'
 # lsf_resource: 'rhel6'
 # lsf_cores: '1'
+# lsf_max_jobs: 400
+# lsf_queue_count_only: false
 
 # lsf_debug is needed for spec tests on the core.
 lsf_debug: 'false'

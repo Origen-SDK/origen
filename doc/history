@@ -1,3 +1,43 @@
+<a class="anchor release_tag" name="v0_60_11"></a>
+<h1><a href="#v0_60_11">Tag: v0.60.11</a></h1>
+
+##### Branch: 'master'
+
+##### by Paul DeRouen on 27-Apr-2023 09:18AM
+
+
+disable problematic lint rule
+
+<a class="anchor release_tag" name="v0_60_10"></a>
+<h1><a href="#v0_60_10">Tag: v0.60.10</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 08-Mar-2023 10:05AM
+
+
+ability to for a custom rubocop config and support force autocorrect
+
+<a class="anchor release_tag" name="v0_60_9"></a>
+<h1><a href="#v0_60_9">Tag: v0.60.9</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 02-Mar-2023 19:31PM
+
+
+corrected scope access for config variables during remote job count - Cody Horton
+
+<a class="anchor release_tag" name="v0_60_8"></a>
+<h1><a href="#v0_60_8">Tag: v0.60.8</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 02-Mar-2023 12:36PM
+
+
+allow siteconfig to control max remote job count  - Cody Horton
+
 <a class="anchor release_tag" name="v0_60_7"></a>
 <h1><a href="#v0_60_7">Tag: v0.60.7</a></h1>
 
