@@ -203,6 +203,12 @@ module Origen
     def flush
       @open_logs.each do |logger, file|
         file.flush
+      rescue => e
+        if file.is_a?(File)
+          Origen.log.warning "Could not flush log file #{file.path}: #{e.message}"
+        else
+          Origen.log.warning "Could not flush IO buffer: #{e.message}"
+        end
       end
       nil
     end
