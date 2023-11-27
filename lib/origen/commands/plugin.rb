@@ -35,8 +35,8 @@ The following commands are available:
 
 The following options are available:
   EOT
-  opts.on('-a', '--allr', 'List all plugins/gems (including external)') {  options[:debugger] = true }
-  opts.on('-d', '--debugger', 'Enable the debugger') {  options[:debugger] = true }
+  opts.on('-a', '--allr', 'List all plugins/gems (including external)') { options[:debugger] = true }
+  opts.on('-d', '--debugger', 'Enable the debugger') { options[:debugger] = true }
   opts.on('-h', '--help', 'Show this message') { puts opts; exit }
 end
 

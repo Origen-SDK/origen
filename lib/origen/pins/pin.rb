@@ -22,15 +22,15 @@ module Origen
       # before falling back to a default
       PACKAGE_SCOPED_ATTRIBUTES = [:location, :dib_assignment, :dib_meta]
 
-      # Pin Types
-      TYPES = [:analog, :digital]
+      # Pin Types, 'digital' and 'analog' are legacy types kept for backwards compatibility
+      TYPES = [:analog, :digital, :signal, :ground, :power, :virtual]
 
       attr_accessor :order
       # Inverts pin states for drive and compare, can be useful if a timing set change requires clocks to drive low for example when all pattern logic has been set up to drive them high.
       attr_accessor :invert
       # Attribute used to generate vectors where the pin state is assigned the
       # repeat_previous opcode, used by Tester#repeat_previous
-      attr_accessor :repeat_previous
+      attr_reader :repeat_previous
       attr_reader :owner
       attr_reader :size
       # Returns a hash containing the aliases associated with the given pin
@@ -41,15 +41,15 @@ module Origen
       attr_accessor :supply
       attr_accessor :supply_str
       # Boolean on whether pin is open drain
-      attr_accessor :open_drain
+      attr_reader :open_drain
       # Boolean on whether pin has external pull-up
-      attr_accessor :ext_pullup
+      attr_reader :ext_pullup
       # Boolean on whether pin has external pull-down
-      attr_accessor :ext_pulldown
+      attr_reader :ext_pulldown
       # Pin type, either :analog or :digital
-      attr_accessor :type
+      attr_reader :type
       # Pin RTL name
-      attr_accessor :rtl_name
+      attr_writer :rtl_name
       # Value to be forced on the pin, e.g. during simulation
       attr_accessor :force
 
@@ -443,6 +443,24 @@ module Origen
       end
       alias_method :add_locn, :add_location
 
+      # Add a way to update packages for the pins after the pins have been added.
+      #
+      # @example Updating a package after the pin has been added
+      # dut.add_pin :p1
+      # dut.add_package: package1
+      # dut.add_package: package2
+      # dut.pin(:p1).packages # => {}
+      # dut.pin(:p1).update_packages :packages # => [:package1, :package2]
+      # dut.pin(:p1).packages # => {:package1=>{}, :package2=>{}}
+      def update_packages(options = {})
+        packages = resolve_packages(options)
+        packages.each do |package_id|
+          package_id = package_id.respond_to?(:id) ? package_id.id : package_id
+          myself.packages[package_id] ||= {}
+        end
+      end
+      alias_method :update_package, :update_packages
+
       # Add a Device Interface Board (e.g. probecard at wafer probe or loadboard at final package test)
       # assignment to the pin.  Some refer to this as a channel but API name is meant to be generic.
       def add_dib_assignment(str, options = {})
@@ -676,7 +694,7 @@ module Origen
           # If val is a data bit extract the value of it
           val = val.respond_to?(:data) ? val.data : val
           # Assume driving/asserting a nil value means 0
-          val = 0 unless val
+          val ||= 0
           if !val.x_or_z? && val > 1
             fail "Attempt to set a value of #{val} on pin #{name}"
           end
@@ -1029,6 +1047,7 @@ module Origen
 
       def toggle_clock
         fail "ERROR: Clock on #{@owner.name} not running." unless is_a_running_clock?
+
         @clock.toggle
       end
 
@@ -1072,11 +1091,12 @@ module Origen
         end
       end
 
-      def index?(context: nil)
-        !!index(context: context).nil?
+      def index?(options = { context: nil })
+        !!index(options).nil?
       end
 
-      def index(context: nil)
+      def index(options = { context: nil })
+        context = options[:context]
         if context.is_a?(Symbol)
           # Context pin group provided
           group = groups[context].instance_variable_get(:@store)
@@ -1096,7 +1116,8 @@ module Origen
         end
       end
 
-      def mask(context: nil)
+      def mask(options = { context: nil })
+        context = options[:context]
         index = context.is_a?(Integer) ? context : self.index(context: context)
 
         if index.nil? && context.nil?
@@ -1112,7 +1133,10 @@ module Origen
       alias_method :set_mask, :mask
       alias_method :smask, :mask
 
-      def clear_mask(context: nil, size: nil)
+      def clear_mask(options = { context: nil, size: nil })
+        context = options[:context]
+        size = options[:size]
+
         index = context.is_a?(Integer) ? context : self.index(context: context)
 
         if index.nil? && context.nil?

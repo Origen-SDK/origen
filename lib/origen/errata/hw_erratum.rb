@@ -31,7 +31,7 @@ module Origen
       # Software workaround object associated with erratum
       attr_accessor :sw_workaround
 
-      def initialize(id, ip_block, overview  = {}, status = {}, sw_workaround = {})
+      def initialize(id, ip_block, overview = {}, status = {}, sw_workaround = {})
         @id = id
         @ip_block = ip_block
         @title = overview[:title]

@@ -2,10 +2,14 @@
 
 Origen can be installed on Linux or Windows, this guide refers to the Windows installation.
 
+<div class="alert alert-info" role="alert"> <strong>@powershell commands</strong>
+  <br> All @powershell commands should be run from a commandshell other than powershell.
+</div>
+
 If you want to run on Linux then please see this guide instead:
 [How to Install Origen on Linux](<%= path "guides/installation/installing" %>)
 
-<div class="alert alert-info" role="alert"> <strong>Last updated on 15th February 2017</strong>
+<div class="alert alert-info" role="alert"> <strong>Last updated on 11th January 2021</strong>
   <br>The vast majority of Origen use in production is on Linux, and over time this Windows guide can
   become out of date and no one realizes.
   If you do experience any issues when following this guide, then please do let us
@@ -13,7 +17,7 @@ If you want to run on Linux then please see this guide instead:
 </div>
 
 
-### 1. Install a Better Console
+### 1. (Optional) Install a Better Console
 
 Download Console [by following this link](https://sourceforge.net/projects/console/files/latest/download?source=typ_redirect).
 
@@ -37,113 +41,24 @@ Execute the following command to get a sensible set settings to start off with:
 @powershell New-Item -ItemType directory -Force -Path %appdata%\Console; (new-object System.Net.WebClient).DownloadFile('https://origen-sdk.org/files/console.xml','%appdata%\Console\console.xml')
 ~~~
 
-<div class="alert alert-info" role="alert"> <strong>Opening the Console</strong>
-  <br>
-  The rest of this guide requires you to open the console with administrator privileges and then execute
-  the given commands, do this by right-clicking on the desktop shortcut you just created and selecting
-  <code>Run as administrator</code>.
-  <br>
-  Some of the operations will require that you open a new console session in order for the previous operation
-  to take effect. If any errors are encountered please start a new console session and try again before
-  reporting it.
-</div>
-
 ### 2. Install Pre-Requisites
 
-Before starting this next section you should ensure that the following environment variables
-are set if your computer accesses the internet via a proxy (the proxy url here is an example and
-the real one will be specific to your company environment):
+Install unxutils by going to this link [https://sourceforge.net/projects/unxutils/](https://sourceforge.net/projects/unxutils/).
 
-~~~text
-HTTP_PROXY  = http://proxy.my_company.com:8080
-HTTPS_PROXY = https://proxy.my_company.com:8080
-~~~
-
-Here is a link to a 3rd party tutorial on [How to Create an Environment Variable in Windows](https://kb.wisc.edu/cae/page.php?id=24500).
-
-
-The next step is to install a package manager, please copy the text below into the console (running as administrator)
-
-~~~text
-@powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
-~~~
-
-<div class="alert alert-danger" role="alert">Now re-open the console (Run as administrator)</div>
-
-Install some required packages by running these commands from the console:
-
-~~~tetxt
-choco install git -y --force
-choco install unxutils -y --force
-choco install consoleZ -y --force
-~~~
-
-<div class="alert alert-danger" role="alert">Now re-open the console (Run as administrator)</div>
+Install git from the official Git website [https://git-scm.com/downloads](https://git-scm.com/downloads)
 
 ### 3. Install Ruby
 
-#### 3.1 Install the Ruby Executable
+We are currently recommending installing Ruby version 2.6.
 
-~~~text
-choco install ruby -y --version=2.3 --force
-choco install ruby2.devkit -y --force
-~~~
-
-<div class="alert alert-danger" role="alert">Now re-open the console (Run as administrator)</div>
-
-Execute the following command from the console:
-
-#### 3.2 Install RubyGems
-
-~~~text
-@powershell (new-object System.Net.WebClient).DownloadFile('https://rubygems.org/downloads/rubygems-update-2.7.3.gem’,'C:\rubygems-update-2.7.3.gem') && gem install --local C:\rubygems-update-2.7.3.gem && update_rubygems --no-ri --no-rdoc && gem uninstall rubygems-update -x
-~~~
-
-<div class="alert alert-danger">
-  The version of Ruby is just a recommendation from the Origen development team. Origen has proven to
-  work on several versions of Ruby. However, changing the version of Ruby may also require you to reevaluate
-  the version of RubyGems used. For example, we've found that Ruby 2.2.4, is not fully compatible RubyGems 2.6.7,
-  for all gems (we run into issues with Symlinks on Windows that are resolved by updating RubyGems) but
-  it works with RubyGems 2.2.3. Also, the version of RubyGems that ships with your installation of Ruby may be
-  fine. See the <a href="http://guides.rubygems.org/rubygems-basics/">RubyGems website</a> for additional details.
-  <br>
-  <br>
-  The conclusion of this alert box is don't stress too much about the exact versions you're using and if you
-  run into issues installing gems, consider possible incompatabilities between the versions of Ruby, RubyGems,
-  or the gem that you are trying to install. You can also use RubyGems to manually install the gems yourself,
-  to bypass any installation options Origen may try to set.
-</div>
-
-Open <code>C:\tools\DevKit2\config.yml</code> in your favorite editor and write this at the
-bottom:
-
-~~~text
-- C:/tools/ruby23
-~~~
-
-Save it, and then execute the following commands from the console:
-
-~~~text
-cd C:\tools\DevKit2\
-ruby dk.rb install
-~~~
-
-Ensure that you see the following output when running the above command, if not review
-what you have added to <code>C:\tools\DevKit2\config.yml</code>:
-
-~~~text
-[INFO] Installing 'C:/tools/ruby22/lib/ruby/site_ruby/2.2.0/rubygems/default
-[INFO] Installing 'C:/tools/ruby22/lib/ruby/site_ruby/devkit.rb'
-~~~
-
-<div class="alert alert-danger" role="alert">Now re-open the console (Run as administrator)</div>
+Follow the instructions at [https://www.ruby-lang.org/en/](https://www.ruby-lang.org/en/) to install Ruby with the devkit.
 
 ### 4. Install Origen
 
 Finally, run this command to install Origen:
 
 ~~~text
-gem install origen --no-ri --no-rdoc
+gem install origen --no-document
 ~~~
 
 This can take several minutes to finish without updating the screen, so please be patient.
@@ -153,6 +68,29 @@ at which point you should see something like this:
 
 ~~~text
     Origen: <%= Origen.version %>
+~~~
+
+#### 4.1 Update PATH variable
+
+This step is required to ensure that Origen boots correctly inside of a workspace. Add <code>.\lbin</code> as the first entry in your <code>PATH</code> variable by following this 3rd party tutorial on [How to Create an Environment Variable in Windows](https://kb.wisc.edu/cae/page.php?id=24500).
+ The **SYSTEM VARIABLES** PATH entry will need to be udpated.
+ 
+You can check that the path was updated correctly by opening a new powershell console (after the variable update) and typing:
+
+~~~text
+$env:path
+~~~
+
+<code>.\lbin</code> should appear as the first entry in your path. If it is not, be sure that you added it to the system variables (not user variables) PATH entry.
+
+#### 4.2 Install a newer bundler version
+
+This step is not required. But, you may quickly encounter a scenario where a newer bundler version is required. In this case before Origen boots it will display a message with instructions for what is needed.
+
+Run this command to install a newer version of bundler:
+
+~~~text
+gem install bundler -v 2.1.4
 ~~~
 
 Congratulations, Origen is now installed!

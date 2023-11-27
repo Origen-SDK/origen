@@ -1,0 +1,52 @@
+name: Origen Core Regression Tests
+on: [push, pull_request]
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        ruby-version: [2.6, 2.7, 3.0.4, 3.1]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby-version }}
+    - name: Update Env
+      run: echo "ACTIONS_ALLOW_UNSECURE_COMMANDS=true" >> $GITHUB_ENV
+    - name: Install Bundler
+      run: gem install bundler -v '> 2'
+    - name: Remove Gemfile.lock
+      run: rm Gemfile.lock
+    - name: Install dependencies
+      run: bundle install  
+      
+    # Work around Ruby 3 gem install issue
+    - name: Build Origen Gem - Ruby 3 work around
+      if: matrix.ruby-version == '3.0.4' || matrix.ruby-version == '3.1'
+      run: gem build origen.gemspec --output origen.gem    
+    - name: Gem Install Origen - Ruby 3 work around 
+      if: matrix.ruby-version == '3.0.4' || matrix.ruby-version == '3.1'
+      run: gem install origen.gem 
+      
+    # Normal way of installing origen
+    - name: Gem Install Origen Ruby 2
+      if: matrix.ruby-version == '2.5' || matrix.ruby-version == '2.6' || matrix.ruby-version == '2.7'
+      run: gem install origen 
+      
+    - name: Setup Dependencies
+      run: origen -v
+    - name: Run Origen Lint
+      run: origen lint --no-correct  
+    - name: Set Origen to debug mode
+      run: origen m debug
+    - name: Run Spec tests
+      run: origen test -c
+
+    # Temporarily disable web compile check in windows
+    - name: Verify Building website
+      if: matrix.os == 'ubuntu-latest'
+      run: origen web compile --no-serve

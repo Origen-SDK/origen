@@ -17,7 +17,7 @@ when "tags"
 when "specs"
   Origen.app.session.origen_core[:mode] = 'debug'
   require "rspec"
-  exit RSpec::Core::Runner.run(['spec'])
+  exit RSpec::Core::Runner.run($ARGV.empty? ? ['spec'] : $ARGV)
 
 when "examples", "test"  
   Origen.app.session.origen_core[:mode] = 'debug'

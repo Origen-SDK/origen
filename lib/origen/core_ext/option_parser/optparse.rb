@@ -6,7 +6,7 @@ class OptionParser
   def parse!(*args)
     lsf_options = ARGV.dup
     orig_parse!(*args)
-    lsf_options -= ARGV  # Now contains all original options
+    lsf_options -= ARGV # Now contains all original options
 
     # Pick whether we should be using the application's LSF instance or Origen's
     # global LSF instance

@@ -1388,6 +1388,15 @@ describe "Origen Pin API v3" do
     $dut.pins(:tdo).dib_meta.should == { :x=>2000, :y=>-15600, :net_name=>"R92/DUT_TDO_TC", :connection=>"PE118.16", :slot=>"PE118", :spring_pin=>"16" }
   end
   
+  it 'can update pin packages after a pin has been defined' do
+    $dut.add_pin :my_new_pin
+    $dut.add_package :my_new_package
+    $dut.add_package :my_second_new_package
+    $dut.pin(:my_new_pin).update_package :package => [:my_new_package, :my_second_new_package]
+    $dut.pin(:my_new_pin).packages.ids[0].should == :my_new_package
+    $dut.pin(:my_new_pin).packages.ids[1].should == :my_second_new_package
+  end
+
   it 'does not allow user to set the current DUT package unless it is to a known package' do
     Origen.app.unload_target!
     @dut = IncorrectPackageDut.new
@@ -1398,5 +1407,25 @@ describe "Origen Pin API v3" do
     @dut.package = :pcs
     @dut.package.id.should == :pcs
     @dut.has_pin?(:pinx).should == false
+  end
+
+  it 'defaults pin type to nil' do
+    $dut.add_pin :type_nil_by_default
+    $dut.pins(:type_nil_by_default).type.nil?.should == true
+  end
+  
+  it 'allows new pin types to be set' do
+    $dut.add_pin :type_signal
+    $dut.pins(:type_signal).type = :signal
+    $dut.pins(:type_signal).type.should == :signal
+    $dut.add_virtual_pin :type_virtual
+    $dut.virtual_pins(:type_virtual).type = :virtual
+    $dut.virtual_pins(:type_virtual).type.should == :virtual
+    $dut.add_ground_pin :type_ground
+    $dut.ground_pins(:type_ground).type = :ground
+    $dut.ground_pins(:type_ground).type.should == :ground
+    $dut.add_power_pin :type_power
+    $dut.power_pins(:type_power).type = :power
+    $dut.power_pins(:type_power).type.should == :power
   end
 end

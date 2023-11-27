@@ -33,11 +33,11 @@ module Origen
         end
 
         def reprogrammeable?
-          self.respond_to?(:reprogrammeable) ? reprogrammeable : true
+          respond_to?(:reprogrammeable) ? reprogrammeable : true
         end
 
         def customer_visible?
-          self.respond_to?(:customer_visible) ? customer_visible : false
+          respond_to?(:customer_visible) ? customer_visible : false
         end
       end
     end

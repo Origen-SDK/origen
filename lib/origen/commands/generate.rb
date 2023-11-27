@@ -12,7 +12,7 @@ opt_parser = OptionParser.new do |opts|
   opts.on('-l', '--lsf [ACTION]', [:clear, :add], "Submit jobs to the LSF, optionally specify whether to 'clear' or 'add' to existing jobs") { |a| options[:lsf] = true; options[:lsf_action] = a }
   opts.on('-w', '--wait', 'Wait for LSF processing to complete') { options[:wait_for_lsf_completion] = true }
   opts.on('-c', '--continue', 'Continue on error (to the next pattern)') { options[:continue] = true }
-  opts.on('-pl', '--plugin PLUGIN_NAME', String, 'Set current plugin') { |pl_n|  options[:current_plugin] = pl_n }
+  opts.on('-pl', '--plugin PLUGIN_NAME', String, 'Set current plugin') { |pl_n| options[:current_plugin] = pl_n }
   opts.on('-f', '--file FILE', String, 'Override the default log file') { |o| options[:log_file] = o }
   opts.on('-o', '--output DIR', String, 'Override the default output directory') { |o| options[:output] = o }
   opts.on('-r', '--reference DIR', String, 'Override the default reference directory') { |o| options[:reference] = o }
@@ -22,7 +22,7 @@ opt_parser = OptionParser.new do |opts|
   opts.on('--html', 'Generate into html format') { options[:html] = true }
   opts.on('--nocom', 'No comments in the generated pattern') { options[:no_comments] = true }
   opts.on('-seq', '--sequence NAME', String, 'Generate multiple patterns into a single concurrent pattern sequence') { |o| options[:sequence] = o }
-  opts.on('-d', '--debugger', 'Enable the debugger') {  options[:debugger] = true }
+  opts.on('-d', '--debugger', 'Enable the debugger') { options[:debugger] = true }
   opts.on('-m', '--mode MODE', Origen::Mode::MODES, 'Force the Origen operating mode:', '  ' + Origen::Mode::MODES.join(', ')) { |_m| }
   # Apply any application option extensions to the OptionParser
   Origen::CommandHelpers.extend_options(opts, app_options, options)
@@ -56,7 +56,7 @@ _with_doc_tester(options) do
   Origen.app.plugins.temporary = options[:current_plugin] if options[:current_plugin]
   Origen.environment.temporary = options[:environment] if options[:environment]
   Origen.target.temporary = options[:target] if options[:target]
-  Origen.app.load_target!  # This initial load is required to apply any configuration
+  Origen.app.load_target! # This initial load is required to apply any configuration
   # options present in the target, it will loaded again before
   # each generate/compile job
   Origen.app.runner.generate(options)

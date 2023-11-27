@@ -12,7 +12,7 @@ module Origen
     # An instance of this class is automatically instantiated and available globally
     # as Origen.app.target
     class Target
-      DIR = "#{Origen.root}/target"        # :nodoc:
+      DIR = "#{Origen.root}/target" # :nodoc:
       SAVE_FILE = "#{DIR}/.default"      # :nodoc:
       DEFAULT_FILE = "#{DIR}/default.rb" # :nodoc:
 
@@ -34,7 +34,7 @@ module Origen
       def loop(options = {})
         options = {
           set_target:  true,
-          force_debug: false,  # Set true to force debug mode for all targets
+          force_debug: false # Set true to force debug mode for all targets
         }.merge(options)
         targets = [options.delete(:target), options.delete(:targets)].flatten.compact.uniq
         targets = [file!.basename.to_s] if targets.empty?
@@ -57,7 +57,7 @@ module Origen
       #   end
       def each_production(options = {})
         options = {
-          force_debug: false,  # Set true to force debug mode for all targets
+          force_debug: false # Set true to force debug mode for all targets
         }.merge(options)
         prod_targets.each do |moo, targets|
           [targets].flatten.each do |target|
@@ -79,7 +79,7 @@ module Origen
       #   end
       def each_unique_production(options = {})
         options = {
-          force_debug: false,  # Set true to force debug mode for all targets
+          force_debug: false # Set true to force debug mode for all targets
         }.merge(options)
         targets = {}
         prod_targets.each do |moo, moos_targets|
@@ -118,7 +118,7 @@ module Origen
       # defined there.
       def load!(options = {})
         options = {
-          force_debug: false,  # Set true to force debug mode for all targets
+          force_debug: false # Set true to force debug mode for all targets
         }.merge(options)
         Origen.app.load_target!(options)
       end
@@ -235,7 +235,7 @@ module Origen
 
       # Prints out the current target details to the command line
       def describe
-        f = self.file!
+        f = file!
         puts "Current target: #{f.basename}"
         puts '*' * 70
         File.open(f).each do |line|
@@ -279,6 +279,7 @@ module Origen
       # otherwise returns nil
       def default_file
         return @default_file if @default_file
+
         if File.exist?(SAVE_FILE)
           File.open(SAVE_FILE) do |f|
             @default_file = Marshal.load(f)
@@ -292,6 +293,7 @@ module Origen
       # Returns the target file (a Pathname object) if it has been defined, otherwise nil
       def file # :nodoc:
         return @file if @file
+
         if default_file && File.exist?(default_file)
           @file = default_file
         end
@@ -374,6 +376,7 @@ module Origen
       def prod_targets # :nodoc:
         return {} unless Origen.config.production_targets
         return @prod_targets if @prod_targets
+
         @prod_targets = {}
         Origen.config.production_targets.each do |key, value|
           @prod_targets[key.upcase] = value

@@ -4,12 +4,14 @@ module Origen
     attr_accessor :brief_description
     attr_accessor :description
     attr_writer :name
-    attr_accessor :data_rate
+    attr_writer :data_rate
     attr_accessor :data_rate_unit
     attr_accessor :minimum_version_enabled
+
     alias_writer :min_ver_enabled, :minimum_version_enabled
     alias_writer :min_version_enabled, :minimum_version_enabled
     attr_accessor :audience
+
     alias_writer :full_name, :name
     # Returns the object that owns the mode (the SoC instance usually)
     attr_accessor :owner
@@ -47,15 +49,15 @@ module Origen
           # in theory but should still check if it returns a numeric
           value = @data_rate.send(@data_rate_unit.to_sym)
           if value.is_a?(Numeric)
-            return value
+            value
           else
             Origen.log.error "@data_rate '#{@data_rate}' conversion using @data_rate_unit '#{@data_rate_unit}' did not product a Numeric, exiting..."
           end
         else
-          return @data_rate
+          @data_rate
         end
       else
-        return @data_rate
+        @data_rate
       end
     end
 
@@ -82,6 +84,7 @@ module Origen
           instance_variable_get(ivar)
         end
       end
+
       send(method_name, *arguments, &block)
     end
 

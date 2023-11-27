@@ -354,7 +354,7 @@ module Origen
         # done of the name and it is assumed that it is a valid class name including the application namespace.
         def class_name_to_blocks_dir(name)
           name = name.split('::')
-          name.shift  # Drop the application name
+          name.shift # Drop the application name
           dir = Origen.root.join('app', 'blocks')
           name.each_with_index do |n, i|
             if i == 0

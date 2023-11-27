@@ -20,7 +20,7 @@ module Origen
     included do
       include Origen::ModelInitializer
       include Origen::SubBlocks
-      include Origen::Callbacks  # Required for global register reset
+      include Origen::Callbacks # Required for global register reset
 
       attr_accessor :owner
       attr_accessor :name
@@ -31,13 +31,11 @@ module Origen
     # not explicitly defined on this model it will be inherited from the parent
     # and will default to :lsb0 at the top-level
     def bit_order
-      @bit_order ||= begin
-        if parent
-          parent.bit_order
-        else
-          :lsb0
-        end
-      end
+      @bit_order ||= if parent
+                       parent.bit_order
+                     else
+                       :lsb0
+                     end
     end
 
     def method_missing(method, *args, &block) # :nodoc:
@@ -189,7 +187,7 @@ module Origen
                 break # break if feature not found and return false
               end
             end # iterated through all features in array
-            return value
+            value
           else # if feature.class != Array
             loop do
               if current_owner.respond_to?(:owner)
@@ -212,10 +210,10 @@ module Origen
                 value = true
               end
             end
-            return value
+            value
           end
         else
-          return true
+          true
         end
       end
 
@@ -230,9 +228,9 @@ module Origen
                 return true
               end
             end
-            return false
+            false
           else
-            return feature == name
+            feature == name
           end
         end
       end
@@ -311,6 +309,7 @@ module Origen
       if address.is_a?(Hash)
         fail 'add_reg requires the address to be supplied as the 2nd argument, e.g. add_reg :my_reg, 0x1000'
       end
+
       size, bit_info = nil, size if size.is_a?(Hash)
       size ||= bit_info.delete(:size) || 32
       description = bit_info.delete(:description)
@@ -328,7 +327,7 @@ module Origen
       @max_reg_address ||= address
       # Must set an initial value, otherwise max_address_reg_size will be nil if a sub_block contains only
       # a single register.
-      @max_address_reg_size = size unless @max_address_reg_size
+      @max_address_reg_size ||= size
       @min_reg_address = address if address < @min_reg_address
       if address > @max_reg_address
         @max_address_reg_size = size
@@ -409,11 +408,11 @@ module Origen
         @new_reg_attrs[name] = attrs
       else
         if @new_reg_attrs[name].is_a? Hash
-          temparray = temparray.push(@new_reg_attrs[name])
+          temparray.push(@new_reg_attrs[name])
         else
           temparray = @new_reg_attrs[name]
         end
-        temparray = temparray.push(attrs)
+        temparray.push(attrs)
         # added the sort so that the order the registers bits is described is not important
         @new_reg_attrs[name] = temparray.sort { |a, b| b[:pos] <=> a[:pos] }
 
@@ -449,6 +448,7 @@ module Origen
     # @api private
     def instantiate_reg(id, attrs)
       return _registers[id] unless _registers[id].is_a?(Origen::Registers::Placeholder)
+
       attributes = {
         define_file: attrs[:define_file],
         description: attrs[:description]
@@ -493,10 +493,10 @@ module Origen
         test_for_true_false: true
       }.update(params)
       if params.key?(:enabled_features) || params.key?(:enabled_feature)
-        return !!get_registers(params).include?(name)
+        !!get_registers(params).include?(name)
       else
         params[:enabled_features] = :default
-        return !!get_registers(params).include?(name)
+        !!get_registers(params).include?(name)
       end
     end
     alias_method :has_reg, :has_reg?
@@ -520,13 +520,14 @@ module Origen
         if !args.empty? && args.size == 1 && (args[0].class != Hash || (args[0].key?(:name) && args[0].size == 1))
           if args[0].class == Hash
             name = args[0][:name]
-          else name = args.first
+          else
+            name = args.first
           end
           if has_reg(name)
-            return _registers[name]
+            _registers[name]
           elsif name =~ /\/(.+)\//
             regex = Regexp.last_match(1)
-            return match_registers(regex)
+            match_registers(regex)
           else
             if Origen.config.strict_errors
               puts ''
@@ -560,7 +561,7 @@ module Origen
           # Example use case:
           # reg(:enabled_features =>[:fac, fac2])
           elsif params.size == 1 && params.key?(:enabled_features)
-            return get_registers(enabled_features: params[:enabled_features])
+            get_registers(enabled_features: params[:enabled_features])
           end
 
         # Example use case:
@@ -578,9 +579,9 @@ module Origen
           end
         elsif args.empty?
           if _registers.empty?
-            return _registers
+            _registers
           else
-            return get_registers(enabled_features: :default)
+            get_registers(enabled_features: :default)
           end
         else
           if Origen.config.strict_errors

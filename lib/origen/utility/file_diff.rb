@@ -25,9 +25,11 @@ module Origen
       class OutputFile < Array
         class Line < String
           attr_accessor :type, :original_number
+
           def initialize(type, input_file)
             self.type = type
             return unless input_file
+
             replace(input_file.current_line)
             self.original_number = input_file.pointer + 1
             input_file.advance_pointer!
@@ -59,6 +61,7 @@ module Origen
       class Processor
         attr_accessor :source, :target
         attr_accessor :source_output, :target_output
+
         def initialize(source_file_name, target_file_name)
           self.source = InputFile.new
           self.target = InputFile.new
@@ -125,6 +128,7 @@ module Origen
       module Formatter
         class Base
           attr_accessor :source_output, :target_output, :file
+
           def initialize(processed_diff, output_file_name)
             self.source_output = processed_diff.source_output
             self.target_output = processed_diff.target_output

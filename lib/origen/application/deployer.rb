@@ -134,7 +134,7 @@ module Origen
           # Delete everything so that we don't preserve old files
           git_repo.delete_all(git_sub_dir)
           FileUtils.mkdir_p(dir) unless File.exist?(dir)
-          `chmod a+w -R #{Origen.root}/web/output`      # Ensure world writable, required?
+          `chmod a+w -R #{Origen.root}/web/output` # Ensure world writable, required?
           FileUtils.cp_r "#{Origen.root}/web/output/.", dir
           git_repo.checkin git_sub_dir, unmanaged: true, comment: @commit_message
         else
@@ -144,9 +144,9 @@ module Origen
             require_remote_directories
           end
           # Copy the new contents across
-          `chmod g+w -R #{Origen.root}/web/output`      # Ensure group writable
+          `chmod g+w -R #{Origen.root}/web/output` # Ensure group writable
           FileUtils.cp_r "#{Origen.root}/web/output/.", offline_remote_directory
-          `chmod g+w -R #{offline_remote_directory}`  # Double ensure group writable
+          `chmod g+w -R #{offline_remote_directory}` # Double ensure group writable
           # Make live
           create_symlink offline_remote_directory, latest_symlink
           index = "#{Origen.config.web_directory}/index.html"
@@ -162,7 +162,7 @@ module Origen
         remote_dir = deploy_to_git? ? "#{git_repo.local}/#{git_sub_dir}" : live_remote_directory
         if remote_dir
           file = Origen.file_handler.clean_path_to(file)
-          sub_dir = Origen.file_handler.sub_dir_of(file, "#{Origen.root}/templates/web") .to_s
+          sub_dir = Origen.file_handler.sub_dir_of(file, "#{Origen.root}/templates/web").to_s
           page = file.basename.to_s.sub(/\..*/, '')
           # Special case for the main index page
           if page == 'index' && sub_dir == '.'

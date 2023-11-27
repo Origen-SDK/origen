@@ -5,7 +5,7 @@ module Origen
 
     # returns version number string but strips out prefix
     def initialize(version, prefix = 'v')
-      version.gsub!(/^#{prefix}/, '')  # remove leading prefix
+      version.gsub!(/^#{prefix}/, '') # remove leading prefix
       super(version)
     end
 
@@ -139,54 +139,46 @@ module Origen
     end
 
     def major
-      @major ||= begin
-        if semantic?
-          self =~ /v?(\d+)/
-          Regexp.last_match[1].to_i
-        else
-          fail "#{self} is not a valid semantic version number!"
-        end
-      end
+      @major ||= if semantic?
+                   self =~ /v?(\d+)/
+                   Regexp.last_match[1].to_i
+                 else
+                   fail "#{self} is not a valid semantic version number!"
+                 end
     end
 
     def minor
-      @minor ||= begin
-        if semantic?
-          self =~ /v?\d+.(\d+)/
-          Regexp.last_match[1].to_i
-        else
-          fail "#{self} is not a valid semantic version number!"
-        end
-      end
+      @minor ||= if semantic?
+                   self =~ /v?\d+.(\d+)/
+                   Regexp.last_match[1].to_i
+                 else
+                   fail "#{self} is not a valid semantic version number!"
+                 end
     end
 
     def bugfix
-      @bugfix ||= begin
-        if semantic?
-          self =~ /v?\d+.\d+.(\d+)/
-          Regexp.last_match[1].to_i
-        else
-          fail "#{self} is not a valid semantic version number!"
-        end
-      end
+      @bugfix ||= if semantic?
+                    self =~ /v?\d+.\d+.(\d+)/
+                    Regexp.last_match[1].to_i
+                  else
+                    fail "#{self} is not a valid semantic version number!"
+                  end
     end
     alias_method :tiny, :bugfix
 
     def pre
-      @pre ||= begin
-        if semantic?
-          if self =~ /(dev|pre)(\d+)$/
-            Regexp.last_match[2].to_i
-          end
-        else
-          fail "#{self} is not a valid semantic version number!"
-        end
-      end
+      @pre ||= if semantic?
+                 if self =~ /(dev|pre)(\d+)$/
+                   Regexp.last_match[2].to_i
+                 end
+               else
+                 fail "#{self} is not a valid semantic version number!"
+               end
     end
     alias_method :dev, :pre
 
     def latest?
-      downcase.orig_equal?('trunk') || downcase.orig_equal?('latest')
+      downcase.to_s.eql?('trunk') || downcase.to_s.eql?('latest')
     end
 
     # Returns true if the version is a timestamp format version number
@@ -220,7 +212,7 @@ module Origen
            to_date == tag.to_date
           false
         else
-          numeric >= tag.numeric && ((self.latest? || tag.latest?) || self.timestamp? == tag.timestamp?)
+          numeric >= tag.numeric && ((latest? || tag.latest?) || timestamp? == tag.timestamp?)
         end
 
       elsif condition =~ /^>\s*(.*)/
@@ -229,24 +221,24 @@ module Origen
            to_date == tag.to_date
           false
         else
-          numeric > tag.numeric && ((self.latest? || tag.latest?) || self.timestamp? == tag.timestamp?)
+          numeric > tag.numeric && ((latest? || tag.latest?) || timestamp? == tag.timestamp?)
         end
 
       elsif condition =~ /^<=\s*(.*)/
         tag = validate_condition!(condition, Regexp.last_match[1])
-        numeric <= tag.numeric && ((self.latest? || tag.latest?) || self.timestamp? == tag.timestamp?)
+        numeric <= tag.numeric && ((latest? || tag.latest?) || timestamp? == tag.timestamp?)
 
       elsif condition =~ /^<\s*(.*)/
         tag = validate_condition!(condition, Regexp.last_match[1])
-        numeric < tag.numeric && ((self.latest? || tag.latest?) || self.timestamp? == tag.timestamp?)
+        numeric < tag.numeric && ((latest? || tag.latest?) || timestamp? == tag.timestamp?)
 
       elsif condition =~ /^==?\s*(.*)/
         tag = validate_condition!(condition, Regexp.last_match[1])
-        self.orig_equal?(tag)
+        orig_equal?(tag)
 
       else
         tag = validate_condition!(condition, condition)
-        self.orig_equal?(tag)
+        orig_equal?(tag)
       end
     end
 

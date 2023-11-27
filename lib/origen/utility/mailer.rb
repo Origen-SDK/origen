@@ -18,8 +18,7 @@ module Origen
                     domain:         (Origen.site_config.email_domain || ''),
 
                     auth_user:      (Origen.site_config.email_auth_user || current_user.email),
-                    auth_password:  (Origen.site_config.email_auth_password || current_user.password)
-                  }.merge(options)
+                    auth_password:  (Origen.site_config.email_auth_password || current_user.password) }.merge(options)
 
         # Force to an array
         to = options[:to].respond_to?('each') ? options[:to] : [options[:to]]
@@ -52,15 +51,13 @@ END_OF_MESSAGE
             smtp = Net::SMTP.new(options[:server], options[:port])
             smtp.enable_starttls if options[:authentication] != :none
 
-            opts = begin
-              if options[:authentication] == :none
-                # Trying to add username and password if there's no authentication will actually be rejected by
-                # the server.
-                [options[:domain]]
-              else
-                [options[:domain], options[:auth_user], options[:auth_password], options[:authentication]]
-              end
-            end
+            opts = if options[:authentication] == :none
+                     # Trying to add username and password if there's no authentication will actually be rejected by
+                     # the server.
+                     [options[:domain]]
+                   else
+                     [options[:domain], options[:auth_user], options[:auth_password], options[:authentication]]
+                   end
 
             smtp.start(*opts) do |m|
               m.send_message(msg, options[:from], addr)

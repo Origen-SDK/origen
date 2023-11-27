@@ -1,3 +1,252 @@
+<a class="anchor release_tag" name="v0_60_12"></a>
+<h1><a href="#v0_60_12">Tag: v0.60.12</a></h1>
+
+##### Branch: 'master'
+
+##### by Corey Engelken on 11-Oct-2023 18:27PM
+
+
+Catch flush issues when a logger is closed
+
+<a class="anchor release_tag" name="v0_60_11"></a>
+<h1><a href="#v0_60_11">Tag: v0.60.11</a></h1>
+
+##### Branch: 'master'
+
+##### by Paul DeRouen on 27-Apr-2023 09:18AM
+
+
+disable problematic lint rule
+
+<a class="anchor release_tag" name="v0_60_10"></a>
+<h1><a href="#v0_60_10">Tag: v0.60.10</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 08-Mar-2023 10:05AM
+
+
+ability to for a custom rubocop config and support force autocorrect
+
+<a class="anchor release_tag" name="v0_60_9"></a>
+<h1><a href="#v0_60_9">Tag: v0.60.9</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 02-Mar-2023 19:31PM
+
+
+corrected scope access for config variables during remote job count - Cody Horton
+
+<a class="anchor release_tag" name="v0_60_8"></a>
+<h1><a href="#v0_60_8">Tag: v0.60.8</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 02-Mar-2023 12:36PM
+
+
+allow siteconfig to control max remote job count  - Cody Horton
+
+<a class="anchor release_tag" name="v0_60_7"></a>
+<h1><a href="#v0_60_7">Tag: v0.60.7</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 11-Feb-2022 10:52AM
+
+
+* Added an option to not ignore blank lines during compile
+
+<a class="anchor release_tag" name="v0_60_6"></a>
+<h1><a href="#v0_60_6">Tag: v0.60.6</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 24-Jan-2022 12:43PM
+
+
+* block inheritance feature can now propagate bugs and features
+
+<a class="anchor release_tag" name="v0_60_5"></a>
+<h1><a href="#v0_60_5">Tag: v0.60.5</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 19-Nov-2021 11:25AM
+
+
+* Quick fix for stats update (corner case)
+
+<a class="anchor release_tag" name="v0_60_3"></a>
+<h1><a href="#v0_60_3">Tag: v0.60.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 12-Aug-2021 11:36AM
+
+
+* commented out default values for the LSF grid from the site config.
+
+<a class="anchor release_tag" name="v0_60_2"></a>
+<h1><a href="#v0_60_2">Tag: v0.60.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 10-Aug-2021 13:26PM
+
+
+* Enabled invocation tracking, setup gated by site config variables
+
+<a class="anchor release_tag" name="v0_60_1"></a>
+<h1><a href="#v0_60_1">Tag: v0.60.1</a></h1>
+
+##### Branch: 'master'
+
+##### by priykuma on 17-Jun-2021 12:26PM
+
+
+* Released by [Cody Horton](@CodyBriscoe)
+
+ - bugfix for sub_block override feature: skip require on files that dont instantiate a namespace.
+
+<a class="anchor release_tag" name="v0_60_0"></a>
+<h1><a href="#v0_60_0">Tag: v0.60.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Cody Horton on 27-Apr-2021 09:27AM
+
+
+Added support for sub-block override and remote block file inheritance
+
+<a class="anchor release_tag" name="v0_59_8"></a>
+<h1><a href="#v0_59_8">Tag: v0.59.8</a></h1>
+
+##### Branch: 'master'
+
+##### by Paul DeRouen on 27-Jan-2021 19:37PM
+
+
+
+
+
+
+fix Windows drive mismatch bug
+
+<a class="anchor release_tag" name="v0_59_7"></a>
+<h1><a href="#v0_59_7">Tag: v0.59.7</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 08-Jan-2021 08:36AM
+
+
+* merged #412 (Merge pull request #417 from Origen-SDK/loader_bug)
+* merged #417 (Merge pull request #412 from CodyBriscoe/master)
+* Fix loader bug that manifested in CrossOrigen (Stephen)
+
+
+
+
+<a class="anchor release_tag" name="v0_59_6"></a>
+<h1><a href="#v0_59_6">Tag: v0.59.6</a></h1>
+
+##### Branch: 'master'
+
+##### by Caquelin, Brian on 08-Dec-2020 12:59PM
+
+
+* Typo fix for concurrent patterns - ginty
+* Reverted setting pin type automatically and added new pin types - info-rchitect
+
+<a class="anchor release_tag" name="v0_59_5"></a>
+<h1><a href="#v0_59_5">Tag: v0.59.5</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 04-Dec-2020 14:30PM
+
+
+* Fixed tester.handshake crash for concurrent pats
+* bugfix for centralized index site configs
+* Enabled GitHub Actions & removed Travis CI
+* NOTE: GitHub Actions on windows currently fails.
+
+<a class="anchor release_tag" name="v0_59_4"></a>
+<h1><a href="#v0_59_4">Tag: v0.59.4</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 24-Nov-2020 11:59AM
+
+
+* Enabled reserved keyword 'display' to be a sub_block
+* Updated pin type to be set automatically unless set by user - info-architect
+
+<a class="anchor release_tag" name="v0_59_3"></a>
+<h1><a href="#v0_59_3">Tag: v0.59.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 27-Oct-2020 07:55AM
+
+
+* fix for when rspec is on latest version 3.9 and you run bundle exec rspec - info-rchitect
+
+<a class="anchor release_tag" name="v0_59_2"></a>
+<h1><a href="#v0_59_2">Tag: v0.59.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 15-Oct-2020 14:06PM
+
+
+ * Fixes issue #401
+
+<a class="anchor release_tag" name="v0_59_1"></a>
+<h1><a href="#v0_59_1">Tag: v0.59.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 22-Sep-2020 08:47AM
+
+
+ * updated LDAP Encryption to be a site config
+ * Added RSpec 3 support
+
+<a class="anchor release_tag" name="v0_59_0"></a>
+<h1><a href="#v0_59_0">Tag: v0.59.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 06-Sep-2020 13:20PM
+
+
+ * Added capability to update packages for a pin, after the pin has been defined.
+ * Previous tag was on an incorrect branch
+
+<a class="anchor release_tag" name="v0_57_2"></a>
+<h1><a href="#v0_57_2">Tag: v0.57.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 26-Aug-2020 09:19AM
+
+
+ * disable lambda style to prevent lint block
+ * disabled ruby 2.4 check from TravisCI
+
+<a class="anchor release_tag" name="v0_57_1"></a>
+<h1><a href="#v0_57_1">Tag: v0.57.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 24-Jun-2020 15:17PM
+
+
+Add absolute value checks to as_units for negative inputs - James Creamer
+
 <a class="anchor release_tag" name="v0_57_0"></a>
 <h1><a href="#v0_57_0">Tag: v0.57.0</a></h1>
 

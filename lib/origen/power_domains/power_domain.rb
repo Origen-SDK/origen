@@ -3,7 +3,8 @@ module Origen
   module PowerDomains
     class PowerDomain
       include Origen::Specs
-      attr_accessor :id, :description, :unit_voltage_range, :nominal_voltage, :setpoint, :maximum_voltage_rating, :min, :max
+      attr_accessor :id, :description, :min, :max
+      attr_writer :maximum_voltage_rating, :nominal_voltage, :unit_voltage_range
 
       # Generic Power Domain Name
       # This is the power supply that can be blocked off to multiple power supplies
@@ -38,6 +39,7 @@ module Origen
         (block.arity < 1 ? (instance_eval(&block)) : block.call(self)) if block_given?
         @unit_voltage_range = :fixed if @unit_voltage_range.nil?
         fail unless attrs_ok?
+
         create_dut_spec unless @min.nil? || @max.nil?
       end
 
@@ -110,7 +112,7 @@ module Origen
 
       # Checks for a pin type, returns nil if it is not found
       def pin_type(pin)
-        if self.has_pin?(pin) == false
+        if has_pin?(pin) == false
           nil
         else
           [:signal, :ground, :power].each do |pintype|
@@ -152,6 +154,7 @@ module Origen
       # This will need rework once the class has spec limits added
       def setpoint_ok?(val = nil)
         return true if maximum_voltage_rating.nil?
+
         compare_val = val.nil? ? setpoint : val
         if compare_val.nil?
           false

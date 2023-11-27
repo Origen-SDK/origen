@@ -2,7 +2,8 @@ require_relative './limit'
 module Origen
   module Limits
     class LimitSet
-      attr_accessor :id, :min, :typ, :max, :target, :description, :static, :owner, :type
+      attr_accessor :id, :description, :static, :owner, :type
+      attr_reader :min, :typ, :max, :target
 
       def initialize(id, owner, options)
         @id = id

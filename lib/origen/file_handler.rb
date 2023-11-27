@@ -133,14 +133,14 @@ module Origen
           Pathname.new(m)
         else
           if options[:allow_missing]
-            return nil
+            nil
           else
             fail "Can't find: #{file}"
           end
         end
       else
         if options[:allow_missing]
-          return nil
+          nil
         else
           fail "Can't find: #{file}"
         end
@@ -152,17 +152,17 @@ module Origen
       if file_plugin
         if Origen.app.plugins.current
           if file_plugin == Origen.app.plugins.current.name
-            return path
+            path
           else
             puts "The requested file is from plugin #{file_plugin} and current system plugin is set to plugin #{Origen.app.plugins.current.name}!"
             fail 'Incorrect plugin error!'
           end
         else
           Origen.app.plugins.temporary = file_plugin
-          return path
+          path
         end
       else
-        return path
+        path
       end
     end
 
@@ -184,13 +184,13 @@ module Origen
       end
 
       if matches.size == 0
-        return nil
+        nil
       elsif matches.size > 1
         puts 'The following matches were found:'
         puts matches
         fail "Ambiguous file #{file}"
       else
-        return check(matches.first)
+        check(matches.first)
       end
     end
 
@@ -380,6 +380,7 @@ module Origen
 
     def current_directory
       return @current_directory if @current_directory
+
       @current_directory = clean_path_to(current_file).dirname if current_file
     end
 

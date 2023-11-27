@@ -2,7 +2,7 @@ module Origen
   module Bugs
     extend ActiveSupport::Concern
 
-    autoload :Bug,           'origen/bugs/bug'
+    autoload :Bug, 'origen/bugs/bug'
 
     module ClassMethods # :nodoc:
       # Define a bug on the given IP
@@ -23,7 +23,7 @@ module Origen
     # Returns true if the version of the IP represented by the object has the bug of the
     # given name
     def has_bug?(name, _options = {})
-      unless self.respond_to?(:version) && version
+      unless respond_to?(:version) && version
         puts 'To test for the presence of a bug the object must implement an attribute'
         puts "called 'version' which returns the IP version represented by the the object."
         fail 'Version undefined!'

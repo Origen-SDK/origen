@@ -88,6 +88,7 @@ module Origen
           unless valid
             fail 'Invalid parameters context, must be :top or a string path to a model object'
           end
+
           @parameters_context = obj
         else
           @parameters_context
@@ -136,6 +137,7 @@ module Origen
           redefine_children.each { |model, set_name| Origen::Parameters.redefine(model, set_name) }
         end
       end
+
       _parameter_sets[name]
     end
     alias_method :define_parameters, :define_params
@@ -231,7 +233,7 @@ module Origen
         end
       end
       if param_context[:obj]._parameter_sets.key?(param_context[:context])
-        return param_context
+        param_context
       else
         puts "Unknown parameter set :#{param_context[:context]} requested for #{param_context[:obj].class}, these are the valid sets:"
         param_context[:obj]._parameter_sets.keys.each { |k| puts "  :#{k}" }

@@ -57,6 +57,7 @@ module Origen
           if remote[:path]
             fail "The following remote is defined as a path, but that is not allowed in production: #{remote}"
           end
+
           version = Origen::VersionString.new(remote[:version])
           unless version.valid?
             fail "The following remote version is not in a valid format: #{remote}"
@@ -269,7 +270,7 @@ module Origen
     end
 
     def top_level_remotes
-      Origen.app.config.remotes    #+ Origen.app.config.remotes_dev (there are no core remotes at this time)
+      Origen.app.config.remotes #+ Origen.app.config.remotes_dev (there are no core remotes at this time)
     end
 
     def remotes
@@ -353,7 +354,7 @@ module Origen
                 f.write tag
               end
             end
-          rescue Origen::GitError, Origen::DesignSyncError, Origen::PerforceError  => e
+          rescue Origen::GitError, Origen::DesignSyncError, Origen::PerforceError => e
             # If Git failed in the remote, its usually easy to see what the problem is, but now *where* it is.
             # This will prepend the failing remote along with the error from the revision control system,
             # then rethrow the error

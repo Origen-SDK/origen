@@ -2,6 +2,18 @@ module Origen
   module Controller
     extend ActiveSupport::Concern
 
+    # Workaround due to reserved keywords in Ruby, Display in the case below.
+    def display
+      # If the DUT responds to a sub_block "display" return the sub_block
+      if model.sub_blocks.include? 'display'
+        Origen.log.debug "Found a sub_block \'display\', passing control to the #{model.class}..."
+        model.sub_blocks['display']
+      else
+        # Else, pass control to the ruby core.
+        super
+      end
+    end
+
     module ClassMethods
       def model(options = {})
         options[:controller_class] = self
@@ -63,19 +75,17 @@ module Origen
 
     # Returns the controller's model
     def model
-      @model ||= begin
-        if self.class.path_to_model
-          m = eval(self.class.path_to_model)
-          if m
-            if m.respond_to?(:_controller=)
-              m.send(:_controller=, self)
-            end
-          else
-            fail "No model object found at path: #{self.class.path_to_model}"
-          end
-          m
-        end
-      end
+      @model ||= if self.class.path_to_model
+                   m = eval(self.class.path_to_model)
+                   if m
+                     if m.respond_to?(:_controller=)
+                       m.send(:_controller=, self)
+                     end
+                   else
+                     fail "No model object found at path: #{self.class.path_to_model}"
+                   end
+                   m
+                 end
     end
 
     # When compared to another object, a controller will consider itself equal if either the controller

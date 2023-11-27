@@ -21,13 +21,12 @@ module Origen
       # Returns the persisted storage container (a Hash)
       def storage
         return @storage if @storage
+
         if File.exist?(STORAGE_FILE)
           File.open(STORAGE_FILE) do |f|
-            begin
-              @storage = Marshal.load(f)
-            rescue
-              @storage = {}
-            end
+            @storage = Marshal.load(f)
+          rescue
+            @storage = {}
           end
         else
           @storage = {}

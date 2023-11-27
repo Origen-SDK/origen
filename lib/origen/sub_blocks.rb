@@ -17,7 +17,7 @@ module Origen
         # address API, but will accept any of these
         @reg_base_address = options.delete(:reg_base_address) ||
                             options.delete(:base_address) || options.delete(:base) || 0
-        if options[:_instance]                # to be deprecated as part of multi-instance removal below
+        if options[:_instance] # to be deprecated as part of multi-instance removal below
           if @reg_base_address.is_a?(Array)
             @reg_base_address = @reg_base_address[options[:_instance]]
           elsif options[:base_address_step]
@@ -179,6 +179,7 @@ module Origen
 
       def path(options = {})
         return abs_path if abs_path
+
         if is_a?(Origen::Registers::BitCollection)
           # Special case where path relative to the register has been requested
           if options[:relative_to] == parent
@@ -264,9 +265,7 @@ module Origen
     # Note that this returns an array instead of a hash since there could be naming collisions in the
     # hash keys
     def all_sub_blocks
-      @all_sub_blocks ||= begin
-        (sub_blocks_array + sub_blocks_array.map(&:all_sub_blocks)).flatten
-      end
+      @all_sub_blocks ||= (sub_blocks_array + sub_blocks_array.map(&:all_sub_blocks)).flatten
     end
 
     # Returns true if the given sub block owns at least one register
@@ -301,7 +300,7 @@ module Origen
         # permit creating multiple instances of a particular sub_block class
         # can pass array for base_address, which will be processed above
         Origen.deprecate 'instances: option to sub_block is deprecated, use sub_block_groups instead'
-        group_name = name =~ /s$/ ? name : "#{name}s"  # take care if name already with 's' is passed
+        group_name = name =~ /s$/ ? name : "#{name}s" # take care if name already with 's' is passed
         unless respond_to?(group_name)
           sub_block_groups group_name do
             i.times do |j|
@@ -317,10 +316,41 @@ module Origen
         # been instantiated yet. This is not supported yet for instantiated sub-blocks since
         # there are probably a lot more corner-cases to consider, and hopefully no one will
         # really need this anyway.
-        if sub_blocks[name] && !sub_blocks[name].is_a?(Placeholder)
-          fail "You have already defined a sub-block named #{name} within class #{self.class}"
+        # Note that override is to recreate an existing sub-block, not adding additional
+        # attributes to an existing one
+        if options[:override]
+          sub_blocks.delete(name)
+          if options[:class_name]
+            begin
+              constantizable = !!options[:class_name].constantize
+            rescue NameError
+              constantizable = false
+            end
+            # this is to handle the case where a previously instantiated subblock wont allow
+            # the current class name to exist
+            # e.g. NamespaceA::B::C
+            # =>  NameSpaceX::Y::Z
+            # After requiring the files, constants become sane again:
+            # e.g. NamespaceA::B::C
+            # =>  NameSpaceA::B::C
+            if constantizable && (options[:class_name] != options[:class_name].constantize.to_s)
+              block_dir = options[:block_file] || _find_block_dir(options)
+              # files that aren't initializing a new namespace and have special loading shouldn't be required
+              # the code they contain may try to call methods that dont exist yet
+              skip_require_files = options[:skip_require_files] || %w(attributes parameters pins registers sub_blocks timesets)
+              Dir.glob("#{block_dir}/*.rb").each do |file|
+                next if skip_require_files.include?(Pathname.new(file).basename('.rb').to_s)
+
+                require file
+              end
+            end
+          end
+        else
+          if sub_blocks[name] && !sub_blocks[name].is_a?(Placeholder)
+            fail "You have already defined a sub-block named #{name} within class #{self.class}"
+          end
         end
-        if respond_to?(name)
+        if respond_to?(name) && !(singleton_class.instance_methods.include?(name) && options[:override])
           callers = Origen.split_caller_line caller[0]
           Origen.log.warning "The sub_block defined at #{Pathname.new(callers[0]).relative_path_from(Pathname.pwd)}:#{callers[1]} is overriding an existing method called #{name}"
         end
@@ -332,7 +362,7 @@ module Origen
         else
           sub_blocks[name] = block
         end
-        unless @current_group.nil?  # a group is currently open, store sub_block id only
+        unless @current_group.nil? # a group is currently open, store sub_block id only
           @current_group << name
         end
         if options.key?(:lazy)
@@ -387,14 +417,14 @@ module Origen
       if options[:class_name]
         b = Object.const_get(options[:class_name]).new
       else
-        b = []             # Will use Array if no class defined
+        b = [] # Will use Array if no class defined
       end
       # Add sub_blocks to group
       my_group.each do |group_id|
         b << send(group_id)
       end
       sub_block_groups[id] = b
-      @current_group = nil   # close group
+      @current_group = nil # close group
     end
     alias_method :sub_blocks_group, :sub_block_group
 
@@ -404,8 +434,36 @@ module Origen
 
     private
 
+    # @api private
+    # find the block directory path containing the namespace of options[:class_name]
+    def _find_block_dir(options, current_path = nil, remaining_namespace = nil)
+      current_path ||= Pathname.new("#{Origen.root}/app/blocks")
+      remaining_namespace ||= options[:class_name].split('::')[1..-1].map(&:underscore)
+      current_namespace = remaining_namespace.shift
+      if current_namespace
+        if current_path.join(current_namespace).exist?
+          _find_block_dir(options, current_path.join(current_namespace), remaining_namespace)
+        elsif current_path.join("derivatives/#{current_namespace}").exist?
+          _find_block_dir(options, current_path.join("derivatives/#{current_namespace}"), remaining_namespace)
+        elsif current_path.join("sub_blocks/#{current_namespace}").exist?
+          _find_block_dir(options, current_path.join("sub_blocks/#{current_namespace}"), remaining_namespace)
+        else
+          Origen.log.error "Could not find block dir for namespace #{options[:class_name]}!"
+          fail
+        end
+      else
+        if current_path.join('model.rb').exist?
+          current_path.to_s
+        else
+          Origen.log.error "Could not find block dir for namespace #{options[:class_name]}!"
+          fail
+        end
+      end
+    end
+
     def instantiate_sub_block(name, klass, options)
       return sub_blocks[name] unless sub_blocks[name].is_a?(Placeholder)
+
       sub_blocks[name] = klass.new(options.merge(parent: self, name: name))
     end
 
@@ -434,6 +492,7 @@ module Origen
         # looking up and loaded by the autoload system straight away, especially if the sub-block
         # has been specified to lazy load
         return false if klass == Hash || klass == Array
+
         klass == self.klass || klass == Placeholder
       end
 
@@ -500,16 +559,19 @@ module Origen
               klass = eval(tmp_class)
             rescue NameError => e
               raise if e.message !~ /^uninitialized constant (.*)$/ || tmp_class !~ /#{Regexp.last_match(1)}/
+
               begin
-                tmp_class = class_name.to_s
-                klass = eval(class_name)
+                tmp_class = "::#{class_name}"
+                klass = eval(tmp_class)
               rescue NameError => e
                 raise if e.message !~ /^uninitialized constant (.*)$/ || tmp_class !~ /#{Regexp.last_match(1)}/
+
                 begin
                   tmp_class = "#{owner.class}::#{class_name}"
                   klass = eval(tmp_class)
                 rescue NameError => e
                   raise if e.message !~ /^uninitialized constant (.*)$/ || tmp_class !~ /#{Regexp.last_match(1)}/
+
                   puts "Could not find class: #{class_name}"
                   raise 'Unknown sub block class!'
                 end
@@ -552,8 +614,9 @@ module Origen
     def method_missing(method, *args, &block)
       super
     rescue NoMethodError
-      return regs(method) if self.has_reg?(method)
-      return ports(method) if self.has_port?(method)
+      return regs(method) if has_reg?(method)
+      return ports(method) if has_port?(method)
+
       if method.to_s =~ /=$/
         define_singleton_method(method) do |val|
           instance_variable_set("@#{method.to_s.sub('=', '')}", val)

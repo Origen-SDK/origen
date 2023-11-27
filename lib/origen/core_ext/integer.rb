@@ -60,11 +60,9 @@ class Integer
 
   def to_bool
     if self == 1
-      return true
+      true
     elsif self == 0
-      return false
-    else
-      return nil
+      false
     end
   end
 

@@ -5,15 +5,17 @@ module Origen
     #   https://github.com/jnunemaker/httparty/tree/v0.9.0
 
     require 'json'
-    require 'httparty'
-    include HTTParty
+    require 'net/http'
+    # include HTTParty
 
     USE_DEV_SERVER = false
     DEV_PORT = 3000
 
     def post(path, options = {})
       options[:port] = port
-      self.class.post("#{url}/#{path}", options)
+      invocation_url = URI.parse("#{url}/#{path}")
+      http = Net::HTTP.new(invocation_url.host, invocation_url.port)
+      http.post(invocation_url, JSON.dump(options[:body]), 'Content-type' => 'application/vnd.api+json', 'Accept' => 'text/json, application/vnd.api+json')
     end
 
     def get(path, options = {})
@@ -21,7 +23,11 @@ module Origen
     end
 
     def url
-      'http://hub.origen-sdk.org/api'
+      if Origen.site_config.invocation_url.nil?
+        'http://localhost:3000'
+      else
+        Origen.site_config.invocation_url
+      end
     end
 
     def port
@@ -29,20 +35,26 @@ module Origen
     end
 
     def record_invocation(command)
-      data = {
-        user:           Origen.current_user.core_id,
-        application:    Origen.app.config.initials,
-        app_version:    Origen.app.version,
-        origen_version: Origen.version,
-        command:        command,
-        platform:       Origen.running_on_windows? ? 'windows' : 'linux'
+      content = {
+        data: {
+          type:       'applications',
+          attributes: {
+            user:             Origen.current_user.core_id,
+            application:      Origen.app.config.initials,
+            "app-version":    Origen.app.version,
+            "origen-version": Origen.version,
+            command:          command,
+            platform:         Origen.running_on_windows? ? 'windows' : 'linux'
+          }
+        }
       }
-      post('record_invocation', body: data)
+      post('applications', body: content)
     end
 
     # Returns an array of data packets for all plugins
     def plugins
       return @plugins if @plugins
+
       response = get('plugins')
       @plugins = JSON.parse(response.body, symbolize_names: true)[:plugins]
     end

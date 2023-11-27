@@ -1,0 +1,109 @@
+# [main] ***************************************************************************
+# [main] GENERATED:
+# [main]   Time:    11-Nov-2020 09:54AM
+#   By:      Stephen McGinty
+# [main]   Mode:    debug
+#   Command: origen g concurrent_delays_with_sync.rb -t origen_sim_dut.rb -e v93k.rb
+# [main] ***************************************************************************
+# [main] ENVIRONMENT:
+# [main]   Application
+# [main]     Source:    git@github.com:Origen-SDK/origen.git
+# [main]     Version:   0.59.3
+# [main]     Branch:    master(5a5e8d2821b) (+local edits)
+# [main]   Origen
+# [main]     Source:    https://github.com/Origen-SDK/origen
+# [main]     Version:   0.59.3
+# [main]   Plugins
+# [main]     origen_app_generators:    2.1.1
+# [main]     origen_core_support:      0.2.3
+# [main]     origen_debuggers:         0.6.1
+# [main]     origen_doc_helpers:       0.8.2
+# [main]     origen_jtag:              0.22.1
+# [main]     origen_sim:               0.20.7
+# [main]     origen_testers:           0.45.4
+# [main] ***************************************************************************
+# Header Comments From Application: origen_core:
+#   This is a dummy pattern created by the Origen test environment
+# [main] ***************************************************************************
+FORMAT TCK TDI TDO TMS RSTN TRSTN dout test_bus din_port P1 P2 p3 p4 V1 V2 DONE NOT_PRESENT ANA;
+#                                                   t t t t r t d                                t                d                                p p p    p    v v d n a
+#                                                   c d d m s r o                                e                i                                1 2 3    4    1 2 o o n
+#                                                   k i o s t s u                                s                n                                                  n t a
+#                                                           n t t                                t                -                                                  e -  
+#                                                             n                                  -                p                                                    p  
+# [main]                                                                                                b                o                                                    r  
+# [main]                                                                                                u                r                                                    e  
+# [main]                                                                                                s                t                                                    s  
+# [main]                                                                                                                                                                      e  
+#                                                                                                                                                                      n  
+# [main]                                                                                                                                                                      t  
+R1                       func                       0 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R11 ;
+R1                       func                       0 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R10 ;
+R1                       func                       0 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R9 ;
+R1                       func                       0 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R8 ;
+R1                       func                       0 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R7 ;
+R1                       func                       0 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R6 ;
+R1                       func                       0 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R5 ;
+R1                       func                       0 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R4 ;
+R1                       func                       0 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R3 ;
+R1                       func                       0 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R2 ;
+R1                       func                       0 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R1 ;
+R1                       func                       0 0 X 0 0 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R11 ;
+R1                       func                       0 0 X 0 0 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R10 ;
+R1                       func                       0 0 X 0 0 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R9 ;
+R1                       func                       0 0 X 0 0 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R8 ;
+R1                       func                       0 0 X 0 0 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R7 ;
+R1                       func                       0 0 X 0 0 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R6 ;
+R1                       func                       0 0 X 0 0 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R5 ;
+R1                       func                       0 0 X 0 0 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R4 ;
+R1                       func                       0 0 X 0 0 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R3 ;
+R1                       func                       0 0 X 0 0 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R2 ;
+R1                       func                       0 0 X 0 0 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R1 ;
+R1                       func                       0 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R11 ;
+R1                       func                       0 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R10 ;
+R1                       func                       0 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R9 ;
+R1                       func                       0 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R8 ;
+R1                       func                       0 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R7 ;
+R1                       func                       0 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R6 ;
+R1                       func                       0 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R5 ;
+R1                       func                       0 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R4 ;
+R1                       func                       0 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R3 ;
+R1                       func                       0 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R2 ;
+R1                       func                       0 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R1 ;
+R1                       func                       1 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R11 ;
+R1                       func                       1 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R10 ;
+R1                       func                       1 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R9 ;
+R1                       func                       1 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R8 ;
+R1                       func                       1 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R7 ;
+R1                       func                       1 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R6 ;
+R1                       func                       1 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R5 ;
+R1                       func                       1 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R4 ;
+R1                       func                       1 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R3 ;
+R1                       func                       1 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R2 ;
+R1                       func                       1 0 X 0 1 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R1 ;
+R1                       func                       1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R11 ;
+R1                       func                       1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R10 ;
+R1                       func                       1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R9 ;
+R1                       func                       1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R8 ;
+R1                       func                       1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R7 ;
+R1                       func                       1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R6 ;
+R1                       func                       1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R5 ;
+R1                       func                       1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R4 ;
+R1                       func                       1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R3 ;
+R1                       func                       1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R2 ;
+R1                       func                       1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # R1 ;
+# [main] Wait for 10.0ms
+R65535                   func                       1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # [main] Wait for 10.0ms;
+R34465                   func                       1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # ;
+# Wait for 10.0ms
+# Wait for 20.0ms
+R65535                   func                       1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # Wait for 10.0msWait for 20.0ms;
+R65535                   func                       1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # ;
+R65535                   func                       1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # ;
+R3395                    func                       1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # ;
+# [main] Wait for 5.0ms
+R50000                   func                       1 0 X 0 1 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX 00000000000000000000000000000000 X X XXXX XXXX X X X X X # [main] Wait for 5.0ms;
+# ######################################################################
+# ## Pattern complete
+# ######################################################################
+SQPG STOP;

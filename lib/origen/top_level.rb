@@ -79,7 +79,7 @@ module Origen
         val.id
       else
         packages.include?(val) ? val : nil
-      end
+                            end
     end
     alias_method :package=, :current_package=
 
@@ -88,6 +88,7 @@ module Origen
     def current_package(_options = {})
       if @current_package_id
         return _packages[@current_package_id] if _packages[@current_package_id]
+
         fail "The package #{@current_package_id} of #{self.class} has not been defined!"
       end
     end

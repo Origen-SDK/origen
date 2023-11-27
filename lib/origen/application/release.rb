@@ -32,6 +32,7 @@ module Origen
         if authorized?
           Origen.app.plugins.validate_production_status(true)
           fail 'No revision control configured for this application, cannot release a new version' if Origen.app.rc.nil?
+
           unless Origen.app.rc.local_modifications.empty?
             puts <<-EOT
 Your workspace has local modifications that are preventing the requested action
@@ -50,15 +51,16 @@ Your workspace has local modifications that are preventing the requested action
           Origen.app.listeners_for(:validate_release).each(&:validate_release)
           lint_test
           get_latest_version_files
-          base_version = Origen.app.version(refresh: true)  # Read in the latest version
+          base_version = Origen.app.version(refresh: true) # Read in the latest version
           get_release_note unless note
-          new_version = get_or_confirm_version(type)  # Don't mask this like the above!
+          new_version = get_or_confirm_version(type) # Don't mask this like the above!
           write_version(new_version)
           # Refresh the version in the current thread
           Origen.app.version(refresh: true)
           if Origen.app.version != new_version
             fail "Sorry something has gone wrong trying to update the version counter to #{new_version}!"
           end
+
           Origen.app.version_tracker.add_version(Origen.app.version) if Origen.app.version.production?
           write_history
           Origen.app.listeners_for(:before_release_tag).each do |listener|
@@ -103,7 +105,7 @@ Your workspace has local modifications that are preventing the requested action
       end
 
       def release_gem
-        if File.exist?(File.join Origen.root, "#{Origen.app.gem_name}.gemspec")
+        if File.exist?(File.join(Origen.root, "#{Origen.app.gem_name}.gemspec"))
           Origen.app.listeners_for(:before_release_gem).each(&:before_release_gem)
           unless system 'rake gem:release'
             puts '***************************************'.red
