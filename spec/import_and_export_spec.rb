@@ -25,7 +25,9 @@ describe "Model import and export" do
 
     def initialize(options = {})
       add_package :bga
-      add_package :pcs
+      add_package :pcs do |package|
+        package.insertion_type = :wafer_sort
+      end
       add_pin :pinx
       add_pin :piny, reset: :drive_hi, direction: :output, meta: { a: "1", b: 2 }
       add_pin :tdo, packages: { bga: { location: 'BF32', dib_assignment: [10104] }, pcs: { location: 'BF30', dib_assignment: [31808] } }
@@ -178,6 +180,14 @@ describe "Model import and export" do
     dut.package = :pcs
     dut.pin(:tdo).location.should == 'BF30'
     dut.pin(:tdo).dib_assignment.should == [31808]
+  end
+
+  it "handles package customization" do
+    load_export_model
+    dut.package = :bga
+    dut.package.insertion_type.should == nil
+    dut.package = :pcs
+    dut.package.insertion_type.should == :wafer_sort
   end
 
   it "handles sub-blocks" do
