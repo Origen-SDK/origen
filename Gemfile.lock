@@ -118,7 +118,7 @@ GEM
       mime-types-data (~> 3.2015)
     mime-types-data (3.2023.0218.1)
     mini_mime (1.1.5)
-    mini_portile2 (2.8.1)
+    mini_portile2 (2.8.5)
     minitest (5.20.0)
     multi_json (1.15.0)
     multi_xml (0.6.0)
@@ -126,7 +126,7 @@ GEM
       cri (~> 2.3)
     net-ldap (0.18.0)
     netrc (0.11.0)
-    nokogiri (1.14.3)
+    nokogiri (1.13.10)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
     origen_debuggers (0.6.1)
@@ -153,7 +153,7 @@ GEM
     pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
-    racc (1.6.2)
+    racc (1.7.3)
     rainbow (3.1.1)
     rake (10.5.0)
     regexp_parser (2.8.1)
@@ -227,7 +227,7 @@ DEPENDENCIES
   byebug (~> 10)
   coveralls
   loco
-  nokogiri
+  nokogiri (= 1.13.10)
   origen!
   origen_app_generators!
   origen_core_support!
