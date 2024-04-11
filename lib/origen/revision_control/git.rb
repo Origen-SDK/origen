@@ -47,7 +47,9 @@ module Origen
 
         version = options[:version] || current_branch
 
-        if version == 'HEAD'
+        # Not trying to do a VersionString comparison, just determine if the
+        # string literal value of version == HEAD, hence the .to_s call
+        if version.to_s == 'HEAD'
           puts "Sorry, but you are not currently on a branch and I don't know which branch you want to checkout"
           puts 'Please supply a branch name as the version to checkout the latest version of it, e.g. origen rc co -v develop'
           exit 1
