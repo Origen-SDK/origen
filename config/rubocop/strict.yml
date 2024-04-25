@@ -1696,7 +1696,7 @@ Lint/EmptyClass:
 
 Lint/EmptyConditionalBody:
   Description: 'Checks for the presence of `if`, `elsif` and `unless` branches without a body.'
-  Enabled: true
+  Enabled: false
   AllowComments: true
   VersionAdded: '0.89'
 
@@ -2018,7 +2018,7 @@ Lint/RedundantDirGlobSort:
 
 Lint/RedundantRequireStatement:
   Description: 'Checks for unnecessary `require` statement.'
-  Enabled: true
+  Enabled: false
   VersionAdded: '0.76'
 
 Lint/RedundantSafeNavigation:
@@ -3220,7 +3220,7 @@ Style/CombinableLoops:
   Description: >-
                   Checks for places where multiple consecutive loops over the same data
                   can be combined into a single loop.
-  Enabled: true
+  Enabled: false
   Safe: false
   VersionAdded: '0.90'
 
