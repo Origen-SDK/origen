@@ -978,8 +978,6 @@ module Origen
       alias_method :has_bit, :has_bit?
       alias_method :has_bits, :has_bit?
 
-      # rubocop:disable Layout/MultilineHashBraceLayout
-
       # Add a bit to the register, should only be called internally
       def add_bit(id, position, options = {}) # :nodoc:
         options = { data: @bits[position].data, # If undefined preserve any data/reset value that has

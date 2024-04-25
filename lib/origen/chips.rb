@@ -185,8 +185,6 @@ module Origen
 
     private
 
-    # rubocop:disable Lint/DuplicateMethods
-
     def _chips
       # 4D hash with group, family, and performance
       @_chips ||= Hash.new do |h, k|

@@ -243,8 +243,6 @@ module Origen
       ENV.key?(val)
     end
 
-    # rubocop:disable Lint/DuplicateMethods
-
     def env(val)
       if env_contains?(val)
         ENV[val]

@@ -122,8 +122,6 @@ module Origen
 
       private
 
-      # rubocop:disable Lint/DuplicateMethods
-
       # Two-dimensional hash with note id and type as the keys
       def _notes
         @_notes ||= Hash.new do |h, k|

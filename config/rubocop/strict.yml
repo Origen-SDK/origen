@@ -141,7 +141,7 @@ AllCops:
   # or gems.rb file, RuboCop reads the final value from the lock file.) If the
   # Ruby version is still unresolved, RuboCop will use the oldest officially
   # supported Ruby version (currently Ruby 2.6).
-  TargetRubyVersion: ~
+  TargetRubyVersion: 3.3.1
   # Determines if a notification for extension libraries should be shown when
   # rubocop is run. Keys are the name of the extension, and values are an array
   # of gems in the Gemfile that the extension is suggested for, if not already
@@ -1045,7 +1045,7 @@ Layout/MultilineHashBraceLayout:
                  Checks that the closing brace in a hash literal is
                  either on the same line as the last hash element, or
                  a new line.
-  Enabled: true
+  Enabled: false
   VersionAdded: '0.49'
   EnforcedStyle: symmetrical
   SupportedStyles:
@@ -1501,7 +1501,7 @@ Lint/BigDecimalNew:
 
 Lint/BinaryOperatorWithIdenticalOperands:
   Description: 'Checks for places where binary operator has identical operands.'
-  Enabled: true
+  Enabled: false
   Safe: false
   VersionAdded: '0.89'
   VersionChanged: '1.7'
@@ -1638,7 +1638,7 @@ Lint/DuplicateCaseCondition:
 
 Lint/DuplicateElsifCondition:
   Description: 'Do not repeat conditions used in if `elsif`.'
-  Enabled: true
+  Enabled: false
   VersionAdded: '0.88'
 
 Lint/DuplicateHashKey:
@@ -1649,7 +1649,7 @@ Lint/DuplicateHashKey:
 
 Lint/DuplicateMethods:
   Description: 'Check for duplicate method definitions.'
-  Enabled: true
+  Enabled: false
   VersionAdded: '0.29'
 
 Lint/DuplicateRegexpCharacterClassElement:
@@ -1775,7 +1775,7 @@ Lint/FormatParameterMismatch:
 Lint/HashCompareByIdentity:
   Description: 'Prefer using `Hash#compare_by_identity` than using `object_id` for keys.'
   StyleGuide: '#identity-comparison'
-  Enabled: true
+  Enabled: false
   Safe: false
   VersionAdded: '0.93'
 
@@ -1839,7 +1839,7 @@ Lint/LambdaWithoutLiteralBlock:
 
 Lint/LiteralAsCondition:
   Description: 'Checks of literals used in conditions.'
-  Enabled: true
+  Enabled: false
   VersionAdded: '0.51'
 
 Lint/LiteralInInterpolation:
@@ -2174,7 +2174,7 @@ Lint/ShadowingOuterLocalVariable:
 
 Lint/StructNewOverride:
   Description: 'Disallow overriding the `Struct` built-in methods via `Struct.new`.'
-  Enabled: true
+  Enabled: false
   VersionAdded: '0.81'
 
 Lint/SuppressedException:
@@ -2267,7 +2267,7 @@ Lint/UnreachableCode:
 
 Lint/UnreachableLoop:
   Description: 'Checks for loops that will have at most one iteration.'
-  Enabled: true
+  Enabled: false
   VersionAdded: '0.89'
   VersionChanged: '1.7'
   AllowedPatterns:
@@ -2889,7 +2889,6 @@ Style/ArgumentsForwarding:
   Description: 'Use arguments forwarding.'
   StyleGuide: '#arguments-forwarding'
   Enabled: pending
-  AllowOnlyRestArgument: true
   VersionAdded: '1.1'
 
 Style/ArrayCoercion:
@@ -3712,7 +3711,7 @@ Style/HashSyntax:
     # enforces both ruby19 and no_mixed_keys styles
     - ruby19_no_mixed_keys
   # Force hashes that have a hash value omission
-  EnforcedShorthandSyntax: always
+  EnforcedShorthandSyntax: either
   SupportedShorthandSyntax:
     # forces use of the 3.1 syntax (e.g. {foo:}) when the hash key and value are the same.
     - always
@@ -4018,7 +4017,7 @@ Style/ModuleFunction:
 Style/MultilineBlockChain:
   Description: 'Avoid multi-line chains of blocks.'
   StyleGuide: '#single-line-blocks'
-  Enabled: true
+  Enabled: false
   VersionAdded: '0.13'
 
 Style/MultilineIfModifier:
@@ -4352,7 +4351,7 @@ Style/OptionalArguments:
                  Checks for optional arguments that do not appear at the end
                  of the argument list.
   StyleGuide: '#optional-arguments'
-  Enabled: true
+  Enabled: false
   Safe: false
   VersionAdded: '0.33'
   VersionChanged: '0.83'

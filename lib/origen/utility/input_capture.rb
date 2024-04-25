@@ -5,7 +5,6 @@ module Origen
       # Gets text input from the user
       # Supply an optional default value in the event that the user enters nothing
       def get_text(options = {})
-        # rubocop:disable Layout/MultilineHashBraceLayout
         options = { default:        false,
                     single:         false, # Set if only a single line entry is expected
                     confirm:        false,

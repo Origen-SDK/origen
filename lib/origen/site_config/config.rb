@@ -125,7 +125,6 @@ module Origen
         end
 
         # YAML.safe_load is prefered
-        # rubocop:disable Security/YAMLLoad
         if centralized?
           if !cached?
             if fetch
@@ -148,8 +147,6 @@ module Origen
             @values = (YAML.load_file(path) || {})
           end
         end
-        # rubocop:enable Security/YAMLLoad
-
         unless @values.is_a?(Hash)
           puts red("Origen: Site Config: The config at #{path} was not parsed as a Hash, but as a #{@values.class}")
           puts red('                     Please review the format of the this file.')
