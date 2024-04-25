@@ -1,4 +1,3 @@
-require 'set'
 module Origen
   class OrgFile
     # @api private

@@ -1,5 +1,4 @@
 require 'active_support/concern'
-require 'set'
 module Origen
   module Parameters
     extend ActiveSupport::Concern
