@@ -111,7 +111,7 @@ module Origen
           # which would not work with the code above but should eval to a number 3.35
           begin
             result = eval(@expr)
-            return result.round(4) if result.is_a? Numeric
+            result.round(4) if result.is_a? Numeric
           rescue ::SyntaxError, ::NameError, ::TypeError
             Origen.log.debug "Limit '#{@expr}' had to be rescued, storing it as a #{@expr.class}"
             if @expr.is_a? Symbol

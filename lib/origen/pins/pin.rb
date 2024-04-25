@@ -253,9 +253,9 @@ module Origen
               v = configuration[attribute]
               if v
                 if v.is_a?(Hash) && default.is_a?(Hash)
-                  return default.merge(v) # v will overwrite any default values
+                  default.merge(v) # v will overwrite any default values
                 else
-                  return v
+                  v
                 end
               else
                 default

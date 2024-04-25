@@ -269,7 +269,6 @@ end
               puts "Copied #{gem} #{version} from the system into #{bundle_path}"
 
             end
-
           rescue Exception # Gem::LoadError  # Rescue everything here, this is a try-our-best operation, better to
             # continue and try and install the gem if this fails rather than crash
             # This just means that one of the gems that should be copied from the system

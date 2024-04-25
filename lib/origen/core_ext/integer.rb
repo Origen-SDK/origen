@@ -1,6 +1,6 @@
 # The base class of ALL integers, i.e. including Fixum and Bignum
 
-# Shim to handle Ruby < 2.4.0, where [] is implemented in Fixnum/Bignum instead
+# Shim to handle Ruby < 2.4.0, where [] is implemented in Integer/Bignum instead
 # of Integer
 module Origen
   module IntegerExtension
@@ -91,7 +91,7 @@ class Integer
 end
 
 if RUBY_VERSION <= '2.4.0'
-  class Fixnum
+  class Integer
     prepend Origen::IntegerExtension
   end
 

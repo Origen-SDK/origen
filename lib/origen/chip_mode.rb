@@ -109,7 +109,7 @@ module Origen
         # Cannot use @data_rate_unit without @data_rate
         fail '@data_rate_unit must be set with @data_rate, exiting...' if @data_rate.nil?
       end
-      unless @data_rate.nil? || @data_rate =~ /n\/a/i || @data_rate =~ /na/i
+      unless @data_rate.to_s.nil? || @data_rate.to_s =~ /n\/a/i || @data_rate.to_s =~ /na/i
         # Check if the data rate was passed as a String, if so convert it to a number
         if @data_rate.is_a? String
           if @data_rate.numeric?

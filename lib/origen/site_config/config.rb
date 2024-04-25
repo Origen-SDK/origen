@@ -121,7 +121,7 @@ module Origen
       # After the initial load, any centralized site configs will be retreived (if needed), cached, and loaded.
       def load
         def read_erb(erb)
-          ERB.new(File.read(erb), 0, '%<>')
+          ERB.new(File.read(erb), trim_mode: '%<>')
         end
 
         # YAML.safe_load is prefered

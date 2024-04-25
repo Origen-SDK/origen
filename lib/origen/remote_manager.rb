@@ -270,7 +270,7 @@ module Origen
     end
 
     def top_level_remotes
-      Origen.app.config.remotes #+ Origen.app.config.remotes_dev (there are no core remotes at this time)
+      Origen.app.config.remotes # + Origen.app.config.remotes_dev (there are no core remotes at this time)
     end
 
     def remotes

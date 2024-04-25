@@ -100,7 +100,7 @@ module Origen
         end
 
         def process!
-          while  source.pointer < source.size && target.pointer < target.size
+          while source.pointer < source.size && target.pointer < target.size
             matched = source.find_current_line_in(target)
             if matched
               if matched > target.pointer

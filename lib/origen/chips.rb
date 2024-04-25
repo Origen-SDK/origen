@@ -227,7 +227,7 @@ module Origen
       filtered_hash = {}
       select_logic = case filter
         when String then 'k[Regexp.new(filter)]'
-        when (Fixnum || Integer || Float || Numeric) then "k[Regexp.new('#{filter}')]"
+        when (Integer || Float || Numeric) then "k[Regexp.new('#{filter}')]"
         when Regexp then 'k[filter]'
         when Symbol then
           'k == filter'

@@ -84,7 +84,7 @@ if update_required
 
           if response.success?
             latest_version = JSON.parse(response.body).map { |v| v['number'] }.max
-            puts latest_version.to_s
+            puts latest_version
 
             url = "#{gen[0]}/gems/#{gen[1]}-#{latest_version}.gem"
             print "Fetching #{url}..."

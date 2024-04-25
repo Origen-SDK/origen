@@ -1,7 +1,7 @@
 require 'pathname'
 
 def ruby_acceptable_to_run?
-  RUBY_VERSION >= min_ruby_version
+  min_ruby_version <= RUBY_VERSION
 end
 
 def min_ruby_version
