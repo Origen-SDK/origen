@@ -28,7 +28,7 @@ Gem::Specification.new do |spec|
   # Don't add any logic to runtime dependencies, for example to install a specific gem
   # based on Ruby version.
   # Rubygems / Bundler do not support this and you will need to find another way around it.
-  spec.add_runtime_dependency "activesupport", "~>4.1"
+  spec.add_runtime_dependency "activesupport", "~>7.1.3.2"
   spec.add_runtime_dependency "colored", "~>1.2"
   spec.add_runtime_dependency "net-ldap", "~>0.13"
   spec.add_runtime_dependency "httparty", "~>0.13"
