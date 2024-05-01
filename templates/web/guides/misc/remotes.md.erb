@@ -46,6 +46,12 @@ config.remotes = [
     rc_url: "git@github.com:Origen-SDK/artwork.git",
     version: "master",
     development: true
+  },
+  {
+    dir: "third_party_remote",
+    rc_url: "https://github.com/third-party/remote.git",
+    version: "1.2.3",
+    disable_tag_prefix: true # repo is tagged as 1.2.3, not v1.2.3
   }  
 ]
 ~~~
@@ -57,6 +63,12 @@ remotes defined by an application's plugins, except for those which have been ma
 Setting `development: true`, indicates to Origen that the remote is only required when developing
 the plugin within a standalone workspace, and that it is not required when the plugin is being
 used by a top-level application.
+
+Origen follows the philosophy that version control tags should prepend a 'v' to the semantic version
+to communicate that the following numbers are a semantic version, e.g. 1.2.3 has a git tag of v1.2.3
+(see [SemVer documenation](https://semver.org/#is-v123-a-semantic-version)). However, sometimes you
+do not have control over the tagging conventions another repo is using and need to opt out of the
+tag prefixing. Set `disable_tag_prefix: true` for each remote that needs to query a tag without the leading 'v'.
 
 #### Location
 
