@@ -42,7 +42,7 @@ GIT
 PATH
   remote: .
   specs:
-    origen (0.60.14)
+    origen (0.60.15)
       activesupport (~> 4.1)
       bundler (> 1.7)
       coderay (~> 1.1)
@@ -242,4 +242,4 @@ DEPENDENCIES
   ripper-tags
 
 BUNDLED WITH
-   2.1.4
+   2.4.10
