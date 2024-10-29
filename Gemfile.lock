@@ -42,7 +42,7 @@ GIT
 PATH
   remote: .
   specs:
-    origen (0.60.16)
+    origen (0.60.17)
       activesupport (~> 4.1)
       bundler (> 1.7)
       coderay (~> 1.1)
@@ -226,7 +226,6 @@ GEM
     yard (0.9.36)
 
 PLATFORMS
-  ruby
   x86_64-linux
 
 DEPENDENCIES
@@ -245,4 +244,4 @@ DEPENDENCIES
   ripper-tags
 
 BUNDLED WITH
-   2.1.4
+   2.4.10
