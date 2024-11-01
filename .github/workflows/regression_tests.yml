@@ -18,7 +18,7 @@ jobs:
     - name: Update Env
       run: echo "ACTIONS_ALLOW_UNSECURE_COMMANDS=true" >> $GITHUB_ENV
     - name: Install Bundler
-      run: gem install bundler -v '> 2'
+      run: gem install bundler -v '2.4.22'
     - name: Remove Gemfile.lock
       run: rm Gemfile.lock
     - name: Install dependencies

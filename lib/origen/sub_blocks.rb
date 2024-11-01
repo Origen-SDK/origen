@@ -319,13 +319,9 @@ module Origen
         # Note that override is to recreate an existing sub-block, not adding additional
         # attributes to an existing one
         if options[:override]
-          sub_blocks.delete(name)
+          sub_blocks.delete(name.to_s)
           if options[:class_name]
-            begin
-              constantizable = !!options[:class_name].constantize
-            rescue NameError
-              constantizable = false
-            end
+            constantizable = !!options[:class_name].safe_constantize
             # this is to handle the case where a previously instantiated subblock wont allow
             # the current class name to exist
             # e.g. NamespaceA::B::C

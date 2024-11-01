@@ -139,13 +139,13 @@ module Origen
           if File.exist?("#{dir}/.initial_populate_successful")
             FileUtils.rm_f(version_file) if File.exist?(version_file)
             rc = RevisionControl.new remote: rc_url, local: dir
-            rc.send rc.remotes_method, version: prefix_tag(tag), force: true
+            rc.send rc.remotes_method, version: prefix_tag(tag, remote), force: true
             File.open(version_file, 'w') do |f|
               f.write tag
             end
           else
             rc = RevisionControl.new remote: rc_url, local: dir
-            rc.send rc.remotes_method, version: prefix_tag(tag), force: true
+            rc.send rc.remotes_method, version: prefix_tag(tag, remote), force: true
             FileUtils.touch "#{dir}/.initial_populate_successful"
             File.open(version_file, 'w') do |f|
               f.write tag
@@ -342,13 +342,13 @@ module Origen
             if File.exist?("#{dir}/.initial_populate_successful")
               FileUtils.rm_f(version_file) if File.exist?(version_file)
               rc = RevisionControl.new remote: rc_url, local: dir
-              rc.send rc.remotes_method, version: prefix_tag(tag), force: true
+              rc.send rc.remotes_method, version: prefix_tag(tag, remote), force: true
               File.open(version_file, 'w') do |f|
                 f.write tag
               end
             else
               rc = RevisionControl.new remote: rc_url, local: dir
-              rc.send rc.remotes_method, version: prefix_tag(tag), force: true
+              rc.send rc.remotes_method, version: prefix_tag(tag, remote), force: true
               FileUtils.touch "#{dir}/.initial_populate_successful"
               File.open(version_file, 'w') do |f|
                 f.write tag
@@ -382,10 +382,14 @@ module Origen
     end
 
     # If the supplied tag looks like a semantic version number, then make sure it has the
-    # 'v' prefix
-    def prefix_tag(tag)
+    # 'v' prefix unless the remote has explicitly disallowed the prefix
+    def prefix_tag(tag, remote = {})
+      remote = {
+        disable_tag_prefix: false
+      }.merge(remote)
+
       tag = Origen::VersionString.new(tag)
-      if tag.semantic?
+      if tag.semantic? && !remote[:disable_tag_prefix]
         tag.prefixed
       else
         tag

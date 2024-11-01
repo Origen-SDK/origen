@@ -32,6 +32,7 @@ GIT
       dentaku (~> 3)
       origen (>= 0.60.7)
       origen_stil (>= 0.2.1)
+      parallel (>= 1.24)
       require_all (~> 1)
       rodf (~> 1)
       sexpistol (= 0.0.7)
@@ -110,7 +111,7 @@ GEM
     gems (0.8.3)
     highline (1.7.10)
     http-accept (1.7.0)
-    http-cookie (1.0.5)
+    http-cookie (1.0.6)
       domain_name (~> 0.5)
     httparty (0.21.0)
       mini_mime (>= 1.0.0)
@@ -136,8 +137,7 @@ GEM
       cri (~> 2.3)
     net-ldap (0.19.0)
     netrc (0.11.0)
-    nokogiri (1.13.10)
-      mini_portile2 (~> 2.8.0)
+    nokogiri (1.13.10-x86_64-linux)
       racc (~> 1.4)
     origen_debuggers (0.6.1)
       origen (>= 0.2.6)
@@ -163,7 +163,7 @@ GEM
     pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
-    racc (1.7.3)
+    racc (1.8.0)
     rainbow (3.1.1)
     rake (10.5.0)
     regexp_parser (2.9.0)
@@ -215,6 +215,7 @@ GEM
       json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.2)
+    strscan (3.1.0)
     sync (0.5.0)
     term-ansicolor (1.8.0)
       tins (~> 1.0)
@@ -234,7 +235,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  byebug (~> 10)
+  byebug (~> 11)
   coveralls
   loco
   nokogiri (= 1.13.10)
