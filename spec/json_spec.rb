@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'json'
 
 describe 'JSON output' do
 
@@ -41,7 +42,8 @@ describe 'JSON output' do
   end
 
   it 'models can convert' do
-    dut.to_json.should == (<<-END
+
+    expected_json = <<-END
 {
   "name": null,
   "address": 0,
@@ -65,9 +67,7 @@ describe 'JSON output' do
       "size": 32,
       "path": "r1",
       "reset_value": 0,
-      "description": [
-
-      ],
+      "description": [],
       "bits": [
         {
           "name": "d",
@@ -76,23 +76,21 @@ describe 'JSON output' do
           "size": 32,
           "reset_value": 0,
           "access": "rw",
-          "description": [
-
-          ],
-          "bit_values": [
-
-          ]
+          "description": [],
+          "bit_values": []
         }
       ]
     }
   ]
 }
 END
-).strip
+
+expect(JSON.parse(dut.to_json)).to eq(JSON.parse(expected_json))
+
   end
 
   it 'registers can convert' do
-    dut.sub1.reg1.to_json.should == (<<-END
+  expected_json = <<-END
 {
   "name": "reg1",
   "full_name": "The Full Name of the Reg",
@@ -113,12 +111,8 @@ END
       "size": 16,
       "reset_value": 0,
       "access": "rw",
-      "description": [
-
-      ],
-      "bit_values": [
-
-      ]
+      "description": [],
+      "bit_values": []
     },
     {
       "name": "bitx",
@@ -127,12 +121,8 @@ END
       "size": 1,
       "reset_value": 0,
       "access": "ro",
-      "description": [
-
-      ],
-      "bit_values": [
-
-      ]
+      "description": [],
+      "bit_values": []
     },
     {
       "name": "bity",
@@ -141,12 +131,8 @@ END
       "size": 1,
       "reset_value": 1,
       "access": "rw",
-      "description": [
-
-      ],
-      "bit_values": [
-
-      ]
+      "description": [],
+      "bit_values": []
     },
     {
       "name": "bitz",
@@ -155,12 +141,8 @@ END
       "size": 2,
       "reset_value": 2,
       "access": "w1c",
-      "description": [
-
-      ],
-      "bit_values": [
-
-      ]
+      "description": [],
+      "bit_values": []
     },
     {
       "name": "aready",
@@ -186,6 +168,8 @@ END
   ]
 }
 END
-).strip
+
+  expect(JSON.parse(dut.sub1.reg1.to_json)).to eq(JSON.parse(expected_json))
+
   end
 end
