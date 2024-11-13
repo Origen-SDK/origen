@@ -211,14 +211,13 @@ module Origen
 
     it "can be converted to json" do
       m = MyModel4.new
-      m.controller.to_json.should == (<<-END
+
+      expected_json = <<-END
 {
   "name": null,
   "address": 0,
   "path": "",
-  "blocks": [
-
-  ],
+  "blocks": [],
   "registers": [
     {
       "name": "reg1",
@@ -228,9 +227,7 @@ module Origen
       "size": 32,
       "path": "reg1",
       "reset_value": 0,
-      "description": [
-
-      ],
+      "description": [],
       "bits": [
         {
           "name": "data",
@@ -239,19 +236,15 @@ module Origen
           "size": 32,
           "reset_value": 0,
           "access": "rw",
-          "description": [
-
-          ],
-          "bit_values": [
-
-          ]
+          "description": [],
+          "bit_values": []
         }
       ]
     }
   ]
 }
 END
-).strip
+      expect(JSON.parse(m.controller.to_json)).to eq(JSON.parse(expected_json))
     end
 
     it "controllers can implement write_register" do
