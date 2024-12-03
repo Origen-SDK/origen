@@ -319,7 +319,11 @@ module Origen
         # Note that override is to recreate an existing sub-block, not adding additional
         # attributes to an existing one
         if options[:override]
-          sub_blocks.delete(name.to_s)
+          # deregister old block as a listener, as it'll stick around otherwise
+          dynamic_listeners = Origen.app.dynamic_resource(:callback_listeners, [])
+          dynamic_listeners -= [sub_blocks.delete(name.to_s)]
+          Origen.app.set_dynamic_resource(:callback_listeners, dynamic_listeners)
+
           if options[:class_name]
             constantizable = !!options[:class_name].safe_constantize
             # this is to handle the case where a previously instantiated subblock wont allow
