@@ -104,8 +104,13 @@ module Origen
 
       def load_from_file
         s = nil
-        File.open(file.to_s) do |f|
-          s = Marshal.load(f)
+        begin
+          File.open(file.to_s) do |f|
+            s = Marshal.load(f)
+          end
+        rescue
+          Origen.log.error "Failed to load session file: #{file}"
+          Origen.log.error 'This can happen if the file has been corrupted, please delete it and try again'
         end
         s
       end
