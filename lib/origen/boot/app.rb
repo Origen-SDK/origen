@@ -175,7 +175,7 @@ end
             end
 
             if passed
-              Bundler.with_clean_env do
+              Bundler.with_original_env do
                 exec "origen #{ARGV.join(' ')}"
               end
               exit 0
