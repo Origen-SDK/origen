@@ -296,6 +296,10 @@ module Origen
         return sub_block(name.class)
       end
 
+      if sub_blocks[name] && model.instance_variable_get(:@_inherited_sub_blocks_mode)
+        return
+      end
+
       if i = options.delete(:instances)
         # permit creating multiple instances of a particular sub_block class
         # can pass array for base_address, which will be processed above

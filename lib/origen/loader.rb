@@ -124,16 +124,6 @@ module Origen
       model = model.model # Ensure we have a handle on the model and not its controller
       loaded = nil
 
-      if options[:inherit]
-        # pass down any bugs/features from the inherited block class
-        unless options[:disable_bug_inheritance]
-          model.class.instance_variable_set(:@bugs, options[:inherit].constantize.bugs.merge(model.class.bugs))
-        end
-        unless options[:disable_feature_inheritance]
-          model.class.instance_variable_set(:@features, options[:inherit].constantize.features.merge(model.class.features))
-        end
-      end
-
       if local_app = options[:app] || model.app
         if options[:path]
           local_full_paths = Array(options[:path])
@@ -143,6 +133,8 @@ module Origen
           local_full_paths = [local_full_paths.join('/')]
         end
         app_paths_map = { local_app => local_full_paths }
+        inherit_app = nil
+        inherited_sub_blocks_files = []
         if options[:inherit]
           # update app_paths_map with the relevant inherited files
           inherit_full_paths = options[:inherit].split('::')
@@ -179,6 +171,9 @@ module Origen
                       app.blocks_files[key][type].each do |f|
                         if type == :attributes
                           success = load_attributes(f, model)
+                        elsif type == :sub_blocks && app == inherit_app
+                          # handle inherited sub blocks later
+                          inherited_sub_blocks_files << f
                         else
                           success = load_block_file(f, model)
                         end
@@ -203,7 +198,36 @@ module Origen
             end
           end
         end
+
+        # Now load the inherited sub blocks, but don't override any existing sub blocks this model has already defined
+        inherited_sub_blocks_files.each do |f|
+          model.instance_variable_set(:@_inherited_sub_blocks_mode, true)
+          load_block_file(f, model)
+          model.instance_variable_set(:@_inherited_sub_blocks_mode, false)
+        end
       end
+
+      # pass down any bugs/features from the inherited block class
+      if options[:inherit]
+        inherited_ancestors = options[:inherit].constantize.ancestors
+        inherited_features = inherited_ancestors.map do |a|
+          a.respond_to?(:features) ? a.features : {}
+        end
+        inherited_features = inherited_features.reject(&:empty?).reverse.reduce({}, :merge)
+
+        inherited_bugs = inherited_ancestors.map do |a|
+          a.respond_to?(:bugs) ? a.bugs : {}
+        end
+        inherited_bugs = inherited_bugs.reject(&:empty?).reverse.reduce({}, :merge)
+
+        unless options[:disable_feature_inheritance]
+          model.class.instance_variable_set(:@features, inherited_features.merge(model.class.features))
+        end
+        unless options[:disable_bug_inheritance]
+          model.class.instance_variable_set(:@bugs, inherited_bugs.merge(model.class.bugs))
+        end
+      end
+
       loaded
     end
 
