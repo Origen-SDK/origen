@@ -12,7 +12,12 @@ module Origen
       # If this object has been instantiated after on_create has already been called,
       # then invoke it now
       if Origen.app.on_create_called?
-        on_create if respond_to?(:on_create)
+        if respond_to?(:on_create)
+          unless @_on_create_called
+            @_on_create_called = true
+            on_create
+          end
+        end
       end
     end
   end
