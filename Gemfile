@@ -14,6 +14,7 @@ gem 'origen_debuggers', '~> 0'
 gem 'ripper-tags'
 # gem 'nokogiri', '1.10.10'  # Lock to this version to enable testing in Ruby 2.2
 gem 'nokogiri', '1.13.10' # Locking to this version to support Ruby 2.6. Will update in a later release
+gem 'json', '~> 2.10.2' # Locking to this version as 2.11 introduces breaking changes on register's to_json call as it interacts with JSON.pretty_generate
 
 # Plugins that provide guide pages
 gem "origen_testers", git: "https://github.com/Origen-SDK/origen_testers.git"
