@@ -95,6 +95,16 @@ class SoC_With_Specs
       max 3.5
       audience :external
     end
+    spec :diff1, :ac do |s|
+      s.symbol "Fmin"
+      s.description = "Frequency Min"
+      s.min = 1.Hz
+    end
+    spec :diff2, :dc do |s|
+      s.symbol "Fmax"
+      s.description = "Frequency Min"
+      s.max = 1.Ghz
+    end
     add_mode :no_specs_defined
   end
 end
@@ -243,7 +253,7 @@ describe "Origen Specs Module" do
   end
 
   it "can see top level specs" do
-    @dut.specs.size.should == 12
+    @dut.specs.size.should == 14
     @dut.modes.should == [:default, :low_power, :high_performance, :no_specs_defined]
     @dut.mode = :no_specs_defined
     @dut.specs(:soc_vdd).should == nil # Returns nil because @dut.mode is set to :no_specs_defined
@@ -253,6 +263,7 @@ describe "Origen Specs Module" do
     @dut.specs(:soc_vdd).add_note(:my_note, text: "This spec does not meet current power requirements")
     @dut.specs(:soc_vdd).notes.class.should == Hash
     @dut.specs(:soc_vdd).notes.size.should == 1
+    @dut.specs(:soc_vdd).note_count.should == 1
     @dut.specs(:soc_vdd).notes[:my_note].text.should == "This spec does not meet current power requirements"
     @dut.has_specs?.should == true
     @dut.ip_with_specs.has_specs?.should == true
@@ -269,6 +280,7 @@ describe "Origen Specs Module" do
     @dut.specs(:soc_vdd).min.exp.should == "1.05 - 50.mV"
     @dut.specs(:soc_vdd).min.value.should == 1.0
     @dut.specs(:soc_vdd).mode.should == :high_performance
+    @dut.specs(:soc_vdd).trace_matrix_name.should == "soc_vdd_dc_high_performance"
     @dut.specs.include?(:ip_setup_time).should == false
     @dut.specs(:soc_vdd).description.should == "Soc Core Power Supply"
     @dut.has_spec?(:soc_io_vdd).should == true # Returns true because even though this spec is not defined in mode :high_performance the spec does exist in the IP scope
@@ -279,6 +291,9 @@ describe "Origen Specs Module" do
     @dut.has_spec?(:soc_vdd).should == true # mode is nil which means find all modes
     @dut.specs(:soc_vdd).size.should == 3 #
     @dut.has_spec?(:soc_vdd, mode: :default).should == true
+    @dut.specs(:direct_ref_spec).trace_matrix_name.should == "direct_ref_spec_dc"
+    @dut.specs(:direct_ref_spec).trace_matrix_name_to_dita.should == "<lines audience=\"trace-matrix-id\">\n  <i>[direct_ref_spec_dc]</i>\n</lines>"
+    @dut.specs(:diff1).diff(@dut.specs(:diff2)).should == {:exhibits=>[{}, ""], :max_exp=>[nil, 1000000000], :min_exp=>[1, nil], :name=>[:diff1, :diff2], :symbol=>["Fmin", "Fmax"], :type=>[:ac, :dc]}
   end
 
   it "multiple specs are returned in a SpecArray" do
@@ -377,6 +392,15 @@ describe "Origen Specs Module" do
     @ip.doc_resource({mode: :default, type: :dc, sub_type: 'input', audience: :internal}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
     @ip.doc_resource({mode: :low_power, type: :dc, sub_type: 'input', audience: :internal}, {title: 'Title for Table 1', note_refs: nil, exhibit_refs: nil}, {before: nil, after: nil}, {})
     get_true_hash_size(@ip.doc_resources, Origen::Specs::Doc_Resource).should == 3
+  end
+
+  it "doc_resource can convert to xml" do 
+    doc_resource = Origen::Specs::Doc_Resource.new({mode: :default, type: :ac, sub_type: 'input', audience: :external},{title: 'Title for Table 1', note_refs: [:note1], exhibit_refs: []},{before: nil, after: nil},{})
+    doc_resource.to_xml.should == "<doc_resource mode=\"default\" type=\"ac\" sub_type=\"input\" audience=\"external\"/>"
+    doc_resource = Origen::Specs::Doc_Resource.new({mode: :default}, {title: 'Title for Table 1', note_refs: [:note1], exhibit_refs: [:ex1,:ex2]},{before: nil, after: nil},{})
+    doc_resource.to_xml.should == "<doc_resource mode=\"default\">\n  <title>\n    <Text>Title for Table 1</Text>\n    <noteRefs>\n      <noteRef href=\"note1\"/>\n    </noteRefs>\n    <exhibitRefs>\n      <exhibitRef href=\"ex1\"/>\n      <exhibitRef href=\"ex2\"/>\n    </exhibitRefs>\n  </title>\n</doc_resource>"
+    doc_resource = Origen::Specs::Doc_Resource.new({mode: :default}, {title: 'Title for Table 1', note_refs: [:note1], exhibit_refs: [:ex1,:ex2]},{before: :how_it_started, after: :how_its_going},{})
+    doc_resource.to_xml.should == "<doc_resource mode=\"default\">\n  <title>\n    <Text>Title for Table 1</Text>\n    <noteRefs>\n      <noteRef href=\"note1\"/>\n    </noteRefs>\n    <exhibitRefs>\n      <exhibitRef href=\"ex1\"/>\n      <exhibitRef href=\"ex2\"/>\n    </exhibitRefs>\n  </title>\n  <paragraphs>\n    <before_table>how_it_started</before_table>\n    <after_table>how_its_going</after_table>\n  </paragraphs>\n</doc_resource>"
   end
 
   it "can see sub_block power supplies" do

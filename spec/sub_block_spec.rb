@@ -38,6 +38,7 @@ module SubBlocksSpec
       sub_block :sub9, class_name: "Sub7", override: options[:override], inherit: 'SubBlocksSpec::Sub5'
       sub_block :sub10, class_name: "Sub8", override: options[:override], inherit: 'SubBlocksSpec::Sub4', disable_bug_inheritance: true
       sub_block :sub11, class_name: "Sub9", override: options[:override], inherit: 'SubBlocksSpec::Sub5', disable_feature_inheritance: true
+      sub_block :single_create, class_name: "SingleCreate"
 
       sub_block_group :subgroups, class_name: "SubBlocksSpec::Subs" do
         sub_block :subitem0, class_name: "SubItem0", base_address: 0x000, some_attr: "There are two kinds of people"
@@ -150,7 +151,19 @@ module SubBlocksSpec
     end
   end
 
+  class SingleCreate
+    include Origen::Model
 
+    attr_accessor :counter
+
+    def initialize
+      @counter = 0
+    end
+
+    def on_create
+      @counter += 1
+    end
+  end
 
   class Subs < ::Array
     def <<(sub_block)
@@ -721,6 +734,15 @@ module SubBlocksSpec
           m.blah.is_a?(Origen::SubBlock).should == true
           m.sub_block[:blah].is_a?(Origen::SubBlock).should == true
           m.sub_blocks[:blah].is_a?(Origen::SubBlock).should == true
+        end
+
+        it 'only calls on_create once' do
+          Origen.app.unload_target!
+          Origen.target.temporary = lambda do
+            $single_create_dut = Top.new(override: override_setting)
+          end
+          Origen.load_target
+          $single_create_dut.single_create.counter.should == 1
         end
 
         describe 'sub_block inheritance' do 

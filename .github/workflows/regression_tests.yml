@@ -45,8 +45,23 @@ jobs:
       run: origen m debug
     - name: Run Spec tests
       run: origen test -c
-
+    - name: Coveralls GitHub Action
+      uses: coverallsapp/github-action@v2.3.4
+      with:
+        flag-name: ${{ join(matrix.*, '-') }}
+        parallel: true
+        
     # Temporarily disable web compile check in windows
     - name: Verify Building website
       if: matrix.os == 'ubuntu-latest'
       run: origen web compile --no-serve
+      
+  finish:
+    needs: build
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@v2.3.4
+      with:
+        parallel-finished: true

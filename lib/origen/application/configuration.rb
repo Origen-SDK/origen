@@ -91,8 +91,8 @@ module Origen
         @proceed_with_pattern = ->(_name) { true }
         @erb_trim_mode = '%'
         @referenced_pattern_list = -> { "#{Origen.root}/list/referenced.list" }
-        @copy_command = -> { Origen.running_on_windows? ? 'copy' : 'cp' }
-        @diff_command = -> { Origen.running_on_windows? ? 'start winmerge' : 'tkdiff' }
+        @copy_command = -> { Origen.session.user[:copy_command] || (Origen.running_on_windows? ? 'copy' : 'cp') }
+        @diff_command = -> { Origen.session.user[:diff_command] || (Origen.running_on_windows? ? 'start winmerge' : 'tkdiff') }
         @imports = []
         @imports_dev = []
         @external_app_dirs = []

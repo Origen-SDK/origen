@@ -68,10 +68,20 @@ module Origen
           if x.try(:is_a_model_and_controller)
             m = x.model
             c = x.controller
-            m.on_create if m.respond_to_directly?(:on_create)
+            if m.respond_to_directly?(:on_create)
+              unless m_on_create_called = m.instance_variable_get(:@_on_create_called)
+                m.instance_variable_set(:@_on_create_called, true)
+                m.on_create
+              end
+            end
             c.on_create if c.respond_to_directly?(:on_create)
           else
-            x.on_create if x.respond_to?(:on_create)
+            if x.respond_to?(:on_create)
+              unless x_on_create_called = x.instance_variable_get(:@_on_create_called)
+                x.instance_variable_set(:@_on_create_called, true)
+                x.on_create
+              end
+            end
           end
         end
         if is_top_level

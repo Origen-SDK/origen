@@ -51,6 +51,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "dentaku", "~>3"
   spec.add_runtime_dependency "colorize", "~> 0.8.1"
   spec.add_runtime_dependency 'nokogiri', '1.17.2'
+  spec.add_runtime_dependency 'rubocop-ast', '~> 1.40.0'  # `EnsureNode#body` is deprecation bug in >=1.41
+  spec.add_runtime_dependency 'multi_xml', '~> 0.6.0' # 0.7 requires ruby > 3.1 and fails regressions on ruby 3.0.x
   #spec.add_runtime_dependency 'cri', '~>2.10.0' # Not required by Origen, but add constrain to avoid Ruby 2.3 requirement
   spec.add_runtime_dependency 'concurrent-ruby'
 end

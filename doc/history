@@ -1,3 +1,23 @@
+<a class="anchor release_tag" name="v0_60_19"></a>
+<h1><a href="#v0_60_19">Tag: v0.60.19</a></h1>
+
+##### Branch: 'master'
+
+##### by Ronnie Lajaunie on 30-Jan-2025 12:21PM
+
+
+Add helpful error message if session file is corrupt
+
+<a class="anchor release_tag" name="v0_60_18"></a>
+<h1><a href="#v0_60_18">Tag: v0.60.18</a></h1>
+
+##### Branch: 'master'
+
+##### by Cody Horton on 13-Jan-2025 12:06PM
+
+
+* `sub_block(..., override: true)` now correctly removes the replaced sub block object from the list of listeners
+
 <a class="anchor release_tag" name="v0_60_17"></a>
 <h1><a href="#v0_60_17">Tag: v0.60.17</a></h1>
 
