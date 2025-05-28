@@ -111,7 +111,7 @@ GEM
       multi_xml (>= 0.5.2)
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
-    json (2.10.2)
+    json (2.7.2)
     kramdown (2.4.0)
       rexml
     loco (0.0.7)
@@ -231,7 +231,6 @@ PLATFORMS
 DEPENDENCIES
   byebug (~> 11)
   coveralls
-  json (~> 2.10.2)
   loco
   nokogiri (= 1.13.10)
   origen!
