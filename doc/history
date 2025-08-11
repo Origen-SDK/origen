@@ -1,3 +1,15 @@
+<a class="anchor release_tag" name="v0_60_20"></a>
+<h1><a href="#v0_60_20">Tag: v0.60.20</a></h1>
+
+##### Branch: 'master'
+
+##### by Cody Horton on 28-May-2025 16:55PM
+
+
+* Remote inheritance bugfixes
+    * Stopped unintended double instantation of remote blocks' sub block's
+    * Bugs and features from parent blocks should now propagate correctly
+
 <a class="anchor release_tag" name="v0_60_19"></a>
 <h1><a href="#v0_60_19">Tag: v0.60.19</a></h1>
 
