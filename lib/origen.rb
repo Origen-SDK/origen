@@ -31,6 +31,7 @@ unless defined? RGen::ORIGENTRANSITION
   require 'bundler'
   require 'origen/undefined'
   require 'origen/componentable'
+  require 'base64'
 
   autoload :PatSeq, 'origen/generator/pattern_sequencer'
 
