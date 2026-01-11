@@ -29,13 +29,14 @@ Gem::Specification.new do |spec|
   # based on Ruby version.
   # Rubygems / Bundler do not support this and you will need to find another way around it.
   spec.add_runtime_dependency "activesupport", "~>4.1"
+  spec.add_runtime_dependency "base64", '~>0'
   spec.add_runtime_dependency "colored", "~>1.2"
   spec.add_runtime_dependency "net-ldap", "~>0.13"
   spec.add_runtime_dependency "httparty", "~>0.13"
   spec.add_runtime_dependency "bundler", ">1.7"
   spec.add_runtime_dependency "rspec", "~>3"
   spec.add_runtime_dependency "rspec-legacy_formatters", "~>1"
-  spec.add_runtime_dependency "thor", "~>0.19"
+  spec.add_runtime_dependency "thor", "~>1"
   spec.add_runtime_dependency "nanoc", "~>3.7.0"
   spec.add_runtime_dependency "kramdown", "~>2.4"
   spec.add_runtime_dependency "rubocop", "1.28"
