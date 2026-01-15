@@ -26,10 +26,10 @@ jobs:
       
     # Work around Ruby 3 gem install issue
     - name: Build Origen Gem - Ruby 3 work around
-      if: matrix.ruby-version == '3.0.4' || matrix.ruby-version == '3.1' || matrix.ruby-version == '3.3.0'
+      if: matrix.ruby-version == '3.0.4' || matrix.ruby-version == '3.1' || matrix.ruby-version == '3.3.1' || matrix.ruby-version == '3.4.2'
       run: gem build origen.gemspec --output origen.gem    
     - name: Gem Install Origen - Ruby 3 work around 
-      if: matrix.ruby-version == '3.0.4' || matrix.ruby-version == '3.1' || matrix.ruby-version == '3.3.0'
+      if: matrix.ruby-version == '3.0.4' || matrix.ruby-version == '3.1' || matrix.ruby-version == '3.3.1' || matrix.ruby-version == '3.4.2'
       run: gem install origen.gem 
       
     # Normal way of installing origen
