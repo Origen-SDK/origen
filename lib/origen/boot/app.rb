@@ -168,14 +168,14 @@ end
 
             passed = false
 
-            Bundler.with_clean_env do
+            _origen_with_bundler_clean_env do
               cmd = 'bundle install'
               cmd += ' --local' if File.exist?('.origen_archive')
               passed = system(cmd)
             end
 
             if passed
-              Bundler.with_clean_env do
+              _origen_with_bundler_clean_env do
                 exec "origen #{ARGV.join(' ')}"
               end
               exit 0

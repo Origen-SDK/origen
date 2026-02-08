@@ -30,7 +30,7 @@ unless passed
 end
 
 Dir.chdir dirname do
-  Bundler.with_clean_env do
+  _origen_with_bundler_clean_env do
     Origen.log.info 'Trying to boot the application...'
 
     passed = system "#{File.join('lbin', 'origen')} -v"

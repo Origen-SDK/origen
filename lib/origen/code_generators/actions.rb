@@ -1,4 +1,5 @@
 require 'open-uri'
+require 'set'
 
 module Origen
   module CodeGenerators

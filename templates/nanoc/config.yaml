@@ -19,6 +19,10 @@ index_filenames: [ 'index.html' ]
 # before and after the last site compilation.
 enable_output_diff: false
 
+# Use legacy string pattern type for backwards compatibility with Nanoc 3.x rules.
+# This allows the existing Rules file to work unchanged with Nanoc 4.x.
+string_pattern_type: legacy
+
 prune:
   # Whether to automatically remove files not managed by nanoc from the output
   # directory. For safety reasons, this is turned off by default.
@@ -35,9 +39,13 @@ prune:
 # layout/ directories in the site directory.
 data_sources:
   -
-    # The type is the identifier of the data source. By default, this will be
-    # `filesystem_unified`.
-    type: filesystem_unified
+    # The type is the identifier of the data source. In Nanoc 4.x,
+    # `filesystem_unified` was renamed to `filesystem`.
+    type: filesystem
+
+    # Use legacy identifier type for backwards compatibility with Nanoc 3.x
+    # style identifiers (slash-based, e.g. /about/ instead of /about.html).
+    identifier_type: legacy
 
     # The path where items should be mounted (comparable to mount points in
     # Unix-like systems). This is / by default, meaning that items will have

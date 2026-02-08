@@ -6,6 +6,17 @@ require 'fileutils'
 class OrigenBootError < StandardError
 end
 
+# Compatibility shim for Bundler.with_clean_env (removed in Bundler 3.x / Ruby 4.0).
+# Uses with_unbundled_env when available (Bundler 2.1+), falls back to with_clean_env
+# for older Bundler versions (Ruby 2.6 and earlier).
+def _origen_with_bundler_clean_env(&block)
+  if Bundler.respond_to?(:with_unbundled_env)
+    Bundler.with_unbundled_env(&block)
+  else
+    Bundler.with_clean_env(&block)
+  end
+end
+
 # Keep a note of the pwd at the time when Origen was first loaded, this is initially used
 # by the site_config lookup.
 $_origen_invocation_pwd ||= Pathname.pwd
@@ -153,7 +164,7 @@ elsif Origen.site_config.gem_manage_bundler && (Origen.site_config.user_install_
           `chmod o-w #{install_dir}/.bin` if File.exist?("#{install_dir}/.bin")
           result = false
 
-          Bundler.with_clean_env do
+          _origen_with_bundler_clean_env do
             if Origen.os.unix?
               if Origen.site_config.gem_build_switches
                 Origen.site_config.gem_build_switches.each do |switches|

@@ -28,8 +28,12 @@ Gem::Specification.new do |spec|
   # Don't add any logic to runtime dependencies, for example to install a specific gem
   # based on Ruby version.
   # Rubygems / Bundler do not support this and you will need to find another way around it.
-  spec.add_runtime_dependency "activesupport", "~>7.1.3.2"
+  # Gem version ranges are intentionally broad to support Ruby 2.6 through 4.0.
+  # Bundler resolves the best compatible version for each Ruby version.
+  spec.add_runtime_dependency "activesupport", "~>4.1"
   spec.add_runtime_dependency "base64", '~>0'
+  spec.add_runtime_dependency "irb", '~>1'       # irb became a bundled gem in Ruby 4.0
+  spec.add_runtime_dependency "logger", '~>1'    # logger became a bundled gem in Ruby 4.0
   spec.add_runtime_dependency "colored", "~>1.2"
   spec.add_runtime_dependency "net-ldap", "~>0.13"
   spec.add_runtime_dependency "httparty", "~>0.13"
@@ -37,10 +41,11 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "rspec", "~>3"
   spec.add_runtime_dependency "rspec-legacy_formatters", "~>1"
   spec.add_runtime_dependency "thor", "~>1"
-  spec.add_runtime_dependency "nanoc", "~>3.7.0"
+  spec.add_runtime_dependency "nanoc", ">= 4.11", "< 4.13"
   spec.add_runtime_dependency "kramdown", "~>2.4"
-  spec.add_runtime_dependency "rubocop", "1.63.3"
-  spec.add_runtime_dependency "coderay", "~>1.1"
+  spec.add_runtime_dependency "rubocop", ">= 1.28", "< 2"
+  spec.add_runtime_dependency "coderay", "~>1.1"   # Kept for backwards compat; Rouge is now the default highlighter
+  spec.add_runtime_dependency "rouge", "~>3.0"    # Modern syntax highlighter (200+ languages, rich themes)
   spec.add_runtime_dependency "rake", "~>10"
   spec.add_runtime_dependency "pry", "~>0.10"
   spec.add_runtime_dependency "yard", "~>0.8"
@@ -51,9 +56,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "highline", "~>1.7"
   spec.add_runtime_dependency "dentaku", "~>3"
   spec.add_runtime_dependency "colorize", "~> 0.8.1"
-  spec.add_runtime_dependency 'nokogiri', '1.17.2'
-  spec.add_runtime_dependency 'rubocop-ast', '~> 1.40.0'  # `EnsureNode#body` is deprecation bug in >=1.41
-  spec.add_runtime_dependency 'multi_xml', '~> 0.6.0' # 0.7 requires ruby > 3.1 and fails regressions on ruby 3.0.x
+  spec.add_runtime_dependency 'nokogiri', '>= 1.11.0'
   #spec.add_runtime_dependency 'cri', '~>2.10.0' # Not required by Origen, but add constrain to avoid Ruby 2.3 requirement
   spec.add_runtime_dependency 'concurrent-ruby'
 end
