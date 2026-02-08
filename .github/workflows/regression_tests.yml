@@ -6,23 +6,17 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        ruby-version: [2.6, 2.7, 3.0.4, 3.1, 3.3.1, 3.4.2, 4.0.0]
+        ruby-version: [2.6, 3.0.4, 3.1, 3.3.1, 3.4.2, 4.0.0]
 
     runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Ruby (Ruby 2.x/3.x with Bundler 2.4.22)
-      if: matrix.ruby-version != '4.0.0'
+    - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby-version }}
         bundler: '2.4.22'
-    - name: Set up Ruby (Ruby 4.x with native Bundler 3.x)
-      if: matrix.ruby-version == '4.0.0'
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: ${{ matrix.ruby-version }}
     - name: Update Env
       run: echo "ACTIONS_ALLOW_UNSECURE_COMMANDS=true" >> $GITHUB_ENV
     - name: Remove Gemfile.lock
@@ -36,13 +30,13 @@ jobs:
       run: gem build origen.gemspec --output origen.gem && gem install origen.gem
       
     - name: Setup Dependencies
-      run: bundle exec origen -v
+      run: origen -v
     - name: Run Origen Lint
-      run: bundle exec origen lint --no-correct  
+      run: origen lint --no-correct  
     - name: Set Origen to debug mode
-      run: bundle exec origen m debug
+      run: origen m debug
     - name: Run Spec tests
-      run: bundle exec origen test -c
+      run: origen test -c
     - name: Coveralls GitHub Action
       uses: coverallsapp/github-action@v2.3.4
       with:
@@ -52,7 +46,7 @@ jobs:
     # Temporarily disable web compile check in windows
     - name: Verify Building website
       if: matrix.os == 'ubuntu-latest'
-      run: bundle exec origen web compile --no-serve
+      run: origen web compile --no-serve
       
   finish:
     needs: build
