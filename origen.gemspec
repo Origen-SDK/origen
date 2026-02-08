@@ -5,8 +5,8 @@ require "#{config}/version"
 Gem::Specification.new do |spec|
   spec.name          = "origen"
   spec.version       = Origen::VERSION
-  spec.authors       = ["Stephen McGinty"]
-  spec.email         = ["stephen.f.mcginty@gmail.com"]
+  spec.authors       = ["Stephen McGinty", "Priyavadan Kumar"]
+  spec.email         = ["stephen.f.mcginty@gmail.com", "priyavadan@gmail.com"]
   spec.summary       = %q{The Semiconductor Developer's Kit}
   spec.homepage      = "https://origen-sdk.org"
   spec.license       = 'MIT'
