@@ -34,6 +34,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "base64", '~>0'
   spec.add_runtime_dependency "irb", '~>1'       # irb became a bundled gem in Ruby 4.0
   spec.add_runtime_dependency "logger", '~>1'    # logger became a bundled gem in Ruby 4.0
+  spec.add_runtime_dependency "fiddle", '~>1'    # fiddle became a bundled gem in Ruby 4.0 (needed on Windows)
   spec.add_runtime_dependency "colored", "~>1.2"
   spec.add_runtime_dependency "net-ldap", "~>0.13"
   spec.add_runtime_dependency "httparty", "~>0.13"

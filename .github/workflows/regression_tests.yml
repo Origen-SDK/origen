@@ -30,13 +30,13 @@ jobs:
       run: gem build origen.gemspec --output origen.gem && gem install origen.gem
       
     - name: Setup Dependencies
-      run: origen -v
+      run: bundle exec origen -v
     - name: Run Origen Lint
-      run: origen lint --no-correct  
+      run: bundle exec origen lint --no-correct  
     - name: Set Origen to debug mode
-      run: origen m debug
+      run: bundle exec origen m debug
     - name: Run Spec tests
-      run: origen test -c
+      run: bundle exec origen test -c
     - name: Coveralls GitHub Action
       uses: coverallsapp/github-action@v2.3.4
       with:
@@ -46,7 +46,7 @@ jobs:
     # Temporarily disable web compile check in windows
     - name: Verify Building website
       if: matrix.os == 'ubuntu-latest'
-      run: origen web compile --no-serve
+      run: bundle exec origen web compile --no-serve
       
   finish:
     needs: build
