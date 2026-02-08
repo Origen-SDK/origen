@@ -12,11 +12,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Ruby
+    - name: Set up Ruby (Ruby 2.x/3.x with Bundler 2.4.22)
+      if: matrix.ruby-version != '4.0.0'
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby-version }}
         bundler: '2.4.22'
+    - name: Set up Ruby (Ruby 4.x with native Bundler 3.x)
+      if: matrix.ruby-version == '4.0.0'
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby-version }}
     - name: Update Env
       run: echo "ACTIONS_ALLOW_UNSECURE_COMMANDS=true" >> $GITHUB_ENV
     - name: Remove Gemfile.lock
