@@ -91,8 +91,8 @@ $stderr.print filtered_stderr.join unless filtered_stderr.empty?
 print stdout
 if warnings_suppressed > 0
   puts "Note: #{warnings_suppressed} RuboCop config deprecation warning(s) suppressed. " \
-       "Update to the latest Ruby and RuboCop, then run `origen lint` to adopt the latest rules. " \
-       "Be aware this may introduce new offenses in your application."
+       'Update to the latest Ruby and RuboCop, then run `origen lint` to adopt the latest rules. ' \
+       'Be aware this may introduce new offenses in your application.'
 end
 
 if status.success?

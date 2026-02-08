@@ -24,15 +24,10 @@ jobs:
     - name: Install dependencies
       run: bundle install  
       
-    # Ruby 3+ requires building the gem locally before install
-    - name: Build and Install Origen Gem (Ruby 3+)
-      if: matrix.ruby-version != '2.6' && matrix.ruby-version != '2.7'
+    # Build and install origen from the branch source so all Ruby versions
+    # use the current code, not the old released gem from RubyGems.org
+    - name: Build and Install Origen Gem
       run: gem build origen.gemspec --output origen.gem && gem install origen.gem
-
-    # Ruby 2.x can install origen directly
-    - name: Gem Install Origen (Ruby 2.x)
-      if: matrix.ruby-version == '2.6' || matrix.ruby-version == '2.7'
-      run: gem install origen 
       
     - name: Setup Dependencies
       run: origen -v
