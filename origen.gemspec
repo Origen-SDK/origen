@@ -44,8 +44,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "nanoc", ">= 4.11", "< 4.13"
   spec.add_runtime_dependency "kramdown", "~>2.4"
   spec.add_runtime_dependency "rubocop", ">= 1.28", "< 2"
-  spec.add_runtime_dependency "coderay", "~>1.1"   # Kept for backwards compat; Rouge is now the default highlighter
-  spec.add_runtime_dependency "rouge", "~>3.0"    # Modern syntax highlighter (200+ languages, rich themes)
+  spec.add_runtime_dependency "coderay", "~>1.1"
   spec.add_runtime_dependency "rake", "~>10"
   spec.add_runtime_dependency "pry", "~>0.10"
   spec.add_runtime_dependency "yard", "~>0.8"
