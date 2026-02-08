@@ -32,7 +32,7 @@ Gem::Specification.new do |spec|
   # Bundler resolves the best compatible version for each Ruby version.
   spec.add_runtime_dependency "activesupport", "~>4.1"
   spec.add_runtime_dependency "base64", '~>0'
-  spec.add_runtime_dependency "irb", '~>1'       # irb became a bundled gem in Ruby 4.0
+  spec.add_runtime_dependency "irb", '>= 1', '< 1.8' # irb 1.8+ pulls in rdoc->erb->cgi which conflicts with Ruby 2.7 defaults
   spec.add_runtime_dependency "logger", '~>1'    # logger became a bundled gem in Ruby 4.0
   spec.add_runtime_dependency "fiddle", '~>1'    # fiddle became a bundled gem in Ruby 4.0 (needed on Windows)
   spec.add_runtime_dependency "colored", "~>1.2"
@@ -42,7 +42,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "rspec", "~>3"
   spec.add_runtime_dependency "rspec-legacy_formatters", "~>1"
   spec.add_runtime_dependency "thor", "~>1"
-  spec.add_runtime_dependency "nanoc", ">= 4.11", "< 4.13"
+  spec.add_runtime_dependency "nanoc", "~> 3.7.0"
   spec.add_runtime_dependency "kramdown", "~>2.4"
   spec.add_runtime_dependency "rubocop", ">= 1.28", "< 2"
   spec.add_runtime_dependency "coderay", "~>1.1"

@@ -36,9 +36,9 @@ class SearchFilter < Nanoc::Filter
 
   def search_file
     if item[:search_id]
-      File.join(@config[:output_dir], "search_#{item[:search_id]}.json")
+      File.join(@site.config[:output_dir], "search_#{item[:search_id]}.json")
     else
-      File.join(@config[:output_dir], 'search.json')
+      File.join(@site.config[:output_dir], 'search.json')
     end
   end
 

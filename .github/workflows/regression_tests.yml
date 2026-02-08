@@ -6,7 +6,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        ruby-version: [2.6, 3.0.4, 3.1, 3.3.1, 3.4.2, 4.0.0]
+        ruby-version: [2.6, 2.7, 3.0.4, 3.1, 3.3.1, 3.4.2, 4.0.0]
 
     runs-on: ${{ matrix.os }}
 
@@ -19,6 +19,11 @@ jobs:
         bundler: '2.4.22'
     - name: Update Env
       run: echo "ACTIONS_ALLOW_UNSECURE_COMMANDS=true" >> $GITHUB_ENV
+    # Ruby 2.7 ships with RubyGems 3.1.6 which has a bug resolving transitive
+    # deps with required_ruby_version. Updating to 3.4.22 fixes it.
+    - name: Update RubyGems (Ruby 2.7 fix)
+      if: matrix.ruby-version == '2.7'
+      run: gem update --system 3.4.22
     - name: Remove Gemfile.lock
       run: rm Gemfile.lock
     - name: Install dependencies
