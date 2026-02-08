@@ -338,11 +338,10 @@ module Origen
       end
 
       # Set the overlay attribute to the supplied value
-      def overlay(value)
+      def overlay(value) # rubocop:disable Lint/DuplicateMethods -- intentional override of accessor
         @overlay = value
         self
       end
-      # rubocop:enable Lint/DuplicateMethods
 
       # Returns the overlay attribute
       def overlay_str

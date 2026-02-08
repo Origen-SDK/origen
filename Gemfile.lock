@@ -51,6 +51,7 @@ PATH
       colorize (~> 0.8.1)
       concurrent-ruby
       dentaku (~> 3)
+      fiddle (~> 1)
       gems (~> 0.8)
       highline (~> 1.7)
       httparty (~> 0.13)
@@ -89,6 +90,7 @@ GEM
     base64 (0.3.0)
     bigdecimal (4.0.1)
     builder (3.3.0)
+    byebug (11.1.3)
     coderay (1.1.3)
     colored (1.2)
     colorize (0.8.1)
@@ -111,6 +113,7 @@ GEM
     docile (1.4.1)
     domain_name (0.6.20240107)
     erb (6.0.1)
+    fiddle (1.1.8)
     gems (0.8.3)
     highline (1.7.10)
     http-accept (1.7.0)
@@ -346,6 +349,7 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
+  byebug (~> 11)
   coveralls
   loco
   origen!
@@ -366,6 +370,7 @@ CHECKSUMS
   base64 (0.3.0) sha256=27337aeabad6ffae05c265c450490628ef3ebd4b67be58257393227588f5a97b
   bigdecimal (4.0.1) sha256=8b07d3d065a9f921c80ceaea7c9d4ae596697295b584c296fe599dd0ad01c4a7
   builder (3.3.0) sha256=497918d2f9dca528fdca4b88d84e4ef4387256d984b8154e9d5d3fe5a9c8835f
+  byebug (11.1.3) sha256=2485944d2bb21283c593d562f9ae1019bf80002143cc3a255aaffd4e9cf4a35b
   coderay (1.1.3) sha256=dc530018a4684512f8f38143cd2a096c9f02a1fc2459edcfe534787a7fc77d4b
   colored (1.2) sha256=9d82b47ac589ce7f6cab64b1f194a2009e9fd00c326a5357321f44afab2c1d2c
   colorize (0.8.1) sha256=0ba0c2a58232f9b706dc30621ea6aa6468eeea120eb6f1ccc400105b90c4798c
@@ -381,6 +386,7 @@ CHECKSUMS
   docile (1.4.1) sha256=96159be799bfa73cdb721b840e9802126e4e03dfc26863db73647204c727f21e
   domain_name (0.6.20240107) sha256=5f693b2215708476517479bf2b3802e49068ad82167bcd2286f899536a17d933
   erb (6.0.1) sha256=28ecdd99c5472aebd5674d6061e3c6b0a45c049578b071e5a52c2a7f13c197e5
+  fiddle (1.1.8) sha256=7fa8ee3627271497f3add5503acdbc3f40b32f610fc1cf49634f083ef3f32eee
   gems (0.8.3) sha256=2bcf69bb8fb90dd1f926fb7d8f2d8c9857540e04385ac742999a05c74fe24a05
   highline (1.7.10) sha256=1e147d5d20f1ad5b0e23357070d1e6d0904ae9f71c3c49e0234cf682ae3c2b06
   http-accept (1.7.0) sha256=c626860682bfbb3b46462f8c39cd470fd7b0584f61b3cc9df5b2e9eb9972a126

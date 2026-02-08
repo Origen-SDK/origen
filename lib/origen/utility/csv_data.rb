@@ -69,11 +69,10 @@ module Origen
 
       # Returns an array containing all data from given CSV file
       def extract_csv_data(options = {}) # :nodoc:
-        options = { field_names_only: false, # whether to obtain field names only
-                    comment_char:     '#' # ignore lines that start with comment character
-                  }.merge(options)
-        # rubocop:enable Layout/MultilineHashBraceLayout
-
+        options = {
+          field_names_only: false, # whether to obtain field names only
+          comment_char:     '#'    # ignore lines that start with comment character
+        }.merge(options)
         field_names = []
         field_values = []
         result = []

@@ -185,6 +185,7 @@ module Origen
 
     private
 
+    # rubocop:disable Lint/DuplicateMethods -- intentional re-definitions with lazy-initialized hashes
     def _chips
       # 4D hash with group, family, and performance
       @_chips ||= Hash.new do |h, k|

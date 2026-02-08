@@ -1045,7 +1045,7 @@ Layout/MultilineHashBraceLayout:
                  Checks that the closing brace in a hash literal is
                  either on the same line as the last hash element, or
                  a new line.
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.49'
   EnforcedStyle: symmetrical
   SupportedStyles:
@@ -1501,7 +1501,7 @@ Lint/BigDecimalNew:
 
 Lint/BinaryOperatorWithIdenticalOperands:
   Description: 'Checks for places where binary operator has identical operands.'
-  Enabled: false
+  Enabled: true
   Safe: false
   VersionAdded: '0.89'
   VersionChanged: '1.7'
@@ -1638,7 +1638,7 @@ Lint/DuplicateCaseCondition:
 
 Lint/DuplicateElsifCondition:
   Description: 'Do not repeat conditions used in if `elsif`.'
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.88'
 
 Lint/DuplicateHashKey:
@@ -1649,7 +1649,7 @@ Lint/DuplicateHashKey:
 
 Lint/DuplicateMethods:
   Description: 'Check for duplicate method definitions.'
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.29'
 
 Lint/DuplicateRegexpCharacterClassElement:
@@ -1696,7 +1696,7 @@ Lint/EmptyClass:
 
 Lint/EmptyConditionalBody:
   Description: 'Checks for the presence of `if`, `elsif` and `unless` branches without a body.'
-  Enabled: false
+  Enabled: true
   AllowComments: true
   VersionAdded: '0.89'
 
@@ -1775,7 +1775,7 @@ Lint/FormatParameterMismatch:
 Lint/HashCompareByIdentity:
   Description: 'Prefer using `Hash#compare_by_identity` than using `object_id` for keys.'
   StyleGuide: '#identity-comparison'
-  Enabled: false
+  Enabled: true
   Safe: false
   VersionAdded: '0.93'
 
@@ -1839,7 +1839,7 @@ Lint/LambdaWithoutLiteralBlock:
 
 Lint/LiteralAsCondition:
   Description: 'Checks of literals used in conditions.'
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.51'
 
 Lint/LiteralInInterpolation:
@@ -2018,7 +2018,7 @@ Lint/RedundantDirGlobSort:
 
 Lint/RedundantRequireStatement:
   Description: 'Checks for unnecessary `require` statement.'
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.76'
 
 Lint/RedundantSafeNavigation:
@@ -2174,7 +2174,7 @@ Lint/ShadowingOuterLocalVariable:
 
 Lint/StructNewOverride:
   Description: 'Disallow overriding the `Struct` built-in methods via `Struct.new`.'
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.81'
 
 Lint/SuppressedException:
@@ -2267,7 +2267,7 @@ Lint/UnreachableCode:
 
 Lint/UnreachableLoop:
   Description: 'Checks for loops that will have at most one iteration.'
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.89'
   VersionChanged: '1.7'
   AllowedPatterns:
@@ -3220,7 +3220,7 @@ Style/CombinableLoops:
   Description: >-
                   Checks for places where multiple consecutive loops over the same data
                   can be combined into a single loop.
-  Enabled: false
+  Enabled: true
   Safe: false
   VersionAdded: '0.90'
 
@@ -4017,7 +4017,7 @@ Style/ModuleFunction:
 Style/MultilineBlockChain:
   Description: 'Avoid multi-line chains of blocks.'
   StyleGuide: '#single-line-blocks'
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.13'
 
 Style/MultilineIfModifier:
@@ -4351,7 +4351,7 @@ Style/OptionalArguments:
                  Checks for optional arguments that do not appear at the end
                  of the argument list.
   StyleGuide: '#optional-arguments'
-  Enabled: false
+  Enabled: true
   Safe: false
   VersionAdded: '0.33'
   VersionChanged: '0.83'

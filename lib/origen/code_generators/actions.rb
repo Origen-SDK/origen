@@ -1,5 +1,5 @@
 require 'open-uri'
-require 'set'
+require 'set' # rubocop:disable Lint/RedundantRequireStatement -- needed for Ruby 2.6
 
 module Origen
   module CodeGenerators
