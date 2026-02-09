@@ -56,9 +56,9 @@ command = "rubocop #{files} --config #{config} --display-cop-names"
 
 unless options[:no_correct]
   if options[:correct_all] || Origen.config.lint_test[:auto_correct_all]
-    command += ' --autocorrect-all'
+    command += ' --auto-correct-all'
   elsif options[:correct] || Origen.config.lint_test[:auto_correct]
-    command += ' --autocorrect'
+    command += ' --auto-correct'
   end
 end
 
