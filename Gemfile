@@ -17,7 +17,7 @@ gem 'ripper-tags'
 # gem 'nokogiri', '1.17.2' # Pinned version breaks Ruby 2.6
 
 # Plugins that provide guide pages
-gem "origen_testers", git: "https://github.com/Origen-SDK/origen_testers.git", branch: "feature/ruby_3_3_1"
+gem "origen_testers", git: "https://github.com/Origen-SDK/origen_testers.git", branch: "feature/ruby_4_0"
 gem "origen_sim", git: "https://github.com/Origen-SDK/origen_sim.git"
 
 # Required to run the concurrent test case patterns from OrigenSim
