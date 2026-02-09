@@ -44,6 +44,7 @@ jobs:
       run: origen test -c
     - name: Coveralls GitHub Action
       uses: coverallsapp/github-action@v2.3.4
+      continue-on-error: true
       with:
         flag-name: ${{ join(matrix.*, '-') }}
         parallel: true
@@ -60,5 +61,6 @@ jobs:
     steps:
     - name: Coveralls Finished
       uses: coverallsapp/github-action@v2.3.4
+      continue-on-error: true
       with:
         parallel-finished: true
