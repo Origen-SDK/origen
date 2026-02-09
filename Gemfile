@@ -3,6 +3,7 @@ source 'https://rubygems.org'
 # Development dependencies
 gem 'coveralls', require: false
 gem "byebug", "~>11" if RUBY_VERSION < "4" # byebug C extension doesn't compile on Ruby 4.0+
+gem 'fiddle', '~> 1' if RUBY_VERSION >= '4' # bundled gem in Ruby 4.0, needed on Windows
 #gem "stackprof", "~>0"
 gem "origen_core_support", git: "https://github.com/Origen-SDK/origen_core_support.git"
 #gem "origen_core_support", path: "~/Code/github/origen_core_support"
