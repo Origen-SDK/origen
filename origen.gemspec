@@ -34,7 +34,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "base64", '~>0'
   spec.add_runtime_dependency "irb", '>= 1', '< 1.8' # irb 1.8+ pulls in rdoc->erb->cgi which conflicts with Ruby 2.7 defaults
   spec.add_runtime_dependency "logger", '~>1'    # logger became a bundled gem in Ruby 4.0
-  spec.add_runtime_dependency "fiddle", '~>1'    # fiddle became a bundled gem in Ruby 4.0 (needed on Windows)
+  # fiddle: moved to Gemfile with RUBY_VERSION >= '4' condition.
+  # Adding it here forces upgrades on Ruby 3.x that require C compilation (libffi-dev).
   spec.add_runtime_dependency "colored", "~>1.2"
   spec.add_runtime_dependency "net-ldap", "~>0.13"
   spec.add_runtime_dependency "httparty", "~>0.13"
