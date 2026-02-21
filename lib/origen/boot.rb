@@ -266,6 +266,8 @@ rescue Exception => e
   else
     puts
     if Origen.app_loaded?
+      require 'origen/error_assistant'
+
       puts 'COMPLETE CALL STACK'
       puts '-------------------'
       puts e.message unless e.is_a?(SystemExit)
@@ -277,15 +279,33 @@ rescue Exception => e
       puts e.message unless e.is_a?(SystemExit)
       # Only print out the application stack trace by default, if verbose logging is
       # enabled then output the full thing
+      application_stack_lines = []
       e.backtrace.each do |line|
         path = Pathname.new(line)
         if path.absolute?
           if line =~ /^#{Origen.root}/ && line !~ /^#{Origen.root}\/lbin/
+            application_stack_lines << line
             puts line
           end
         else
-          puts line unless line =~ /^.\/lbin/
+          unless line =~ /^.\/lbin/
+            application_stack_lines << line
+            puts line
+          end
         end
+      end
+
+      assistant_suggestion = Origen::ErrorAssistant.analyze(
+        exception_message: e.message.to_s,
+        app_stack:         application_stack_lines,
+        app_root:          Origen.root
+      )
+
+      if assistant_suggestion
+        puts
+        puts "POTENTIAL SOLUTION (#{Origen::ErrorAssistant.display_name})"
+        puts '-------------------------------'
+        puts assistant_suggestion
       end
     else
       puts 'COMPLETE CALL STACK'

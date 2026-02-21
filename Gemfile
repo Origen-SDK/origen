@@ -21,6 +21,7 @@ gem "origen_sim", git: "https://github.com/Origen-SDK/origen_sim.git"
 
 # Required to run the concurrent test case patterns from OrigenSim
 gem 'origen_jtag'
+gem 'origen_llm', "~>0.1.2"
 
 # Pull in the latest and greatest app generator templates so that they can be
 # packaged into Origen releases
