@@ -1,0 +1,205 @@
+% render "layouts/guides.html" do
+
+The Error Assistant is an AI-powered diagnostic tool that analyzes runtime exceptions and provides suggestions to help you resolve errors more quickly.
+
+When enabled, the Error Assistant automatically analyzes exceptions when they occur, providing:
+
+- Most likely root cause (1-2 sentences)
+- Suggested fix steps (up to 5 actionable items)
+- Confidence level (low/medium/high)
+
+#### Configuration Modes
+
+The Error Assistant supports three site configuration modes controlled by `error_assistant_mode` in your site config:
+
+**Off** (default) - Error Assistant is disabled:
+
+~~~yaml
+error_assistant_mode: 'off'
+~~~
+
+**Opt-in** - Applications can individually enable the Error Assistant:
+
+~~~yaml
+error_assistant_mode: 'opt_in'
+~~~
+
+When in opt-in mode, individual applications enable the Error Assistant by setting `error_assistant_enable` in their application config:
+
+~~~ruby
+config.error_assistant_enable = true
+~~~
+
+**Forced** - Error Assistant is enabled for all applications:
+
+~~~yaml
+error_assistant_mode: 'forced'
+~~~
+
+#### Backend Configuration
+
+The Error Assistant requires connection to an LLM backend. Two provider modes are supported:
+
+**Generic Backend** (default) - Connect to any API that accepts error analysis requests:
+
+~~~yaml
+error_assistant_provider_mode: 'generic'
+error_assistant_api_url: 'https://your-backend.example.com/analyze'
+error_assistant_api_key_env: 'YOUR_API_KEY_ENV_VAR'
+~~~
+
+**Anthropic Messages API** - Connect directly to Anthropic's Claude API:
+
+~~~yaml
+error_assistant_provider_mode: 'anthropic_messages'
+error_assistant_api_url: 'https://api.anthropic.com'
+error_assistant_model: 'claude-3-5-sonnet-20241022'
+error_assistant_api_key_env: 'ANTHROPIC_API_KEY'
+~~~
+
+#### Authentication Modes
+
+The Error Assistant supports multiple authentication schemes via `error_assistant_auth_mode`:
+
+**X-API-Key** (default) - Uses a custom API key header:
+
+~~~yaml
+error_assistant_auth_mode: 'x_api_key'
+error_assistant_auth_header_name: 'X-API-Key'  # Optional, defaults to 'X-API-Key'
+~~~
+
+**Bearer Token** - Uses Authorization header with Bearer token:
+
+~~~yaml
+error_assistant_auth_mode: 'bearer'
+error_assistant_auth_header_name: 'Authorization'  # Optional, defaults to 'Authorization'
+error_assistant_auth_prefix: 'Bearer '             # Optional, defaults to 'Bearer '
+~~~
+
+**OCP-APIM-Subscription-Key** - Uses Azure API Management subscription key:
+
+~~~yaml
+error_assistant_auth_mode: 'ocp_apim_subscription_key'
+error_assistant_auth_header_name: 'Ocp-Apim-Subscription-Key'  # Optional
+~~~
+
+**None** - No authentication:
+
+~~~yaml
+error_assistant_auth_mode: 'none'
+~~~
+
+#### Additional Configuration Options
+
+**Timeout** - Maximum time to wait for analysis (default: 3.0 seconds):
+
+~~~yaml
+error_assistant_timeout_seconds: 5.0
+~~~
+
+**Model Parameters** (for Anthropic mode or compatible backends):
+
+~~~yaml
+error_assistant_model: 'claude-3-5-sonnet-20241022'
+error_assistant_max_tokens: 200
+error_assistant_temperature: 0.2
+~~~
+
+**Custom Headers** - Add extra headers to API requests:
+
+~~~yaml
+error_assistant_extra_headers:
+  X-Custom-Header: 'value'
+  Another-Header: 'another-value'
+~~~
+
+**Display Name** - Customize the name shown in messages (default: "Error Assistant"):
+
+~~~yaml
+error_assistant_friendly_name: 'Origen-AI'
+~~~
+
+**Warning Messages** - Control whether timeout/error warnings are displayed (default: true):
+
+~~~yaml
+error_assistant_warning_enable: false
+~~~
+
+#### Prompt Customization
+
+The Error Assistant supports multiple prompt modes via `error_assistant_prompt_mode`:
+
+**Default** - Uses built-in prompt template:
+
+~~~yaml
+error_assistant_prompt_mode: 'default'
+~~~
+
+**Site Template** - Use a custom prompt template with placeholders:
+
+~~~yaml
+error_assistant_prompt_mode: 'site_template'
+error_assistant_prompt_template: |
+  Diagnose this error:
+  Exception: %<exception_message>s
+  Stack: %<application_stack>s
+~~~
+
+**Backend Profile** - Use backend-managed profiles (for compatible backends):
+
+~~~yaml
+error_assistant_prompt_mode: 'backend_profile'
+error_assistant_backend_profile: 'profile-id-123'
+error_assistant_backend_context:
+  custom_key: 'custom_value'
+~~~
+
+#### Example Complete Configuration
+
+Here's a complete example configuration using Anthropic's API:
+
+~~~yaml
+# Enable for all applications
+error_assistant_mode: 'forced'
+
+# Anthropic Messages API configuration
+error_assistant_provider_mode: 'anthropic_messages'
+error_assistant_api_url: 'https://api.anthropic.com'
+error_assistant_model: 'claude-3-5-sonnet-20241022'
+error_assistant_max_tokens: 300
+error_assistant_temperature: 0.2
+
+# Authentication
+error_assistant_auth_mode: 'x_api_key'
+error_assistant_auth_header_name: 'x-api-key'
+error_assistant_api_key_env: 'ANTHROPIC_API_KEY'
+
+# Additional headers
+error_assistant_extra_headers:
+  anthropic-version: '2023-06-01'
+
+# Behavior
+error_assistant_timeout_seconds: 5.0
+error_assistant_friendly_name: 'Origen AI Assistant'
+error_assistant_warning_enable: true
+error_assistant_prompt_mode: 'default'
+~~~
+
+#### Requirements
+
+The Error Assistant functionality is provided by the `origen_llm` plugin. To use the Error Assistant:
+
+1. Add `origen_llm` to your application's dependencies
+2. Configure the site settings as shown above
+3. Set your API key environment variable (e.g., `ANTHROPIC_API_KEY`)
+
+When an exception occurs, the Error Assistant will automatically analyze it and display helpful suggestions in the error output.
+
+#### Security Considerations
+
+- API keys should be stored in environment variables, never committed to version control
+- The Error Assistant sends exception messages and application stack traces to the configured backend
+- Timeout values prevent the Error Assistant from blocking your application if the backend is slow
+- All communication is non-blocking; failures will log warnings but won't prevent your application from running
+
+% end
