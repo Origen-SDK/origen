@@ -156,3 +156,33 @@ gem_use_from_system:
 
 # lsf_debug is needed for spec tests on the core.
 lsf_debug: 'false'
+
+# ERROR ASSISTANT
+#
+# The error assistant can analyze application stack traces and provide a potential fix.
+# It is disabled by default.
+error_assistant_mode: off # valid: off , opt_in, forced. check spec test for more details
+error_assistant_timeout_seconds: 3
+error_assistant_provider_mode: generic
+error_assistant_auth_mode: x_api_key
+error_assistant_prompt_mode: default
+error_assistant_warning_enable: true
+error_assistant_friendly_name: Origen-AI
+
+# Optional settings for backend integration:
+#error_assistant_api_url: "https://ai-backend.example.com/origen/assistant"
+#error_assistant_model: "gpt-4.1-mini"
+#error_assistant_max_tokens: 200
+#error_assistant_temperature: 0.7
+#error_assistant_api_key_env: "ORIGEN_LLM_API_KEY"
+#error_assistant_auth_header_name: "X-API-Key"
+#error_assistant_auth_prefix: "Bearer "
+#error_assistant_extra_headers: {}
+#error_assistant_prompt_template: |
+#  Diagnose this Origen error and propose the safest fix.
+#  Exception: %{exception_message}
+#  App stack:
+#  %{application_stack}
+#error_assistant_backend_profile: "origen_assistant"
+#error_assistant_backend_context:
+#  framework: "Origen-SDK"

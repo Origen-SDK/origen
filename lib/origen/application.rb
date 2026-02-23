@@ -25,6 +25,7 @@ module Origen
 
     attr_writer :name                       # attr_accessor leads to a duplicate method
     attr_writer :namespace                  # attr_accessor leads to a duplicate method
+    attr_accessor :error_assistant_enable
 
     class << self
       def inherited(base)
