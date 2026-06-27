@@ -35,6 +35,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "irb", '>= 1', '< 1.8' # irb 1.8+ pulls in rdoc->erb->cgi which conflicts with Ruby 2.7 defaults
   spec.add_runtime_dependency "logger", '~>1'    # logger became a bundled gem in Ruby 4.0
   spec.add_runtime_dependency "net-smtp", '~>0'  # net/smtp extracted from default gems in Ruby 3.1+; required by mailer.rb
+  spec.add_runtime_dependency "ostruct", '~>0'   # ostruct extracted from default gems in Ruby 3.5+; eagerly required by runtime deps pry and net-ldap
   # fiddle: moved to Gemfile with RUBY_VERSION >= '4' condition.
   # Adding it here forces upgrades on Ruby 3.x that require C compilation (libffi-dev).
   spec.add_runtime_dependency "colored", "~>1.2"
@@ -48,7 +49,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "kramdown", "~>2.4"
   spec.add_runtime_dependency "rubocop", ">= 1.28", "< 2"
   spec.add_runtime_dependency "coderay", "~>1.1"
-  spec.add_runtime_dependency "rake", "~>10"
+  spec.add_runtime_dependency "rake", ">= 10", "< 14" # rake 10's CLI uses Object#=~ (removed in Ruby 3.2); allow 13.x which runs on Ruby 2.6-4.0
   spec.add_runtime_dependency "pry", "~>0.10"
   spec.add_runtime_dependency "yard", "~>0.8"
   spec.add_runtime_dependency "simplecov", "~>0.17" # simplecov version 0.17 is the last release that supports older Ruby versions (< 2.4)
@@ -56,6 +57,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "scrub_rb", "~>1.0"
   spec.add_runtime_dependency "gems", "~>0.8"
   spec.add_runtime_dependency "highline", "~>1.7"
+  spec.add_runtime_dependency "abbrev", '~>0'    # abbrev extracted from default gems in Ruby 3.4+; required by highline 1.7
+  spec.add_runtime_dependency "webrick", '~>1.4' # webrick extracted from default gems in Ruby 3.0+; used by `origen web` server
   spec.add_runtime_dependency "dentaku", "~>3"
   spec.add_runtime_dependency "colorize", "~> 0.8.1"
   spec.add_runtime_dependency 'nokogiri', '>= 1.11.0'

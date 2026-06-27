@@ -96,7 +96,20 @@ The following options are available:
     puts ''
     puts 'To shut down the server use CTRL-C'
     puts ''
-    system "ruby -run -e httpd . -p #{port}"
+    # Previously this shelled out to `ruby -run -e httpd`, but that spawns a fresh
+    # Ruby outside the bundle. webrick was extracted from the standard library in
+    # Ruby 3.0, so the bundled gem is not visible to that subprocess and the server
+    # fails to start on Ruby 3+/4.0. Run webrick in-process instead so it resolves
+    # from the bundle on every supported Ruby.
+    require 'webrick'
+    # No BindAddress is set, so webrick listens on all interfaces (matching the old
+    # `ruby -run -e httpd` behaviour) and the advertised hostname URL stays reachable.
+    httpd = WEBrick::HTTPServer.new(
+      Port:         port,
+      DocumentRoot: Dir.pwd
+    )
+    trap('INT') { httpd.shutdown }
+    httpd.start
   end
 
   def self._build_web_dir

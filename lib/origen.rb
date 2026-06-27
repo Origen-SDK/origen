@@ -32,6 +32,28 @@ unless defined? RGen::ORIGENTRANSITION
         end
       end
     end
+
+    # ERB.new dropped its positional (safe_level, trim_mode, eoutvar) arguments in
+    # Ruby 3.4/4.0 in favour of keyword arguments. Dependencies pinned for
+    # ActiveSupport 4.2 compatibility (e.g. nanoc 3.7's ERB filter) still call the
+    # old positional form ERB.new(str, safe_level, trim_mode). Translate those calls
+    # to the keyword form so the bundled doc tooling keeps working on Ruby 4.
+    require 'erb'
+    class ::ERB
+      class << self
+        alias_method :_origen_original_new, :new
+        def new(str, *args, **kwargs)
+          unless args.empty?
+            # Legacy positional signature: (str, safe_level, trim_mode, eoutvar).
+            # safe_level was removed entirely, so it is dropped.
+            _safe_level, trim_mode, eoutvar = args
+            kwargs[:trim_mode] ||= trim_mode unless trim_mode.nil?
+            kwargs[:eoutvar] ||= eoutvar unless eoutvar.nil?
+          end
+          _origen_original_new(str, **kwargs)
+        end
+      end
+    end
   end
 
   require 'English'
