@@ -122,8 +122,7 @@ module Origen
 
       private
 
-      # rubocop:disable Lint/DuplicateMethods
-
+      # rubocop:disable Lint/DuplicateMethods -- intentional re-definitions with lazy-initialized hashes
       # Two-dimensional hash with note id and type as the keys
       def _notes
         @_notes ||= Hash.new do |h, k|
@@ -144,7 +143,6 @@ module Origen
           h[k] = {}
         end
       end
-
       # rubocop:enable Lint/DuplicateMethods
 
       # Return a hash based on the filter provided
@@ -154,7 +152,7 @@ module Origen
         filtered_hash = {}
         select_logic = case filter
           when String then 'k[Regexp.new(filter)]'
-          when (Fixnum || Integer || Float || Numeric) then "k[Regexp.new('#{filter}')]"
+          when (Integer || Float || Numeric) then "k[Regexp.new('#{filter}')]"
           when Regexp then 'k[filter]'
           when Symbol then
             'k == filter'

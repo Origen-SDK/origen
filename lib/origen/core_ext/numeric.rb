@@ -117,9 +117,9 @@ class Numeric
     define_method m do
       result = self / 1_024 / 1_024 / 1_024
       if result == Integer(result)
-        return Integer(result)
+        Integer(result)
       else
-        return result
+        result
       end
     end
   end
@@ -128,9 +128,9 @@ class Numeric
     define_method m do
       result = to_f / 1_024 / 1_024
       if result == Integer(result)
-        return Integer(result)
+        Integer(result)
       else
-        return result
+        result
       end
     end
   end
@@ -151,9 +151,9 @@ class Numeric
     define_method m do
       result = to_f / 1_024
       if result == Integer(result)
-        return Integer(result)
+        Integer(result)
       else
-        return result
+        result
       end
     end
   end

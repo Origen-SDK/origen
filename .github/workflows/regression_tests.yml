@@ -3,39 +3,36 @@ on: [push, pull_request]
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        ruby-version: [2.6, 2.7, 3.0.4, 3.1]
+        ruby-version: [2.6, 2.7, 3.0.4, 3.1, 3.3.1, 3.4.2, 4.0.0]
 
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby-version }}
+        bundler: '2.4.22'
     - name: Update Env
       run: echo "ACTIONS_ALLOW_UNSECURE_COMMANDS=true" >> $GITHUB_ENV
-    - name: Install Bundler
-      run: gem install bundler -v '2.4.22'
+    # Ruby 2.7 ships with RubyGems 3.1.6 which has a bug resolving transitive
+    # deps with required_ruby_version. Updating to 3.4.22 fixes it.
+    - name: Update RubyGems (Ruby 2.7 fix)
+      if: matrix.ruby-version == '2.7'
+      run: gem update --system 3.4.22
     - name: Remove Gemfile.lock
       run: rm Gemfile.lock
     - name: Install dependencies
       run: bundle install  
       
-    # Work around Ruby 3 gem install issue
-    - name: Build Origen Gem - Ruby 3 work around
-      if: matrix.ruby-version == '3.0.4' || matrix.ruby-version == '3.1'
-      run: gem build origen.gemspec --output origen.gem    
-    - name: Gem Install Origen - Ruby 3 work around 
-      if: matrix.ruby-version == '3.0.4' || matrix.ruby-version == '3.1'
-      run: gem install origen.gem 
-      
-    # Normal way of installing origen
-    - name: Gem Install Origen Ruby 2
-      if: matrix.ruby-version == '2.5' || matrix.ruby-version == '2.6' || matrix.ruby-version == '2.7'
-      run: gem install origen 
+    # Build and install origen from the branch source so all Ruby versions
+    # use the current code, not the old released gem from RubyGems.org
+    - name: Build and Install Origen Gem
+      run: gem build origen.gemspec --output origen.gem && gem install origen.gem
       
     - name: Setup Dependencies
       run: origen -v
@@ -47,6 +44,7 @@ jobs:
       run: origen test -c
     - name: Coveralls GitHub Action
       uses: coverallsapp/github-action@v2.3.4
+      continue-on-error: true
       with:
         flag-name: ${{ join(matrix.*, '-') }}
         parallel: true
@@ -63,5 +61,6 @@ jobs:
     steps:
     - name: Coveralls Finished
       uses: coverallsapp/github-action@v2.3.4
+      continue-on-error: true
       with:
         parallel-finished: true

@@ -282,6 +282,27 @@ module Origen
           end
           return nil if @_checking_name == name
 
+          # Reentrancy guard (also fixes a Ruby 2.6 vs 3.0+ divergence): while the
+          # application is still loading, resolving a constant through
+          # from_namespace below calls Origen.app -> load_application, which can
+          # reentrantly force-load the top-level app while a plugin/library module
+          # is only half-composed (e.g. AmdTestHelpers mid-glob, before its trailing
+          # `include`s have run). On Ruby 3.0+ those later includes propagate
+          # retroactively into the already-including class; on Ruby 2.6 they do not,
+          # leaving methods missing. If the constant maps to a file on $LOAD_PATH by
+          # standard Ruby naming convention, require it directly so the module
+          # finishes composing in-place, with no reentrant app load.
+          unless Origen.application_loaded?
+            conv = name.split('::').map(&:underscore).join('/') + '.rb'
+            if file = $LOAD_PATH.map { |p| File.join(p, conv) }.find { |f| File.exist?(f) }
+              require file
+              resolved = name.split('::').inject(Object) do |mod, const|
+                mod.const_defined?(const, false) ? mod.const_get(const, false) : (break nil)
+              end
+              return resolved if resolved
+            end
+          end
+
           names = name.split('::')
           namespace = names.shift
           if app = Origen::Application.from_namespace(namespace)

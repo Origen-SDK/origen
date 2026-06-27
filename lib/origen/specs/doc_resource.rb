@@ -61,9 +61,11 @@ module Origen
         tmp['sub_type'] = @sub_type unless @sub_type.nil?
         tmp['audience'] = @audience unless @audience.nil?
         doc_resource_ml = Nokogiri::XML::Builder.new do |xml|
+          # rubocop:disable Lint/Void, Lint/RedundantCopDisableDirective
           xml.doc_resource(tmp.each do |t, d|
-            "#{t}=\"#{d}\""     # rubocop:disable Lint/Void
+            "#{t}=\"#{d}\""
           end) do
+            # rubocop:enable Lint/Void, Lint/RedundantCopDisableDirective
             unless @table_title.nil? && @note_refs.size == 0 && @exhibit_refs.size == 0
               unless @note_refs.first.to_s.size == 0
                 unless @exhibit_refs.first.to_s.size == 0

@@ -48,3 +48,6 @@
 # Cruft from other revision control systems
 .SYNC
 .svn
+
+# RBENV
+.ruby-version

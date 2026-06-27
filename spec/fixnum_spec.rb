@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Fixnum do
+describe Integer do
 
   specify "part select helpers work" do
     0x123456[7,0].should == 0x56

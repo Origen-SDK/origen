@@ -162,9 +162,9 @@ module Origen
           buffer = buffer_name_for(file)
         end
         if block_given?
-          content = ERB.new(content, 0, '%<>', buffer).result(b)
+          content = ERB.new(content, trim_mode: '%<>', eoutvar: buffer).result(b)
         else
-          content = ERB.new(content, 0, Origen.config.erb_trim_mode, buffer).result(b)
+          content = ERB.new(content, trim_mode: Origen.config.erb_trim_mode, eoutvar: buffer).result(b)
         end
         insert(content)
       end

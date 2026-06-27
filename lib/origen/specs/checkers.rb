@@ -131,7 +131,7 @@ module Origen
           # which would not work with the code above but should eval to a number 3.35
           begin
             result = eval(limit)
-            return result.round(4) if result.is_a? Numeric
+            result.round(4) if result.is_a? Numeric
           rescue ::SyntaxError, ::NameError, ::TypeError
             Origen.log.debug "Limit '#{limit}' had to be rescued, storing it as a #{limit.class}"
             if limit.is_a? Symbol

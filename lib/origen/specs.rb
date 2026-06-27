@@ -660,7 +660,7 @@ module Origen
       filtered_hash = {}
       select_logic = case filter
         when String then 'k.nil? ? false : k[Regexp.new(filter)] && k.length == filter.length'
-        when (Fixnum || Integer || Float || Numeric) then "k[Regexp.new('#{filter}')]"
+        when (Integer || Float || Numeric) then "k[Regexp.new('#{filter}')]"
         when Regexp then 'k[filter]'
         when Symbol then
           'k == filter'

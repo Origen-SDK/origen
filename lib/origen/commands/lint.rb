@@ -13,7 +13,7 @@ Usage: origen lint [space separated files, or directories] [options]
 All options and the default files to test can be overridden via the
 lint_test application configuration parameter, see here for more info:
 
-http://origen.freescale.net/origen/latest/guides/utilities/lint/
+https://origen-sdk.org/origen/guides/misc/lint/
 
   END
   opts.on('-c', '--correct', 'Correct errors automatically where possible') { options[:correct] = true }
@@ -67,12 +67,36 @@ if Origen.debugger_enabled?
 end
 
 puts command
-result = system(command)
 
-if result == true
+# Run RuboCop and filter config deprecation warnings from stderr.
+# The rubocop config uses old parameter/cop names for backwards compatibility
+# with RuboCop 1.50 (Ruby 2.6). Newer RuboCop versions auto-map them but
+# print noisy warnings. We suppress these warning blocks while preserving
+# any real errors.
+require 'open3'
+stdout, stderr, status = Open3.capture3(command)
+
+in_warning = false
+warnings_suppressed = 0
+filtered_stderr = stderr.lines.reject do |line|
+  if line =~ /\AWarning:|obsolete/i
+    in_warning = true
+    warnings_suppressed += 1
+  elsif in_warning
+    in_warning = line =~ /\A[\s`]/ || line =~ /\ASupported / || line.strip.empty?
+  end
+  in_warning
+end
+$stderr.print filtered_stderr.join unless filtered_stderr.empty?
+print stdout
+if warnings_suppressed > 0
+  puts "Note: #{warnings_suppressed} RuboCop config deprecation warning(s) suppressed. " \
+       'Update to the latest Ruby and RuboCop, then run `origen lint` to adopt the latest rules. ' \
+       'Be aware this may introduce new offenses in your application.'
+end
+
+if status.success?
   exit 0
-elsif result == false
-  exit 1
 else
   exit 1
 end

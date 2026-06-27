@@ -1,25 +1,31 @@
-require 'readline'
+# readline was extracted from the stdlib in Ruby 4.0 and is not always present.
+# It is only needed for interactive prompts (get_text/confirm), never during
+# spec/example generation, so degrade gracefully if it can't be loaded.
+begin
+  require 'readline'
+rescue LoadError
+  nil
+end
 module Origen
   module Utility
     module InputCapture
       # Gets text input from the user
       # Supply an optional default value in the event that the user enters nothing
       def get_text(options = {})
-        # rubocop:disable Layout/MultilineHashBraceLayout
-        options = { default:        false,
-                    single:         false, # Set if only a single line entry is expected
-                    confirm:        false,
-                    accept:         false, # Supply and array of entries you are willing to accept
-                    case_sensitive: false, # If accept values are supplied they will be treated as case
-                    # in-sensitive by default
-                    wrap:           true # Automatically split long lines
+        options = {
+          default:        false,
+          single:         false, # Set if only a single line entry is expected
+          confirm:        false,
+          accept:         false, # Supply and array of entries you are willing to accept
+          case_sensitive: false, # If accept values are supplied they will be treated as case
+          # in-sensitive by default
+          wrap:           true   # Automatically split long lines
         }.merge(options)
-        # rubocop:enable Layout/MultilineHashBraceLayout
         if options[:confirm]
           puts "Type 'yes' or 'no' to confirm or 'quit' to abort."
         elsif options[:accept]
           puts "You can enter: #{options[:accept].map { |v| "'#{v}'" }.join(', ')} or 'quit' to abort."
-          # "
+        # "
         else
           puts options[:single] ? "Enter 'quit' to abort." : "Enter a single '.' to finish, or 'quit' to abort."
         end

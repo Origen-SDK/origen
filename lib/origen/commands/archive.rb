@@ -31,7 +31,7 @@ if options[:no_local]
     FileUtils.rm_rf(dir) if File.exist?(dir)
   end
   passed = true
-  Bundler.with_clean_env do
+  _origen_with_bundler_clean_env do
     passed = system('origen -v')
   end
   if passed
@@ -96,7 +96,7 @@ Dir.chdir dir do
   # When archiving, also include copies of all gem packages for other platforms, this will help if the
   # archive needs to run on a different platform to the one used to create it in the future
   unless options[:local]
-    Bundler.with_clean_env do
+    _origen_with_bundler_clean_env do
       FileUtils.rm_rf('.bundle') if File.exist?('.bundle')
       system 'hash -r'  # Ignore fail if not on bash
 
@@ -122,7 +122,7 @@ Dir.chdir dir do
   end
   FileUtils.touch('.origen_archive') unless options[:local]
 
-  Bundler.with_clean_env do
+  _origen_with_bundler_clean_env do
     passed = system('bundle') && system('origen -v')
     unless passed
       Origen.log.error 'A problem was encountered installing the gem bundle, archive aborted!'

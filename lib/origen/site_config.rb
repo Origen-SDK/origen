@@ -243,14 +243,11 @@ module Origen
       ENV.key?(val)
     end
 
-    # rubocop:disable Lint/DuplicateMethods
-
-    def env(val)
+    def env(val) # rubocop:disable Lint/DuplicateMethods -- intentional override with environment lookup
       if env_contains?(val)
         ENV[val]
       end
     end
-    # rubocop:enable Lint/DuplicateMethods
 
     def inspect_variable(*vars)
       vars.each do |var|

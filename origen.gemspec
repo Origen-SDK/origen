@@ -5,8 +5,8 @@ require "#{config}/version"
 Gem::Specification.new do |spec|
   spec.name          = "origen"
   spec.version       = Origen::VERSION
-  spec.authors       = ["Stephen McGinty"]
-  spec.email         = ["stephen.f.mcginty@gmail.com"]
+  spec.authors       = ["Stephen McGinty", "Priyavadan Kumar"]
+  spec.email         = ["stephen.f.mcginty@gmail.com", "priyavadan@gmail.com"]
   spec.summary       = %q{The Semiconductor Developer's Kit}
   spec.homepage      = "https://origen-sdk.org"
   spec.license       = 'MIT'
@@ -28,8 +28,14 @@ Gem::Specification.new do |spec|
   # Don't add any logic to runtime dependencies, for example to install a specific gem
   # based on Ruby version.
   # Rubygems / Bundler do not support this and you will need to find another way around it.
+  # Gem version ranges are intentionally broad to support Ruby 2.6 through 4.0.
+  # Bundler resolves the best compatible version for each Ruby version.
   spec.add_runtime_dependency "activesupport", "~>4.1"
   spec.add_runtime_dependency "base64", '~>0'
+  spec.add_runtime_dependency "irb", '>= 1', '< 1.8' # irb 1.8+ pulls in rdoc->erb->cgi which conflicts with Ruby 2.7 defaults
+  spec.add_runtime_dependency "logger", '~>1'    # logger became a bundled gem in Ruby 4.0
+  # fiddle: moved to Gemfile with RUBY_VERSION >= '4' condition.
+  # Adding it here forces upgrades on Ruby 3.x that require C compilation (libffi-dev).
   spec.add_runtime_dependency "colored", "~>1.2"
   spec.add_runtime_dependency "net-ldap", "~>0.13"
   spec.add_runtime_dependency "httparty", "~>0.13"
@@ -37,9 +43,9 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "rspec", "~>3"
   spec.add_runtime_dependency "rspec-legacy_formatters", "~>1"
   spec.add_runtime_dependency "thor", "~>1"
-  spec.add_runtime_dependency "nanoc", "~>3.7.0"
+  spec.add_runtime_dependency "nanoc", "~> 3.7.0"
   spec.add_runtime_dependency "kramdown", "~>2.4"
-  spec.add_runtime_dependency "rubocop", "1.28"
+  spec.add_runtime_dependency "rubocop", ">= 1.28", "< 2"
   spec.add_runtime_dependency "coderay", "~>1.1"
   spec.add_runtime_dependency "rake", "~>10"
   spec.add_runtime_dependency "pry", "~>0.10"

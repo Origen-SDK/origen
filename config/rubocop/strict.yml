@@ -108,7 +108,7 @@ AllCops:
   # the `--enable-pending-cops` command-line option.
   # When `NewCops` is `disable`, pending cops are disabled in bulk. Can be overridden by
   # the `--disable-pending-cops` command-line option.
-  NewCops: pending
+  NewCops: disable
   # Enables the result cache if `true`. Can be overridden by the `--cache` command
   # line option.
   UseCache: true
@@ -141,7 +141,7 @@ AllCops:
   # or gems.rb file, RuboCop reads the final value from the lock file.) If the
   # Ruby version is still unresolved, RuboCop will use the oldest officially
   # supported Ruby version (currently Ruby 2.6).
-  TargetRubyVersion: ~
+  TargetRubyVersion: 3.3.1
   # Determines if a notification for extension libraries should be shown when
   # rubocop is run. Keys are the name of the extension, and values are an array
   # of gems in the Gemfile that the extension is suggested for, if not already
@@ -235,7 +235,7 @@ Bundler/OrderedGems:
 
 #################### Gemspec ###############################
 
-Gemspec/DateAssignment:
+Gemspec/DeprecatedAttributeAssignment:
   Description: 'Checks that `date =` is not used in gemspec file, it is set automatically when the gem is packaged.'
   Enabled: pending
   VersionAdded: '1.10'
@@ -1454,7 +1454,7 @@ Lint/AmbiguousBlockAssociation:
   Enabled: false
   VersionAdded: '0.48'
   VersionChanged: '1.13'
-  IgnoredMethods: []
+  AllowedMethods: []
 
 Lint/AmbiguousOperator:
   Description: >-
@@ -1829,7 +1829,6 @@ Lint/InheritException:
 Lint/InterpolationCheck:
   Description: 'Raise warning for interpolation in single q strs.'
   Enabled: false
-  Safe: false
   VersionAdded: '0.50'
   VersionChanged: '0.87'
 
@@ -1931,7 +1930,7 @@ Lint/NumberConversion:
   VersionAdded: '0.53'
   VersionChanged: '1.1'
   SafeAutoCorrect: false
-  IgnoredMethods: []
+  AllowedMethods: []
   IgnoredClasses:
     - Time
     - DateTime
@@ -2340,7 +2339,6 @@ Lint/UselessRuby2Keywords:
 Lint/UselessSetterCall:
   Description: 'Checks for useless setter call to a local variable.'
   Enabled: true
-  SafeAutoCorrect: false
   VersionAdded: '0.13'
   VersionChanged: '1.2'
   Safe: false
@@ -2371,7 +2369,7 @@ Metrics/AbcSize:
   VersionChanged: '1.5'
   # The ABC size is a calculated magnitude, so this number can be an Integer or
   # a Float.
-  IgnoredMethods: []
+  AllowedMethods: []
   CountRepeatedAttributes: true
   Max: 17
 
@@ -2383,7 +2381,7 @@ Metrics/BlockLength:
   CountComments: false  # count full line comments?
   Max: 200
   CountAsOne: []
-  IgnoredMethods:
+  AllowedMethods:
     # By default, exclude the `#refine` method, as it tends to have larger
     # associated blocks.
     - refine
@@ -2416,7 +2414,7 @@ Metrics/CyclomaticComplexity:
   Enabled: false
   VersionAdded: '0.25'
   VersionChanged: '0.81'
-  IgnoredMethods: []
+  AllowedMethods: []
   Max: 7
 
 Metrics/MethodLength:
@@ -2428,7 +2426,7 @@ Metrics/MethodLength:
   CountComments: false  # count full line comments?
   Max: 10
   CountAsOne: []
-  IgnoredMethods: []
+  AllowedMethods: []
 
 Metrics/ModuleLength:
   Description: 'Avoid modules longer than 100 lines of code.'
@@ -2456,7 +2454,7 @@ Metrics/PerceivedComplexity:
   Enabled: false
   VersionAdded: '0.25'
   VersionChanged: '0.81'
-  IgnoredMethods: []
+  AllowedMethods: []
   Max: 8
 
 ################## Migration #############################
@@ -2891,7 +2889,6 @@ Style/ArgumentsForwarding:
   Description: 'Use arguments forwarding.'
   StyleGuide: '#arguments-forwarding'
   Enabled: pending
-  AllowOnlyRestArgument: true
   VersionAdded: '1.1'
 
 Style/ArrayCoercion:
@@ -3025,7 +3022,7 @@ Style/BlockDelimiters:
     - let!
     - subject
     - watch
-  IgnoredMethods:
+  AllowedMethods:
     # Methods that can be either procedural or functional and cannot be
     # categorised from their usage alone, e.g.
     #
@@ -3145,7 +3142,7 @@ Style/ClassEqualityComparison:
   StyleGuide: '#instance-of-vs-class-comparison'
   Enabled: false
   VersionAdded: '0.93'
-  IgnoredMethods:
+  AllowedMethods:
     - ==
     - equal?
     - eql?
@@ -3598,7 +3595,7 @@ Style/FormatStringToken:
   MaxUnannotatedPlaceholdersAllowed: 1
   VersionAdded: '0.49'
   VersionChanged: '1.0'
-  IgnoredMethods: []
+  AllowedMethods: []
 
 Style/FrozenStringLiteralComment:
   Description: >-
@@ -3714,7 +3711,7 @@ Style/HashSyntax:
     # enforces both ruby19 and no_mixed_keys styles
     - ruby19_no_mixed_keys
   # Force hashes that have a hash value omission
-  EnforcedShorthandSyntax: always
+  EnforcedShorthandSyntax: either
   SupportedShorthandSyntax:
     # forces use of the 3.1 syntax (e.g. {foo:}) when the hash key and value are the same.
     - always
@@ -3911,7 +3908,7 @@ Style/MethodCallWithArgsParentheses:
   VersionAdded: '0.47'
   VersionChanged: '1.7'
   IgnoreMacros: true
-  IgnoredMethods: []
+  AllowedMethods: []
   AllowedPatterns: []
   IncludedMacros: []
   AllowParenthesesInMultilineCall: false
@@ -3927,7 +3924,7 @@ Style/MethodCallWithoutArgsParentheses:
   Description: 'Do not use parentheses for method calls with no arguments.'
   StyleGuide: '#method-invocation-parens'
   Enabled: true
-  IgnoredMethods: []
+  AllowedMethods: []
   VersionAdded: '0.47'
   VersionChanged: '0.55'
 
@@ -4289,7 +4286,6 @@ Style/NumericPredicate:
   # This will change to a new method call which isn't guaranteed to be on the
   # object. Switching these methods has to be done with knowledge of the types
   # of the variables which rubocop doesn't have.
-  SafeAutoCorrect: false
   Enabled: false
   VersionAdded: '0.42'
   VersionChanged: '0.59'
@@ -4297,7 +4293,7 @@ Style/NumericPredicate:
   SupportedStyles:
     - predicate
     - comparison
-  IgnoredMethods: []
+  AllowedMethods: []
   # Exclude RSpec specs because assertions like `expect(1).to be > 0` cause
   # false positives.
   Exclude:
@@ -4938,7 +4934,7 @@ Style/SymbolProc:
   AllowMethodsWithArguments: false
   # A list of method names to be ignored by the check.
   # The names should be fairly unique, otherwise you'll end up ignoring lots of code.
-  IgnoredMethods:
+  AllowedMethods:
     - respond_to
     - define_method
   AllowComments: false

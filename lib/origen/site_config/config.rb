@@ -121,11 +121,10 @@ module Origen
       # After the initial load, any centralized site configs will be retreived (if needed), cached, and loaded.
       def load
         def read_erb(erb)
-          ERB.new(File.read(erb), 0, '%<>')
+          ERB.new(File.read(erb), trim_mode: '%<>')
         end
 
         # YAML.safe_load is prefered
-        # rubocop:disable Security/YAMLLoad
         if centralized?
           if !cached?
             if fetch
@@ -148,8 +147,6 @@ module Origen
             @values = (YAML.load_file(path) || {})
           end
         end
-        # rubocop:enable Security/YAMLLoad
-
         unless @values.is_a?(Hash)
           puts red("Origen: Site Config: The config at #{path} was not parsed as a Hash, but as a #{@values.class}")
           puts red('                     Please review the format of the this file.')

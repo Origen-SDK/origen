@@ -1,14 +1,16 @@
 $VERBOSE=nil  # Don't care about world writable dir warnings and the like
 
 require "origen"
+require 'nokogiri'
+require "rspec/version"
 require "rspec/legacy_formatters" if Gem::Version.new(RSpec::Version::STRING) < Gem::Version.new('3.0.0')
 require "#{Origen.top}/spec/shared/common_helpers"
 require "#{Origen.top}/spec/format/origen_formatter"
 require "origen_core_support"
 
-if RUBY_VERSION >= '2.0.0'
+if RUBY_VERSION >= '2.0.0' && RUBY_VERSION < '4'
   require "byebug"
-else
+elsif RUBY_VERSION < '2.0.0'
   require 'debugger'
 end
 require 'pry'

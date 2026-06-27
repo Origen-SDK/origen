@@ -362,13 +362,10 @@ module Origen
       end
       alias_method :reverse_data, :data_reverse
 
-      # rubocop:disable Lint/DuplicateMethods
-
       # Supports reg.bit[0] and bitcollection.bit[0]
-      def bit
+      def bit # rubocop:disable Lint/DuplicateMethods -- intentional override for collection accessor
         self
       end
-      # rubocop:enable Lint/DuplicateMethods
 
       # Returns true if the collection contains all bits in the register
       def whole_reg?

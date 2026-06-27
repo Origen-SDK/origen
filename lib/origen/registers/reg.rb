@@ -978,13 +978,12 @@ module Origen
       alias_method :has_bit, :has_bit?
       alias_method :has_bits, :has_bit?
 
-      # rubocop:disable Layout/MultilineHashBraceLayout
-
       # Add a bit to the register, should only be called internally
       def add_bit(id, position, options = {}) # :nodoc:
-        options = { data: @bits[position].data, # If undefined preserve any data/reset value that has
-                    res:  @bits[position].data # already been applied at reg level
-                  }.merge(options)
+        options = {
+          data: @bits[position].data, # If undefined preserve any data/reset value that has
+          res:  @bits[position].data  # already been applied at reg level
+        }.merge(options)
 
         @lookup[id] = { pos: position, bits: 1, feature: options[:feature] }
         @bits.delete_at(position) # Remove the initial bit from this position
@@ -999,9 +998,10 @@ module Origen
         size.times do |n|
           default_data |= @bits[position + n].data << n
         end
-        options = { data: default_data, # If undefined preserve any data/reset value that has
-                    res:  default_data # already been applied at reg level
-                  }.merge(options)
+        options = {
+          data: default_data, # If undefined preserve any data/reset value that has
+          res:  default_data  # already been applied at reg level
+        }.merge(options)
 
         @lookup[id] = { pos: position, bits: size }
         size.times do |n|
@@ -1030,9 +1030,10 @@ module Origen
           size.times do |n|
             default_data |= @bits[position + n].data << n
           end
-          options = { data: default_data, # If undefined preserve any data/reset value that has
-                      res:  default_data # already been applied at reg level
-                    }.merge(options)
+          options = {
+            data: default_data, # If undefined preserve any data/reset value that has
+            res:  default_data  # already been applied at reg level
+          }.merge(options)
 
           @lookup[id] = [] if @lookup[id].nil?
           @lookup[id] = @lookup[id].push(pos: position, bits: size)
@@ -1043,10 +1044,11 @@ module Origen
             @bits.delete_at(position + n)
             @bits.insert(position + n, Bit.new(self, position + n, bit_options))
           end
-          self    # rubocop:disable Lint/Void
+          # rubocop:disable Lint/Void, Lint/RedundantCopDisableDirective
+          self
+          # rubocop:enable Lint/Void, Lint/RedundantCopDisableDirective
         end
       end
-      # rubocop:enable Layout/MultilineHashBraceLayout
 
       # Delete the bits in the collection from the register
       def delete_bit(collection)

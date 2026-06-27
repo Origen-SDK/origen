@@ -1,5 +1,5 @@
 require 'active_support/concern'
-require 'set'
+require 'set' # rubocop:disable Lint/RedundantRequireStatement -- needed for Ruby 2.6
 module Origen
   module Parameters
     extend ActiveSupport::Concern

@@ -59,7 +59,7 @@ module Origen
           Origen.with_origen_root(reference_origen_root) do
             disable_origen_version_check do
               Dir.chdir reference_origen_root do
-                Bundler.with_clean_env do
+                _origen_with_bundler_clean_env do
                   # Origen 0.40.0 started using origen-owned binstubs
                   system 'rm -rf lbin' if Gem::Version.new(Origen.version) < Gem::Version.new('0.40.0')
                   # If regression is run using a service account, we need to setup the path/bundler manually
@@ -151,7 +151,7 @@ module Origen
       Origen.lsf.build_log(options)
       Origen.log.flush
       Dir.chdir reference_origen_root do
-        Bundler.with_clean_env do
+        _origen_with_bundler_clean_env do
           if options[:log_file]
             system "bundle exec origen save all -f log/#{options[:log_file]}.txt"
           else

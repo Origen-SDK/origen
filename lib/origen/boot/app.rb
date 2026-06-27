@@ -168,14 +168,14 @@ end
 
             passed = false
 
-            Bundler.with_clean_env do
+            _origen_with_bundler_clean_env do
               cmd = 'bundle install'
               cmd += ' --local' if File.exist?('.origen_archive')
               passed = system(cmd)
             end
 
             if passed
-              Bundler.with_clean_env do
+              _origen_with_bundler_clean_env do
                 exec "origen #{ARGV.join(' ')}"
               end
               exit 0
@@ -269,7 +269,6 @@ end
               puts "Copied #{gem} #{version} from the system into #{bundle_path}"
 
             end
-
           rescue Exception # Gem::LoadError  # Rescue everything here, this is a try-our-best operation, better to
             # continue and try and install the gem if this fails rather than crash
             # This just means that one of the gems that should be copied from the system

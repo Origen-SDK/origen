@@ -2,7 +2,14 @@ source 'https://rubygems.org'
 
 # Development dependencies
 gem 'coveralls', require: false
-gem "byebug", "~>11"   # Test byebug 11.x.x   #  will no longer support for Ruby 2.3
+gem "byebug", "~>11" if RUBY_VERSION < "4" # byebug C extension doesn't compile on Ruby 4.0+
+# Gems extracted from stdlib in Ruby 4.0 -- need explicit deps
+if RUBY_VERSION >= '4'
+  gem 'fiddle', '~> 1'    # needed on Windows
+  gem 'pstore'             # needed by nanoc-core
+  gem 'mutex_m'            # needed by activesupport 4.2
+  gem 'benchmark'          # needed by activesupport 4.2
+end
 #gem "stackprof", "~>0"
 gem "origen_core_support", git: "https://github.com/Origen-SDK/origen_core_support.git"
 #gem "origen_core_support", path: "~/Code/github/origen_core_support"
@@ -12,11 +19,12 @@ gem "loco"
 #gem "origen_testers", "~> 0.7"
 gem 'origen_debuggers', '~> 0'
 gem 'ripper-tags'
-# gem 'nokogiri', '1.10.10'  # Lock to this version to enable testing in Ruby 2.2
-gem 'nokogiri', '1.13.10' # Locking to this version to support Ruby 2.6. Will update in a later release
+# Let Bundler resolve the best nokogiri version for the current Ruby.
+# Ruby 2.6 gets ~1.13.x, Ruby 3.0+ gets latest compatible.
+# gem 'nokogiri', '1.17.2' # Pinned version breaks Ruby 2.6
 
 # Plugins that provide guide pages
-gem "origen_testers", git: "https://github.com/Origen-SDK/origen_testers.git"
+gem "origen_testers", git: "https://github.com/Origen-SDK/origen_testers.git", branch: "feature/ruby_4_0"
 gem "origen_sim", git: "https://github.com/Origen-SDK/origen_sim.git"
 
 # Required to run the concurrent test case patterns from OrigenSim

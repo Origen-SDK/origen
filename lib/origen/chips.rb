@@ -185,8 +185,7 @@ module Origen
 
     private
 
-    # rubocop:disable Lint/DuplicateMethods
-
+    # rubocop:disable Lint/DuplicateMethods -- intentional re-definitions with lazy-initialized hashes
     def _chips
       # 4D hash with group, family, and performance
       @_chips ||= Hash.new do |h, k|
@@ -227,7 +226,7 @@ module Origen
       filtered_hash = {}
       select_logic = case filter
         when String then 'k[Regexp.new(filter)]'
-        when (Fixnum || Integer || Float || Numeric) then "k[Regexp.new('#{filter}')]"
+        when (Integer || Float || Numeric) then "k[Regexp.new('#{filter}')]"
         when Regexp then 'k[filter]'
         when Symbol then
           'k == filter'
