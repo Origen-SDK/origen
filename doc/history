@@ -1,3 +1,23 @@
+<a class="anchor release_tag" name="v0_61_3"></a>
+<h1><a href="#v0_61_3">Tag: v0.61.3</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 27-Jun-2026 16:54PM
+
+
+Ruby 4.0 fix for interactive prompts (e.g. `origen rc tag`)
+
+Interactive input prompts referenced the Readline constant directly. readline was
+extracted from the standard library in Ruby 4.0 and is not always installed, so
+any command that prompts for input (such as `origen rc tag` or the `origen web
+--remote` commit message) crashed on Ruby 4 with "uninitialized constant
+Readline".
+
+Input capture now falls back to plain $stdin input when readline is unavailable,
+so interactive prompts work on Ruby 4 while continuing to use readline on Ruby 2.6
+where it is present. Verified on both Ruby 2.6 and 4.0.
+
 <a class="anchor release_tag" name="v0_61_2"></a>
 <h1><a href="#v0_61_2">Tag: v0.61.2</a></h1>
 
