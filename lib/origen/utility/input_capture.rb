@@ -1,4 +1,11 @@
-require 'readline'
+# readline was extracted from the stdlib in Ruby 4.0 and is not always present.
+# It is only needed for interactive prompts (get_text/confirm), never during
+# spec/example generation, so degrade gracefully if it can't be loaded.
+begin
+  require 'readline'
+rescue LoadError
+  nil
+end
 module Origen
   module Utility
     module InputCapture

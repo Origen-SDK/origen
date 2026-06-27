@@ -1,6 +1,39 @@
 # This guard is temporary to help Freescale transition to Origen from
 # our original internal version (RGen)
 unless defined? RGen::ORIGENTRANSITION
+  # ActiveSupport 4.2 wraps to_json via alias_method_chain, which causes infinite
+  # recursion on Ruby 4 with json gem 2.x (to_json_without_active_support_encoder
+  # ends up calling back into to_json_with_active_support_encoder). Intercept the
+  # alias for the :to_json target before ActiveSupport's json core_ext loads.
+  if RUBY_VERSION >= '4'
+    require 'json'
+    require 'active_support/core_ext/module/aliasing'
+
+    class ::Module
+      alias_method :_original_alias_method_chain, :alias_method_chain
+      def alias_method_chain(target, feature, &block)
+        return if target == :to_json
+
+        _original_alias_method_chain(target, feature, &block)
+      end
+    end
+
+    # BigDecimal.new was removed in bigdecimal 3.x (Ruby 4 ships >= 3.1). But
+    # ActiveSupport 4.2 (pinned via origen.gemspec) calls BigDecimal.new at require
+    # time (active_support/core_ext/object/duplicable.rb). Restore it so any modern
+    # bigdecimal can be used instead of force-pinning the ancient 1.3.5. This runs
+    # before ActiveSupport's core_ext loads (boot.rb requires 'origen' before the
+    # later Bundler.require that pulls ActiveSupport in via the app's gems).
+    require 'bigdecimal'
+    unless BigDecimal.respond_to?(:new)
+      class ::BigDecimal
+        def self.new(*args, **kwargs)
+          BigDecimal(*args, **kwargs)
+        end
+      end
+    end
+  end
+
   require 'English'
   require 'pathname'
   require 'pry'

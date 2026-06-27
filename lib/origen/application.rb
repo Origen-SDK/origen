@@ -890,7 +890,7 @@ END
           $_target_options = nil
         end
         @target_instantiated = true
-        Origen.mode = :debug if options[:force_debug]
+        Origen.mode = :debug if options[:force_debug] || ENV['ORIGEN_DEBUG']
         listeners_for(:on_create).each do |obj|
           unless obj.is_a?(Origen::SubBlocks::Placeholder)
             if obj.try(:is_a_model_and_controller?)

@@ -15,7 +15,7 @@ module Origen
       options[:port] = port
       invocation_url = URI.parse("#{url}/#{path}")
       http = Net::HTTP.new(invocation_url.host, invocation_url.port)
-      http.post(invocation_url, JSON.dump(options[:body]), 'Content-type' => 'application/vnd.api+json', 'Accept' => 'text/json, application/vnd.api+json')
+      http.post(invocation_url, JSON.generate(options[:body]), 'Content-type' => 'application/vnd.api+json', 'Accept' => 'text/json, application/vnd.api+json')
     end
 
     def get(path, options = {})

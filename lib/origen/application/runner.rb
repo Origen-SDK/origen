@@ -142,8 +142,10 @@ module Origen
             unless Origen.running_remotely? # || Origen.running_on_windows?
               record_invocation = Thread.new do
                 Origen.client.record_invocation(options[:action]) if options[:action]
-              rescue
-                # Dont allow server being down to flood the screen with the stacktrace
+              rescue Exception
+                # Telemetry must never kill an origen command. Catch Exception (not
+                # just StandardError) so non-StandardError failures (e.g.
+                # SystemStackError) can't escape this fire-and-forget thread.
               end
             end
           rescue
@@ -162,8 +164,9 @@ module Origen
                 record_invocation.value
               end
             end
-          rescue
-            # Don't allow this to kill an origen command
+          rescue Exception
+            # Telemetry must never kill an origen command. Thread#value re-raises
+            # whatever the thread raised, including non-StandardError exceptions.
           end
         end
       end
