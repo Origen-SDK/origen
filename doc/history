@@ -1,3 +1,43 @@
+<a class="anchor release_tag" name="v0_61_0"></a>
+<h1><a href="#v0_61_0">Tag: v0.61.0</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 27-Jun-2026 15:42PM
+
+
+Ruby 4.0 support (while remaining compatible with Ruby 2.6)
+
+Origen now boots and runs on Ruby 4.0 in addition to the existing Ruby 2.6
+through 3.x support. The full regression suite passes on Ruby 2.6, 2.7, 3.0,
+3.1, 3.3, 3.4 and 4.0 with no changes to generated output.
+
+* Boot / Bundler
+    * Replaced the removed Bundler.with_clean_env with with_unbundled_env
+      (falling back to with_clean_env on older Bundlers) so the boot path works
+      on the Bundler shipped with Ruby 4.0.
+    * Gated the byebug dependency to Ruby < 4 (its C extension does not build on
+      Ruby 4.0) and added the fiddle, pstore, mutex_m and benchmark gems for
+      Ruby >= 4 (extracted from the standard library).
+
+* Ruby 4.0 language / stdlib compatibility
+    * Guarded the activesupport 4.2 alias_method_chain :to_json shim to stop the
+      infinite to_json recursion seen with json 2.x on Ruby 4.
+    * Added a BigDecimal.new compatibility shim (BigDecimal.new was removed in
+      bigdecimal 3.x / Ruby 4).
+    * Made the readline-based input capture tolerant of readline being extracted
+      from the standard library on Ruby 4.
+    * Hardened invocation telemetry so a phone-home failure can never abort a
+      command.
+
+* Loader
+    * Fixed a const_missing fast-path so partially composed modules resolve
+      correctly during application load.
+
+* Lint
+    * Resolved Lint/Void offenses that only surfaced under specific Ruby
+      versions, keeping `origen lint` clean across the supported Ruby matrix.
+
 <a class="anchor release_tag" name="v0_60_20"></a>
 <h1><a href="#v0_60_20">Tag: v0.60.20</a></h1>
 
