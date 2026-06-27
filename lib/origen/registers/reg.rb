@@ -1044,7 +1044,9 @@ module Origen
             @bits.delete_at(position + n)
             @bits.insert(position + n, Bit.new(self, position + n, bit_options))
           end
+          # rubocop:disable Lint/Void, Lint/RedundantCopDisableDirective
           self
+          # rubocop:enable Lint/Void, Lint/RedundantCopDisableDirective
         end
       end
 
