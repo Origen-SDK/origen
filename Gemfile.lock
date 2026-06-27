@@ -24,8 +24,8 @@ GIT
 
 GIT
   remote: https://github.com/Origen-SDK/origen_testers.git
-  revision: 7843a93c82cd600f326408ff47a4a127db6ee5ab
-  branch: feature/ruby_4_0
+  revision: f4e800582622512c292f3db09251a47a70939acd
+  branch: master
   specs:
     origen_testers (0.52.15)
       ast (~> 2)

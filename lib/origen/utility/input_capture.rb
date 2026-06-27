@@ -39,7 +39,14 @@ module Origen
         end
 
         while line != '.'
-          orig_line = Readline.readline('', false).chomp.rstrip
+          # readline was extracted from the stdlib in Ruby 4.0 and may not be
+          # installed. Fall back to plain $stdin input when it is unavailable so
+          # interactive prompts still work (e.g. `origen rc tag`).
+          orig_line = if defined?(Readline)
+                        Readline.readline('', false).to_s.chomp.rstrip
+                      else
+                        ($stdin.gets || "quit\n").chomp.rstrip
+                      end
           line = orig_line.strip
           if (line.empty? || line == '.') && text.empty? && options[:default]
             text = options[:default].to_s
