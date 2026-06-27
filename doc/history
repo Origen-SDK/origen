@@ -1,3 +1,22 @@
+<a class="anchor release_tag" name="v0_61_2"></a>
+<h1><a href="#v0_61_2">Tag: v0.61.2</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 27-Jun-2026 16:24PM
+
+
+Ruby 4.0 fix for `origen web --remote` documentation deployment
+
+Bumped the highline dependency from "~> 1.7" to "~> 2.0". highline 1.7 calls
+String#encode with a positional options Hash, which Ruby 4 no longer accepts, so
+the interactive commit-message prompt during `origen web compile --remote` crashed
+with "no implicit conversion of Hash into String". highline 2.x fixes this and
+still supports Ruby 2.6 (the 3.x line requires Ruby >= 3.0).
+
+This completes Ruby 4.0 support for the documentation deployment flow while keeping
+Ruby 2.6 behaviour unchanged. Verified on both Ruby 2.6 and 4.0.
+
 <a class="anchor release_tag" name="v0_61_1"></a>
 <h1><a href="#v0_61_1">Tag: v0.61.1</a></h1>
 
