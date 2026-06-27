@@ -53,7 +53,7 @@ PATH
       concurrent-ruby
       dentaku (~> 3)
       gems (~> 0.8)
-      highline (~> 1.7)
+      highline (~> 2.0)
       httparty (~> 0.13)
       irb (>= 1, < 1.8)
       kramdown (~> 2.4)
@@ -113,7 +113,7 @@ GEM
     domain_name (0.6.20240107)
     fiddle (1.1.8)
     gems (0.8.3)
-    highline (1.7.10)
+    highline (2.1.0)
     http-accept (1.7.0)
     http-cookie (1.1.6)
       domain_name (~> 0.5)
@@ -326,7 +326,7 @@ CHECKSUMS
   domain_name (0.6.20240107) sha256=5f693b2215708476517479bf2b3802e49068ad82167bcd2286f899536a17d933
   fiddle (1.1.8) sha256=7fa8ee3627271497f3add5503acdbc3f40b32f610fc1cf49634f083ef3f32eee
   gems (0.8.3) sha256=2bcf69bb8fb90dd1f926fb7d8f2d8c9857540e04385ac742999a05c74fe24a05
-  highline (1.7.10) sha256=1e147d5d20f1ad5b0e23357070d1e6d0904ae9f71c3c49e0234cf682ae3c2b06
+  highline (2.1.0) sha256=d63d7f472f8ffaa143725161ae6fb06895b5cb7527e0b4dac5ad1e4902c80cb9
   http-accept (1.7.0) sha256=c626860682bfbb3b46462f8c39cd470fd7b0584f61b3cc9df5b2e9eb9972a126
   http-cookie (1.1.6) sha256=ba4b82be64de61dc281243dac70e3c382c45142f20268ed9276a3670c93feaa9
   httparty (0.24.2) sha256=8fca6a54aa0c4aa4303a0fd33e5e2156175d6a5334f714263b458abd7fda9c38

@@ -56,8 +56,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "simplecov-html", "~>0.10" # Constraint to avoid Ruby 2.3 issues at Travis CI (2.3.8) check.
   spec.add_runtime_dependency "scrub_rb", "~>1.0"
   spec.add_runtime_dependency "gems", "~>0.8"
-  spec.add_runtime_dependency "highline", "~>1.7"
-  spec.add_runtime_dependency "abbrev", '~>0'    # abbrev extracted from default gems in Ruby 3.4+; required by highline 1.7
+  spec.add_runtime_dependency "highline", "~>2.0" # 1.7 calls String#encode with a positional options Hash, removed in Ruby 4; 2.x fixes it and still supports Ruby 2.6 (3.x requires Ruby >= 3.0)
+  spec.add_runtime_dependency "abbrev", '~>0'    # abbrev extracted from default gems in Ruby 3.4+; required by highline
   spec.add_runtime_dependency "webrick", '~>1.4' # webrick extracted from default gems in Ruby 3.0+; used by `origen web` server
   spec.add_runtime_dependency "dentaku", "~>3"
   spec.add_runtime_dependency "colorize", "~> 0.8.1"
