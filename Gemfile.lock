@@ -24,7 +24,7 @@ GIT
 
 GIT
   remote: https://github.com/Origen-SDK/origen_testers.git
-  revision: da7c8c8e334de2b1b1e335534fb1879bc3018326
+  revision: 7843a93c82cd600f326408ff47a4a127db6ee5ab
   branch: feature/ruby_4_0
   specs:
     origen_testers (0.52.15)
@@ -59,6 +59,7 @@ PATH
       logger (~> 1)
       nanoc (~> 3.7.0)
       net-ldap (~> 0.13)
+      net-smtp (~> 0)
       nokogiri (>= 1.11.0)
       pry (~> 0.10)
       rake (~> 10)
@@ -145,6 +146,10 @@ GEM
     net-ldap (0.20.0)
       base64
       ostruct
+    net-protocol (0.2.2)
+      timeout
+    net-smtp (0.5.1)
+      net-protocol
     netrc (0.11.0)
     nokogiri (1.19.4-aarch64-linux-gnu)
       racc (~> 1.4)
@@ -239,7 +244,7 @@ GEM
       parser (>= 3.3.7.2)
       prism (~> 1.7)
     ruby-progressbar (1.13.0)
-    rubyzip (3.4.0)
+    rubyzip (3.4.1)
     scrub_rb (1.0.1)
     sexpistol (0.1.2)
     simplecov (0.17.1)
@@ -252,6 +257,7 @@ GEM
       tins (~> 1)
     thor (1.5.0)
     thread_safe (0.3.6)
+    timeout (0.6.1)
     tins (1.54.0)
       bigdecimal
       mize (~> 0.6)
@@ -338,6 +344,8 @@ CHECKSUMS
   mutex_m (0.3.0) sha256=cfcb04ac16b69c4813777022fdceda24e9f798e48092a2b817eb4c0a782b0751
   nanoc (3.7.5) sha256=504309339c3e7711e6d75741b8bfa1ac1c6bcbd4a6accfc7beafbd5a45812602
   net-ldap (0.20.0) sha256=b2080b350753a9ac4930869ded8e61a1d2151c01e03b0bf07b4675cbd9ce5372
+  net-protocol (0.2.2) sha256=aa73e0cba6a125369de9837b8d8ef82a61849360eba0521900e2c3713aa162a8
+  net-smtp (0.5.1) sha256=ed96a0af63c524fceb4b29b0d352195c30d82dd916a42f03c62a3a70e5b70736
   netrc (0.11.0) sha256=de1ce33da8c99ab1d97871726cba75151113f117146becbe45aa85cb3dabee3f
   nokogiri (1.19.4-aarch64-linux-gnu) sha256=1269fb644a6de405057a53dd5c762b1209b43ca7424f839454d3dbc677c31a8f
   nokogiri (1.19.4-aarch64-linux-musl) sha256=35c65b9ce72b3bb03207bdbe7067915019dc18c1b9b59139684bd6690fdd01af
@@ -384,7 +392,7 @@ CHECKSUMS
   rubocop (1.88.0) sha256=e420ddf1662d0ef34bc8a2910ac4b396a7ddda0b51a708264405241734b08e0b
   rubocop-ast (1.49.1) sha256=4412f3ee70f6fe4546cc489548e0f6fcf76cafcfa80fa03af67098ffed755035
   ruby-progressbar (1.13.0) sha256=80fc9c47a9b640d6834e0dc7b3c94c9df37f08cb072b7761e4a71e22cff29b33
-  rubyzip (3.4.0) sha256=6de39bc9eba302b635a476d16c9e16b0872ad24517c2f98f2b3a7ea23caff57b
+  rubyzip (3.4.1) sha256=0a79e745b5c25872ebd148457df5665da8530ed8626c993b01457128f173ca02
   scrub_rb (1.0.1) sha256=7d346064704379f9e793f926680b01901e99e3898bcd24635427f081f8188f37
   sexpistol (0.1.2) sha256=9ed4782ce470964966e529b1275ef31e905c04fa6403136c480ad84bd7b062d9
   simplecov (0.17.1) sha256=bce55e0993375166c203006cc402f8115362045add83b154d305cc680d996584
@@ -393,6 +401,7 @@ CHECKSUMS
   term-ansicolor (1.11.3) sha256=8c01ec3abd095eb94dca8aed5a127d36e594239eb525eb306259c9e930534603
   thor (1.5.0) sha256=e3a9e55fe857e44859ce104a84675ab6e8cd59c650a49106a05f55f136425e73
   thread_safe (0.3.6) sha256=9ed7072821b51c57e8d6b7011a8e282e25aeea3a4065eab326e43f66f063b05a
+  timeout (0.6.1) sha256=78f57368a7e7bbadec56971f78a3f5ecbcfb59b7fcbb0a3ed6ddc08a5094accb
   tins (1.54.0) sha256=62e14ff2f8ace5eb52828f7262987a434f8411de3aac2aa27ef4680446557af9
   treetop (1.6.18) sha256=a3043f32f1c652aa2abdf3a3848edb2d2f69897257af2675516ac61355c183da
   tzinfo (1.2.11) sha256=6501f6a12175ca0243118b83f7c7c2b7978aaec7a0980550a124d007ad6361b6
