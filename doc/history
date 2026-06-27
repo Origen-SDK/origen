@@ -1,3 +1,24 @@
+<a class="anchor release_tag" name="v0_61_1"></a>
+<h1><a href="#v0_61_1">Tag: v0.61.1</a></h1>
+
+##### Branch: 'master'
+
+##### by Priyavadan Kumar on 27-Jun-2026 16:13PM
+
+
+Ruby 4.0 support (while remaining compatible with Ruby 2.6)
+
+Origen now boots, runs, releases and serves its documentation on Ruby 4.0 in
+addition to the existing Ruby 2.6 through 3.x support. The full regression suite
+passes across Ruby 2.6 through 4.0 with no changes to generated output.
+
+* Added support for Ruby 4.0 across the boot, release and `origen web` flows.
+* Declared the standard-library gems that Ruby 4 no longer bundles as explicit
+  dependencies so Origen installs and runs cleanly.
+* Updated the documentation preview server to work on every supported Ruby.
+* Fixed assorted Ruby 4.0 language and dependency incompatibilities while keeping
+  Ruby 2.6 behaviour unchanged.
+
 <a class="anchor release_tag" name="v0_61_0"></a>
 <h1><a href="#v0_61_0">Tag: v0.61.0</a></h1>
 
