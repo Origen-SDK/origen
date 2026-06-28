@@ -42,7 +42,7 @@ GIT
 PATH
   remote: .
   specs:
-    origen (0.61.3)
+    origen (0.61.4)
       abbrev (~> 0)
       activesupport (~> 4.1)
       base64 (~> 0)
@@ -361,7 +361,7 @@ CHECKSUMS
   nokogiri (1.19.4-x86_64-darwin) sha256=7fd17057d3e1f00e9954a74b3cd76595d3d4a5ef233b7ed9599047c204f70551
   nokogiri (1.19.4-x86_64-linux-gnu) sha256=379fae440b28915e3f19d752ce2dcf8465ed2b2fbefd2a7ca0dd497bc981a06a
   nokogiri (1.19.4-x86_64-linux-musl) sha256=17dfb7c1fa194ae02fbf7c51a7afc8d278045ab3fdacfd86f91d02d7b274470b
-  origen (0.61.3)
+  origen (0.61.4)
   origen_app_generators (2.2.1)
   origen_core_support (0.2.3)
   origen_debuggers (0.6.1) sha256=e950372f3939d3af1f7b4419e62ee535a033848d38585159f05187dd00f02935
