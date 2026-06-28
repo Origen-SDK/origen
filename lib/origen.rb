@@ -2,10 +2,12 @@
 # our original internal version (RGen)
 unless defined? RGen::ORIGENTRANSITION
   # ActiveSupport 4.2 wraps to_json via alias_method_chain, which causes infinite
-  # recursion on Ruby 4 with json gem 2.x (to_json_without_active_support_encoder
-  # ends up calling back into to_json_with_active_support_encoder). Intercept the
-  # alias for the :to_json target before ActiveSupport's json core_ext loads.
-  if RUBY_VERSION >= '4'
+  # recursion on Ruby 3.x and 4.x (to_json_without_active_support_encoder ends up
+  # calling back into to_json_with_active_support_encoder). The trigger is a Ruby 3.0+
+  # method-resolution change, NOT the json gem version (json 2.x ships on 2.6 too, yet
+  # 2.6 does not recurse). So the shim must apply to all of Ruby 3 and 4, not just 4.
+  # Intercept the alias for the :to_json target before ActiveSupport's json core_ext loads.
+  if RUBY_VERSION >= '3'
     require 'json'
     require 'active_support/core_ext/module/aliasing'
 
