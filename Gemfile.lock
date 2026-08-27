@@ -42,7 +42,7 @@ GIT
 PATH
   remote: .
   specs:
-    origen (0.64.0)
+    origen (0.64.1)
       abbrev (~> 0)
       activesupport (~> 4.1)
       base64 (~> 0)
